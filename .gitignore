@@ -1,0 +1,12 @@
+public/
+*.swp
+.Rproj.user
+.Rhistory
+.hugo_build.lock
+static/slides/prev/
+test/
+.DS_Store
+static/slides/data/cifar10/
+docs/slides/data/cifar10/
+bfg-*.jar
+*.bfg-report/

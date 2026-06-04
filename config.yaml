@@ -1,0 +1,74 @@
+baseurl: "/"
+title: "Statistical Programming"
+author: "Colin Rundel"
+copyright: "&copy; 2026. All rights reserved."
+ignoreFiles: ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+module:
+  mounts:
+    - source: static
+      target: static
+      files:
+        - "! slides/prev/**"
+publishDir: "docs"
+disableKinds:
+  - taxonomy
+  - term
+
+menu:
+  main:
+  - name: Syllabus
+    pre: <i class='fa fa-file-text-o fa-fw'></i>
+    weight: 2
+    identifier: syllabus
+    url: "#syllabus"
+  - name: Canvas
+    pre: <i class="fas fa-chalkboard-teacher"></i>
+    weight: 3
+    url: https://canvas.duke.edu/courses/73157
+  - name: Github
+    pre: <i class='fa fa-github fa-fw'></i>
+    weight: 6
+    url: https://github.com/sta523-fa26
+  - name: RStudio
+    pre: <i class='fab fa-r-project fa-fw'></i>
+    weight: 7
+    url: https://rstudio.stat.duke.edu
+
+params:
+  subtitle: "(Fall 2026)"
+  course: "Sta 523L"
+  highlightjs: androidstudio
+  highlightjs_extra_languages:
+    - yaml
+  dateFormat: '02 Jan 2006, 15:04'
+  sections:
+    - schedule
+    - syllabus
+    - textbooks
+    - about
+  contact:
+    - name: Dr. Colin Rundel
+      email: colin.rundel@duke.edu
+      hours:
+      - loc: 204 Old Chemistry / Zoom
+        day: TBD
+        time: ""
+  assignments:
+    - name: Homework
+      type: Team
+      value: 30%
+    - name: Midterms
+      value: 40%
+    - name: Project
+      value: 10%
+    - name: Quizzes
+      value: 20%
+  classroom:
+    lecture:
+      location: Old Chemistry 116
+      days: Mondays & Wednesdays
+      time: 10:05 - 11:20 am
+    labs:
+      - location: Old Chemistry 116
+        days: Fridays
+        time: 10:05 - 11:20 am

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:tidyverse.org)",
+      "Bash(ls -la /Users/rundel/Desktop/Sta323-Sp26/website/static/slides/Lec*.qmd)",
+      "Read(//Users/rundel/Desktop/Sta663-Sp26/website/static/slides/**)",
+      "Bash(ls -1 /Users/rundel/Desktop/Sta323-Sp26/website/static/slides/Lec*.qmd)",
+      "Read(//Users/rundel/Desktop/**)",
+      "Bash(ls /Users/rundel/Desktop/Sta663-Sp26/static/slides/*.qmd)",
+      "Bash(quarto render static/slides/Lec24.qmd)",
+      "WebFetch(domain:registrar.duke.edu)"
+    ],
+    "additionalDirectories": [
+      "/Users/rundel/Desktop/Sta663-Sp26/website/static/slides/imgs"
+    ]
+  }
+}

@@ -1,0 +1,363 @@
+startdate: "2026-08-23"
+dateFormat: 'Mon, Jan 2'
+schedule:
+
+- week: 1
+  day: 1
+  topic: "Fundamentals"
+  lecture: "Welcome & Types"
+  slides: ""
+  r_readings:
+    - text: "Tidyverse style guide"
+      link: https://style.tidyverse.org/
+    - text: "Adv-R - Data Structures"
+      link: http://adv-r.had.co.nz/Data-structures.html
+  py_readings:
+    - text: "Python Built-in Types"
+      link: https://docs.python.org/3/library/stdtypes.html
+    - text: "An Informal Introduction to Python"
+      link: https://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator
+
+- week: 1
+  day: 3
+  topic: "Fundamentals"
+  lecture: "Flow control"
+  slides: ""
+  r_readings: []
+  py_readings:
+    - text: "Control flow"
+      link: https://docs.python.org/3/tutorial/controlflow.html
+    - text: "Errors and Exceptions"
+      link: https://docs.python.org/3/tutorial/errors.html
+
+
+- week: 2
+  day: 1
+  topic: "Fundamentals"
+  lecture: "Subsetting & Vectorization"
+  slides: ""
+  r_readings:
+    - text: "Adv R - Subsetting"
+      link: http://adv-r.had.co.nz/Subsetting.html
+  py_readings:
+    - text: "List Comprehensions"
+      link: https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+    - text: "NumPy quickstart"
+      link: https://numpy.org/doc/stable/user/quickstart.html
+    - text: "NumPy - Advanced indexing"
+      link: https://numpy.org/doc/stable/user/basics.indexing.html#advanced-indexing
+    - text: "NumPy - Broadcasting"
+      link: https://numpy.org/doc/stable/user/basics.broadcasting.html
+
+- week: 2
+  day: 3
+  topic: "Fundamentals"
+  lecture: "Data Structures"
+  slides: ""
+  r_readings:
+    - text: "Adv R - OO Field Guide - S3"
+      link: http://adv-r.had.co.nz/OO-essentials.html#s3
+  py_readings:
+    - text: "Lists, Sets and Dicts"
+      link: https://docs.python.org/3/tutorial/datastructures.html
+    - text: "Time complexity"
+      link: https://wiki.python.org/moin/TimeComplexity
+    - text: "Python Internals"
+      link: https://github.com/zpoint/CPython-Internals
+
+
+- week: 3
+  day: 1
+  topic: "Fundamentals"
+  lecture: "<i>No class - Labor Day</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 3
+  day: 3
+  topic: "Fundamentals"
+  lecture: "Packages & venvs"
+  slides: ""
+  r_readings:
+    - text: "R Packages"
+      link: https://r-pkgs.org/
+  py_readings:
+    - text: "uv documentation"
+      link: https://docs.astral.sh/uv/
+
+
+- week: 4
+  day: 1
+  topic: "Tidy Data"
+  lecture: "Data Frames"
+  slides: ""
+  r_readings:
+    - text: "Tidy Data"
+      link: https://vita.had.co.nz/papers/tidy-data.pdf
+    - text: "R4DS - Data transformation"
+      link: https://r4ds.hadley.nz/data-transform.html
+    - text: "R4DS - Data tidying"
+      link: https://r4ds.hadley.nz/data-tidy.html
+    - text: "tidyr pivoting"
+      link: https://tidyr.tidyverse.org/articles/pivot.html
+  py_readings:
+    - text: "Python for Data Analysis - pandas basics"
+      link: https://wesmckinney.com/book/pandas-basics.html
+
+- week: 4
+  day: 3
+  topic: "Tidy Data"
+  lecture: "Data Frames (2)"
+  slides: ""
+  r_readings: []
+  py_readings:
+    - text: "Polars user guide"
+      link: https://docs.pola.rs/
+    - text: "Polars - Coming from Pandas"
+      link: https://docs.pola.rs/user-guide/migration/pandas/
+
+
+- week: 5
+  day: 1
+  topic: "Tidy Data"
+  lecture: "Functional Programming"
+  slides: ""
+  r_readings:
+    - text: "Purrr tutorial"
+      link: https://jennybc.github.io/purrr-tutorial/index.html
+    - text: "tidyr rectangling"
+      link: https://tidyr.tidyverse.org/articles/rectangle.html
+    - text: "R4DS - Iteration"
+      link: http://r4ds.had.co.nz/iteration.html
+    - text: "purrr cheatsheet"
+      link: https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf
+  py_readings: []
+
+- week: 5
+  day: 3
+  topic: "Tidy Data"
+  lecture: "Visualization"
+  slides: ""
+  r_readings:
+    - text: "R4DS - Visualization"
+      link: http://r4ds.had.co.nz/data-visualisation.html
+    - text: "Data Visualization: A Practical Introduction"
+      link: https://socviz.co/
+    - text: "Fundamentals of Data Visualization"
+      link: https://clauswilke.com/dataviz/
+  py_readings:
+    - text: "matplotlib tutorials"
+      link: https://matplotlib.org/stable/tutorials/index
+    - text: "seaborn user guide"
+      link: https://seaborn.pydata.org/tutorial.html
+    - text: "plotnine"
+      link: https://plotnine.readthedocs.io/en/stable/
+
+
+- week: 6
+  day: 1
+  topic: "Web Scraping"
+  lecture: "Text data"
+  slides: ""
+  r_readings:
+    - text: "stringr Cheat Sheet"
+      link: https://github.com/rstudio/cheatsheets/blob/master/strings.pdf
+    - text: "stringr vignette"
+      link: https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html
+    - text: "R4DS - Strings"
+      link: https://r4ds.had.co.nz/strings.html
+  py_readings:
+    - text: "string — Common string operations"
+      link: https://docs.python.org/3/library/string.html
+    - text: "re — Regular expression operations"
+      link: https://docs.python.org/3/library/re.html
+
+- week: 6
+  day: 3
+  topic: "Web Scraping"
+  lecture: "Scraping"
+  slides: ""
+  r_readings:
+    - text: "rvest - selector gadget vignette"
+      link: https://rvest.tidyverse.org/articles/articles/selectorgadget.html
+  py_readings:
+    - text: "BeautifulSoup"
+      link: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
+
+
+- week: 7
+  day: 1
+  topic: "Web Scraping"
+  lecture: "http"
+  slides: ""
+  r_readings:
+    - text: "httr2"
+      link: https://httr2.r-lib.org/
+  py_readings:
+    - text: "Requests"
+      link: https://requests.readthedocs.io/en/latest/
+
+- week: 7
+  day: 3
+  topic: "Web Scraping"
+  lecture: "APIs"
+  slides: ""
+  r_readings:
+    - text: "plumber2"
+      link: https://plumber2.posit.co/
+    - text: "GitHub API Docs"
+      link: https://docs.github.com/en/rest?apiVersion=2022-11-28
+  py_readings:
+    - text: "FastAPI"
+      link: https://fastapi.tiangolo.com/
+
+
+- week: 8
+  day: 1
+  topic: ""
+  lecture: "<i>No class - Fall Break</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 8
+  day: 1
+  topic: "Midterm 1"
+  lecture: ""
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 9
+  day: 3
+  topic: "Databases"
+  lecture: "SQL"
+  slides: ""
+  r_readings:
+    - text: "SQL Translation"
+      link: https://cran.r-project.org/web/packages/dbplyr/vignettes/sql-translation.html
+    - text: "dbplyr Vignette"
+      link: https://cran.r-project.org/web/packages/dbplyr/vignettes/dbplyr.html
+  py_readings:
+    - text: "Python Database API Specification"
+      link: https://peps.python.org/pep-0249/
+    - text: "Python sqlite3 — DB-API"
+      link: https://docs.python.org/3/library/sqlite3.html
+
+- week: 9
+  day: 3
+  topic: "Databases"
+  lecture: "SQL (2)"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 10
+  day: 1
+  topic: "Databases"
+  lecture: "DuckDB"
+  slides: ""
+  r_readings:
+    - text: "DuckDB SQL Reference"
+      link: https://duckdb.org/docs/sql/introduction
+    - text: "Modern SQL Style Guide"
+      link: https://gist.github.com/mattmc3/38a85e6a4ca1093816c08d4815fbebfb
+    - text: "Data Wrangling [for Python or R] Like a Boss With DuckDB"
+      link: https://www.youtube.com/watch?v=GELhdezYmP0
+  py_readings: []
+
+- week: 10
+  day: 3
+  topic: "Databases"
+  lecture: "DuckDB (2)"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 11
+  day: 1
+  topic: "Shiny"
+  lecture: "Shiny for R"
+  slides: ""
+  r_readings:
+    - text: "Shiny Docs & Gallery"
+      link: http://shiny.rstudio.com/
+    - text: "Widget Gallery"
+      link: http://shiny.rstudio.com/gallery/widget-gallery.html
+    - text: "Mastering Shiny"
+      link: https://mastering-shiny.org/
+    - text: "posit::conf 2025 - shiny workshop"
+      link: https://posit-conf-2025.github.io/shiny-r/
+  py_readings: []
+
+- week: 11
+  day: 3
+  topic: "Shiny"
+  lecture: "Shiny for Python"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 12
+  day: 1
+  topic: "Shiny"
+  lecture: "Dynamic UIs"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 12
+  day: 3
+  topic: "Shiny"
+  lecture: "Modules"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 13
+  day: 1
+  topic: ""
+  lecture: "<i>TBD</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 13
+  day: 3
+  topic: ""
+  lecture: "<i>TBD</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 14
+  day: 1
+  topic: ""
+  lecture: "<i>TBD</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 14
+  day: 3
+  topic: ""
+  lecture: "<i>No class - Thanksgiving recess</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 14
+  day: 5
+  lab: true
+  topic: ""
+  lecture: "<i>No lab - Thanksgiving recess</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []

@@ -1,0 +1,13 @@
+{
+    "cSpell.words": [
+        "Hadley's"
+    ],
+    "quarto.cells.useReticulate": false,
+    "positron.reticulate.enabled": true,
+    "files.exclude": {
+        "docs/**": true
+    },
+    "files.readonlyExclude": {
+        "docs/**": true
+    }
+}
