@@ -21,7 +21,7 @@ schedule:
 - week: 1
   day: 3
   topic: "Fundamentals"
-  lecture: "Flow control"
+  lecture: "Control Flow"
   slides: ""
   r_readings: []
   py_readings:
