@@ -6,7 +6,7 @@ schedule:
   day: 1
   topic: "Fundamentals"
   lecture: "Welcome & Types"
-  slides: ""
+  slides: "Lec01"
   r_readings:
     - text: "Tidyverse style guide"
       link: https://style.tidyverse.org/
@@ -222,8 +222,8 @@ schedule:
   py_readings: []
 
 - week: 8
-  day: 1
-  topic: "Midterm 1"
+  day: 3
+  topic: "Midterm 1 - In class"
   lecture: ""
   slides: ""
   r_readings: []
@@ -358,6 +358,15 @@ schedule:
   lab: true
   topic: ""
   lecture: "<i>No lab - Thanksgiving recess</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+
+- week: 16
+  day: 3
+  topic: "Midterm 2 - In class<br/>(9am - 12pm)"
+  lecture: ""
   slides: ""
   r_readings: []
   py_readings: []
