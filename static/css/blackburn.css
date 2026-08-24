@@ -37,6 +37,11 @@ section h4 {
   margin: 1.5em 0em 0em 0em;
 }
 
+section h5 {
+  margin: 1.5em 0em 0em 0em;
+  font-size: 1em;
+}
+
 .active {
   color: #262626;
 }

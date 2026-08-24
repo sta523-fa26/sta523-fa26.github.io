@@ -146,6 +146,17 @@ You must sit the in class exam in order to receive points for the take home - in
 - The same applies to the use of LLMs like ChatGPT, Claude, Gemini, or GitHub Copilot - you are welcome to make use of these tools as the basis for your solutions but you must cite the tool when using it for *significant* code generation.
 
 
+## What happens if you violate the academic honesty policy?
+
+Any violation of the academic honesty standards outlined in the [Duke Community Standard](https://dukecommunitystandard.students.duke.edu/), the Graduate School's [Standards of Conduct](https://gradschool.duke.edu/policies-forms/standards-conduct/), or those specific to this course:
+
+- will automatically result in a 0 for the relevant portion or the entirety of the assignment or assessment,
+
+- can result in further deductions to your overall course grade (e.g. dropping down to the next letter grade or to an F), and
+
+- can be reported to the Graduate School and the Office of Student Conduct & Community Standards for further action.
+
+
 ## Brief thoughts on AI tools
 
 - AI tools are not a replacement for understanding the material, but they can help you learn it.
