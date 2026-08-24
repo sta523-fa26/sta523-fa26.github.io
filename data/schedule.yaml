@@ -5,8 +5,20 @@ schedule:
 - week: 1
   day: 1
   topic: "Fundamentals"
-  lecture: "Welcome & Types"
+  lecture: "Welcome & System Basics"
   slides: "Lec01"
+  r_readings:
+    - text: "R Packages"
+      link: https://r-pkgs.org/
+  py_readings:
+    - text: "uv documentation"
+      link: https://docs.astral.sh/uv/
+
+- week: 1
+  day: 3
+  topic: "Fundamentals"
+  lecture: "Types"
+  slides: ""
   r_readings:
     - text: "Tidyverse style guide"
       link: https://style.tidyverse.org/
@@ -18,8 +30,9 @@ schedule:
     - text: "An Informal Introduction to Python"
       link: https://docs.python.org/3/tutorial/introduction.html#using-python-as-a-calculator
 
-- week: 1
-  day: 3
+
+- week: 2
+  day: 1
   topic: "Fundamentals"
   lecture: "Control Flow"
   slides: ""
@@ -30,9 +43,8 @@ schedule:
     - text: "Errors and Exceptions"
       link: https://docs.python.org/3/tutorial/errors.html
 
-
 - week: 2
-  day: 1
+  day: 3
   topic: "Fundamentals"
   lecture: "Subsetting & Vectorization"
   slides: ""
@@ -49,7 +61,16 @@ schedule:
     - text: "NumPy - Broadcasting"
       link: https://numpy.org/doc/stable/user/basics.broadcasting.html
 
-- week: 2
+
+- week: 3
+  day: 1
+  topic: "Fundamentals"
+  lecture: "<i>No class - Labor Day</i>"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
+- week: 3
   day: 3
   topic: "Fundamentals"
   lecture: "Data Structures"
@@ -64,27 +85,6 @@ schedule:
       link: https://wiki.python.org/moin/TimeComplexity
     - text: "Python Internals"
       link: https://github.com/zpoint/CPython-Internals
-
-
-- week: 3
-  day: 1
-  topic: "Fundamentals"
-  lecture: "<i>No class - Labor Day</i>"
-  slides: ""
-  r_readings: []
-  py_readings: []
-
-- week: 3
-  day: 3
-  topic: "Fundamentals"
-  lecture: "Packages & venvs"
-  slides: ""
-  r_readings:
-    - text: "R Packages"
-      link: https://r-pkgs.org/
-  py_readings:
-    - text: "uv documentation"
-      link: https://docs.astral.sh/uv/
 
 
 - week: 4
@@ -231,7 +231,7 @@ schedule:
 
 
 - week: 9
-  day: 3
+  day: 1
   topic: "Databases"
   lecture: "SQL"
   slides: ""

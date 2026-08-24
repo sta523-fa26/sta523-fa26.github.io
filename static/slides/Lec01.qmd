@@ -31,11 +31,11 @@ options(
 ## Course Team
 
 ### Instructor
-* Dr. Colin Rundel 
-    - [colin.rundel@duke.edu](mailto:colin.rundel@duke.edu) / 
+* Dr. Colin Rundel
+    - [colin.rundel@duke.edu](mailto:colin.rundel@duke.edu) /
       [cr173@duke.edu](mailto:cr173@duke.edu) /
-      [rundel@gmail.com ](mailto:rundel@gmail.com)
-    - Office hours: 204 Old Chem or Zoom 
+      [rundel@gmail.com](mailto:rundel@gmail.com)
+    - Office hours: 204 Old Chem or Zoom
       - Time TBD or by appointment
 
 <br/>
@@ -62,7 +62,7 @@ options(
 
 ## Labs
 
-- Attendance is expected - must attend lab you are enrolled in
+- Attendance is expected - you must attend the lab you are enrolled in
 
 - Opportunity to work on course assignments with TA support
 
@@ -78,9 +78,9 @@ We will be assessing you based on the following:
 ::: {.medium}
 |Assignment|Type      |Value  | n      |Assigned             |
 |:---------|:---------|:------|:------:|:--------------------|
-|Homeworks |Team      |35%    | 5/6    | ~ Every other week  |
+|Homeworks |Team      |35%    | 5-6    | ~ Every other week  |
 |Midterms  |Individual|50%    | 2      | ~ Week 8 and 16     |
-|Quizzes   |Individual|15%    | ~10-15 | ~ Weekly            | 
+|Quizzes   |Individual|15%    | ~10-15 | ~ Weekly            |
 :::
 
 
@@ -101,26 +101,26 @@ We will be assessing you based on the following:
     + Everyone is expected to understand *all* code turned in
     + Individual contribution evaluated by multiple metrics (peer evaluation, commits, etc.)
 
-* Teams should not directly share answers / code with other teams, however you are welcome to discuss the problems in general and ask for advice.
+* Teams should not directly share answers / code with other teams; however, you are welcome to discuss the problems in general and ask for advice.
 
 ## Midterms
 
 Each exam will have two components:
 
 1. Individual take home
-  
-   * Similar in scope to homework. 
-  
+
+   * Similar in scope to homework
+
    * ~1 week to complete
 
 2. In class written exam (based on take home):
 
-   * Read & evaluate code 
+   * Read & evaluate code
 
    * Describe pseudo-code solutions
 
 
-You must sit 2. in order to receive points for 1. - in the event of a *documented* emergency 2. will be replaced by an in person oral exam (must be scheduled within one week of the original exam date).
+You must sit the in class exam in order to receive points for the take home - in the event of a *documented* emergency the in class exam will be replaced by an in person oral exam (which must be scheduled within one week of the original exam date).
 
 You must attempt *both* midterms in order to pass the course.
 
@@ -143,7 +143,7 @@ You must attempt *both* midterms in order to pass the course.
 
 - We are aware that a huge volume of code is available on the web, and many tasks may have solutions posted.
 
-- Unless explicitly stated otherwise, this course's policy is that you may make use of any online resources (e.g. Google, StackOverflow, etc.) but you must explicitly cite where you obtained any code you directly use or use as inspiration in your solution(s). 
+- Unless explicitly stated otherwise, this course's policy is that you may make use of any online resources (e.g. Google, StackOverflow) but you must explicitly cite where you obtained any code you directly use or use as inspiration in your solution(s).
 
 - Any recycled/copied code that is not explicitly cited will be treated as plagiarism, regardless of source.
 
@@ -152,11 +152,11 @@ You must attempt *both* midterms in order to pass the course.
 
 ## Brief thoughts on AI tools
 
-- AI tools are not a replacement for understanding the material, but they can be a tool to help you understand the material.
+- AI tools are not a replacement for understanding the material, but they can help you learn it.
 
 - Reading code and writing code are skills that take time and practice to develop - both are essential.
 
-- Nature of the tools is changing rapidly - Autocomplete vs ChatBots vs Agentic
+- The nature of these tools is changing rapidly - autocomplete vs chatbots vs agentic tools
 
 
 ## Centaurs vs Reverse Centaurs
@@ -178,18 +178,18 @@ To reduce friction, the preferred method is to use the department's RStudio serv
 To access RStudio/Posit Workbench:
 
 1.  Navigate to <https://rstudio.stat.duke.edu>
-2.  Log-in with your Duke NetID and password.
+2.  Log in with your Duke NetID and password.
 
 ::: aside
 If off campus, use the VPN to create a secure connection from your computer to Duke. If you are on campus, be sure you are connected to the DukeBlue network.
 :::
 
 
-## DSS Server alternatives
+## Troubleshooting DSS server access
 
 If you cannot access RStudio via the DSS servers:
 
-- Make sure you are on authenticated Duke network (e.g. DukeBlue or VPN)
+- Make sure you are on an authenticated Duke network (e.g. DukeBlue or VPN)
 
 - Make sure you are not using a custom DNS server
 
@@ -208,7 +208,7 @@ If working locally you should make sure that your environment meets the followin
 
 * working git installation
 
-* ability to create ssh keys (for GitHub authentication)
+* ability to create SSH keys (for GitHub authentication)
 
 . . .
 
@@ -224,7 +224,7 @@ Support policy for local installs - we will try to help you troubleshoot if we c
 
 - All of your work and your membership (enrollment) in the organization is private
 
-- We will be distributing a survey this weekend to collect your GitHub account names 
+- We will be distributing a survey this week to collect your GitHub account names
 
     - Before lab you will be invited to the course organization.
 
@@ -239,10 +239,10 @@ Support policy for local installs - we will try to help you troubleshoot if we c
 
 * Create a GitHub account if you don't have one
 
-* Make sure you can login in to the Department's Workbench server
+* Make sure you can log in to the Department's Workbench server
   <https://rstudio.stat.duke.edu>
 
-* Setup ssh key authentication with GitHub, see <https://github.com/DukeStatSci/github_auth_guide>
+* Set up SSH key authentication with GitHub, see <https://github.com/DukeStatSci/github_auth_guide>
 
 
 # R packages
@@ -303,7 +303,7 @@ When loading a package, R searches the locations in `.libPaths()` in order and u
 
 ## Installing packages
 
-Generally packages come from somewhere on the internet, most commonly from CRAN or GitHub, the methods for installing from these locations are slightly different.
+Generally packages come from somewhere on the internet, most commonly from CRAN or GitHub; the methods for installing from these locations are slightly different.
 
 #### CRAN:
 
@@ -349,7 +349,7 @@ The Comprehensive R Archive Network is the central repository of R packages.
 
 ## Search path
 
-To load a package we use `library(pkg)` which attachs the package's namespace (functions, data, etc.) to the global search path.
+To load a package we use `library(pkg)` which attaches the package's namespace (functions, data, etc.) to the global search path.
 
 ::: {.xsmall}
 ```{r}
@@ -391,7 +391,7 @@ This is particularly useful when you only need one or two functions from a packa
 
 ## Updating packages
 
-Packages are updated regularly, to see which of your installed packages have newer versions available and to install them:
+Packages are updated regularly; to see which of your installed packages have newer versions available and to install them:
 
 ::: {.xsmall}
 ```{r}
@@ -470,10 +470,10 @@ Key features:
 
 ## Installing uv
 
-uv is already installed on the departmental servers, for local installs:
+uv is already installed on the departmental servers; for local installs:
 
 
-On MacOS/Linux:
+On macOS/Linux:
 
 ::: {.small}
 ```bash
@@ -481,7 +481,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 :::
 
-or with homebrew:
+or with Homebrew:
 
 ::: {.small}
 ```bash
@@ -489,7 +489,7 @@ brew install uv
 ```
 :::
 
-or with pip / pipx
+or with pip / pipx:
 
 ::: {.small}
 ```bash
@@ -523,16 +523,12 @@ uv can install and manage multiple Python versions,
 ```bash
 uv python list
 ```
-```
-cpython-3.15.0rc1-macos-aarch64-none    <download available>
-cpython-3.14.7-macos-aarch64-none       /opt/homebrew/bin/python3.14
-cpython-3.14.2-macos-aarch64-none       ~/.local/share/uv/python/...
-cpython-3.13.15-macos-aarch64-none      <download available>
-cpython-3.12.14-macos-aarch64-none      /opt/homebrew/bin/python3.12
-cpython-3.11.16-macos-aarch64-none      <download available>
-cpython-3.10.21-macos-aarch64-none      <download available>
-cpython-3.9.6-macos-aarch64-none        /usr/bin/python3
-...
+```{bash}
+#| echo: false
+uv python list | grep -v freethreaded | sed -e 's/ -> .*//' -e "s|$HOME|~|" \
+  | awk '!seen[$1]++ {p=$2; for(i=3;i<=NF;i++) p=p" "$i; if (length(p)>36) p=substr(p,1,33)"..."; printf "%-40s %s\n", $1, p}' \
+  | head -n 8
+echo "..."
 ```
 :::
 ::: {.column}
@@ -560,50 +556,42 @@ mkdir my-project
 cd my-project
 uv init
 ```
-```
-Initialized project `my-project`
+```{bash}
+#| echo: false
+cd "${TMPDIR:-/tmp}" && rm -rf uv-demo && mkdir -p uv-demo && cd uv-demo
+mkdir my-project && cd my-project
+uv init 2>&1
 ```
 ```bash
-ls
+ls -la
 ```
-```
-total 32
-drwxr-xr-x@   8 rundel  staff   256 Jan 21 13:22 .
-drwxr-xr-x@ 135 rundel  staff  4320 Jan 21 13:23 ..
-drwxr-xr-x@   9 rundel  staff   288 Jan 21 13:22 .git
--rw-r--r--@   1 rundel  staff   109 Jan 21 13:22 .gitignore
--rw-r--r--@   1 rundel  staff     5 Jan 21 13:22 .python-version
--rw-r--r--@   1 rundel  staff    82 Jan 21 13:22 main.py
--rw-r--r--@   1 rundel  staff   150 Jan 21 13:22 pyproject.toml
--rw-r--r--@   1 rundel  staff     0 Jan 21 13:22 README.md
+```{bash}
+#| echo: false
+cd "${TMPDIR:-/tmp}/uv-demo/my-project" && ls -la
 ```
 :::
 
 . . .
 
-This creates a `pyproject.toml`, a sample `main.py` script, and basic git infrastructure. Generally, we only really care about the `pyproject.toml` which we can exclusively generate via `uv init --bare`.
+This creates a `pyproject.toml`, a minimal package skeleton in `src/` (with a `main()` entry point), a `README.md`, and basic git infrastructure. Generally, we only really care about the `pyproject.toml`, which we can generate on its own via `uv init --bare`.
 
 
 ## `pyproject.toml`
 
-Modern project metadata file, tracks python version and package dependencies among other details.
+Modern project metadata file, tracks the Python version and package dependencies among other details.
 
 ::: {.small}
-```toml
-[project]
-name = "my-project"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-requires-python = ">=3.14"
-dependencies = []
+```{bash}
+#| echo: false
+#| class-output: toml
+cd "${TMPDIR:-/tmp}/uv-demo/my-project" && cat pyproject.toml
 ```
 :::
 
 
 ## Adding dependencies {.scrollable}
 
-Once we have our project setup we can add (and install) dependencies directly via uv. `uv add` updates `pyproject.toml` and installs the package (creating a venv if needed).
+Once we have our project set up, we can add (and install) dependencies directly via uv. `uv add` updates `pyproject.toml` and installs the package (creating a venv if needed).
 
 ::: {.columns .xsmall}
 ::: {.column}
@@ -678,6 +666,9 @@ name = "my-project"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
+authors = [
+    { name = "Colin Rundel", email = "rundel@gmail.com" }
+]
 requires-python = ">=3.14"
 dependencies = [
     "matplotlib>=3.10.8",
@@ -687,11 +678,18 @@ dependencies = [
     "scikit-learn>=1.8.0",
 ]
 
+[project.scripts]
+my-project = "my_project:main"
+
 [dependency-groups]
 dev = [
     "pytest>=9.0.2",
     "ruff>=0.14.13",
 ]
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
 ```
 :::
 
@@ -714,7 +712,7 @@ uv venv .venv2         # Or specify directory name
 
 ## Activating environments
 
-To use the virtual environment certain environmental variables need to be set correctly (e.g. `PATH`, `PYTHONPATH`, etc.) so that the correct Python binary and libraries are used.
+To use the virtual environment certain environment variables need to be set correctly (e.g. `PATH`, `PYTHONPATH`, etc.) so that the correct Python binary and libraries are used.
 
 From the command line / terminal you can run the following in your project directory:
 
@@ -739,7 +737,7 @@ uv run quarto render test.qmd
 
 ## `uv sync`
 
-Since the `.venv` folder is system specific (and large) it is not typically committed to git. Instead you will likely clone a repository that just has a `pyproject.toml` file.
+Since the `.venv` folder is system-specific (and large) it is not typically committed to git. Instead you will likely clone a repository that just has a `pyproject.toml` file.
 
 Use `uv sync` to construct the venv and install all dependencies for the project
 
