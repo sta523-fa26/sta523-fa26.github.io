@@ -60,15 +60,6 @@ options(
   - Gradescope
 
 
-## Labs
-
-- Attendance is expected - you must attend the lab you are enrolled in
-
-- Opportunity to work on course assignments with TA support
-
-- Labs will begin this week - Friday (8/28)
-
-
 ## Assessment
 
 We will be assessing you based on the following:
@@ -94,14 +85,19 @@ We will be assessing you based on the following:
 
 * Peer evaluation after completion
 
-* Late work: -10% same day, -20% next day, no credit after that
-
 * Expectations and roles:
     + Everyone is expected to contribute equal *effort*
     + Everyone is expected to understand *all* code turned in
     + Individual contribution evaluated by multiple metrics (peer evaluation, commits, etc.)
 
-* Teams should not directly share answers / code with other teams; however, you are welcome to discuss the problems in general and ask for advice.
+## Labs
+
+- Attendance is expected - you must attend the lab you are enrolled in
+
+- Opportunity to work on course assignments with TA support
+
+- Labs will begin this week - Friday (8/28)
+
 
 ## Midterms
 
@@ -120,10 +116,7 @@ Each exam will have two components:
    * Describe pseudo-code solutions
 
 
-You must sit the in class exam in order to receive points for the take home - in the event of a *documented* emergency the in class exam will be replaced by an in person oral exam (which must be scheduled within one week of the original exam date).
-
-You must attempt *both* midterms in order to pass the course.
-
+You must sit the in class exam in order to receive points for the take home - in the event of a *documented* emergency the exam will be replaced by an in person oral exam (which must be scheduled within one week of the original exam date).
 
 
 ## Quizzes
@@ -139,11 +132,14 @@ You must attempt *both* midterms in order to pass the course.
 * No excused absences for quizzes (covered by above)
 
 
+
 ## Sharing / reusing code / AI policy
 
 - We are aware that a huge volume of code is available on the web, and many tasks may have solutions posted.
 
 - Unless explicitly stated otherwise, this course's policy is that you may make use of any online resources (e.g. Google, StackOverflow) but you must explicitly cite where you obtained any code you directly use or use as inspiration in your solution(s).
+
+- Teams should not directly share answers / code with other teams; however, you are welcome to discuss the problems in general and ask for advice.
 
 - Any recycled/copied code that is not explicitly cited will be treated as plagiarism, regardless of source.
 
@@ -196,13 +192,13 @@ If you cannot access RStudio via the DSS servers:
     - e.g. `1.1.1.1` or `8.8.8.8`
 
 
-## Local R + Positron
+## Local R + Python + Positron
 
 If working locally you should make sure that your environment meets the following requirements:
 
 * latest R (4.6)
 
-* latest Python (3.14)  + uv (0.12)
+* latest Python (3.14) + uv (0.12)
 
 * latest Positron (2026.08.1)
 
@@ -273,9 +269,9 @@ dir(.libPaths())
 `.libPaths()` will usually report (at least) two library locations:
 
 ::: {.small}
-* *System library* - part of the R installation itself, contains the base and recommended packages (e.g. `stats`, `utils`, `MASS`, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.
+* *System library* - contains the base and recommended packages (e.g. `stats`, `utils`, `MASS`, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.
 
-* *User library* - belongs to you and is where packages you install yourself will end up. The path is specific to both your user account and the minor version of R (e.g. `4.6`), so upgrading R means reinstalling your packages.
+* *User library* - belongs to you and is where packages you install will end up. The path is specific to both your user account and the minor version of R (e.g. `4.6`)
 :::
 
 . . .
@@ -389,22 +385,6 @@ dplyr::lag(1:3)
 This is particularly useful when you only need one or two functions from a package or want to be explicit about where a function comes from.
 
 
-## Updating packages
-
-Packages are updated regularly; to see which of your installed packages have newer versions available and to install them:
-
-::: {.xsmall}
-```{r}
-#| eval: False
-old.packages()
-update.packages(ask = FALSE)
-```
-:::
-
-. . .
-
-Both RStudio and Positron also provide a Packages pane that can be used to install, update, and load packages interactively.
-
 
 ## pak
 
@@ -437,7 +417,7 @@ pak plays a similar role for R as uv does for Python (up next), minus the enviro
 :::
 
 
-# Package Management <br/>with uv
+# Python package management <br/>with uv
 
 ## Python packaging landscape
 
@@ -525,9 +505,7 @@ uv python list
 ```
 ```{bash}
 #| echo: false
-uv python list | grep -v freethreaded | sed -e 's/ -> .*//' -e "s|$HOME|~|" \
-  | awk '!seen[$1]++ {p=$2; for(i=3;i<=NF;i++) p=p" "$i; if (length(p)>36) p=substr(p,1,33)"..."; printf "%-40s %s\n", $1, p}' \
-  | head -n 8
+uv python list | head -n 8 | cut -c 1-75
 echo "..."
 ```
 :::
@@ -556,18 +534,22 @@ mkdir my-project
 cd my-project
 uv init
 ```
-```{bash}
-#| echo: false
-cd "${TMPDIR:-/tmp}" && rm -rf uv-demo && mkdir -p uv-demo && cd uv-demo
-mkdir my-project && cd my-project
-uv init 2>&1
+```
+Initialized project `my-project`
 ```
 ```bash
 ls -la
 ```
-```{bash}
-#| echo: false
-cd "${TMPDIR:-/tmp}/uv-demo/my-project" && ls -la
+```
+total 24
+drwxr-xr-x@ 8 rundel  wheel  256 Aug 23 22:47 .
+drwx------@ 3 rundel  wheel   96 Aug 23 22:47 ..
+drwxr-xr-x@ 9 rundel  wheel  288 Aug 23 22:47 .git
+-rw-r--r--@ 1 rundel  wheel  109 Aug 23 22:47 .gitignore
+-rw-r--r--@ 1 rundel  wheel    5 Aug 23 22:47 .python-version
+-rw-r--r--@ 1 rundel  wheel    0 Aug 23 22:47 README.md
+-rw-r--r--@ 1 rundel  wheel  361 Aug 23 22:47 pyproject.toml
+drwxr-xr-x@ 3 rundel  wheel   96 Aug 23 22:47 src
 ```
 :::
 
@@ -581,10 +563,24 @@ This creates a `pyproject.toml`, a minimal package skeleton in `src/` (with a `m
 Modern project metadata file, tracks the Python version and package dependencies among other details.
 
 ::: {.small}
-```{bash}
-#| echo: false
-#| class-output: toml
-cd "${TMPDIR:-/tmp}/uv-demo/my-project" && cat pyproject.toml
+```toml
+[project]
+name = "my-project"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Colin Rundel", email = "rundel@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+my-project = "my_project:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
 ```
 :::
 
