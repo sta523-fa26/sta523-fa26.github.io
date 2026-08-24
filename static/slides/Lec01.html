@@ -1740,33 +1740,33 @@ Dr. Colin Rundel
 <section id="system-vs-user-libraries" class="slide level2">
 <h2>System vs user libraries</h2>
 <p><code>.libPaths()</code> will usually report (at least) two library locations:</p>
-<div class="small">
 <ul>
-<li><p><em>System library</em> - contains the base and recommended packages (e.g. <code>stats</code>, <code>utils</code>, <code>MASS</code>, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.</p></li>
-<li><p><em>User library</em> - belongs to you and is where packages you install will end up. The path is specific to both your user account and the minor version of R (e.g. <code>4.6</code>)</p></li>
+<li><p>System library - contains the base and recommended packages (e.g. <code>stats</code>, <code>utils</code>, <code>MASS</code>, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.</p></li>
+<li><p>User library - belongs to you and is where packages you install will end up. The path is specific to both your user account and the minor version of R (e.g. <code>4.6</code>)</p></li>
 </ul>
-</div>
 <div class="fragment">
-<div class="columns xxsmall">
+<div class="columns xsmall">
 <div class="column" style="width:50%;">
-<p>User library</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href aria-label="1"></a><span class="fu">head</span>(<span class="fu">dir</span>(<span class="fu">.libPaths</span>()[<span class="dv">1</span>]), <span class="at">n =</span> <span class="dv">16</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href aria-label="1"></a><span class="fu">.libPaths</span>()[<span class="dv">1</span>] <span class="sc">|&gt;</span> <span class="fu">dir</span>() <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">16</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] &quot;_build&quot;       &quot;_cache&quot;       &quot;abind&quot;        &quot;airports&quot;     &quot;and&quot;         
- [6] &quot;anytime&quot;      &quot;ape&quot;          &quot;archive&quot;      &quot;arrayhelpers&quot; &quot;arrow&quot;       
-[11] &quot;AsioHeaders&quot;  &quot;askpass&quot;      &quot;assertthat&quot;   &quot;astsa&quot;        &quot;available&quot;   
+<pre><code> [1] &quot;_build&quot;       &quot;_cache&quot;       &quot;abind&quot;       
+ [4] &quot;airports&quot;     &quot;and&quot;          &quot;anytime&quot;     
+ [7] &quot;ape&quot;          &quot;archive&quot;      &quot;arrayhelpers&quot;
+[10] &quot;arrow&quot;        &quot;AsioHeaders&quot;  &quot;askpass&quot;     
+[13] &quot;assertthat&quot;   &quot;astsa&quot;        &quot;available&quot;   
 [16] &quot;babelwhale&quot;  </code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
-<p>System library</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href aria-label="1"></a><span class="fu">head</span>(<span class="fu">dir</span>(<span class="fu">.libPaths</span>()[<span class="dv">2</span>]), <span class="at">n =</span> <span class="dv">16</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href aria-label="1"></a><span class="fu">.libPaths</span>()[<span class="dv">2</span>] <span class="sc">|&gt;</span> <span class="fu">dir</span>() <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">16</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1] &quot;base&quot;       &quot;boot&quot;       &quot;class&quot;      &quot;cluster&quot;    &quot;codetools&quot; 
- [6] &quot;compiler&quot;   &quot;datasets&quot;   &quot;foreign&quot;    &quot;graphics&quot;   &quot;grDevices&quot; 
-[11] &quot;grid&quot;       &quot;KernSmooth&quot; &quot;lattice&quot;    &quot;MASS&quot;       &quot;Matrix&quot;    
+<pre><code> [1] &quot;base&quot;       &quot;boot&quot;       &quot;class&quot;     
+ [4] &quot;cluster&quot;    &quot;codetools&quot;  &quot;compiler&quot;  
+ [7] &quot;datasets&quot;   &quot;foreign&quot;    &quot;graphics&quot;  
+[10] &quot;grDevices&quot;  &quot;grid&quot;       &quot;KernSmooth&quot;
+[13] &quot;lattice&quot;    &quot;MASS&quot;       &quot;Matrix&quot;    
 [16] &quot;methods&quot;   </code></pre>
 </div>
 </div>
@@ -1792,6 +1792,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="fragment">
+<p><br></p>
 <p>Packages only need to be <em>installed</em> once (per R version), but must be <em>loaded</em> in every new R session where you want to use them.</p>
 </div>
 </section>
@@ -1810,72 +1811,21 @@ Dr. Colin Rundel
 </ul></li>
 </ul>
 </section>
-<section id="search-path" class="slide level2">
-<h2>Search path</h2>
-<p>To load a package we use <code>library(pkg)</code> which attaches the package’s namespace (functions, data, etc.) to the global search path.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href aria-label="1"></a><span class="fu">search</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;.GlobalEnv&quot;        &quot;package:stats&quot;     &quot;package:graphics&quot; 
-[4] &quot;package:grDevices&quot; &quot;package:utils&quot;     &quot;package:datasets&quot; 
-[7] &quot;package:methods&quot;   &quot;Autoloads&quot;         &quot;package:base&quot;     </code></pre>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href aria-label="1"></a><span class="fu">library</span>(diffmatchpatch)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href aria-label="1"></a><span class="fu">search</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code> [1] &quot;.GlobalEnv&quot;             &quot;package:diffmatchpatch&quot; &quot;package:stats&quot;         
- [4] &quot;package:graphics&quot;       &quot;package:grDevices&quot;      &quot;package:utils&quot;         
- [7] &quot;package:datasets&quot;       &quot;package:methods&quot;        &quot;Autoloads&quot;             
-[10] &quot;package:base&quot;          </code></pre>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="using" class="slide level2">
-<h2>Using <code>::</code></h2>
-<p>You can also use a function from an installed package without <code>library()</code> by prefixing the function with the package name and <code>::</code>,</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href aria-label="1"></a>dplyr<span class="sc">::</span><span class="fu">lag</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] NA  1  2</code></pre>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p>This is particularly useful when you only need one or two functions from a package or want to be explicit about where a function comes from.</p>
-</div>
-</section>
 <section id="pak" class="slide level2">
 <h2>pak</h2>
-<p><a href="https://pak.r-lib.org/">pak</a> is a modern replacement for <code>install.packages()</code> and <code>remotes::install_github()</code> developed by the r-lib team at Posit.</p>
-<div class="medium">
+<p><a href="https://pak.r-lib.org/">pak</a> is a modern replacement for <code>install.packages()</code> and <code>remotes::install_github()</code> developed by the open source team at Posit.</p>
 <ul>
 <li><p>Fast - resolves, downloads, and installs packages in parallel (with caching)</p></li>
 <li><p>One interface for many sources - CRAN, Bioconductor, GitHub, URLs, local files, etc.</p></li>
 <li><p>Plans the full installation up front - shows what will be installed and catches dependency conflicts before anything is changed</p></li>
 <li><p>Can find and install needed system dependencies (e.g. system libraries on Linux servers)</p></li>
 </ul>
-</div>
 <div class="fragment">
 <p>Packages are specified using reference strings,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href aria-label="1"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">&quot;diffmatchpatch&quot;</span>)        <span class="co"># CRAN</span></span>
-<span id="cb18-2"><a href aria-label="2"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">&quot;rundel/diffmatchpatch&quot;</span>) <span class="co"># GitHub</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href aria-label="1"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">&quot;diffmatchpatch&quot;</span>)        <span class="co"># CRAN</span></span>
+<span id="cb11-2"><a href aria-label="2"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">&quot;rundel/diffmatchpatch&quot;</span>) <span class="co"># GitHub</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
@@ -1884,8 +1834,8 @@ Dr. Colin Rundel
 <p>pak plays a similar role for R as uv does for Python (up next), minus the environment management.</p>
 </div></aside></section></section>
 <section>
-<section id="python-package-management-with-uv" class="title-slide slide level1 center">
-<h1>Python package management <br>with uv</h1>
+<section id="python-packages-with-uv" class="title-slide slide level1 center">
+<h1>Python packages<br>with uv</h1>
 
 </section>
 <section id="python-packaging-landscape" class="slide level2">
@@ -1902,41 +1852,62 @@ Dr. Colin Rundel
 </section>
 <section id="what-is-uv" class="slide level2">
 <h2>What is uv?</h2>
-<p>uv is a Python package and project manager developed by <a href="https://astral.sh">Astral</a> (creators of <code>ruff</code>) which was recently acquired by OpenAI.</p>
+<p>uv is a Python package and project manager developed by <a href="https://astral.sh">Astral</a> (creators of <code>ruff</code> and recent OpenAI acquisition)</p>
 <p><br></p>
 <p>Key features:</p>
 <ul>
 <li>Extremely fast (10-100x faster than pip)</li>
 <li>Manages Python versions</li>
 <li>Creates and manages virtual environments</li>
-<li>Installs packages</li>
+<li>Installs packages (from PyPI)</li>
 <li>Handles project dependencies via <code>pyproject.toml</code></li>
 <li>Drop-in replacement for <code>pip</code> and <code>virtualenv</code></li>
 <li>Directly supported by Positron and Reticulate</li>
 </ul>
 </section>
+<section id="what-is-pypi" class="slide level2">
+<h2>What is PyPI</h2>
+<div class="medium">
+<p>The Python Package Index is the central repository of Python packages.</p>
+<ul>
+<li><p>Maintained by the Python Software Foundation and run by volunteers, ~880k projects</p></li>
+<li><p>Contains all released versions of packages, as source distributions (<code>sdists</code>) and/or prebuilt binaries (<code>wheels</code>)</p></li>
+<li><p>Some important differences from CRAN:</p>
+<ul>
+<li><p>No review process - anyone with an account can upload a package (name squatting and malicious packages are a recurring problem)</p></li>
+<li><p>No requirement that packages build, pass checks, or be actively maintained</p></li>
+<li><p>No requirement that packages stay compatible with newer versions of their dependencies (or vice versa) - version conflicts between packages are common</p></li>
+<li><p>Package quality, documentation, and upkeep vary widely - it is up to you to vet what you install</p></li>
+</ul></li>
+</ul>
+</div>
+
+<aside><div>
+<p>uv and pip install from PyPI by default; conda uses its own separate channels (e.g. conda-forge)</p>
+</div></aside></section>
 <section id="installing-uv" class="slide level2">
 <h2>Installing uv</h2>
 <p>uv is already installed on the departmental servers; for local installs:</p>
-<p>On macOS/Linux:</p>
+<p><br></p>
+<p>On MacOS/Linux:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href aria-label="1"></a><span class="ex">curl</span> <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="fu">sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href aria-label="1"></a><span class="ex">curl</span> <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="fu">sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>or with Homebrew:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href aria-label="1"></a><span class="ex">brew</span> install uv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href aria-label="1"></a><span class="ex">brew</span> install uv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>or with pip / pipx:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href aria-label="1"></a><span class="ex">pipx</span> install uv</span>
-<span id="cb21-2"><a href aria-label="2"></a><span class="ex">pip</span> install uv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href aria-label="1"></a><span class="ex">pipx</span> install uv</span>
+<span id="cb14-2"><a href aria-label="2"></a><span class="ex">pip</span> install uv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="verify-installation" class="slide level2">
 <h2>Verify installation</h2>
 <p>Once installed you should be able to run the following,</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href aria-label="1"></a><span class="ex">uv</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href aria-label="1"></a><span class="ex">uv</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>uv 0.12.5 (Homebrew 2026-08-14 aarch64-apple-darwin)</code></pre>
 </div>
@@ -1949,25 +1920,32 @@ Dr. Colin Rundel
 <section id="managing-python-versions" class="slide level2">
 <h2>Managing Python versions</h2>
 <p>uv can install and manage multiple Python versions,</p>
-<div class="columns small">
-<div class="column xsmall">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href aria-label="1"></a><span class="ex">uv</span> python list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="columns xsmall">
+<div class="column">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href aria-label="1"></a><span class="ex">uv</span> python list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>cpython-3.15.0rc1-macos-aarch64-none                 &lt;download available&gt;
 cpython-3.15.0rc1+freethreaded-macos-aarch64-none    &lt;download available&gt;
-cpython-3.14.7-macos-aarch64-none                    /opt/homebrew/bin/pyth
-cpython-3.14.7-macos-aarch64-none                    /opt/homebrew/bin/pyth
-cpython-3.14.7-macos-aarch64-none                    /Users/rundel/.local/b
-cpython-3.14.7-macos-aarch64-none                    /Users/rundel/.local/s
+cpython-3.14.7-macos-aarch64-none                    /opt/homebrew/bin/python3.14 -&gt; ../Cellar/python@3.14/3.14.7/bin/python3.14
+cpython-3.14.7-macos-aarch64-none                    /opt/homebrew/bin/python3 -&gt; ../Cellar/python@3.14/3.14.7/bin/python3
+cpython-3.14.7-macos-aarch64-none                    /Users/rundel/.local/bin/python3.14 -&gt; /Users/rundel/.local/share/uv/python/cpython-3.14.7-macos-aarch64-none/bin/python3.14
+cpython-3.14.7-macos-aarch64-none                    /Users/rundel/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14
 cpython-3.14.7+freethreaded-macos-aarch64-none       &lt;download available&gt;
-cpython-3.14.2-macos-aarch64-none                    /Users/rundel/.local/s
+cpython-3.14.2-macos-aarch64-none                    /Users/rundel/.local/share/uv/python/cpython-3.14.2-macos-aarch64-none/bin/python3.14
+cpython-3.13.15-macos-aarch64-none                   &lt;download available&gt;
+cpython-3.13.15+freethreaded-macos-aarch64-none      &lt;download available&gt;
+cpython-3.12.14-macos-aarch64-none                   /opt/homebrew/bin/python3.12 -&gt; ../Cellar/python@3.12/3.12.14/bin/python3.12
+cpython-3.12.14-macos-aarch64-none                   &lt;download available&gt;
+cpython-3.12.0-macos-aarch64-none                    /Users/rundel/.local/share/uv/python/cpython-3.12-macos-aarch64-none/bin/python3.12
+cpython-3.11.16-macos-aarch64-none                   &lt;download available&gt;
+cpython-3.10.21-macos-aarch64-none                   &lt;download available&gt;
 ...</code></pre>
 </div>
 </div>
 </div><div class="column">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href aria-label="1"></a><span class="ex">uv</span> python install 3.14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href aria-label="1"></a><span class="ex">uv</span> python pin 3.14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href aria-label="1"></a><span class="ex">uv</span> python install 3.14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href aria-label="1"></a><span class="ex">uv</span> python pin 3.14</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div></div>
 <div class="fragment">
 <p>The pinned version is stored in a <code>.python-version</code> file and will be used automatically for that directory (and its subdirectories).</p>
@@ -1977,11 +1955,12 @@ cpython-3.14.2-macos-aarch64-none                    /Users/rundel/.local/s
 <h2>Initializing a project</h2>
 <p>Use <code>uv init</code> to create a new project,</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href aria-label="1"></a><span class="fu">mkdir</span> my-project</span>
-<span id="cb28-2"><a href aria-label="2"></a><span class="bu">cd</span> my-project</span>
-<span id="cb28-3"><a href aria-label="3"></a><span class="ex">uv</span> init</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href aria-label="1"></a><span class="fu">mkdir</span> my-project</span>
+<span id="cb21-2"><a href aria-label="2"></a><span class="bu">cd</span> my-project</span>
+<span id="cb21-3"><a href aria-label="3"></a><span class="ex">uv</span> init</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Initialized project `my-project`</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href aria-label="1"></a><span class="fu">ls</span> <span class="at">-la</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href aria-label="1"></a><span class="fu">ls</span> <span class="at">-la</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>total 24
 drwxr-xr-x@ 8 rundel  wheel  256 Aug 23 22:47 .
 drwx------@ 3 rundel  wheel   96 Aug 23 22:47 ..
@@ -1992,6 +1971,7 @@ drwxr-xr-x@ 9 rundel  wheel  288 Aug 23 22:47 .git
 -rw-r--r--@ 1 rundel  wheel  361 Aug 23 22:47 pyproject.toml
 drwxr-xr-x@ 3 rundel  wheel   96 Aug 23 22:47 src</code></pre>
 </div>
+</div>
 <div class="fragment">
 <p>This creates a <code>pyproject.toml</code>, a minimal package skeleton in <code>src/</code> (with a <code>main()</code> entry point), a <code>README.md</code>, and basic git infrastructure. Generally, we only really care about the <code>pyproject.toml</code>, which we can generate on its own via <code>uv init --bare</code>.</p>
 </div>
@@ -2000,23 +1980,23 @@ drwxr-xr-x@ 3 rundel  wheel   96 Aug 23 22:47 src</code></pre>
 <h2><code>pyproject.toml</code></h2>
 <p>Modern project metadata file, tracks the Python version and package dependencies among other details.</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb32-1"><a href aria-label="1"></a><span class="kw">[project]</span></span>
-<span id="cb32-2"><a href aria-label="2"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;my-project&quot;</span></span>
-<span id="cb32-3"><a href aria-label="3"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;0.1.0&quot;</span></span>
-<span id="cb32-4"><a href aria-label="4"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">&quot;Add your description here&quot;</span></span>
-<span id="cb32-5"><a href aria-label="5"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">&quot;README.md&quot;</span></span>
-<span id="cb32-6"><a href aria-label="6"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb32-7"><a href aria-label="7"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">&quot;Colin Rundel&quot;</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">&quot;rundel@gmail.com&quot;</span><span class="op"> }</span></span>
-<span id="cb32-8"><a href aria-label="8"></a><span class="op">]</span></span>
-<span id="cb32-9"><a href aria-label="9"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">&quot;&gt;=3.14&quot;</span></span>
-<span id="cb32-10"><a href aria-label="10"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[]</span></span>
-<span id="cb32-11"><a href aria-label="11"></a></span>
-<span id="cb32-12"><a href aria-label="12"></a><span class="kw">[project.scripts]</span></span>
-<span id="cb32-13"><a href aria-label="13"></a><span class="dt">my-project</span> <span class="op">=</span> <span class="st">&quot;my_project:main&quot;</span></span>
-<span id="cb32-14"><a href aria-label="14"></a></span>
-<span id="cb32-15"><a href aria-label="15"></a><span class="kw">[build-system]</span></span>
-<span id="cb32-16"><a href aria-label="16"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;uv_build&gt;=0.12.5,&lt;0.13.0&quot;</span><span class="op">]</span></span>
-<span id="cb32-17"><a href aria-label="17"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">&quot;uv_build&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb25-1"><a href aria-label="1"></a><span class="kw">[project]</span></span>
+<span id="cb25-2"><a href aria-label="2"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;my-project&quot;</span></span>
+<span id="cb25-3"><a href aria-label="3"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;0.1.0&quot;</span></span>
+<span id="cb25-4"><a href aria-label="4"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">&quot;Add your description here&quot;</span></span>
+<span id="cb25-5"><a href aria-label="5"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">&quot;README.md&quot;</span></span>
+<span id="cb25-6"><a href aria-label="6"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb25-7"><a href aria-label="7"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">&quot;Colin Rundel&quot;</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">&quot;rundel@gmail.com&quot;</span><span class="op"> }</span></span>
+<span id="cb25-8"><a href aria-label="8"></a><span class="op">]</span></span>
+<span id="cb25-9"><a href aria-label="9"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">&quot;&gt;=3.14&quot;</span></span>
+<span id="cb25-10"><a href aria-label="10"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[]</span></span>
+<span id="cb25-11"><a href aria-label="11"></a></span>
+<span id="cb25-12"><a href aria-label="12"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb25-13"><a href aria-label="13"></a><span class="dt">my-project</span> <span class="op">=</span> <span class="st">&quot;my_project:main&quot;</span></span>
+<span id="cb25-14"><a href aria-label="14"></a></span>
+<span id="cb25-15"><a href aria-label="15"></a><span class="kw">[build-system]</span></span>
+<span id="cb25-16"><a href aria-label="16"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;uv_build&gt;=0.12.5,&lt;0.13.0&quot;</span><span class="op">]</span></span>
+<span id="cb25-17"><a href aria-label="17"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">&quot;uv_build&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="adding-dependencies" class="slide level2 scrollable">
@@ -2024,13 +2004,13 @@ drwxr-xr-x@ 3 rundel  wheel   96 Aug 23 22:47 src</code></pre>
 <p>Once we have our project set up, we can add (and install) dependencies directly via uv. <code>uv add</code> updates <code>pyproject.toml</code> and installs the package (creating a venv if needed).</p>
 <div class="columns xsmall">
 <div class="column">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href aria-label="1"></a><span class="ex">uv</span> add numpy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href aria-label="1"></a><span class="ex">uv</span> add numpy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Using CPython 3.14.2
 Creating virtual environment at: .venv
 Resolved 2 packages in 157ms
 Installed 1 package in 27ms
  + numpy==2.4.1</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href aria-label="1"></a><span class="ex">uv</span> add pandas matplotlib scikit-learn</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb28-1"><a href aria-label="1"></a><span class="ex">uv</span> add pandas matplotlib scikit-learn</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Resolved 18 packages in 490ms
 Prepared 5 packages in 9.18s
 Installed 15 packages in 134ms
@@ -2050,13 +2030,13 @@ Installed 15 packages in 134ms
  + six==1.17.0
  + threadpoolctl==3.6.0</code></pre>
 </div><div class="column fragment">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href aria-label="1"></a><span class="ex">uv</span> add <span class="st">&quot;pydantic&lt;2&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href aria-label="1"></a><span class="ex">uv</span> add <span class="st">&quot;pydantic&lt;2&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Resolved 26 packages in 336ms
 Prepared 1 package in 238ms
 Installed 2 packages in 3ms
  + pydantic==1.10.26
  + typing-extensions==4.15.0</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href aria-label="1"></a><span class="ex">uv</span> add <span class="at">--dev</span> pytest ruff</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href aria-label="1"></a><span class="ex">uv</span> add <span class="at">--dev</span> pytest ruff</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Resolved 24 packages in 337ms
 Prepared 4 packages in 859ms
 Installed 5 packages in 27ms
@@ -2070,35 +2050,35 @@ Installed 5 packages in 27ms
 <section id="updated-pyproject.toml" class="slide level2">
 <h2>Updated <code>pyproject.toml</code></h2>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb41-1"><a href aria-label="1"></a><span class="kw">[project]</span></span>
-<span id="cb41-2"><a href aria-label="2"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;my-project&quot;</span></span>
-<span id="cb41-3"><a href aria-label="3"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;0.1.0&quot;</span></span>
-<span id="cb41-4"><a href aria-label="4"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">&quot;Add your description here&quot;</span></span>
-<span id="cb41-5"><a href aria-label="5"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">&quot;README.md&quot;</span></span>
-<span id="cb41-6"><a href aria-label="6"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb41-7"><a href aria-label="7"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">&quot;Colin Rundel&quot;</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">&quot;rundel@gmail.com&quot;</span><span class="op"> }</span></span>
-<span id="cb41-8"><a href aria-label="8"></a><span class="op">]</span></span>
-<span id="cb41-9"><a href aria-label="9"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">&quot;&gt;=3.14&quot;</span></span>
-<span id="cb41-10"><a href aria-label="10"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb41-11"><a href aria-label="11"></a>    <span class="st">&quot;matplotlib&gt;=3.10.8&quot;</span><span class="op">,</span></span>
-<span id="cb41-12"><a href aria-label="12"></a>    <span class="st">&quot;numpy&gt;=2.4.1&quot;</span><span class="op">,</span></span>
-<span id="cb41-13"><a href aria-label="13"></a>    <span class="st">&quot;pandas&gt;=3.0.0&quot;</span><span class="op">,</span></span>
-<span id="cb41-14"><a href aria-label="14"></a>    <span class="st">&quot;pydantic&lt;2&quot;</span><span class="op">,</span></span>
-<span id="cb41-15"><a href aria-label="15"></a>    <span class="st">&quot;scikit-learn&gt;=1.8.0&quot;</span><span class="op">,</span></span>
-<span id="cb41-16"><a href aria-label="16"></a><span class="op">]</span></span>
-<span id="cb41-17"><a href aria-label="17"></a></span>
-<span id="cb41-18"><a href aria-label="18"></a><span class="kw">[project.scripts]</span></span>
-<span id="cb41-19"><a href aria-label="19"></a><span class="dt">my-project</span> <span class="op">=</span> <span class="st">&quot;my_project:main&quot;</span></span>
-<span id="cb41-20"><a href aria-label="20"></a></span>
-<span id="cb41-21"><a href aria-label="21"></a><span class="kw">[dependency-groups]</span></span>
-<span id="cb41-22"><a href aria-label="22"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
-<span id="cb41-23"><a href aria-label="23"></a>    <span class="st">&quot;pytest&gt;=9.0.2&quot;</span><span class="op">,</span></span>
-<span id="cb41-24"><a href aria-label="24"></a>    <span class="st">&quot;ruff&gt;=0.14.13&quot;</span><span class="op">,</span></span>
-<span id="cb41-25"><a href aria-label="25"></a><span class="op">]</span></span>
-<span id="cb41-26"><a href aria-label="26"></a></span>
-<span id="cb41-27"><a href aria-label="27"></a><span class="kw">[build-system]</span></span>
-<span id="cb41-28"><a href aria-label="28"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;uv_build&gt;=0.12.5,&lt;0.13.0&quot;</span><span class="op">]</span></span>
-<span id="cb41-29"><a href aria-label="29"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">&quot;uv_build&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode numberSource toml number-lines code-with-copy"><code class="sourceCode toml"><span id="cb34-1"><a href aria-label="1"></a><span class="kw">[project]</span></span>
+<span id="cb34-2"><a href aria-label="2"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">&quot;my-project&quot;</span></span>
+<span id="cb34-3"><a href aria-label="3"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">&quot;0.1.0&quot;</span></span>
+<span id="cb34-4"><a href aria-label="4"></a><span class="dt">description</span> <span class="op">=</span> <span class="st">&quot;Add your description here&quot;</span></span>
+<span id="cb34-5"><a href aria-label="5"></a><span class="dt">readme</span> <span class="op">=</span> <span class="st">&quot;README.md&quot;</span></span>
+<span id="cb34-6"><a href aria-label="6"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb34-7"><a href aria-label="7"></a>    <span class="op">{ </span><span class="dt">name</span><span class="op"> =</span> <span class="st">&quot;Colin Rundel&quot;</span><span class="op">, </span><span class="dt">email</span><span class="op"> =</span> <span class="st">&quot;rundel@gmail.com&quot;</span><span class="op"> }</span></span>
+<span id="cb34-8"><a href aria-label="8"></a><span class="op">]</span></span>
+<span id="cb34-9"><a href aria-label="9"></a><span class="dt">requires-python</span> <span class="op">=</span> <span class="st">&quot;&gt;=3.14&quot;</span></span>
+<span id="cb34-10"><a href aria-label="10"></a><span class="dt">dependencies</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb34-11"><a href aria-label="11"></a>    <span class="st">&quot;matplotlib&gt;=3.10.8&quot;</span><span class="op">,</span></span>
+<span id="cb34-12"><a href aria-label="12"></a>    <span class="st">&quot;numpy&gt;=2.4.1&quot;</span><span class="op">,</span></span>
+<span id="cb34-13"><a href aria-label="13"></a>    <span class="st">&quot;pandas&gt;=3.0.0&quot;</span><span class="op">,</span></span>
+<span id="cb34-14"><a href aria-label="14"></a>    <span class="st">&quot;pydantic&lt;2&quot;</span><span class="op">,</span></span>
+<span id="cb34-15"><a href aria-label="15"></a>    <span class="st">&quot;scikit-learn&gt;=1.8.0&quot;</span><span class="op">,</span></span>
+<span id="cb34-16"><a href aria-label="16"></a><span class="op">]</span></span>
+<span id="cb34-17"><a href aria-label="17"></a></span>
+<span id="cb34-18"><a href aria-label="18"></a><span class="kw">[project.scripts]</span></span>
+<span id="cb34-19"><a href aria-label="19"></a><span class="dt">my-project</span> <span class="op">=</span> <span class="st">&quot;my_project:main&quot;</span></span>
+<span id="cb34-20"><a href aria-label="20"></a></span>
+<span id="cb34-21"><a href aria-label="21"></a><span class="kw">[dependency-groups]</span></span>
+<span id="cb34-22"><a href aria-label="22"></a><span class="dt">dev</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb34-23"><a href aria-label="23"></a>    <span class="st">&quot;pytest&gt;=9.0.2&quot;</span><span class="op">,</span></span>
+<span id="cb34-24"><a href aria-label="24"></a>    <span class="st">&quot;ruff&gt;=0.14.13&quot;</span><span class="op">,</span></span>
+<span id="cb34-25"><a href aria-label="25"></a><span class="op">]</span></span>
+<span id="cb34-26"><a href aria-label="26"></a></span>
+<span id="cb34-27"><a href aria-label="27"></a><span class="kw">[build-system]</span></span>
+<span id="cb34-28"><a href aria-label="28"></a><span class="dt">requires</span> <span class="op">=</span> <span class="op">[</span><span class="st">&quot;uv_build&gt;=0.12.5,&lt;0.13.0&quot;</span><span class="op">]</span></span>
+<span id="cb34-29"><a href aria-label="29"></a><span class="dt">build-backend</span> <span class="op">=</span> <span class="st">&quot;uv_build&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="virtual-environments" class="slide level2">
@@ -2107,9 +2087,9 @@ Installed 5 packages in 27ms
 <p>As we just saw, using <code>uv add</code> will create a new virtual environment in <code>.venv</code> by default if there is not an existing venv.</p>
 <p>To explicitly create your own venv you can use,</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href aria-label="1"></a><span class="ex">uv</span> venv                <span class="co"># Create a virtual environment</span></span>
-<span id="cb42-2"><a href aria-label="2"></a><span class="ex">uv</span> venv <span class="at">--python</span> 3.13  <span class="co"># Or specify Python version</span></span>
-<span id="cb42-3"><a href aria-label="3"></a><span class="ex">uv</span> venv .venv2         <span class="co"># Or specify directory name</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href aria-label="1"></a><span class="ex">uv</span> venv                <span class="co"># Create a virtual environment</span></span>
+<span id="cb35-2"><a href aria-label="2"></a><span class="ex">uv</span> venv <span class="at">--python</span> 3.13  <span class="co"># Or specify Python version</span></span>
+<span id="cb35-3"><a href aria-label="3"></a><span class="ex">uv</span> venv .venv2         <span class="co"># Or specify directory name</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="activating-environments" class="slide level2">
@@ -2117,15 +2097,15 @@ Installed 5 packages in 27ms
 <p>To use the virtual environment certain environment variables need to be set correctly (e.g. <code>PATH</code>, <code>PYTHONPATH</code>, etc.) so that the correct Python binary and libraries are used.</p>
 <p>From the command line / terminal you can run the following in your project directory:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href aria-label="1"></a><span class="bu">source</span> .venv/bin/activate  <span class="co"># macOS/Linux (bash/zsh)</span></span>
-<span id="cb43-2"><a href aria-label="2"></a><span class="ex">.venv\Scripts\Activate.ps1</span> <span class="co"># Windows (PowerShell)</span></span>
-<span id="cb43-3"><a href aria-label="3"></a><span class="ex">.venv\Scripts\activate.bat</span> <span class="co"># Windows (cmd)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href aria-label="1"></a><span class="bu">source</span> .venv/bin/activate  <span class="co"># macOS/Linux (bash/zsh)</span></span>
+<span id="cb36-2"><a href aria-label="2"></a><span class="ex">.venv\Scripts\Activate.ps1</span> <span class="co"># Windows (PowerShell)</span></span>
+<span id="cb36-3"><a href aria-label="3"></a><span class="ex">.venv\Scripts\activate.bat</span> <span class="co"># Windows (cmd)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>Alternatively (strongly suggested), use <code>uv run</code> to execute commands in the environment without activating,</p>
+<p>Alternatively (<em>strongly recommended</em>), use <code>uv run</code> to execute commands in the environment without activating,</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href aria-label="1"></a><span class="ex">uv</span> run python script.py</span>
-<span id="cb44-2"><a href aria-label="2"></a><span class="ex">uv</span> run pytest</span>
-<span id="cb44-3"><a href aria-label="3"></a><span class="ex">uv</span> run quarto render test.qmd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href aria-label="1"></a><span class="ex">uv</span> run python script.py</span>
+<span id="cb37-2"><a href aria-label="2"></a><span class="ex">uv</span> run pytest</span>
+<span id="cb37-3"><a href aria-label="3"></a><span class="ex">uv</span> run quarto render test.qmd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="uv-sync" class="slide level2">
@@ -2133,7 +2113,7 @@ Installed 5 packages in 27ms
 <p>Since the <code>.venv</code> folder is system-specific (and large) it is not typically committed to git. Instead you will likely clone a repository that just has a <code>pyproject.toml</code> file.</p>
 <p>Use <code>uv sync</code> to construct the venv and install all dependencies for the project</p>
 <div class="xsmall">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href aria-label="1"></a><span class="ex">uv</span> sync</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href aria-label="1"></a><span class="ex">uv</span> sync</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Using CPython 3.14.2
 Creating virtual environment at: .venv
 Resolved 26 packages in 8ms
@@ -2157,20 +2137,20 @@ Installed 23 packages in 96ms
 <h2>Common workflows</h2>
 <p>New project setup:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href aria-label="1"></a><span class="fu">mkdir</span> my-project</span>
-<span id="cb47-2"><a href aria-label="2"></a><span class="bu">cd</span> my-project</span>
-<span id="cb47-3"><a href aria-label="3"></a><span class="ex">uv</span> init <span class="at">--bare</span></span>
-<span id="cb47-4"><a href aria-label="4"></a><span class="ex">uv</span> add pandas numpy</span>
-<span id="cb47-5"><a href aria-label="5"></a><span class="ex">uv</span> run python project.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb40-1"><a href aria-label="1"></a><span class="fu">mkdir</span> my-project</span>
+<span id="cb40-2"><a href aria-label="2"></a><span class="bu">cd</span> my-project</span>
+<span id="cb40-3"><a href aria-label="3"></a><span class="ex">uv</span> init <span class="at">--bare</span></span>
+<span id="cb40-4"><a href aria-label="4"></a><span class="ex">uv</span> add pandas numpy</span>
+<span id="cb40-5"><a href aria-label="5"></a><span class="ex">uv</span> run python project.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <p><br></p>
 <p>Clone existing project:</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href aria-label="1"></a><span class="fu">git</span> clone <span class="op">&lt;</span>repo-url<span class="op">&gt;</span></span>
-<span id="cb48-2"><a href aria-label="2"></a><span class="bu">cd</span> <span class="op">&lt;</span>repo<span class="op">&gt;</span></span>
-<span id="cb48-3"><a href aria-label="3"></a><span class="ex">uv</span> sync</span>
-<span id="cb48-4"><a href aria-label="4"></a><span class="ex">uv</span> run python script.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb41-1"><a href aria-label="1"></a><span class="fu">git</span> clone <span class="op">&lt;</span>repo-url<span class="op">&gt;</span></span>
+<span id="cb41-2"><a href aria-label="2"></a><span class="bu">cd</span> <span class="op">&lt;</span>repo<span class="op">&gt;</span></span>
+<span id="cb41-3"><a href aria-label="3"></a><span class="ex">uv</span> sync</span>
+<span id="cb41-4"><a href aria-label="4"></a><span class="ex">uv</span> run python script.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>

@@ -268,31 +268,39 @@ dir(.libPaths())
 
 `.libPaths()` will usually report (at least) two library locations:
 
-::: {.small}
-* *System library* - contains the base and recommended packages (e.g. `stats`, `utils`, `MASS`, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.
+* System library - contains the base and recommended packages (e.g. `stats`, `utils`, `MASS`, etc.). Shared by all users of a machine - on shared systems (like the DSS servers) it is read-only and maintained by the administrators.
 
-* *User library* - belongs to you and is where packages you install will end up. The path is specific to both your user account and the minor version of R (e.g. `4.6`)
-:::
+* User library - belongs to you and is where packages you install will end up. The path is specific to both your user account and the minor version of R (e.g. `4.6`)
 
 . . .
 
-:::: {.columns .xxsmall}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
-User library
+
 ```{r}
-head(dir(.libPaths()[1]), n = 16)
+#| echo: false
+options(width=50)
+```
+
+```{r}
+.libPaths()[1] |> dir() |> head(n = 16)
 ```
 :::
 
 ::: {.column width='50%'}
-System library
 ```{r}
-head(dir(.libPaths()[2]), n = 16)
+.libPaths()[2] |> dir() |> head(n = 16)
 ```
 :::
+
+```{r}
+#| echo: false
+options(width=80)
+```
+
 ::::
 
-::: aside
+::: {.aside}
 When loading a package, R searches the locations in `.libPaths()` in order and uses the first copy it finds - so a package in your user library takes precedence over the same package in the system library.
 :::
 
@@ -300,6 +308,7 @@ When loading a package, R searches the locations in `.libPaths()` in order and u
 ## Installing packages
 
 Generally packages come from somewhere on the internet, most commonly from CRAN or GitHub; the methods for installing from these locations are slightly different.
+
 
 #### CRAN:
 
@@ -320,6 +329,8 @@ remotes::install_github("rundel/diffmatchpatch")
 :::
 
 . . .
+
+<br/>
 
 Packages only need to be *installed* once (per R version), but must be *loaded* in every new R session where you want to use them.
 
@@ -343,54 +354,10 @@ The Comprehensive R Archive Network is the central repository of R packages.
   * All packages must be actively maintained and support upstream and downstream changes
 
 
-## Search path
-
-To load a package we use `library(pkg)` which attaches the package's namespace (functions, data, etc.) to the global search path.
-
-::: {.xsmall}
-```{r}
-search()
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{r}
-library(diffmatchpatch)
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{r}
-search()
-```
-:::
-
-
-## Using `::`
-
-You can also use a function from an installed package without `library()` by prefixing the function with the package name and `::`,
-
-::: {.xsmall}
-```{r}
-dplyr::lag(1:3)
-```
-:::
-
-. . .
-
-This is particularly useful when you only need one or two functions from a package or want to be explicit about where a function comes from.
-
-
-
 ## pak
 
-[pak](https://pak.r-lib.org/) is a modern replacement for `install.packages()` and `remotes::install_github()` developed by the r-lib team at Posit.
+[pak](https://pak.r-lib.org/) is a modern replacement for `install.packages()` and `remotes::install_github()` developed by the open source team at Posit.
 
-::: {.medium}
 * Fast - resolves, downloads, and installs packages in parallel (with caching)
 
 * One interface for many sources - CRAN, Bioconductor, GitHub, URLs, local files, etc.
@@ -398,7 +365,6 @@ This is particularly useful when you only need one or two functions from a packa
 * Plans the full installation up front - shows what will be installed and catches dependency conflicts before anything is changed
 
 * Can find and install needed system dependencies (e.g. system libraries on Linux servers)
-:::
 
 . . .
 
@@ -417,7 +383,7 @@ pak plays a similar role for R as uv does for Python (up next), minus the enviro
 :::
 
 
-# Python package management <br/>with uv
+# Python packages<br/>with uv
 
 ## Python packaging landscape
 
@@ -432,9 +398,10 @@ Python's packaging ecosystem has historically been fragmented:
 uv is a modern tool that aims to unify these concerns with a fast, Rust-based implementation.
 
 
+
 ## What is uv?
 
-uv is a Python package and project manager developed by [Astral](https://astral.sh) (creators of `ruff`) which was recently acquired by OpenAI.
+uv is a Python package and project manager developed by [Astral](https://astral.sh) (creators of `ruff` and recent OpenAI acquisition)
 
 <br/>
 
@@ -443,17 +410,45 @@ Key features:
 * Extremely fast (10-100x faster than pip)
 * Manages Python versions
 * Creates and manages virtual environments
-* Installs packages
+* Installs packages (from PyPI)
 * Handles project dependencies via `pyproject.toml`
 * Drop-in replacement for `pip` and `virtualenv`
 * Directly supported by Positron and Reticulate
+
+
+## What is PyPI
+
+::: {.medium}
+The Python Package Index is the central repository of Python packages.
+
+* Maintained by the Python Software Foundation and run by volunteers, ~880k projects
+
+* Contains all released versions of packages, as source distributions (`sdists`) and/or prebuilt binaries (`wheels`)
+
+* Some important differences from CRAN:
+
+  * No review process - anyone with an account can upload a package (name squatting and malicious packages are a recurring problem)
+
+  * No requirement that packages build, pass checks, or be actively maintained
+
+  * No requirement that packages stay compatible with newer versions of their dependencies (or vice versa) - version conflicts between packages are common
+
+  * Package quality, documentation, and upkeep vary widely - it is up to you to vet what you install
+:::
+
+
+::: {.aside}
+uv and pip install from PyPI by default; conda uses its own separate channels (e.g. conda-forge)
+:::
+
 
 ## Installing uv
 
 uv is already installed on the departmental servers; for local installs:
 
+<br/>
 
-On macOS/Linux:
+On MacOS/Linux:
 
 ::: {.small}
 ```bash
@@ -498,14 +493,14 @@ As long as you have version `0.12.*` you should be fine.
 
 uv can install and manage multiple Python versions,
 
-::: {.columns .small}
-::: {.column .xsmall}
+::: {.columns .xsmall}
+::: {.column}
 ```bash
 uv python list
 ```
 ```{bash}
 #| echo: false
-uv python list | head -n 8 | cut -c 1-75
+uv python list | head -n 15
 echo "..."
 ```
 :::
@@ -537,6 +532,9 @@ uv init
 ```
 Initialized project `my-project`
 ```
+
+. . .
+
 ```bash
 ls -la
 ```
@@ -720,7 +718,7 @@ source .venv/bin/activate  # macOS/Linux (bash/zsh)
 ```
 :::
 
-Alternatively (strongly suggested), use `uv run` to execute commands in the environment without activating,
+Alternatively (*strongly recommended*), use `uv run` to execute commands in the environment without activating,
 
 ::: {.small}
 ```bash
