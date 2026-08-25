@@ -1,0 +1,1554 @@
+---
+title: "Types in<br/>R & Python"
+subtitle: "Lecture 02"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: False
+#| warning: False
+#| include: False
+options(
+  width=80
+)
+```
+
+
+# Type systems
+
+## Dynamic typing
+
+Both R and Python are *dynamically typed* languages - the type of a value is determined at runtime and a variable (name) is not restricted to a single type.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = 1
+typeof(x)
+x = "one"
+typeof(x)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = 1
+type(x)
+x = "one"
+type(x)
+```
+:::
+::::
+
+. . .
+
+Where the languages differ is in their fundamental unit of data,
+
+* in R (almost) everything is a *vector*
+
+* in Python the basic types are *scalars* which are collected into *container* objects
+
+
+## Vectors in R
+
+The fundamental building block of data in R are vectors (collections of related values, objects, etc).
+
+. . .
+
+R has two types of vectors:
+
+* atomic vectors (*vectors*) - homogeneous collections of the *same* type (e.g. all `TRUE`/`FALSE` values, all numbers, or all character strings).
+
+* generic vectors (*lists*) - heterogeneous collections of *any* type of R object, even other lists (meaning they can have a hierarchical/tree-like structure).
+
+. . .
+
+There are no scalars in R - a single value like `1` is just a vector of length 1.
+
+::: {.small}
+```{r}
+length(1)
+length(c(1, 2, 3))
+```
+:::
+
+
+## Objects in Python
+
+Python is built around a traditional object oriented class system - *every* value is an object with a class (its type), including scalars like numbers and strings.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+1
+type(1)
+"one"
+type("one")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+[1, 2, 3]
+type([1, 2, 3])
+(1, 2, 3)
+type((1, 2, 3))
+```
+:::
+::::
+
+. . .
+
+Scalars are collected into *containers* (`list`, `tuple`, `dict`, etc.) which are heterogeneous and can be nested. Base Python has no direct equivalent to R's atomic vectors - that role is filled by `numpy` arrays (more on these next week).
+
+
+# Basic types
+
+## R's atomic types
+
+R has six atomic vector types, we can check the type of any object using `typeof()`, `mode()` (a higher level grouping of types), or `class()`.
+
+<br/>
+
+| `typeof()`  |  `mode()`  | `class()`  | Example        |
+|:------------|:-----------|:-----------|:---------------|
+| logical     |  logical   | logical    | `TRUE`         |
+| double      |  numeric   | numeric    | `1.5`, `2`     |
+| integer     |  numeric   | integer    | `1L`, `1:3`    |
+| character   |  character | character  | `"hello"`      |
+| complex     |  complex   | complex    | `1+2i`         |
+| raw         |  raw       | raw        | `as.raw(255)`  |
+
+There are additional types in R, e.g. `list`, `closure`, `environment`, etc. which we will see in the coming lectures. See `?typeof` for more information.
+
+::: {.aside}
+We will talk more about the difference between `typeof()`, `mode()`, and `class()` later.
+:::
+
+
+## Python's basic types
+
+Python's built-in scalar types are similar, but each value is a single *scalar* object rather than a vector.
+
+<br/>
+
+| Type      | `type()`   | Example        |
+|:----------|:-----------|:---------------|
+| boolean   | `bool`     | `True`         |
+| integer   | `int`      | `1`            |
+| float     | `float`    | `1.5`, `2.0`   |
+| complex   | `complex`  | `1+2j`         |
+| string    | `str`      | `"hello"`      |
+| none      | `NoneType` | `None`         |
+
+::: {.aside}
+There is also `bytes` (similar to R's `raw`), as well as the container types (`list`, `tuple`, `dict`, `set`, etc.) which we will see shortly.
+:::
+
+
+## Logical / boolean values
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+typeof(TRUE)
+typeof(FALSE)
+TRUE + TRUE
+sum(c(TRUE, FALSE, TRUE))
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+type(True)
+type(False)
+True + True
+sum([True, False, True])
+```
+:::
+::::
+
+. . .
+
+In both languages boolean values behave like the integers `1` and `0` when used in arithmetic. In Python this is explicit - `bool` is a subclass of `int`.
+
+::: {.aside}
+R lets you use `T` and `F` as shortcuts for `TRUE` and `FALSE` - this is bad practice as these are just global variables which can be overwritten (e.g. `T = FALSE`). Python's `True` and `False` are keywords and cannot be reassigned.
+:::
+
+
+## Numeric values
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+typeof(1.5)
+typeof(7)
+typeof(7L)
+typeof(1:3)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+type(1.5)
+type(7)
+type(7.0)
+type(7.)
+```
+:::
+::::
+
+. . .
+
+The *default* numeric type differs between the languages - a bare literal like `7` is a `double` in R but an `int` in Python. In R, integer literals require an `L` suffix, in Python floats require a decimal point (or an exponent, e.g. `1e3`).
+
+
+## Complex numbers
+
+::: {.medium}
+Both languages have a built-in complex type - the main difference is the literal syntax, R uses `i` for the imaginary unit while Python uses `j` (the engineering convention).
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+z = 1+2i; typeof(z)
+c(Re(z), Im(z), Mod(z))
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+z = 1+2j; type(z)
+(z.real, z.imag, abs(z))
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+R will not promote a real value to a complex one on its own (you must ask for it), Python's `math` functions raise an error while the `**` operator will happily return a complex result,
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+sqrt(-1)
+sqrt(-1+0i)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+import math
+math.sqrt(-1)
+```
+```{python}
+(-1) ** 0.5
+```
+:::
+::::
+
+
+## Numeric promotion / coercion
+
+Both languages *promote* to the more "general" type when mixing numeric types (`logical` / `bool` → `integer` / `int` → `double` / `float` → `complex`),
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+typeof(1L + 1.5)
+typeof(TRUE + 1L)
+typeof(1L + 2i)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+type(1 + 1.5)
+type(True + 1)
+type(1 + 2j)
+```
+:::
+::::
+
+. . .
+
+Division (`/`) is the exception, in both languages the result is always a `double` / `float` even for integer inputs,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+4L / 2L
+typeof(4L / 2L)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+4 / 2
+type(4 / 2)
+```
+:::
+::::
+
+
+## Type predicates
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+is.integer(1)
+is.integer(1L)
+is.double(1)
+is.numeric(1)
+is.numeric(1L)
+is.character("1")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+isinstance(1, int)
+isinstance(1.0, int)
+isinstance(1.0, float)
+isinstance(1, (int, float))
+isinstance(True, int)
+isinstance("1", str)
+```
+:::
+::::
+
+. . .
+
+`is.numeric()` checks the *mode* (`double` or `integer`) while the others check the *type*. Python's `isinstance()` accepts a tuple of types and respects class inheritance (hence `True` is an `int`).
+
+
+# Strings
+
+## String literals
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+typeof("hello")
+typeof('world')
+"abc'123"
+'abc"123'
+"abc\"123"
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+type("hello")
+type('world')
+"abc'123"
+'abc"123'
+"abc\"123"
+```
+:::
+::::
+
+::: {.medium}
+In both languages single or double quotes are fine (the opening and closing quote must match). Quote characters can be included by escaping or by using the non-matching quote.
+:::
+
+
+
+## Multi-line strings
+
+R strings can contain newlines directly (or via `\n`), in Python a literal must be triple quoted (`"""` or `'''`) to span multiple lines.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = "line one
+line 'two'"
+x
+cat(x)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = """line one
+line 'two'"""
+x
+print(x)
+```
+:::
+::::
+
+::: {.aside}
+Triple quoted strings are particularly common in Python as [docstrings](https://peps.python.org/pep-0257/), we will see these when we discuss functions.
+:::
+
+
+## String interpolation
+
+Python's f-strings (3.6+) evaluate arbitrary expressions inside `{}`. R has no built-in equivalent - `paste()` / `paste0()` are the base approach and the `glue` package provides similar `{}` interpolation.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = c(1, 2, 3)
+paste0("x has ", length(x), " elements")
+glue::glue("x has {length(x)} elements")
+glue::glue("From {min(x)} to {max(x)}")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, 2, 3]
+"x has " + str(len(x)) + " elements"
+f"x has {len(x)} elements"
+f"From {min(x)} to {max(x)}"
+```
+:::
+::::
+
+
+::: {.aside}
+See [PEP 498](https://peps.python.org/pep-0498/) for more details on f-strings. Python 3.14 added t-strings which expand on this functionality for templating.
+:::
+
+
+## Raw strings
+
+Both languages support raw string literals where `\` is treated as a literal character rather than an escape - these are particularly useful for regular expressions and Windows paths.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+writeLines("C:\\Users\\rundel")
+writeLines(r"(C:\Users\rundel)")
+writeLines(r"(\d+\.\d+)")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+print("C:\\Users\\rundel")
+print(r"C:\Users\rundel")
+print(r"\d+\.\d+")
+```
+:::
+::::
+
+::: {.aside}
+R's syntax (available since R 4.0) is `r"(...)"` (or `r"[...]"`, `r"{...}"`) - the bracket delimiters allow the raw string to contain quote characters.
+:::
+
+
+# Coercion
+
+## Atomic vectors are homogeneous
+
+R's atomic vectors must contain values of a single type, so combining different types with `c()` forces *coercion* to the most general type present,
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+c(1, "Hello")
+c(FALSE, 3L)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+c(1.2, 3L)
+c(FALSE, "Hello")
+```
+:::
+::::
+
+. . .
+
+Atomic vectors are also inherently flat (1d) - nesting calls to `c()` does not create a nested structure,
+
+::: {.small}
+```{r}
+c(1, c(2, c(3)))
+```
+:::
+
+. . .
+
+Base Python has no equivalent type - its lists are heterogeneous and can be nested, just like R's lists. The closest analog is the `numpy` array, which is also homogeneous and coerces its contents to a common type - we will see these later.
+
+
+## Implicit coercion in R
+
+::: {.medium}
+R is quite liberal about coercion - builtin operators and functions (e.g. `+`, `&`, `log()`, etc.) will generally attempt to coerce values to an appropriate type for the given operation (numeric for math, logical for logical, etc.)
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+3.1 + 1L
+5 + FALSE
+log(TRUE)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+TRUE & 7
+FALSE | !5
+TRUE == "TRUE"
+1 == "1"
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+Arithmetic with strings is the exception, R will not coerce a character value to a number for math,
+:::
+
+::: {.small}
+```{r}
+#| error: true
+#| output-location: column
+"1" + 1
+```
+:::
+
+
+## Implicit coercion in Python
+
+Python is more conservative, it will coerce within the numeric types (`bool` → `int` → `float` → `complex`) but will not coerce between strings and numbers - comparisons are simply `False` and other operations raise an error.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+True + 1
+5 + False
+1 == True
+(1+0j) == 1
+1 == "1"
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+"abc" > 5
+```
+```{python}
+#| error: true
+"abc" + 5
+```
+```{python}
+"abc" + str(5)
+```
+:::
+::::
+
+
+## Operator overloading in Python
+
+Do be aware that Python has a number of useful / idiosyncratic overloads for some of the basic operators - depending on the types involved the same operator can do very different things.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+"abc" + "def"
+"abc" * 3
+[1, 2] + [3, 4]
+[1, 2] * 2
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+"abc" ** 2
+```
+```{python}
+#| error: true
+[1, 2] * [3, 4]
+```
+:::
+::::
+
+
+## Explicit coercion
+
+R uses the `as.*()` family of functions for explicit conversion, Python uses the type constructors (`int()`, `float()`, `str()`, `bool()`, etc.),
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+as.logical(5.2)
+as.integer(pi)
+as.double("7.2")
+as.integer("2.1")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+bool(5.2)
+int(3.14159)
+float("7.2")
+```
+```{python}
+#| error: true
+int("2.1")
+```
+:::
+::::
+
+. . .
+
+When a conversion is not possible R returns `NA` (with a warning) while Python raises an error,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+as.double("one")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+float("one")
+```
+:::
+::::
+
+
+## Coercion to logical / bool
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| warning: true
+as.logical(0)
+as.logical("TRUE")
+as.logical("T")
+as.logical("yes")
+as.logical("")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+bool(0)
+bool("False")
+bool("")
+bool([])
+bool(None)
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+Python's uses the idea of *truthiness* (`0`, `0.0`, `""`, `None`, and empty containers are *falsy*, almost everything else is *truthy*) throughout the language, e.g. in conditionals. R only interprets `"TRUE"`, `"true"`, `"True"`, `"T"` (and their `FALSE` counterparts) as logical values, everything else becomes `NA`.
+:::
+
+
+# Missing & special values
+
+## Missing values in R
+
+R uses `NA` to represent missing values in its data structures. 
+
+What may not be obvious is that there are different `NA`s for the different atomic types.
+
+:::: {.columns .small}
+::: {.column width='30%'}
+```{r}
+NA
+NA+1
+NA+1L
+c(NA,"")
+```
+:::
+
+::: {.column width='30%'}
+```{r}
+typeof(NA)
+typeof(NA+1)
+typeof(NA+1L)
+typeof(c(NA,""))
+```
+:::
+
+::: {.column width='40%'}
+```{r}
+typeof(NA_character_)
+typeof(NA_real_)
+typeof(NA_integer_)
+typeof(NA_complex_)
+```
+:::
+::::
+
+
+## NA stickiness
+
+As `NA`s represent missing values (most) calculations using them return a missing value.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+1 + NA
+1 / NA
+NA * 5
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+sqrt(NA)
+3^NA
+sum(c(1, 2, 3, NA))
+```
+:::
+::::
+
+. . .
+
+Aggregation / summarization functions (e.g. `sum()`, `mean()`, `sd()`, etc.) will often have an `na.rm` argument which *removes* the missing values from the calculation.
+
+::: {.small}
+```{r}
+sum(c(1, 2, 3, NA), na.rm = TRUE)
+mean(c(1, 2, 3, NA), na.rm = TRUE)
+```
+:::
+
+
+## NAs are not always sticky
+
+A useful mental model for `NA`s is to consider them as an unknown value that could take any of the possible values for a given type.
+
+. . .
+
+For numbers or characters this isn't helpful, but for a logical value it must either be `TRUE` or `FALSE` which is relevant for certain calculations.
+
+. . .
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+TRUE & NA
+FALSE & NA
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+TRUE | NA
+FALSE | NA
+```
+:::
+::::
+
+
+## Special values (double)
+
+R also has the non-finite values defined by the IEEE floating point standard (these are not unique to R): `NaN` (not a number), `Inf`, and `-Inf`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+-1 / 0
+0 / 0
+1/0 + 1/0
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+Inf - Inf
+NaN / NA
+NaN * NA
+```
+:::
+::::
+
+. . .
+
+These are all `double` values, but their coercion behavior is not the same as other doubles,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+typeof(Inf)
+typeof(NaN)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+as.integer(Inf)
+as.integer(NaN)
+```
+:::
+::::
+
+
+## Testing for `NA`, `NaN`, and `Inf`
+
+:::: {.columns .xsmall}
+::: {.column width='33%'}
+```{r}
+is.na(NA)
+is.na(NaN)
+is.na(Inf)
+```
+:::
+
+::: {.column width='33%'}
+```{r}
+is.nan(NA)
+is.nan(NaN)
+is.nan(Inf)
+```
+:::
+
+::: {.column width='33%'}
+```{r}
+is.finite(NA)
+is.finite(NaN)
+is.finite(Inf)
+```
+:::
+::::
+
+. . .
+
+Note that `is.na()` is `TRUE` for `NaN` but `is.nan()` is `FALSE` for `NA`. Comparisons involving `NA` or `NaN` always return `NA` so these predicates must be used instead of `==`.
+
+::: {.small}
+```{r}
+NA == NA
+NaN == NaN
+c(1, NA, 3) == NA
+```
+:::
+
+
+## `None` in Python
+
+Base Python has no missing value type. The closest equivalent is `None`, a singleton object (of type `NoneType`) used to represent "no value" - similar to `NULL` in R.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+print(None)
+type(None)
+x = None
+x is None
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+None + 1
+```
+```{python}
+[1, None, "a"]
+```
+:::
+::::
+
+. . .
+
+Unlike `NA`, `None` does not propagate through calculations (it raises an error) and it has no type-specific variants.
+
+::: {.aside}
+Missing values are instead handled by the data libraries - `numpy` uses `nan`, `pandas` has `pd.NA` and `NaT`, etc. More on these later in the course.
+:::
+
+
+## Non-finite values in Python
+
+`nan` and `inf` are available (as `float`s) via `float()` or the `math` module. Note that division by zero is *always* an error in Python (even for floats) rather than producing `inf`.
+
+:::: {.columns .xsmall}
+::: {.column width='33%'}
+```{python}
+#| error: true
+1 / 0
+```
+```{python}
+float("inf")
+float("nan")
+```
+:::
+
+::: {.column width='33%' .fragment}
+```{python}
+import math
+math.inf
+math.nan
+math.inf - math.inf
+```
+:::
+
+::: {.column width='33%' .fragment}
+```{python}
+math.isnan(math.nan)
+math.isinf(-math.inf)
+math.nan == math.nan
+```
+:::
+::::
+
+. . .
+
+Testing is done with `math.isnan()`, `math.isinf()`, and `math.isfinite()` and, as in R, `nan` is not equal to itself (or anything else).
+
+
+## Exercise 1
+
+:::: {.columns .small}
+::: {.column width='50%'}
+#### Part 1
+
+What is the type of the following R vectors? Explain why they have that type.
+
+```{r}
+#| eval: false
+c(1, NA+1L, "C")
+c(1L / 0, NA)
+c(1:3, 5)
+c(3L, NaN+1L)
+c(NA, TRUE)
+```
+:::
+
+::: {.column width='50%'}
+#### Part 2
+
+Without running the code, what is the value (and type) of each of the following Python expressions?
+
+```{python}
+#| eval: false
+True + 1.5
+"1" * 3
+int("3") + float("1.5")
+bool("False")
+int(True) / True
+```
+:::
+::::
+
+#### Part 3
+
+Considering only the four common R types, what is R's implicit type conversion hierarchy (from highest to lowest priority)? How does this compare to Python's numeric promotion rules?
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Python sequence types
+
+## Lists
+
+Python lists are *heterogeneous*, *ordered*, *mutable* containers of objects (very similar to lists in R, which we will see in a few lectures).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+[0, 1, 1, 0]
+[0, True, "abc"]
+[0, [1, 2], [3, [4]]]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x = [0, 1, 1, 0]
+type(x)
+len(x)
+2 in x
+x + [3, 4, 5]
+```
+:::
+::::
+
+::: {.aside}
+See [here](https://docs.python.org/3/library/stdtypes.html#common-sequence-operations) and [here](https://docs.python.org/3/library/stdtypes.html#mutable-sequence-types) for a more complete listing of sequence operations and methods.
+:::
+
+
+## Indexing
+
+Elements are accessed using `[]` with **0-based indexing**, negative indexes count from the end, and ranges of values can be specified using slices (`start:stop` where `stop` is *exclusive*).
+
+::: {.small}
+```{python}
+x = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x[0]
+x[3]
+x[-1]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x[0:3]
+x[3:]
+x[-3:]
+```
+:::
+::::
+
+::: {.aside}
+We will cover slicing (and R's subsetting) in much more detail next week.
+:::
+
+
+## Mutability
+
+Since lists are mutable the stored values can be changed, removed, or added to (in place).
+
+::: {.small}
+```{python}
+x = [1, 2, 3, 4, 5]
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x[0] = -1
+x
+del x[0]
+x
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x.append(7)
+x
+x.insert(1, -5)
+x
+x.pop()
+x
+```
+:::
+::::
+
+
+## Tuples
+
+Python tuples are *heterogeneous*, *ordered*, **immutable** containers of values - nearly identical to lists except that their values cannot be changed. You will most often encounter them when a function returns multiple values.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x = (1, True, "abc")
+type(x)
+x[0]
+x[1:]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+x[0] = 5
+```
+```{python}
+#| error: true
+x.append(2)
+```
+:::
+::::
+
+. . .
+
+It is possible to cast between the sequence types,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+list(x)
+tuple([1, 2, 3])
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+tuple([1, 2, 3]) == [1, 2, 3]
+list(tuple([1, 2, 3])) == [1, 2, 3]
+```
+:::
+::::
+
+
+## Ranges
+
+Ranges are a *homogeneous*, *ordered*, *immutable* "container" of **integers** - the closest thing in base Python to R's `:` / `seq()`.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+range(10)
+range(0, 10)
+range(0, 10, 2)
+range(10, 0, -1)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+list(range(10))
+list(range(0, 10))
+list(range(0, 10, 2))
+list(range(10, 0, -1))
+```
+:::
+::::
+
+. . .
+
+What makes ranges special is that `range(1000000)` does not store 1 million integers in memory but rather just 3 (start, stop, and step). Also note that, like slices, the `stop` value is *exclusive*.
+
+
+## Strings as sequences
+
+Python strings are *ordered*, *immutable* containers of unicode characters, so much of the sequence functionality applies to them as well. In R a string is atomic - a single string is a length 1 vector and its characters are only accessible via functions like `substr()` or `strsplit()`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x = "abc"
+len(x)
+x[0]
+x[-1]
+"bc" in x
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x = "abc"
+length(x)
+nchar(x)
+substr(x, 1, 1)
+strsplit(x, "")[[1]]
+```
+:::
+::::
+
+. . .
+
+::: {.xsmall}
+```{python}
+#| error: true
+x[0] = "z"
+```
+:::
+
+
+# Comparing R & Python
+
+## Type summary
+
+::: {.medium}
+| Concept        | R                                     | Python                               |
+|:---------------|:--------------------------------------|:-------------------------------------|
+| boolean        | `logical` (`TRUE`, `FALSE`)           | `bool` (`True`, `False`)             |
+| integer        | `integer` (`1L`)                      | `int` (`1`)                          |
+| real           | `double` (`1`, `1.5`)                 | `float` (`1.0`, `1.5`)               |
+| complex        | `complex` (`1i`)                      | `complex` (`1j`)                     |
+| text           | `character` (`"a"`)                   | `str` (`"a"`)                        |
+| type of        | `typeof()`, `class()`, `is.*()`       | `type()`, `isinstance()`             |
+| conversion     | `as.integer()`, `as.character()`, ... | `int()`, `str()`, ...                |
+| missing        | `NA` (typed)                          | none (`None` / `nan` by convention)  |
+| null           | `NULL`                                | `None`                               |
+| non-finite     | `Inf`, `-Inf`, `NaN`                  | `math.inf`, `-math.inf`, `math.nan`  |
+| containers     | atomic vectors, lists                 | `list`, `tuple`, `dict`, `set`, ...  |
+:::
+
+
+## Operator summary
+
+::: {.medium}
+| Operation        | R                                             | Python                |
+|:-----------------|:----------------------------------------------|:----------------------|
+| exponent         | `^`                                           | `**`                  |
+| integer division | `%/%`                                         | `//`                  |
+| modulus          | `%%`                                          | `%`                   |
+| and / or / not   | `&`, <code>&#124;</code>, `!`                 | `and`, `or`, `not`    |
+| equality         | `==`, `identical()`                           | `==`, `is`            |
+| membership       | `%in%`                                        | `in`                  |
+| string concat    | `paste0()`                                    | `+`                   |
+| interpolation    | `glue::glue()`                                | f-strings             |
+| raw strings      | `r"(...)"`                                    | `r"..."`              |
+:::
+
+::: {.aside}
+R also has `&&` and <code>&#124;&#124;</code> which are not vectorized and short-circuit, we will discuss these along with control flow next time.
+:::
+
+
+## Scalars vs vectors
+
+The biggest conceptual difference - R has no scalars, and Python has no vectors (without `numpy`). This shows up everywhere, including how arithmetic on a collection of values behaves,
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(1, 2, 3)
+length(x)
+x * 2
+x + x
+length(1)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x = [1, 2, 3]
+len(x)
+x * 2
+x + x
+len(1)
+```
+:::
+::::
+
+. . .
+
+Next week we will see how `numpy` arrays bring R-style vectorized operations to Python.
+
+
+## Coercion philosophy
+
+R will coerce whenever it possibly can, Python only converts between the numeric types,
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+c(1, "a", TRUE)
+1 == "1"
+TRUE + 1
+as.integer("2.1")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+[1, "a", True]
+1 == "1"
+True + 1
+```
+```{python}
+#| error: true
+int("2.1")
+```
+:::
+::::
+
+
+##
+
+Neither language will implicitly convert a string to a number for arithmetic, but R will silently convert numbers to strings for comparisons - which is a common source of subtle bugs.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| error: true
+"1" + 1
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+"1" + 1
+```
+:::
+::::
+
+
+## Integers
+
+R integers are 32-bit and overflow to `NA` (with a warning), Python integers have arbitrary precision.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+.Machine$integer.max
+.Machine$integer.max + 1L
+.Machine$integer.max + 1
+2^100
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+2**31 - 1
+2**31
+2**100
+```
+:::
+::::
+
+. . .
+
+In practice this rarely matters in R since the default numeric type is `double`, but it is one reason why R's `integer` type is used sparingly (e.g. for indexing and counts). Note that `numpy` and `pandas` behave more like R here, as they use fixed width integers (e.g. `int64`).
+
+
+## Missing values
+
+R's `NA` is a first class citizen - it has a type, propagates through calculations, and most functions know how to handle it. Python has no equivalent in the base language,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = c(1, NA, 3)
+x + 1
+sum(x)
+sum(x, na.rm = TRUE)
+NA == NA
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, None, 3]
+```
+```{python}
+#| error: true
+sum(x)
+```
+```{python}
+None in x
+math.nan == math.nan
+```
+:::
+::::
+
+. . .
+
+`nan` is often used as a stand in for missing values in Python (e.g. by `numpy` and `pandas`), but it is a `float` so it cannot be used with other types and, like `NA`, it does not equal itself.
+
+
+## Assignment & copies
+
+::: {.medium}
+In R, assignment creates a (lazy) copy - modifying `y` never changes `x`. In Python, assignment binds a *name* to an *object* - both names refer to the same object, so modifying a mutable object via one name is visible through the other.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = c(1, 2, 3)
+y = x
+y[1] = 100
+```
+```{r}
+x
+y
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, 2, 3]
+y = x
+y[0] = 100
+```
+```{python}
+x
+y
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+To get R-like behavior in Python you must make an explicit copy,
+:::
+
+
+::: {.columns .xsmall}
+::: {.column}
+```{python}
+x = [1, 2, 3]
+y = x.copy()
+```
+:::
+
+::: {.column}
+```{python}
+y[0] = 100
+x
+```
+:::
+:::
+
+
+
+::: {.aside}
+R's approach is called copy-on-modify - the copy is only actually made when one of the objects is modified. Python's copy methods are generally *shallow* by default, `deepcopy()` is available via the `copy` module.
+:::
+
+
+## Identity vs equality
+
+Because multiple Python names can refer to the same object, Python distinguishes between *identity* (`is` - are these the same object?) and *equality* (`==` - do they have the same value?). The `id()` function returns the memory address of an object.
+
+::: {.xsmall}
+```{python}
+x = [1, 2, 3]
+y = x
+z = x.copy()
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x is y
+x is z
+x == z
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+id(x)
+id(y)
+id(z)
+```
+:::
+::::
+
+. . .
+
+R's closest equivalent is `identical()` which compares *values* (including type and attributes), e.g. `identical(1L, 1)` is `FALSE` while `1L == 1` is `TRUE`. Since R copies on modify there is rarely a need to think about object identity.
+
+
+## Indexing
+
+R uses **1-based** indexing and negative indexes *exclude* elements, Python uses **0-based** indexing and negative indexes count from the *end*.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c("a", "b", "c", "d")
+x[1]
+x[4]
+x[-1]
+x[2:3]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = ["a", "b", "c", "d"]
+x[0]
+x[3]
+x[-1]
+x[1:3]
+```
+:::
+::::
+
+. . .
+
+Note that R's `2:3` *includes* both endpoints while Python's `1:3` slice *excludes* the stop value - both select the 2nd and 3rd elements here.
+
+::: {.aside}
+Much more on subsetting next week.
+:::
+
+
+## Exercise 2
+
+Without running the code, predict the output (or error) of each of the following in *both* R and Python.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| eval: false
+x = c(1, 2, 3)
+y = x
+y[1] = "a"
+x
+y
+```
+```{r}
+#| eval: false
+TRUE + TRUE == 2
+"2" == 2
+as.integer("2") + 1L
+```
+```{r}
+#| eval: false
+c(1, 2.5, NA)
+sum(c(1, 2.5, NA))
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| eval: false
+x = [1, 2, 3]
+y = x
+y[0] = "a"
+x
+y
+```
+```{python}
+#| eval: false
+True + True == 2
+"2" == 2
+int("2") + 1
+```
+```{python}
+#| eval: false
+[1, 2.5, None]
+sum([1, 2.5, None])
+```
+:::
+::::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```

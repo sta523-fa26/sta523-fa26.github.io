@@ -18,7 +18,7 @@ schedule:
   day: 3
   topic: "Fundamentals"
   lecture: "Types"
-  slides: ""
+  slides: "Lec02"
   r_readings:
     - text: "Tidyverse style guide"
       link: https://style.tidyverse.org/

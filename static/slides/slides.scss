@@ -147,3 +147,53 @@ blockquote > p {
 .panel-tabset li {
   font-size: 0.66em;
 }
+
+
+// Language indicators for code chunks - tint, left bar, and corner badge
+// so R, Python, and shell code are distinguishable at a glance
+
+$lang-r: #276dc3;
+$lang-r-bg: #eef3fb;
+$lang-py: #ffd43b;
+$lang-py-bg: #fdf8e3;
+$lang-py-text: #2b5b84;
+$lang-sh: #6c757d;
+$lang-sh-bg: #f1f1f1;
+
+.reveal div.sourceCode {
+  position: relative;
+  border-left: 5px solid transparent;
+}
+
+.reveal div.sourceCode::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+  font-family: $font-family-sans-serif;
+  font-size: 0.55em;
+  font-weight: 600;
+  line-height: 1.6;
+  padding: 0 0.6em;
+  border-radius: 0 0 0 4px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.reveal div.sourceCode:has(> pre.sourceCode.r) {
+  border-left-color: $lang-r;
+  background-color: $lang-r-bg;
+  &::before { content: "R"; background: $lang-r; color: white; }
+}
+
+.reveal div.sourceCode:has(> pre.sourceCode.python) {
+  border-left-color: $lang-py;
+  background-color: $lang-py-bg;
+  &::before { content: "py"; background: $lang-py; color: $lang-py-text; }
+}
+
+.reveal div.sourceCode:has(> pre.sourceCode.bash) {
+  border-left-color: $lang-sh;
+  background-color: $lang-sh-bg;
+  &::before { content: "bash"; background: $lang-sh; color: white; }
+}
