@@ -7,3 +7,6 @@ prev_uoe/*
 *.icloud
 .DS_Store
 prev 2
+
+/.quarto/
+**/*.quarto_ipynb
