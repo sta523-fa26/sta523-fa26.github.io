@@ -10,6 +10,8 @@ module:
       files:
         - "! /slides/prev*"
         - "! /slides/prev*/**"
+        - "! /slides/notes"
+        - "! /slides/notes/**"
 publishDir: "docs"
 disableKinds:
   - taxonomy

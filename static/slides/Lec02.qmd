@@ -25,6 +25,10 @@ options(
 )
 ```
 
+```{python py_setup}
+import math
+```
+
 
 # Type systems
 
@@ -304,14 +308,18 @@ With a real negative input, R's `sqrt()` returns `NaN` while Python's `math.sqrt
 ```{r}
 sqrt(-1)
 sqrt(-1+0i)
+(-1)^0.5
 ```
 :::
 
 ::: {.column width='50%'}
 ```{python}
 #| error: true
-import math
 math.sqrt(-1)
+```
+```{python}
+#| error: true
+sqrt(-1+0j)
 ```
 ```{python}
 (-1) ** 0.5
@@ -484,32 +492,6 @@ See [PEP 498](https://peps.python.org/pep-0498/) for more details on f-strings.
 :::
 
 
-## Raw strings
-
-Both languages support raw string literals where `\` is treated as a literal character rather than an escape - these are particularly useful for regular expressions and Windows paths.
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{r}
-writeLines("C:\\Users\\rundel")
-writeLines(r"(C:\Users\rundel)")
-writeLines(r"(\d+\.\d+)")
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-print("C:\\Users\\rundel")
-print(r"C:\Users\rundel")
-print(r"\d+\.\d+")
-```
-:::
-::::
-
-::: {.aside}
-R's syntax (available since R 4.0) is `r"(...)"` (or `r"[...]"`, `r"{...}"`) - the bracket delimiters allow the raw string to contain quote characters.
-:::
-
 
 # Coercion
 
@@ -657,6 +639,7 @@ as.logical(5.2)
 as.integer(pi)
 as.double("7.2")
 as.integer("2.1")
+as.integer("one")
 ```
 :::
 
@@ -672,11 +655,6 @@ int("2.1")
 ```
 :::
 ::::
-
-. . .
-
-Here, R returns `NA` (with a warning) for `as.integer("2.1")`, while Python raises an error for `int("2.1")`.
-
 
 ## Coercion to logical / bool
 
@@ -967,7 +945,6 @@ float("nan")
 
 ::: {.column width='33%' .fragment}
 ```{python}
-import math
 math.inf
 math.nan
 math.inf - math.inf
@@ -1129,13 +1106,19 @@ x
 :::
 ::::
 
+::: {.aside}
+`.append()`, `.insert()`, and `.pop()` are all examples of class methods (for lists) - more on these later.
+:::
+
 
 # Assignment & identity
 
 ## Assignment & copies
 
 ::: {.medium}
-Ordinary R vectors use copy-on-modify semantics: after `y = x`, modifying `y` does not change `x`. Reference-style objects such as environments are exceptions. In Python, assignment binds a *name* to an *object*: both names refer to the same object, so modifying a mutable object through one name is visible through the other.
+Ordinary R vectors use copy-on-modify semantics: after `y = x`, modifying `y` does not change `x`. Reference-style objects such as environments are exceptions. 
+
+In Python, assignment binds a *name* to an *object*: both names refer to the same object, so modifying a mutable object through one name is visible through the other.
 :::
 
 :::: {.columns .xsmall}
@@ -1164,10 +1147,6 @@ y
 :::
 ::::
 
-::: {.aside}
-R's approach is called copy-on-modify: the copy is only actually made when one of the objects is modified.
-:::
-
 
 ## Shallow copies
 
@@ -1175,26 +1154,22 @@ R's approach is called copy-on-modify: the copy is only actually made when one o
 To make an independent copy of a Python list, use `.copy()`:
 :::
 
-::: {.columns .xsmall}
-::: {.column}
+::: {.xsmall}
 ```{python}
 x = [1, 2, 3]
 y = x.copy()
-```
-:::
-
-::: {.column}
-```{python}
 y[0] = 100
 x
 ```
 :::
-:::
 
 . . .
 
+::: {.medium}
 A list's `.copy()` method copies the outer list, but nested mutable objects remain shared.
+:::
 
+::: {.xsmall}
 ```{python}
 x = [[1, 2], [3, 4]]
 y = x.copy()
@@ -1203,6 +1178,7 @@ y[0][0] = 100
 x
 y
 ```
+:::
 
 ::: {.aside}
 Use `copy.deepcopy()` when the nested objects must also be copied.
@@ -1211,7 +1187,9 @@ Use `copy.deepcopy()` when the nested objects must also be copied.
 
 ## Identity vs equality
 
+::: {.medium}
 Because multiple Python names can refer to the same object, Python distinguishes between *identity* (`is` - are these the same object?) and *equality* (`==` - do they have the same value?). The `id()` function returns an integer representing an object's unique identity.
+:::
 
 ::: {.xsmall}
 ```{python}
@@ -1241,8 +1219,9 @@ id(z)
 
 . . .
 
+::: {.medium}
 R's `identical()` tests strict value equality (including type and attributes), not object identity. For example, `identical(1L, 1)` is `FALSE` while `1L == 1` is `TRUE`. With ordinary copy-on-modify objects, identity rarely matters in R.
-
+:::
 
 # Comparing R & Python
 
