@@ -53,8 +53,11 @@ params:
     - name: Dr. Colin Rundel
       email: colin.rundel@duke.edu
       hours:
+      - loc: 204 Old Chemistry
+        day: Wednesdays
+        time: 12:00 - 1:00 pm
       - loc: 204 Old Chemistry / Zoom
-        day: TBD
+        day: By appointment
         time: ""
   tas:
     - name: Ruibo Song
