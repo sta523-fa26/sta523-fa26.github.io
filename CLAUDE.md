@@ -42,6 +42,8 @@ Slides live in `static/slides/*.qmd` using revealjs format with custom theme (`s
 
 Note: Sections titled "Example" are live-coded demonstrations done in class and intentionally have no content in the slides.
 
+Note: Within a single slide, all code chunks should use the same size class (`.small`, `.xsmall`, etc.) whether applied via `.columns` or a standalone div. Mixing sizes on one slide is only acceptable for a specific, compelling design reason.
+
 Note: When reviewing slides, do not review or comment on the content of exercises or examples (spelling and grammar checks are fine). These are meant to be external live-coded experiences for students, so the content will usually not be in the slides.
 
 ## Key Configuration

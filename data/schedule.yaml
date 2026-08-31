@@ -35,7 +35,7 @@ schedule:
   day: 1
   topic: "Fundamentals"
   lecture: "Control Flow"
-  slides: ""
+  slides: "Lec03"
   r_readings: []
   py_readings:
     - text: "Control flow"

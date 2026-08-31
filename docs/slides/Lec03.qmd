@@ -1,0 +1,1434 @@
+---
+title: "Control Flow in<br/>R & Python"
+subtitle: "Lecture 03"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+options(
+  width=80
+)
+```
+
+```{python py_setup}
+#| echo: false
+import math
+```
+
+
+# Logical &<br/>comparison operators
+
+## Comparison operators
+
+The syntax is nearly identical. The key difference is that R's comparison operators are *vectorized* (element-wise, returning a logical vector), whereas Python compares two objects and returns a single `bool`.
+
+<br/>
+
+| Comparison               | R           | Python     |
+|:-------------------------|:------------|:-----------|
+| less than                | `x < y`     | `x < y`    |
+| greater than             | `x > y`     | `x > y`    |
+| less than or equal to    | `x <= y`    | `x <= y`   |
+| greater than or equal to | `x >= y`    | `x >= y`   |
+| equal to                 | `x == y`    | `x == y`   |
+| not equal to             | `x != y`    | `x != y`   |
+| membership               | `x %in% y`  | `x in y`   |
+
+
+## Comparisons
+
+R compares element by element, while Python compares the objects as a whole and uses `in` for membership.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = c("A", "B", "C")
+x == "A"
+x %in% c("A", "C")
+c(1, 2, 3) == c(1, 2, 3)
+c(1, 2, 3) < c(1, 3, 0)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = ["A", "B", "C"]
+x == "A"
+"A" in x
+[1, 2, 3] == [1, 2, 3]
+[1, 2, 3] < [1, 3, 0]
+```
+:::
+::::
+
+::: {.aside}
+Python's ordered comparisons of lists are *lexicographic* - more on this in a moment, and on recycling and vectorization next time.
+:::
+
+
+## Comparing strings
+
+Both languages can order strings, but differently - Python compares by Unicode code point (so ASCII `A`-`Z` sort before ASCII `a`-`z`), while R uses the collation rules of the current locale (roughly alphabetical, with case as a tie breaker).
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+"A" < "B"
+"Good" < "Goodbye"
+"A" < "a"
+"a" < "B"
+"Z" < "a"
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+"A" < "B"
+"Good" < "Goodbye"
+"A" < "a"
+"a" < "B"
+"Z" < "a"
+```
+:::
+::::
+
+::: {.aside}
+See `Sys.getlocale("LC_COLLATE")` and `?Comparison` for R's locale (in the `C` locale R also orders by code point), and `locale.strcoll()` / `locale.strxfrm()` for locale-aware ordering in Python. The same rules apply to `sort()` and `sorted()`.
+:::
+
+
+## Lexicographic ordering
+
+Ordered comparisons of strings, and of lists and tuples in Python, are *lexicographic* (dictionary order) - elements are compared pairwise from the front and the first difference decides the result. If one sequence runs out first, it sorts before the longer one.
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+"card" < "cart"
+"cat" < "card"
+"car" < "card"
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+"card" < "cart"
+"cat" < "card"
+"car" < "card"
+```
+```{python}
+[1, 2, 3] < [1, 3, 0]
+(1, 2) < (1, 2, 5)
+```
+:::
+::::
+
+. . .
+
+R applies this only to strings (using the character ordering from the previous slide) - comparing vectors, as we saw, is element-wise, not lexicographic.
+
+::: {.aside}
+Only the elements up to the first difference are ever compared - `[0, "a"] < [1, 2]` is `True`, but `[1, "a"] < [1, 2]` raises a `TypeError` since `"a" < 2` is undefined.
+:::
+
+
+## Logical operators
+
+<br/>
+
+| Operation    | R (vectorized)           | R (scalar)                    | Python    |
+|:-------------|:-------------------------|:------------------------------|:----------|
+| and          | `x & y`                  | `x && y`                      | `x and y` |
+| or           | <code>x &#124; y</code>  | <code>x &#124;&#124; y</code> | `x or y`  |
+| not          | `!x`                     |                               | `not x`   |
+| exclusive or | `xor(x, y)`              |                               | `x != y`  |
+
+
+::: {.aside}
+Python's `&`, <code>&#124;</code>, and `~` are *bitwise* operators for integers; confusingly, `numpy` and `pandas` overload them as element-wise logical operators (more on this later). The `x != y` shorthand for exclusive-or assumes `x` and `y` are booleans; for arbitrary values use `bool(x) != bool(y)`.
+:::
+
+
+## Vectorized vs scalar
+
+In R you choose between the vectorized and scalar forms; in base Python `and` / `or` are always scalar, though with lists they can misleadingly look vectorized.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(TRUE, FALSE, TRUE)
+y = c(FALSE, TRUE, TRUE)
+```
+```{r}
+x | y
+x & y
+```
+```{r}
+#| error: true
+x || y
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [True, False, True]
+y = [False, True, True]
+```
+
+```{python}
+x or y  # returns x
+x and y # returns y
+```
+:::
+::::
+
+. . .
+
+::: {.aside}
+Since R 4.3, `&&` and <code>&#124;&#124;</code> throw an error if either side has length greater than 1 (older versions silently used only the first element).
+:::
+
+
+## Short-circuit evaluation
+
+`&&` / <code>&#124;&#124;</code> in R and `and` / `or` in Python evaluate their left operand first and only evaluate the right operand if the left one does not already decide the outcome.
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+FALSE && stop("Error")
+TRUE || stop("Error")
+```
+```{r}
+#| error: true
+TRUE && stop("Error")
+```
+```{r}
+#| error: true
+FALSE || stop("Error")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+False and 1/0
+True or 1/0
+```
+```{python}
+#| error: true
+True and 1/0
+```
+```{python}
+#| error: true
+False or 1/0
+```
+:::
+::::
+
+## Eager evaluation
+
+Unlike the short-circuiting operators, `&` / <code>&#124;</code> in both languages always evaluate both operands:
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+FALSE & stop("Error")
+```
+```{r}
+#| error: true
+TRUE | stop("Error")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+False & 1/0
+```
+```{python}
+#| error: true
+True | 1/0
+```
+:::
+::::
+
+
+## Guarding with short-circuits
+
+This makes them useful as *guards*, where an earlier condition rules out inputs that would cause a later condition to error.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+x = "abc"
+abs(x) > 1
+```
+```{r}
+is.numeric(x) && abs(x) > 1
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x = "abc"
+abs(x) > 1
+```
+```{python}
+isinstance(x, (int, float)) and abs(x) > 1
+```
+:::
+::::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+x = NULL
+abs(x) > 1
+```
+```{r}
+!is.null(x) && abs(x) > 1
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x = None
+abs(x) > 1
+```
+```{python}
+x is not None and abs(x) > 1
+```
+:::
+::::
+
+
+## Truthiness and short-circuiting
+
+::: {.medium}
+Python's `and` and `or` accept any values, not just `bool`s. They check the *truthiness* of `x` and short-circuiting decides which value comes back:
+
+* `x and y` - if `x` is falsy the result is `x`, otherwise it is `y`
+
+* `x or y` - if `x` is truthy the result is `x`, otherwise it is `y`
+
+Either way the result is one of the original values, unchanged, whereas R's `&&` and <code>&#124;&#124;</code> always produce a single `TRUE`, `FALSE`, or `NA`.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+1 and 2    # 1 is truthy -> 2
+0 and 2    # 0 is falsy  -> 0
+[] and [1] # [] is falsy -> []
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+0 or "default"     # 0 is falsy      -> "default"
+"" or "default"    # "" is falsy     -> "default"
+"abc" or "default" # "abc" is truthy -> "abc"
+```
+:::
+::::
+
+
+::: {.aside}
+As mentioned last time, `0`, `""`, `None`, and empty containers are falsy, almost everything else is truthy.
+:::
+
+## Fallback values
+
+::: {.small}
+```{python}
+#| eval: false
+x or default
+```
+:::
+is a common Python idiom for supplying a default when `x` is falsy. R 4.4 added the null coalescing operator `%||%` for the narrower case where `x` is `NULL`.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+name = ""
+name or "anonymous"
+name = "Colin"
+name or "anonymous"
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+name = NULL
+name %||% "anonymous"
+name = "Colin"
+name %||% "anonymous"
+```
+:::
+::::
+
+::: {.aside}
+`%||%` has long been available from `rlang` and the tidyverse.
+:::
+
+
+# Conditionals
+
+## `if` and `else`
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = 3
+if (x > 0) {
+  print("x is positive")
+}
+```
+```{r}
+if (x > 0) {
+  print("x is positive")
+} else {
+  print("x is not positive")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = 3
+if x > 0:
+    print("x is positive")
+```
+```{python}
+if x > 0:
+    print("x is positive")
+else:
+    print("x is not positive")
+```
+:::
+::::
+
+. . .
+
+R wraps the condition in `()` and the body in `{}`, while Python ends the condition with `:` and the body is the following *indented* block.
+
+::: {.aside}
+In R the `{}` are optional for a single-expression body, e.g. `if (x > 0) print("x is positive")`, but the [tidyverse style guide](https://style.tidyverse.org/syntax.html#if-statements) recommends braces for anything spanning multiple lines.
+:::
+
+
+## `else if` and `elif`
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = 0
+if (x < 0) {
+  print("x is negative")
+} else if (x > 0) {
+  print("x is positive")
+} else {
+  print("x is zero")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = 0
+if x < 0:
+    print("x is negative")
+elif x > 0:
+    print("x is positive")
+else:
+    print("x is zero")
+```
+:::
+::::
+
+. . .
+
+Conditions are checked in order and only the *first* true branch runs; the optional `else` branch runs if none are.
+
+
+## Conditionals as expressions
+
+::: {.medium}
+R's `if` is an expression that returns the value of the evaluated branch, so it can be used directly in an assignment. Python's `if` is a *statement* that returns nothing; instead there is a separate *conditional expression*, `a if cond else b`.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = 5
+s = if (x %% 2 == 0) x / 2 else 3 * x + 1
+s
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = 5
+s = x / 2 if x % 2 == 0 else 3 * x + 1
+s
+```
+:::
+::::
+
+. . .
+
+Both are equivalent to assigning within each branch,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+if (x %% 2 == 0) {
+  s = x / 2
+} else {
+  s = 3 * x + 1
+}
+s
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+if x % 2 == 0:
+    s = x / 2
+else:
+    s = 3 * x + 1
+
+s
+```
+:::
+::::
+
+
+## Conditionals are *not* vectorized
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(1, 3)
+```
+```{r}
+#| error: true
+if (x == 1) print("x is 1!")
+```
+```{r}
+#| error: true
+if (x == 3) print("x is 3!")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, 3]
+```
+```{python}
+if x == 1:
+    print("x is 1!")
+else:
+    print("x is not 1!")
+```
+```{python}
+if [False, False]:
+    print("non-empty lists are truthy")
+```
+:::
+::::
+
+. . .
+
+Since R 4.2, `if` throws an error if the condition has length > 1 (older versions used the first value with a warning).
+
+Python does not automatically apply the comparison element-wise - `x == 1` is simply `False`, and any non-empty list is truthy regardless of its contents.
+
+
+## Collapsing logical vectors
+
+Both languages provide `any()` and `all()` for reducing multiple logical values to a single one (base Python has no vectorized comparison, so the list of booleans is given directly).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(3, 4, 1)
+x >= 2
+any(x >= 2)
+all(x >= 2)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [3, 4, 1]
+any([True, True, False])
+all([True, True, False])
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+if (any(x == 3)) print("x contains 3!")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+if 3 in x: print("x contains 3!")
+```
+:::
+::::
+
+
+## Conditionals and truthiness
+
+::: {.medium}
+Python's conditionals accept any object and use its *truthiness*. R's `if` requires a single logical value, though it will coerce other values that `as.logical()` recognizes.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+if (1) "yes" else "no"
+if (0) "yes" else "no"
+if ("TRUE") "yes" else "no"
+```
+```{r}
+#| error: true
+if ("abc") "yes" else "no"
+```
+```{r}
+#| error: true
+if (NULL) "yes" else "no"
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+"yes" if 1 else "no"
+"yes" if 0 else "no"
+"yes" if "abc" else "no"
+"yes" if [] else "no"
+"yes" if None else "no"
+```
+:::
+::::
+
+
+## Vectorized conditionals
+
+R's `ifelse()` is the element-wise counterpart to `if` - given a logical vector it returns a vector of the same length built from the `yes` and `no` arguments.
+
+::: {.small}
+```{r}
+x = c(-2, 0, 3)
+ifelse(x > 0, "positive", "non-positive")
+ifelse(x > 0, x, -x)
+```
+:::
+
+. . .
+
+Base Python has no equivalent; the idiomatic approach is a list comprehension with a conditional expression (next time).
+
+
+## Conditionals and missing values
+
+::: {.small}
+* R - `NA` is sticky in comparisons and `if` errors on `NA` rather than guessing. `any()` and `all()` follow the <code>&#124;</code> and `&` rules, so `NA` is not always sticky.
+
+* Python - `None` supports equality tests, but ordering it with a number raises `TypeError`. For `nan`, ordered comparisons and `==` are `False`; `!=` is `True`; and despite comparing equal to nothing, `nan` is truthy.
+
+Check for missing values directly with `is.na()`, `x is None`, or `math.isnan()`.
+:::
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+x = NA
+x > 1
+```
+```{r}
+#| error: true
+if (x > 1) print("x is big")
+```
+```{r}
+any(c(1, NA, 4) >= 3)
+all(c(1, NA, 4) >= 1)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = None
+```
+```{python}
+#| error: true
+if x > 1: print("x is big")
+```
+```{python}
+if x is None: print("x is missing")
+```
+```{python}
+(math.nan > 1, math.nan == math.nan, math.nan != math.nan)
+bool(math.nan)
+```
+:::
+::::
+
+
+## Multi-way branching
+
+R's `switch()` selects a branch based on a character (or integer) value, while Python 3.10+ has the `match` statement (which also supports much more general *structural pattern matching*).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = "b"
+switch(x,
+  a = "apple",
+  b = "banana",
+  "unknown"
+)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = "b"
+match x:
+    case "a":
+        print("apple")
+    case "b":
+        print("banana")
+    case _:
+        print("unknown")
+```
+:::
+::::
+
+::: {.aside}
+`switch()` uses an unnamed final argument as the default (without one an unmatched value returns `NULL`, invisibly), `case _` is the wildcard for `match`.
+:::
+
+
+# Errors
+
+## Signaling conditions
+
+::: {.medium}
+R has several ways of communicating with the user beyond `print()` / `cat()`, each of which is a *condition* that can be handled programmatically:
+
+* `message()` - diagnostic messages (sent to stderr)
+
+* `warning()` - something unexpected but not fatal, execution continues
+
+* `stop()` - an error, execution halts
+
+Python has rough equivalents in `print()` (or the `logging` module), `warnings.warn()`, and `raise` with an *exception* object.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+message("Starting")
+warning("Something unexpected")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+import warnings
+print("Starting")
+warnings.warn("Something unexpected")
+```
+:::
+::::
+
+::: {.aside}
+Errors stop a Quarto document from rendering unless the chunk sets `#| error: true` (which is how these slides show error output).
+:::
+
+
+## Raising errors
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| error: true
+x = -1
+if (x < 0) {
+  stop("x must be non-negative")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x = -1
+if x < 0:
+    raise ValueError("x must be non-negative")
+```
+:::
+::::
+
+. . .
+
+Both languages also have a shorthand for checking assumptions - R's `stopifnot()` and Python's `assert` statement:
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| error: true
+stopifnot(x >= 0)
+```
+```{r}
+#| error: true
+stopifnot("x must be non-negative" = x >= 0)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+assert x >= 0
+```
+```{python}
+#| error: true
+assert x >= 0, "x must be non-negative"
+```
+:::
+::::
+
+::: {.aside}
+Python's `assert` statements are stripped when running with `python -O`, so use them for development-time checks rather than validating user input.
+:::
+
+
+## Errors vs exceptions
+
+::: {.medium}
+Python exceptions are objects with a class hierarchy - the class describes what went wrong and allows handling to be selective. R errors are, by default, all of the same class (`simpleError`) and are distinguished only by their message.
+:::
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+"abc" + 1
+```
+```{r}
+#| error: true
+log("abc")
+```
+```{r}
+#| error: true
+sum("abc")
+```
+```{r}
+#| error: true
+undefined_var
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+"abc" + 1
+```
+```{python}
+#| error: true
+int("abc")
+```
+```{python}
+#| error: true
+[1, 2, 3][5]
+```
+```{python}
+#| error: true
+undefined_var
+```
+:::
+::::
+
+::: {.aside}
+See the Python docs for the full [exception hierarchy](https://docs.python.org/3/library/exceptions.html#exception-hierarchy). Classed conditions are possible in R (e.g. via `rlang::abort()` / `cli::cli_abort()`) and are used throughout the tidyverse.
+:::
+
+
+## Handling errors
+
+::: {.medium}
+R's `try()` evaluates an expression and, instead of halting, returns a `try-error` object if an error occurs. Python's `try` / `except` block runs the `except` code only if a matching exception was raised in the `try` body.
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = try(log("a"), silent = TRUE)
+class(x)
+cat(x)
+inherits(x, "try-error")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+try:
+    x = math.log("a")
+except TypeError as e:
+    print("Caught:", e)
+    x = math.nan
+x
+```
+:::
+::::
+
+
+## `tryCatch()` and `try` / `except` / `finally`
+
+::: {.medium}
+R's `tryCatch()` lets you provide handler *functions* for specific condition classes (`error`, `warning`, `message`), while Python's `except` clauses are matched against the exception's class in order. Both support a `finally` block that always runs.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+tryCatch(
+  {
+    log("a")
+  },
+  error = function(e) {
+    cat("Error:", conditionMessage(e), "\n")
+  },
+  warning = function(w) {
+    cat("Warning:", conditionMessage(w), "\n")
+  },
+  finally = {
+    cat("Done\n")
+  }
+)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+try:
+    math.log("a")
+except TypeError as e:
+    print("Error:", e)
+except ValueError as e:
+    print("Value error:", e)
+else:
+    print("No error")
+finally:
+    print("Done")
+```
+:::
+::::
+
+::: {.aside}
+Python's `else` clause runs only when no exception occurred. `tryCatch()` returns the value of the expression, or of the handler that was run.
+:::
+
+
+## Exercise 1
+
+Without running the code, what do you expect the output (or error) to be for each of the listed values of `x`?
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| eval: false
+if (x > 10 || x < -10) {
+  stop("Input too big")
+} else if (x %in% c(2, 3, 5, 7)) {
+  cat("Input is prime!\n")
+} else if (x %% 2 == 0) {
+  cat("Input is even!\n")
+} else if (x %% 2 == 1) {
+  cat("Input is odd!\n")
+}
+```
+```{r}
+#| eval: false
+x = 1
+x = 3
+x = -1
+x = -3
+x = 1:2
+x = "0"
+x = "zero"
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| eval: false
+if x > 10 or x < -10:
+    raise ValueError("Input too big")
+elif x in [2, 3, 5, 7]:
+    print("Input is prime!")
+elif x % 2 == 0:
+    print("Input is even!")
+elif x % 2 == 1:
+    print("Input is odd!")
+```
+```{python}
+#| eval: false
+x = 1
+x = 3
+x = -1
+x = -3
+x = [1, 2]
+x = "0"
+x = 2.5
+```
+:::
+::::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Loops
+
+## `for` loops
+
+R's `for` iterates over the elements of a vector (or list), while Python's `for` iterates over the elements of any *iterable* object (lists, tuples, strings, ranges, dictionaries, files, ...).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+for (w in c("Hello", "world!")) {
+  cat(w, ":", nchar(w), "\n")
+}
+```
+```{r}
+total = 0
+for (v in c(1, 2, 3, 4)) {
+  total = total + v
+}
+total
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+for w in ["Hello", "world!"]:
+    print(w, ":", len(w))
+```
+```{python}
+total = 0
+for v in (1, 2, 3, 4):
+    total += v
+total
+```
+:::
+::::
+
+
+
+## Integer sequences
+
+Loops over indices need a sequence of integers - R has `:`, `seq()`, `seq_len()`, and `seq_along()`, while Python has `range()`.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+1:5
+seq(1, 10, by = 3)
+seq_len(3)
+seq_along(c("a", "b", "c"))
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+range(5)
+list(range(5))
+list(range(1, 11, 3))
+list(range(5, 0, -1))
+```
+:::
+::::
+
+. . .
+
+`range(start, stop, step)` excludes `stop` and is *lazy* - its size does not grow with the length of the range. For integer endpoints, R's `:` includes both; `seq()` includes `to` only when the step lands on it. R sequences behave like vectors but may be stored compactly internally.
+
+
+## Looping over indices
+
+The R idiom is `seq_along(x)`. Python's equivalent is `range(len(x))`, but `enumerate()` is preferred as it yields the index *and* the value together (as a tuple, which is unpacked into `i` and `v` below).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c("a", "b", "c")
+for (i in seq_along(x)) {
+  cat(i, x[i], "\n")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = ["a", "b", "c"]
+for i in range(len(x)):
+    print(i, x[i])
+```
+```{python}
+for i, v in enumerate(x):
+    print(i, v)
+```
+:::
+::::
+
+::: {.aside}
+`enumerate(x, start=1)` can be used if 1-based indices are needed.
+:::
+
+
+## Avoid `1:length(x)`
+
+The common R idiom `1:length(x)` fails for empty vectors since `1:0` is `c(1, 0)` - use `seq_along()` or `seq_len()` instead. Python's `range(len(x))` is safe since `range(0)` is empty.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = integer()
+1:length(x)
+seq_along(x)
+```
+```{r}
+for (i in 1:length(x)) print(i)
+for (i in seq_along(x)) print(i)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = []
+list(range(len(x)))
+```
+```{python}
+for i in range(len(x)): print(i)
+```
+:::
+::::
+
+
+## Multiple sequences
+
+Python's `zip()` iterates over multiple sequences together, stopping at the shortest. R has no direct equivalent - index with `seq_along()` instead (though vectorization usually makes this unnecessary).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(1, 2, 3)
+y = c("a", "b", "c")
+for (i in seq_along(x)) {
+  cat(x[i], y[i], "\n")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, 2, 3]
+y = ["a", "b", "c"]
+for a, b in zip(x, y):
+    print(a, b)
+```
+```{python}
+list(zip([1, 2, 3, 4], "ab"))
+```
+:::
+::::
+
+::: {.aside}
+`zip()` returns a lazy iterator (hence the `list()` to see its contents). See `itertools.zip_longest()` to iterate until the longest sequence is exhausted.
+:::
+
+
+## `while` loops
+
+Repeat the body as long as the condition is `TRUE` / truthy - the condition is checked before each iteration, so the body may never run.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+i = 1
+while (i < 100) {
+  i = i * 2
+}
+i
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+i = 1
+while i < 100:
+    i *= 2
+i
+```
+:::
+::::
+
+. . .
+
+R also has `repeat`, which loops forever until a `break` - the Python idiom for this is `while True:`.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+i = 1
+repeat {
+  i = i * 2
+  if (i >= 100) break
+}
+i
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+i = 1
+while True:
+    i *= 2
+    if i >= 100:
+        break
+i
+```
+:::
+::::
+
+
+## `break` and `next` / `continue`
+
+`break` exits the (innermost) loop entirely, while `next` in R and `continue` in Python skip the rest of the current iteration.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+for (i in 1:10) {
+  if (i %% 3 == 0) next
+  cat(i, "")
+}
+```
+```{r}
+for (i in 1:10) {
+  if (i %% 3 == 0) break
+  cat(i, "")
+}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+for i in range(1, 11):
+    if i % 3 == 0:
+        continue
+    print(i, end=" ")
+```
+```{python}
+for i in range(1, 11):
+    if i % 3 == 0:
+        break
+    print(i, end=" ")
+```
+:::
+::::
+
+
+## Loop `else` and `pass`
+
+Two Python-only constructs - loops can have an `else` clause that runs when the loop finishes *without* a `break`, and `pass` is a no-op placeholder for where a statement is syntactically required.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+for n in range(2, 10):
+    for x in range(2, n):
+        if n % x == 0:
+            print(n, "=", x, "*", n // x)
+            break
+    else:
+        print(n, "is prime")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = -3
+if x < 0:
+    pass
+elif x % 2 == 0:
+    print("x is even")
+else:
+    print("x is odd")
+```
+:::
+::::
+
+::: {.aside}
+Loop `else` example from the [Python Tutorial](https://docs.python.org/3/tutorial/controlflow.html#else-clauses-on-loops). R has no loop `else`, and an empty block `{}` (or `NULL`) serves as a placeholder.
+:::
+
+
+## Building up results
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+res = c()
+for (i in 1:5) {
+  res = c(res, i^2)
+}
+res
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+res = []
+for i in range(1, 6):
+    res.append(i**2)
+res
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+Growing an R vector with `c()` copies it every iteration (quadratic overall), so for longer loops preallocate (`numeric(n)`, `character(n)`, `vector("list", n)`) and assign by index. Python's `list.append()` is amortized constant time, so appending is idiomatic there.
+:::
+
+::: {.small}
+```{r}
+res = numeric(5)
+for (i in seq_along(res)) {
+  res[i] = i^2
+}
+res
+```
+:::
+
+::: {.aside}
+In practice most loops like these are replaced by vectorized operations, functional tools (`lapply()`, `purrr::map()`), or comprehensions - all coming up in the next few weeks.
+:::
+
+
+## Exercise 2
+
+:::: {.columns .medium}
+::: {.column width='40%'}
+To the right are vectors containing all prime numbers between 2 and 100 and some values `x` we would like to check for primality.
+
+Using *nested* loops, write code in both R and Python that prints only the values of `x` that are *not* prime - without using subsetting, `%in%`, or `in`.
+
+In Python, try using the loop `else` clause; in R you will need a flag variable.
+:::
+
+::: {.column .xsmall width='60%'}
+```{r}
+primes = c( 2,  3,  5,  7, 11, 13, 17, 19, 23, 
+           29, 31, 37, 41, 43, 47, 53, 59, 61, 
+           67, 71, 73, 79, 83, 89, 97)
+x = c(3, 4, 12, 19, 23, 51, 61, 63, 78)
+```
+```{python}
+primes = [ 2,  3,  5,  7, 11, 13, 17, 19, 23, 
+          29, 31, 37, 41, 43, 47, 53, 59, 61, 
+          67, 71, 73, 79, 83, 89, 97]
+x = [3, 4, 12, 19, 23, 51, 61, 63, 78]
+```
+:::
+::::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Comparing R & Python
+
+## Control flow summary
+
+::: {.small}
+| Construct              | R                                | Python                          |
+|:-----------------------|:---------------------------------|:--------------------------------|
+| conditional            | `if` / `else if` / `else`        | `if` / `elif` / `else`          |
+| conditional expression | `if (cond) a else b`             | `a if cond else b`              |
+| vectorized conditional | `ifelse()`                       | comprehension, `np.where()`     |
+| multi-way branch       | `switch()`                       | `match` / `case`                |
+| for loop               | `for (x in vec) {}`              | `for x in iterable:`            |
+| while loop             | `while (cond) {}`                | `while cond:`                   |
+| infinite loop          | `repeat {}`                      | `while True:`                   |
+| skip iteration         | `next`                           | `continue`                      |
+| exit loop              | `break`                          | `break`                         |
+| integer sequences      | `:`, `seq_len()`, `seq_along()`  | `range()`                       |
+| index + value          | `seq_along()` + `x[i]`           | `enumerate()`                   |
+| multiple sequences     | `seq_along()` + indexing         | `zip()`                         |
+| reduce logicals        | `any()`, `all()`                 | `any()`, `all()`                |
+| blocks                 | `{ }`                            | `:` + indentation               |
+:::
+
+
+## Error handling summary
+
+::: {.medium}
+| Concept        | R                                   | Python                              |
+|:---------------|:------------------------------------|:------------------------------------|
+| message        | `message()`                         | `print()`, `logging`                |
+| warning        | `warning()`                         | `warnings.warn()`                   |
+| error          | `stop()`                            | `raise SomeError()`                 |
+| assertion      | `stopifnot()`                       | `assert`                            |
+| catch          | `try()`, `tryCatch()`               | `try` / `except`                    |
+| always run     | `tryCatch(finally = )`, `on.exit()` | `finally`                           |
+| error object   | condition (`simpleError`)           | exception (subclass of `Exception`) |
+| error message  | `conditionMessage(e)`               | `str(e)`                            |
+:::
+
+
+## Takeaways
+
+* R's comparison and logical operators (`==`, `&`, <code>&#124;</code>) are vectorized; `&&` / <code>&#124;&#124;</code> in R and `and` / `or` in Python are scalar and short-circuit.
+
+* `if` in R needs exactly one `TRUE` / `FALSE` - use `any()`, `all()`, or `ifelse()` for vectors. Python's `if` tests the *truthiness* of any object.
+
+* Loop syntax is nearly identical - the differences are blocks (`{}` vs indentation), `seq_along()` vs `range()` / `enumerate()`, and `next` vs `continue`.
+
+* Errors are *conditions* in R (`stop()`, `tryCatch()`) and typed *exception* objects in Python (`raise`, `try` / `except`).
