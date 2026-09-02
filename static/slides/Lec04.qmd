@@ -110,7 +110,7 @@ R warns only when the longer length is not a multiple of the shorter length.
 
 ## Zero-length recycling
 
-Zero-length vectors contain no values; `NULL` also has length zero. For vectorized operations the presence of a length 0 vector means the result will also have length 0.
+Zero-length vectors contain no values; `NULL` also has length zero. For vectorized operations, the presence of a zero-length vector means the result will also have length 0.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -177,7 +177,7 @@ x > [2]
 ::::
 
 ::: {.aside}
-`*` repeats a list and `+` concatenates two lists
+`*` repeats a list and `+` concatenates two lists.
 :::
 
 ## List comprehensions
@@ -244,7 +244,7 @@ np.__version__
 
 ## Vectorized operations with NumPy
 
-NumPy arrays support the same style of vectorized arithmetic, comparison, and logical operations as R's atomic vectors, with similar performance compared to explicit for loops.
+NumPy arrays support the same style of vectorized arithmetic, comparison, and logical operations as R's atomic vectors, with a similar performance advantage over explicit `for` loops.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -266,13 +266,13 @@ x % 2 == 0
 ::::
 
 ::: {.aside}
-Careful use of parentheses can be needed to make sure the correct operator(s) are used.
+The parentheses around each comparison are required since `&` has higher precedence than `>` and `<` in Python.
 :::
 
 
 ## Vectorized conditional choice
 
-`np.where()` is NumPy's equivalent to R's `ifelse()`, both construct a new vector by choosing between two values element-wise based on a condition.
+`np.where()` is NumPy's equivalent to R's `ifelse()`; both construct a new vector by choosing between two values element-wise based on a condition.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -310,12 +310,16 @@ np.where(x > 5)
 :::
 ::::
 
+::: {.aside}
+The single-argument form returns a tuple with one array of positions per dimension. `np.flatnonzero()` returns a plain array and is the closer match to `which()`.
+:::
+
 
 # Subsetting
 
 ## Indexing conventions
 
-R uses 1-based indexing; Python uses 0-based indexing when subsetting by positive integers.
+R uses 1-based indexing; Python uses 0-based indexing when subsetting by non-negative integers.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -463,7 +467,7 @@ Selecting with an integer array or list is called *advanced indexing*; selecting
 
 ## Out-of-bounds positions
 
-Out-of-bound indexing fails in Python, while R returns a typed missing value for a position that does not exist. Python slices clip each endpoint to the nearest valid boundary.
+Out-of-bounds indexing fails in Python, while R returns a typed missing value for a position that does not exist. Python slices clip each endpoint to the nearest valid boundary.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -502,7 +506,7 @@ We have already used positive integers to select positions and negative integers
 <br/>
 
 
-* logicals - select by`TRUE` positions
+* logicals - select by `TRUE` positions
 
 * characters - select by names
 
@@ -513,9 +517,9 @@ We have already used positive integers to select positions and negative integers
 
 ## Logical indexes
 
-Logical subsetting keeps values corresponding to `TRUE`. 
+Logical subsetting keeps values corresponding to `TRUE`.
 
-Most logical indexes are created by vectorized logical expressions, which return one logical value for each element, often called a *mask*.
+Most logical indexes are created by vectorized logical expressions, which return one logical value for each element. Such a vector is often called a *mask*.
 
 
 ::: {.xsmall}
@@ -564,7 +568,7 @@ Logical indexes are recycled to the length of `x`; an `NA` in the index produces
 :::
 
 
-## NumPy & Boolean index
+## NumPy & Boolean indexes
 
 ::: {.medium}
 NumPy also supports using Boolean arrays for subsetting - positions where the index is `True` are kept and those with `False` are discarded. Boolean ndarrays, lists of Booleans, and the masks produced by vectorized comparisons all work.
@@ -577,21 +581,21 @@ x = np.arange(6)
 :::
 
 
-::: {.columns .xsmall}
-::: {.column}
+:::: {.columns .xsmall}
+::: {.column width='50%'}
 ```{python}
 x[np.array([True, False, True, False, True, False])]
 x[[True, False, True, False, True, False]]
 ```
 :::
 
-::: {.column}
+::: {.column width='50%'}
 ```{python}
 x[x % 2 == 0]
 x[x > 2]
 ```
 :::
-:::
+::::
 
 
 
@@ -626,9 +630,9 @@ x[[True]]
 
 ## Boolean expressions with NumPy
 
-NumPy overloads `&`, `|`, and `~` as element-wise logical operators. 
+NumPy overloads `&`, `|`, and `~` as element-wise logical operators.
 
-Parenthesize every comparison because these operators have unexpected precedence.
+Parenthesize every comparison because these operators have higher precedence than comparison operators.
 
 ::: {.small}
 ```{python}
@@ -691,7 +695,7 @@ Character subsetting returns the first value with each requested name. Names do 
 
 ## Empty and zero indexes
 
-In R an empty index selects everything, a zero index selects nothing. This differs from Python, where `0` is the first position and `:` is used to select everything.
+In R, an empty index selects everything and a zero index selects nothing. This differs from Python, where `0` is the first position and `:` is used to select everything.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -725,7 +729,7 @@ In R, zeros may appear alongside positive or negative indexes and are ignored. `
 
 ## Subsetting and assignment
 
-Subset syntax can appear on the left side of an assignment in all three cases. A base Python list supports assignment to a single position or a slice, while R and NumPy also allow assignment via logical / Boolean and integer indexes.
+Subset syntax can appear on the left side of an assignment in R, base Python, and NumPy. A base Python list supports assignment to a single position or a slice, while R and NumPy also allow assignment via logical / Boolean and integer indexes.
 
 :::: {.columns .xsmall}
 ::: {.column width='33%'}
@@ -763,7 +767,7 @@ A slice assignment can change a list's length. NumPy arrays have fixed size and 
 
 ## NumPy views and copies
 
-Basic slicing usually returns a *view* that shares data with the original array. Advanced indexing returns a *copy*.
+Basic slicing always returns a *view* that shares data with the original array. Advanced indexing returns a *copy*.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -933,7 +937,7 @@ y.flatten()
 ::::
 
 ::: {.aside}
-`byrow = TRUE` changes how the matrix is filled, not how it is stored
+`byrow = TRUE` changes how the matrix is filled, not how it is stored.
 :::
 
 
@@ -1048,9 +1052,9 @@ In NumPy, `axis=0` collapses rows; `axis=1` collapses columns.
 
 ## NumPy broadcasts by shape
 
-R recycles by comparing lengths; NumPy *broadcasts* by comparing shapes. 
+R recycles by comparing lengths; NumPy *broadcasts* by comparing shapes.
 
-Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is `1`.
+Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is `1`. An array with fewer dimensions is treated as if it had leading dimensions of size `1`.
 
 ::: {.xsmall}
 ```{python}
@@ -1083,9 +1087,9 @@ Compare with R: `1:6 + c(10, 100)` recycles silently, but the shapes `(6,)` and 
 :::
 
 
-## Broadcasting across rows
+## Adding a vector to every row
 
-A one-dimensional array aligns with the trailing dimension, so it operates across every row.
+A one-dimensional array aligns with the trailing (column) dimension, so it is applied to every row.
 
 ::: {.small}
 ```{python}
@@ -1113,9 +1117,9 @@ x + y
 ::::
 
 
-## Broadcasting down columns
+## Adding a vector to every column
 
-To align with rows, give the vector an explicit singleton column dimension.
+To align with the row dimension instead, give the vector an explicit singleton column dimension.
 
 ::: {.small}
 ```{python}
@@ -1208,7 +1212,7 @@ z.std(axis=0)
 
 ## Unintended broadcasting
 
-Valid shapes do not guarantee the intended calculation.
+Valid shapes do not guarantee the intended calculation: both expressions below run, but only the second subtracts each row's own mean.
 
 ::: {.small}
 ```{python}
@@ -1232,10 +1236,6 @@ x - row_means[:, np.newaxis]
 ```
 :::
 ::::
-
-. . .
-
-Both run, but only the second subtracts each row's own mean.
 
 ::: {.aside}
 When an expression is surprising, inspect `.shape` before the values. `np.broadcast_shapes()` can predict the result shape without performing the calculation.
@@ -1296,7 +1296,7 @@ countdown::countdown(minutes = 5)
 | arbitrary positions     | `x[c(1, 3)]`                     | `x[[0, 2]]` (NumPy)                    |
 | Boolean filter          | `x[x > 0]`                       | `x[x > 0]` (NumPy)                     |
 | all rows, second column | `x[, 2]`                         | `x[:, 1]`                              |
-| independent copy        | usually automatic on modification | `x.copy()` (NumPy)                    |
+| independent copy        | automatic (copy-on-modify)       | `x.copy()` (NumPy)                     |
 :::
 
 
@@ -1308,6 +1308,6 @@ countdown::countdown(minutes = 5)
 
 * R's `[` supports integer, logical, and name-based selection. NumPy adds integer-array and Boolean indexing to Python's usual indexing syntax.
 
-* Basic NumPy slices are usually views; advanced indexing is a copy. Make copying intentional when the result will be modified.
+* Basic NumPy slices are always views; advanced indexing is a copy. Make copying intentional when the result will be modified.
 
 * R recycling is based on vector length; NumPy broadcasting is based on compatible shapes. When in doubt, inspect `.shape`.

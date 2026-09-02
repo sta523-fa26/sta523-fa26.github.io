@@ -2049,7 +2049,7 @@ multiple of shorter object length</code></pre>
 </div></aside></section>
 <section id="zero-length-recycling" class="slide level2">
 <h2>Zero-length recycling</h2>
-<p>Zero-length vectors contain no values; <code>NULL</code> also has length zero. For vectorized operations the presence of a length 0 vector means the result will also have length 0.</p>
+<p>Zero-length vectors contain no values; <code>NULL</code> also has length zero. For vectorized operations, the presence of a zero-length vector means the result will also have length 0.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2157,7 +2157,7 @@ multiple of shorter object length</code></pre>
 </div></div>
 
 <aside><div>
-<p><code>*</code> repeats a list and <code>+</code> concatenates two lists</p>
+<p><code>*</code> repeats a list and <code>+</code> concatenates two lists.</p>
 </div></aside></section>
 <section id="list-comprehensions" class="slide level2">
 <h2>List comprehensions</h2>
@@ -2232,7 +2232,7 @@ multiple of shorter object length</code></pre>
 </section>
 <section id="vectorized-operations-with-numpy" class="slide level2">
 <h2>Vectorized operations with NumPy</h2>
-<p>NumPy arrays support the same style of vectorized arithmetic, comparison, and logical operations as R’s atomic vectors, with similar performance compared to explicit for loops.</p>
+<p>NumPy arrays support the same style of vectorized arithmetic, comparison, and logical operations as R’s atomic vectors, with a similar performance advantage over explicit <code>for</code> loops.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2268,11 +2268,11 @@ multiple of shorter object length</code></pre>
 </div></div>
 
 <aside><div>
-<p>Careful use of parentheses can be needed to make sure the correct operator(s) are used.</p>
+<p>The parentheses around each comparison are required since <code>&amp;</code> has higher precedence than <code>&gt;</code> and <code>&lt;</code> in Python.</p>
 </div></aside></section>
 <section id="vectorized-conditional-choice" class="slide level2">
 <h2>Vectorized conditional choice</h2>
-<p><code>np.where()</code> is NumPy’s equivalent to R’s <code>ifelse()</code>, both construct a new vector by choosing between two values element-wise based on a condition.</p>
+<p><code>np.where()</code> is NumPy’s equivalent to R’s <code>ifelse()</code>; both construct a new vector by choosing between two values element-wise based on a condition.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2318,8 +2318,11 @@ multiple of shorter object length</code></pre>
 </div>
 </div>
 </div></div>
+
 </div>
-</section></section>
+<aside><div>
+<p>The single-argument form returns a tuple with one array of positions per dimension. <code>np.flatnonzero()</code> returns a plain array and is the closer match to <code>which()</code>.</p>
+</div></aside></section></section>
 <section>
 <section id="subsetting" class="title-slide slide level1 center">
 <h1>Subsetting</h1>
@@ -2327,7 +2330,7 @@ multiple of shorter object length</code></pre>
 </section>
 <section id="indexing-conventions" class="slide level2">
 <h2>Indexing conventions</h2>
-<p>R uses 1-based indexing; Python uses 0-based indexing when subsetting by positive integers.</p>
+<p>R uses 1-based indexing; Python uses 0-based indexing when subsetting by non-negative integers.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2525,7 +2528,7 @@ multiple of shorter object length</code></pre>
 </div></aside></section>
 <section id="out-of-bounds-positions" class="slide level2">
 <h2>Out-of-bounds positions</h2>
-<p>Out-of-bound indexing fails in Python, while R returns a typed missing value for a position that does not exist. Python slices clip each endpoint to the nearest valid boundary.</p>
+<p>Out-of-bounds indexing fails in Python, while R returns a typed missing value for a position that does not exist. Python slices clip each endpoint to the nearest valid boundary.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2580,7 +2583,7 @@ multiple of shorter object length</code></pre>
 <p>We have already used positive integers to select positions and negative integers to exclude positions. R’s <code>[</code> operator supports four additional index forms:</p>
 <p><br></p>
 <ul>
-<li><p>logicals - select by<code>TRUE</code> positions</p></li>
+<li><p>logicals - select by <code>TRUE</code> positions</p></li>
 <li><p>characters - select by names</p></li>
 <li><p>zero - select nothing</p></li>
 <li><p>empty index - select everything</p></li>
@@ -2589,7 +2592,7 @@ multiple of shorter object length</code></pre>
 <section id="logical-indexes" class="slide level2">
 <h2>Logical indexes</h2>
 <p>Logical subsetting keeps values corresponding to <code>TRUE</code>.</p>
-<p>Most logical indexes are created by vectorized logical expressions, which return one logical value for each element, often called a <em>mask</em>.</p>
+<p>Most logical indexes are created by vectorized logical expressions, which return one logical value for each element. Such a vector is often called a <em>mask</em>.</p>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb182-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2646,8 +2649,8 @@ multiple of shorter object length</code></pre>
 <aside><div>
 <p>Logical indexes are recycled to the length of <code>x</code>; an <code>NA</code> in the index produces an <code>NA</code> in the result.</p>
 </div></aside></section>
-<section id="numpy-boolean-index" class="slide level2">
-<h2>NumPy &amp; Boolean index</h2>
+<section id="numpy-boolean-indexes" class="slide level2">
+<h2>NumPy &amp; Boolean indexes</h2>
 <div class="medium">
 <p>NumPy also supports using Boolean arrays for subsetting - positions where the index is <code>True</code> are kept and those with <code>False</code> are discarded. Boolean ndarrays, lists of Booleans, and the masks produced by vectorized comparisons all work.</p>
 </div>
@@ -2657,7 +2660,7 @@ multiple of shorter object length</code></pre>
 </div>
 </div>
 <div class="columns xsmall">
-<div class="column">
+<div class="column" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href aria-label="1"></a>x[np.array([<span class="va">True</span>, <span class="va">False</span>, <span class="va">True</span>, <span class="va">False</span>, <span class="va">True</span>, <span class="va">False</span>])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2668,7 +2671,7 @@ multiple of shorter object length</code></pre>
 <pre><code>array([0, 2, 4])</code></pre>
 </div>
 </div>
-</div><div class="column">
+</div><div class="column" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href aria-label="1"></a>x[x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2714,7 +2717,7 @@ multiple of shorter object length</code></pre>
 <section id="boolean-expressions-with-numpy" class="slide level2">
 <h2>Boolean expressions with NumPy</h2>
 <p>NumPy overloads <code>&amp;</code>, <code>|</code>, and <code>~</code> as element-wise logical operators.</p>
-<p>Parenthesize every comparison because these operators have unexpected precedence.</p>
+<p>Parenthesize every comparison because these operators have higher precedence than comparison operators.</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>x <span class="op">=</span> np.arange(<span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2796,7 +2799,7 @@ multiple of shorter object length</code></pre>
 </div></aside></section>
 <section id="empty-and-zero-indexes" class="slide level2">
 <h2>Empty and zero indexes</h2>
-<p>In R an empty index selects everything, a zero index selects nothing. This differs from Python, where <code>0</code> is the first position and <code>:</code> is used to select everything.</p>
+<p>In R, an empty index selects everything and a zero index selects nothing. This differs from Python, where <code>0</code> is the first position and <code>:</code> is used to select everything.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2845,7 +2848,7 @@ multiple of shorter object length</code></pre>
 </div></aside></section>
 <section id="subsetting-and-assignment" class="slide level2">
 <h2>Subsetting and assignment</h2>
-<p>Subset syntax can appear on the left side of an assignment in all three cases. A base Python list supports assignment to a single position or a slice, while R and NumPy also allow assignment via logical / Boolean and integer indexes.</p>
+<p>Subset syntax can appear on the left side of an assignment in R, base Python, and NumPy. A base Python list supports assignment to a single position or a slice, while R and NumPy also allow assignment via logical / Boolean and integer indexes.</p>
 <div class="columns xsmall">
 <div class="column" style="width:33%;">
 <div class="cell">
@@ -2884,7 +2887,7 @@ multiple of shorter object length</code></pre>
 </div></aside></section>
 <section id="numpy-views-and-copies" class="slide level2">
 <h2>NumPy views and copies</h2>
-<p>Basic slicing usually returns a <em>view</em> that shares data with the original array. Advanced indexing returns a <em>copy</em>.</p>
+<p>Basic slicing always returns a <em>view</em> that shares data with the original array. Advanced indexing returns a <em>copy</em>.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2948,7 +2951,7 @@ multiple of shorter object length</code></pre>
 </div></div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_756586b5" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_6d37f2c1" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3128,7 +3131,7 @@ multiple of shorter object length</code></pre>
 
 </div>
 <aside><div>
-<p><code>byrow = TRUE</code> changes how the matrix is filled, not how it is stored</p>
+<p><code>byrow = TRUE</code> changes how the matrix is filled, not how it is stored.</p>
 </div></aside></section>
 <section id="two-dimensional-indexing" class="slide level2">
 <h2>Two-dimensional indexing</h2>
@@ -3300,7 +3303,7 @@ multiple of shorter object length</code></pre>
 <section id="numpy-broadcasts-by-shape" class="slide level2">
 <h2>NumPy broadcasts by shape</h2>
 <p>R recycles by comparing lengths; NumPy <em>broadcasts</em> by comparing shapes.</p>
-<p>Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is <code>1</code>.</p>
+<p>Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is <code>1</code>. An array with fewer dimensions is treated as if it had leading dimensions of size <code>1</code>.</p>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb347"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb347-1"><a href aria-label="1"></a>x <span class="op">=</span> np.arange(<span class="dv">1</span>, <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -3337,9 +3340,9 @@ multiple of shorter object length</code></pre>
 <aside><div>
 <p>Compare with R: <code>1:6 + c(10, 100)</code> recycles silently, but the shapes <code>(6,)</code> and <code>(2,)</code> are incompatible in NumPy.</p>
 </div></aside></section>
-<section id="broadcasting-across-rows" class="slide level2">
-<h2>Broadcasting across rows</h2>
-<p>A one-dimensional array aligns with the trailing dimension, so it operates across every row.</p>
+<section id="adding-a-vector-to-every-row" class="slide level2">
+<h2>Adding a vector to every row</h2>
+<p>A one-dimensional array aligns with the trailing (column) dimension, so it is applied to every row.</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb356"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb356-1"><a href aria-label="1"></a>x <span class="op">=</span> np.arange(<span class="dv">12</span>).reshape(<span class="dv">4</span>, <span class="dv">3</span>)</span>
@@ -3385,9 +3388,9 @@ multiple of shorter object length</code></pre>
 </div>
 </div></div>
 </section>
-<section id="broadcasting-down-columns" class="slide level2">
-<h2>Broadcasting down columns</h2>
-<p>To align with rows, give the vector an explicit singleton column dimension.</p>
+<section id="adding-a-vector-to-every-column" class="slide level2">
+<h2>Adding a vector to every column</h2>
+<p>To align with the row dimension instead, give the vector an explicit singleton column dimension.</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb369"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb369-1"><a href aria-label="1"></a>x <span class="op">=</span> np.arange(<span class="dv">12</span>).reshape(<span class="dv">3</span>, <span class="dv">4</span>)</span>
@@ -3501,7 +3504,7 @@ multiple of shorter object length</code></pre>
 </section>
 <section id="unintended-broadcasting" class="slide level2">
 <h2>Unintended broadcasting</h2>
-<p>Valid shapes do not guarantee the intended calculation.</p>
+<p>Valid shapes do not guarantee the intended calculation: both expressions below run, but only the second subtracts each row’s own mean.</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb391"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb391-1"><a href aria-label="1"></a>x <span class="op">=</span> np.array([[<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>],</span>
@@ -3530,10 +3533,7 @@ multiple of shorter object length</code></pre>
 </div>
 </div>
 </div></div>
-<div class="fragment">
-<p>Both run, but only the second subtracts each row’s own mean.</p>
 
-</div>
 <aside><div>
 <p>When an expression is surprising, inspect <code>.shape</code> before the values. <code>np.broadcast_shapes()</code> can predict the result shape without performing the calculation.</p>
 </div></aside></section>
@@ -3552,7 +3552,7 @@ multiple of shorter object length</code></pre>
 <p>Then write a vectorized NumPy expression that subtracts the mean of each row from a matrix <code>x</code> with shape <code>(100, 5)</code>.</p>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_53b8c2ed" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_bf048587" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3676,7 +3676,7 @@ multiple of shorter object length</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: left;">independent copy</td>
-<td style="text-align: left;">usually automatic on modification</td>
+<td style="text-align: left;">automatic (copy-on-modify)</td>
 <td style="text-align: left;"><code>x.copy()</code> (NumPy)</td>
 </tr>
 </tbody>
@@ -3689,7 +3689,7 @@ multiple of shorter object length</code></pre>
 <li><p>R atomic vectors and NumPy arrays support element-wise operations; Python lists require explicit iteration or comprehensions.</p></li>
 <li><p>R indexes from 1 and uses negative indexes for exclusion; Python indexes from 0, counts backward with negative indexes, and uses half-open slices.</p></li>
 <li><p>R’s <code>[</code> supports integer, logical, and name-based selection. NumPy adds integer-array and Boolean indexing to Python’s usual indexing syntax.</p></li>
-<li><p>Basic NumPy slices are usually views; advanced indexing is a copy. Make copying intentional when the result will be modified.</p></li>
+<li><p>Basic NumPy slices are always views; advanced indexing is a copy. Make copying intentional when the result will be modified.</p></li>
 <li><p>R recycling is based on vector length; NumPy broadcasting is based on compatible shapes. When in doubt, inspect <code>.shape</code>.</p></li>
 </ul>
 
