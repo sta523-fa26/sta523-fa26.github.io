@@ -5,3 +5,8 @@ requires-python = ">=3.14"
 dependencies = [
     "numpy>=2.5.2",
 ]
+
+[tool.uv.workspace]
+members = [
+    "static/slides/notes",
+]

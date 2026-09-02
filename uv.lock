@@ -2,6 +2,23 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+members = [
+    "notes",
+    "website",
+]
+
+[[package]]
+name = "notes"
+version = "0.1.0"
+source = { virtual = "static/slides/notes" }
+dependencies = [
+    { name = "numpy" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "numpy", specifier = ">=2.5.2" }]
+
 [[package]]
 name = "numpy"
 version = "2.5.2"
