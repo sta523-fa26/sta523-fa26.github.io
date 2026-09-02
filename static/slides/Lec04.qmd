@@ -1,5 +1,5 @@
 ---
-title: "Subsetting &<br/>Vectorization"
+title: "Vectorization &<br/>Subsetting"
 subtitle: "Lecture 04"
 author: "Dr. Colin Rundel"
 footer: "Sta 523 - Fall 2026"
@@ -979,6 +979,41 @@ x[np.ix_([0, 2], [1, 3])]
 
 
 
+## Dropping dimensions
+
+Selecting a single row or column with a scalar index removes that dimension. Use `drop = FALSE` in R or a length-one slice in NumPy to preserve a two-dimensional result.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x[1, ]
+dim(x[1, ])
+```
+
+```{r}
+x[1, , drop = FALSE]
+dim(x[1, , drop = FALSE])
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[0, :]
+x[0, :].shape
+```
+
+```{python}
+x[0:1, :]
+x[0:1, :].shape
+```
+:::
+::::
+
+::: {.aside}
+A scalar index drops a dimension; a slice preserves it.
+:::
+
+
 ## Integer arrays in 2D
 
 An integer list can select along either dimension. When both dimensions receive integer lists, NumPy pairs them element by element instead of crossing them.
@@ -1052,9 +1087,35 @@ In NumPy, `axis=0` collapses rows; `axis=1` collapses columns.
 
 ## NumPy broadcasts by shape
 
-R recycles by comparing lengths; NumPy *broadcasts* by comparing shapes.
+R recycles by comparing lengths; NumPy *broadcasts* by comparing *shapes*.
 
-Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is `1`. An array with fewer dimensions is treated as if it had leading dimensions of size `1`.
+:::: {.columns}
+::: {.column width='45%'}
+Shapes are compared from the rightmost dimension to the left. 
+
+Each pair of dimensions is compatible when:
+
+* they are equal, or
+
+* one of them is `1`.
+
+An array with fewer dimensions is treated as if it had leading dimensions of size `1`.
+:::
+
+::: {.column width='55%'}
+<br/><br/>
+![](imgs/numpy_broadcasting.png){fig-align="center" width="100%" fig-alt="Examples of NumPy arrays expanding across compatible dimensions during broadcasting."}
+:::
+::::
+
+::: {.aside}
+From the NumPy user guide: [Broadcasting](https://numpy.org/doc/stable/user/basics.broadcasting.html).
+:::
+
+
+## Broadcasting vectors
+
+For one-dimensional arrays, sizes must match or one of the arrays must have size `1`.
 
 ::: {.xsmall}
 ```{python}
@@ -1304,10 +1365,10 @@ countdown::countdown(minutes = 5)
 
 * R atomic vectors and NumPy arrays support element-wise operations; Python lists require explicit iteration or comprehensions.
 
-* R indexes from 1 and uses negative indexes for exclusion; Python indexes from 0, counts backward with negative indexes, and uses half-open slices.
+* R indexes from 1 and uses negative indexes for exclusion; Python indexes from 0, counts backward with negative indexes.
 
 * R's `[` supports integer, logical, and name-based selection. NumPy adds integer-array and Boolean indexing to Python's usual indexing syntax.
 
 * Basic NumPy slices are always views; advanced indexing is a copy. Make copying intentional when the result will be modified.
 
-* R recycling is based on vector length; NumPy broadcasting is based on compatible shapes. When in doubt, inspect `.shape`.
+* R recycling is based on vector length; NumPy broadcasting is based on compatible shapes.
