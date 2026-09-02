@@ -47,7 +47,7 @@ schedule:
   day: 3
   topic: "Fundamentals"
   lecture: "Subsetting & Vectorization"
-  slides: ""
+  slides: "Lec04"
   r_readings:
     - text: "Adv R - Subsetting"
       link: http://adv-r.had.co.nz/Subsetting.html

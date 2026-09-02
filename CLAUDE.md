@@ -46,6 +46,8 @@ Note: Within a single slide, all code chunks should use the same size class (`.s
 
 Note: When reviewing slides, do not review or comment on the content of exercises or examples (spelling and grammar checks are fine). These are meant to be external live-coded experiences for students, so the content will usually not be in the slides.
 
+Note: Avoid ending a slide with a text statement revealed as a fragment (`. . .` followed by prose); this usually reads as a fact tacked on after the fact. Fold the point into the slide's intro text or an `::: {.aside}`, or drop it. Reserve end-of-slide text fragments for genuinely important punchlines, used sparingly.
+
 ## Key Configuration
 
 - `config.yaml`: Hugo site config, menu structure, course params (assignments, classroom info)

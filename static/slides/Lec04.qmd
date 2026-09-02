@@ -1,0 +1,1313 @@
+---
+title: "Subsetting &<br/>Vectorization"
+subtitle: "Lecture 04"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+options(
+  width = 80
+)
+```
+
+```{python py_setup}
+#| echo: false
+import numpy as np
+```
+
+
+# Vectorization in R
+
+## Vectorized operations in R
+
+*Vectorized* code applies one operation to many values without writing an explicit loop. R's arithmetic, comparison, and element-wise logical operators are vectorized.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = 1:5
+x^2
+sqrt(x)
+x + 10
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x > 3
+x %% 2 == 0
+(x > 1) & (x < 5)
+```
+:::
+::::
+
+::: {.aside}
+The reason we care about vectorization is that it can be orders of magnitude faster than an explicit loop.
+:::
+
+## R recycles by length
+
+When vector lengths differ, R repeats the shorter vector to match the longer one.
+
+::: {.xsmall}
+```{r}
+x = 1:6
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x + 10
+x + c(10, 100)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x + c(10, 100, 1000)
+x + c(10, 100, 1000, 10000)
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x > 3
+x > c(2, 4)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x == c(1, 2, 3)
+c(TRUE, FALSE) & c(TRUE, TRUE, TRUE)
+```
+:::
+::::
+
+::: {.aside}
+R warns only when the longer length is not a multiple of the shorter length.
+:::
+
+## Zero-length recycling
+
+Zero-length vectors contain no values; `NULL` also has length zero. For vectorized operations the presence of a length 0 vector means the result will also have length 0.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+numeric()
+integer()
+logical()
+character()
+NULL
+length(NULL)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x = 1:4
+```
+```{r}
+x + numeric()
+x > numeric()
+c(TRUE, FALSE) & logical()
+x + NULL
+x == NULL
+```
+:::
+::::
+
+
+
+# Vectorization in Python
+
+## Python lists are not vectorized
+
+Python's list operators manipulate the container, not the values. Element-wise arithmetic and comparisons instead require explicit iteration: a `for` loop or, more idiomatically, a comprehension.
+
+::: {.small}
+```{python}
+x = [1, 2, 3]
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x * 2
+x + x
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x + 2
+```
+```{python}
+#| error: true
+x > 2
+```
+```{python}
+x + [2]
+x > [2]
+```
+:::
+::::
+
+::: {.aside}
+`*` repeats a list and `+` concatenates two lists
+:::
+
+## List comprehensions
+
+A comprehension combines an expression with a `for` clause to construct a list. A trailing `if` filters values; a conditional expression transforms every value.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+result = []
+for x in range(6):
+    result.append(x**2)
+result
+[x**2 for x in range(6)]
+```
+:::
+
+::: {.column .fragment width='50%'}
+```{python}
+[x**2 for x in range(10)
+ if x % 2 == 0]
+[x if x % 2 == 0 else -1
+ for x in range(10)]
+```
+:::
+::::
+
+. . .
+
+Comprehensions can be nested. Additional `for` clauses act like nested loops and produce one flat list, while nested comprehensions build a list of lists.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+[(i, j)
+ for i in range(3)
+ for j in range(2)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+[[i * j for j in range(4)]
+ for i in range(3)]
+```
+:::
+::::
+
+
+## NumPy
+
+[NumPy](https://numpy.org/) is a third-party Python package for numerical computing. Its main data structure is the homogeneous, multidimensional `ndarray`, with operations designed to work efficiently across entire arrays (i.e. vectorization).
+
+. . .
+
+Installation happens once per project (e.g. `uv add numpy`). Before using NumPy in a Python session or script, import it; `np` is the conventional short alias, so functions are called as `np.array()`, `np.arange()`, `np.sqrt()`, etc.
+
+::: {.small}
+```{python}
+import numpy as np
+np.__version__
+```
+:::
+
+## Vectorized operations with NumPy
+
+NumPy arrays support the same style of vectorized arithmetic, comparison, and logical operations as R's atomic vectors, with similar performance compared to explicit for loops.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 6)
+x**2
+np.sqrt(x)
+x + 10
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x > 3
+x % 2 == 0
+(x > 1) & (x < 5)
+```
+:::
+::::
+
+::: {.aside}
+Careful use of parentheses can be needed to make sure the correct operator(s) are used.
+:::
+
+
+## Vectorized conditional choice
+
+`np.where()` is NumPy's equivalent to R's `ifelse()`, both construct a new vector by choosing between two values element-wise based on a condition.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = 0:7
+ifelse(x %% 2 == 0, x, -1)
+ifelse(x > 5, "big", "small")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(8)
+np.where(x % 2 == 0, x, -1)
+np.where(x > 5, "big", "small")
+```
+:::
+::::
+
+. . .
+
+With a single argument, `np.where()` instead returns the positions where the condition is true; the R equivalent is `which()`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+which(x > 5)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+np.where(x > 5)
+```
+:::
+::::
+
+
+# Subsetting
+
+## Indexing conventions
+
+R uses 1-based indexing; Python uses 0-based indexing when subsetting by positive integers.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c("a", "b", "c", "d", "e")
+```
+```{r}
+x[1]
+x[5]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = ["a", "b", "c", "d", "e"]
+```
+
+```{python}
+x[0]
+x[4]
+```
+:::
+::::
+
+. . .
+
+In R, a negative index *excludes* a position. In Python, it counts backward from the end (`-1` is the last element).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x[-1]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[-1]
+```
+:::
+::::
+
+
+## Python slices
+
+A slice has the form `start:stop:step`; `start` is included and `stop` is excluded. Any component may be omitted.
+
+::: {.xsmall}
+```{python}
+x = list("abcdefgh"); x
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x[1:5]
+x[:4]
+x[4:]
+x[:]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[1:7:2]
+x[::2]
+x[::-1]
+x[-3:]
+```
+:::
+::::
+
+
+## Selecting multiple positions
+
+R accepts a vector of positions inside `[ ]`. A base Python list does not: a slice can select a regular range, but arbitrary positions require a comprehension.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = letters[1:5]
+```
+```{r}
+x[c(1, 3, 5)]
+x[c(4, 2, 2)]
+```
+```{r}
+#| error: true
+x[c(1, -1)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = list("abcde")
+```
+```{python}
+#| error: true
+x[[0, 2, 4]]
+```
+```{python}
+[x[i] for i in [0, 2, 4]]
+[x[i] for i in [3, 1, 1]]
+[x[i] for i in [0, -1]]
+```
+:::
+::::
+
+::: {.aside}
+Both languages preserve the requested order and repeated positions. R cannot mix positive and negative indexes in one subset; Python can because each integer independently identifies a position.
+:::
+
+
+## Integer array indexing
+
+Unlike base Python lists, NumPy arrays accept a list or integer array of positions. As with list indexing, negative positions count backward from the end and can be mixed with positive positions.
+
+::: {.small}
+```{python}
+x = np.arange(10, 60, 10); x
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x[[0, 2, 4]]
+x[[3, 1, 1]]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[np.array([0, 2, 4])]
+x[[0, -1]]
+```
+:::
+::::
+
+::: {.aside}
+Selecting with an integer array or list is called *advanced indexing*; selecting with a scalar or slice is *basic indexing*. The distinction will matter shortly.
+:::
+
+
+## Out-of-bounds positions
+
+Out-of-bound indexing fails in Python, while R returns a typed missing value for a position that does not exist. Python slices clip each endpoint to the nearest valid boundary.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = c(10, 20, 30)
+```
+```{r}
+x[4]
+x[c(1, 4)]
+x[-4]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [10, 20, 30]
+```
+```{python}
+#| error: true
+x[4]
+```
+```{python}
+x[:4]
+x[-4:]
+x[4:]
+x[:-4]
+```
+:::
+::::
+
+
+## R - Four additional index types
+
+We have already used positive integers to select positions and negative integers to exclude positions. R's `[` operator supports four additional index forms:
+
+<br/>
+
+
+* logicals - select by`TRUE` positions
+
+* characters - select by names
+
+* zero - select nothing
+
+* empty index - select everything
+
+
+## Logical indexes
+
+Logical subsetting keeps values corresponding to `TRUE`. 
+
+Most logical indexes are created by vectorized logical expressions, which return one logical value for each element, often called a *mask*.
+
+
+::: {.xsmall}
+```{r}
+x = c(10, 15, 20, 25, 30)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x %% 20 == 0
+x[x %% 20 == 0]
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+keep = x > 18
+keep
+x[keep]
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+(x > 10) & (x < 30)
+x[(x > 10) & (x < 30)]
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x[c(TRUE, NA, FALSE, TRUE, FALSE)]
+```
+:::
+::::
+
+
+::: {.aside}
+Logical indexes are recycled to the length of `x`; an `NA` in the index produces an `NA` in the result.
+:::
+
+
+## NumPy & Boolean index
+
+::: {.medium}
+NumPy also supports using Boolean arrays for subsetting - positions where the index is `True` are kept and those with `False` are discarded. Boolean ndarrays, lists of Booleans, and the masks produced by vectorized comparisons all work.
+:::
+
+::: {.xsmall}
+```{python}
+x = np.arange(6)
+```
+:::
+
+
+::: {.columns .xsmall}
+::: {.column}
+```{python}
+x[np.array([True, False, True, False, True, False])]
+x[[True, False, True, False, True, False]]
+```
+:::
+
+::: {.column}
+```{python}
+x[x % 2 == 0]
+x[x > 2]
+```
+:::
+:::
+
+
+
+. . .
+
+::: {.medium}
+However, while R recycles logical vectors, NumPy requires a Boolean index to match the dimension it selects.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = 0:5
+```
+```{r}
+x[c(TRUE, FALSE)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x[np.array([True, False])]
+```
+```{python}
+#| error: true
+x[[True]]
+```
+:::
+::::
+
+
+## Boolean expressions with NumPy
+
+NumPy overloads `&`, `|`, and `~` as element-wise logical operators. 
+
+Parenthesize every comparison because these operators have unexpected precedence.
+
+::: {.small}
+```{python}
+x = np.arange(10)
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+(x > 2) & (x < 7)
+x[(x > 2) & (x < 7)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+(x < 2) | (x > 7)
+x[~(x % 2 == 0)]
+```
+:::
+::::
+
+::: {.aside}
+Do not use `and`, `or`, or `not` with whole NumPy arrays.
+:::
+
+
+## Character indexes
+
+Names allow values to be selected independently of their positions.
+
+::: {.xsmall}
+```{r}
+x = c(a = 10, b = 20, c = 30)
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x["a"]
+x[c("c", "a", "a")]
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+x["d"]
+x[c("a", "d")]
+unname(x["a"])
+```
+:::
+::::
+
+::: {.aside}
+Character subsetting returns the first value with each requested name. Names do not need to be unique.
+:::
+
+
+## Empty and zero indexes
+
+In R an empty index selects everything, a zero index selects nothing. This differs from Python, where `0` is the first position and `:` is used to select everything.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = c(10, 20, 30)
+```
+```{r}
+x[]
+x[0]
+x[NULL]
+x[c(0, 2, 0)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [10, 20, 30]
+```
+```{python}
+x[:]
+x[0]
+x[0:0]
+```
+:::
+::::
+
+::: {.aside}
+In R, zeros may appear alongside positive or negative indexes and are ignored. `NULL` and an empty integer vector also select no values.
+:::
+
+
+## Subsetting and assignment
+
+Subset syntax can appear on the left side of an assignment in all three cases. A base Python list supports assignment to a single position or a slice, while R and NumPy also allow assignment via logical / Boolean and integer indexes.
+
+:::: {.columns .xsmall}
+::: {.column width='33%'}
+```{r}
+x = c(1, 4, 7, 9)
+x[2] = 2
+x[x %% 2 != 0] = -1
+x
+```
+:::
+
+::: {.column width='33%'}
+```{python}
+x = [1, 4, 7, 9]
+x[1] = 2
+x[2:4] = [0, 0, 0]
+x
+```
+:::
+
+::: {.column width='33%'}
+```{python}
+x = np.array([1, 4, 7, 9])
+x[1] = 2
+x[x % 2 != 0] = -1
+x
+```
+:::
+::::
+
+::: {.aside}
+A slice assignment can change a list's length. NumPy arrays have fixed size and type - assignment can replace values, but cannot insert elements or change the array's `dtype`.
+:::
+
+
+## NumPy views and copies
+
+Basic slicing usually returns a *view* that shares data with the original array. Advanced indexing returns a *copy*.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x = np.arange(6)
+y = x[1:4]
+y[0] = 99
+x
+np.shares_memory(x, y)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(6)
+z = x[[1, 2, 3]]
+z[0] = 99
+x
+np.shares_memory(x, z)
+```
+:::
+::::
+
+::: {.aside}
+Use `.copy()` when you need an independent array. Views are efficient, but mutations can propagate unexpectedly.
+:::
+
+
+## Exercise 1
+
+Without running the code, determine the result (or error) of each expression.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| eval: false
+x = c(a = 2, b = 4, c = 6, d = 8)
+```
+```{r}
+#| eval: false
+x[c(1, 3)]
+x[-c(1, 3)]
+x[c(TRUE, FALSE)]
+x[c("d", "b", "z")]
+x[x > 3 & x < 8]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| eval: false
+x = np.array([2, 4, 6, 8])
+```
+```{python}
+#| eval: false
+x[[0, 2]]
+x[-2:]
+x[np.array([True, False])]
+x[x > 3 & x < 8]
+x[(x > 3) & (x < 8)]
+```
+:::
+::::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 4)
+```
+
+
+# Matrices & arrays
+
+## R matrices and NumPy arrays
+
+Both are homogeneous, multidimensional containers designed for vectorized computation.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = matrix(1:6, nrow = 2, ncol = 3)
+x
+typeof(x)
+dim(x)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.array([[1, 2, 3],
+              [4, 5, 6]])
+x
+x.dtype
+x.shape
+```
+:::
+::::
+
+::: {.aside}
+An R matrix is an atomic vector with a `dim` attribute. A NumPy array is an `ndarray` object with a fixed shape and a `dtype`.
+:::
+
+
+## Creating arrays
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+matrix(0, nrow = 2, ncol = 3)
+array(1, dim = c(2, 2, 2))
+diag(3)
+seq(0, 1, length.out = 5)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+np.zeros((2, 3))
+np.ones((2, 2, 2))
+np.eye(3)
+np.linspace(0, 1, 5)
+```
+:::
+::::
+
+
+
+## Column-major vs row-major
+
+R matrices use *column-major* ordering - a sequence of values fills the matrix down each column. NumPy arrays default to *row-major* ordering - values fill across each row.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = matrix(1:6, nrow = 2)
+x
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 7).reshape((2, 3))
+x
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+y = matrix(1:6, nrow = 3, byrow = TRUE)
+y
+c(y)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+y = np.array([[1, 2],
+              [3, 4],
+              [5, 6]])
+y
+y.flatten()
+```
+:::
+::::
+
+::: {.aside}
+`byrow = TRUE` changes how the matrix is filled, not how it is stored
+:::
+
+
+## Two-dimensional indexing
+
+Dimensions are separated by commas in both languages; ranges select rectangular regions.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = matrix(1:16, nrow = 4, byrow = TRUE); x
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 17).reshape(4, 4); x
+```
+:::
+::::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x[1, 2]
+x[2:3, 2:4]
+x[c(1, 3), c(2, 4)]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[0, 1]
+x[1:3, 1:4]
+x[np.ix_([0, 2], [1, 3])]
+```
+:::
+::::
+
+
+
+## Integer arrays in 2D
+
+An integer list can select along either dimension. When both dimensions receive integer lists, NumPy pairs them element by element instead of crossing them.
+
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 17).reshape(4, 4)
+x[[0, 2], :]
+x[:, [1, 3]]
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x[[0, 2], [1, 3]]
+x[np.ix_([0, 2], [1, 3])]
+```
+:::
+::::
+
+. . .
+
+The paired expression selects `(row 0, column 1)` and `(row 2, column 3)`, not a $2 \times 2$ rectangle; `np.ix_()` produces the rectangle.
+
+
+## Reductions and axes
+
+A *reduction* combines many values into fewer values. NumPy's `axis` argument specifies which dimension is collapsed.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = matrix(1:12, nrow = 3, byrow = TRUE); x
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 13).reshape(3, 4); x
+```
+:::
+::::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+sum(x)
+rowMeans(x)
+colMeans(x)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x.sum()
+x.mean(axis=1)
+x.mean(axis=0)
+```
+:::
+::::
+
+::: {.aside}
+In NumPy, `axis=0` collapses rows; `axis=1` collapses columns.
+:::
+
+
+# NumPy broadcasting
+
+
+## NumPy broadcasts by shape
+
+R recycles by comparing lengths; NumPy *broadcasts* by comparing shapes. 
+
+Shapes are compared from the rightmost dimension to the left, and each pair of dimensions is compatible when they are equal or one is `1`.
+
+::: {.xsmall}
+```{python}
+x = np.arange(1, 7)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x + 10
+x + np.array([10])
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+x + np.array([10, 100])
+```
+```{python}
+x + np.array([10, 100, 1000,
+              10_000, 100_000, 1_000_000])
+```
+:::
+::::
+
+::: {.aside}
+Compare with R: `1:6 + c(10, 100)` recycles silently, but the shapes `(6,)` and `(2,)` are incompatible in NumPy.
+:::
+
+
+## Broadcasting across rows
+
+A one-dimensional array aligns with the trailing dimension, so it operates across every row.
+
+::: {.small}
+```{python}
+x = np.arange(12).reshape(4, 3)
+y = np.array([10, 20, 30])
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x
+x.shape
+y
+y.shape
+```
+:::
+
+::: {.column .fragment width='50%'}
+```{python}
+x + y
+(x + y).shape
+```
+:::
+::::
+
+
+## Broadcasting down columns
+
+To align with rows, give the vector an explicit singleton column dimension.
+
+::: {.small}
+```{python}
+x = np.arange(12).reshape(3, 4)
+y = np.array([10, 20, 30])
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+y.shape
+y[:, np.newaxis]
+y[:, np.newaxis].shape
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x + y[:, np.newaxis]
+```
+:::
+::::
+
+::: {.aside}
+`np.newaxis` is just an alias for `None`, so the equivalent `y[:, None]` is common in real-world code.
+:::
+
+## Pairwise combinations
+
+Broadcasting two singleton dimensions produces every pairwise combination.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = 1:3
+y = c(10, 20, 30, 40)
+outer(x, y, FUN = "+")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = np.arange(1, 4)
+y = np.arange(10, 50, 10)
+x[:, np.newaxis] + y
+```
+:::
+::::
+
+::: {.aside}
+The NumPy operands have shapes `(3, 1)` and `(4,)`, so the result has shape `(3, 4)`.
+:::
+
+
+## Standardizing columns
+
+Broadcasting makes it possible to transform every column using its own mean and standard deviation.
+
+::: {.small}
+```{python}
+rng = np.random.default_rng(523)
+x = rng.normal(
+    loc=[-1, 0, 1],
+    scale=[1, 2, 3],
+    size=(1000, 3)
+)
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+means = x.mean(axis=0)
+sds = x.std(axis=0)
+means
+sds
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+z = (x - means) / sds
+z.mean(axis=0)
+z.std(axis=0)
+```
+:::
+::::
+
+
+## Unintended broadcasting
+
+Valid shapes do not guarantee the intended calculation.
+
+::: {.small}
+```{python}
+x = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+row_means = x.mean(axis=1)
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+x - row_means
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x - row_means[:, np.newaxis]
+```
+:::
+::::
+
+. . .
+
+Both run, but only the second subtracts each row's own mean.
+
+::: {.aside}
+When an expression is surprising, inspect `.shape` before the values. `np.broadcast_shapes()` can predict the result shape without performing the calculation.
+:::
+
+
+## Exercise 2
+
+For each pair of NumPy shapes, determine whether broadcasting succeeds and, if so, the result shape.
+
+::: {.medium}
+1. `(128, 128, 3)` and `(3,)`
+
+2. `(8, 1, 6, 1)` and `(7, 1, 5)`
+
+3. `(2, 1)` and `(8, 4, 3)`
+
+4. `(3, 1)` and `(15, 3, 5)`
+
+5. `(3,)` and `(4,)`
+:::
+
+Then write a vectorized NumPy expression that subtracts the mean of each row from a matrix `x` with shape `(100, 5)`.
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Comparing R & Python
+
+## Vectorization summary
+
+::: {.small}
+| Concept                  | R                                  | Python / NumPy                        |
+|:-------------------------|:-----------------------------------|:--------------------------------------|
+| element-wise arithmetic  | built into atomic vectors          | NumPy arrays                          |
+| element-wise comparisons | built into atomic vectors          | NumPy arrays                          |
+| logical operators        | `&`, <code>&#124;</code>, `!`       | `&`, <code>&#124;</code>, `~`         |
+| element-wise choice      | `ifelse()`                         | `np.where()`                          |
+| scalar repetition        | recycling                          | broadcasting                          |
+| unequal sizes            | repeat by total length             | compare shapes from the right         |
+| explicit iteration       | `for`, later `lapply()` / `purrr`  | comprehension, `for`                  |
+| reduction                | `sum()`, `mean()`, `rowMeans()`    | `.sum()`, `.mean(axis=...)`           |
+:::
+
+
+## Subsetting summary
+
+::: {.small}
+| Goal                    | R                                | Python / NumPy                         |
+|:------------------------|:---------------------------------|:---------------------------------------|
+| first element           | `x[1]`                           | `x[0]`                                 |
+| last element            | `x[length(x)]`                   | `x[-1]`                                |
+| exclude first           | `x[-1]`                          | `x[1:]`                                |
+| regular range           | `x[2:5]`                         | `x[1:5]`                               |
+| arbitrary positions     | `x[c(1, 3)]`                     | `x[[0, 2]]` (NumPy)                    |
+| Boolean filter          | `x[x > 0]`                       | `x[x > 0]` (NumPy)                     |
+| all rows, second column | `x[, 2]`                         | `x[:, 1]`                              |
+| independent copy        | usually automatic on modification | `x.copy()` (NumPy)                    |
+:::
+
+
+## Takeaways
+
+* R atomic vectors and NumPy arrays support element-wise operations; Python lists require explicit iteration or comprehensions.
+
+* R indexes from 1 and uses negative indexes for exclusion; Python indexes from 0, counts backward with negative indexes, and uses half-open slices.
+
+* R's `[` supports integer, logical, and name-based selection. NumPy adds integer-array and Boolean indexing to Python's usual indexing syntax.
+
+* Basic NumPy slices are usually views; advanced indexing is a copy. Make copying intentional when the result will be modified.
+
+* R recycling is based on vector length; NumPy broadcasting is based on compatible shapes. When in doubt, inspect `.shape`.
