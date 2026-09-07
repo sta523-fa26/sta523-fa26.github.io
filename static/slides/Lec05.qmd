@@ -707,7 +707,7 @@ t.test
 
 . . .
 
-but not all of them,
+Other generics, such as `sum`, dispatch without an explicit call to `UseMethod()`:
 
 ::: {.xsmall}
 ```{r}
@@ -716,7 +716,7 @@ sum
 :::
 
 ::: {.aside}
-`sum` is a *primitive* - it is implemented in C and dispatches internally on a fixed set of classes rather than via `UseMethod()`.
+`sum` is a primitive implemented in C. It still performs S3 dispatch internally, including to methods such as `Summary.class`, rather than calling `UseMethod()` in its visible R definition.
 :::
 
 
@@ -1098,6 +1098,7 @@ area.rect = function(x, ...) abs(prod(x$p2 - x$p1))
 
 set_p1 = function(x, p1, ...) UseMethod("set_p1")
 set_p1.rect = function(x, p1, ...) {
+  stopifnot(is.numeric(p1), length(p1) == 2)
   x$p1 = p1
   x
 }
@@ -1276,7 +1277,7 @@ vars(d)
 
 ## Mutate or return?
 
-Python methods usually *modify* `self` in place and return `None`, where an R function must return the modified copy. Returning `self` instead enables method chaining.
+Python methods that mutate an object conventionally modify `self` in place and return `None`. In R, modifying an ordinary vector or list inside a function does not modify the caller's object, so a function must return the updated value. Returning `self` from a Python mutating method instead enables method chaining.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -1365,8 +1366,8 @@ def rect_eq(self, other):
   return self.p1 == other.p1 and self.p2 == other.p2
 
 def rect_contains(self, pt):
-  return (self.p1[0] <= pt[0] <= self.p2[0] and
-          self.p1[1] <= pt[1] <= self.p2[1])
+  return all(min(a, b) <= x <= max(a, b)
+             for a, b, x in zip(self.p1, self.p2, pt))
 
 rect.__eq__ = rect_eq
 rect.__contains__ = rect_contains
@@ -1456,7 +1457,7 @@ bool.__mro__
 ::::
 
 ::: {.aside}
-`__mro__` (method resolution order) is the tuple of classes searched for a method - the Python equivalent of the implicit class vector. Since `bool` inherits from `int`, code accepting `int`s accepts `True` and `False` unless it checks for `bool` explicitly.
+`__mro__` (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since `bool` inherits from `int`, code accepting `int`s accepts `True` and `False` unless it checks for `bool` explicitly.
 :::
 
 
@@ -1516,9 +1517,9 @@ countdown::countdown(minutes = 5)
 ## Functional vs in-place
 
 ::: {.medium}
-The deeper difference is about *state*. R objects are values - a method receives a copy and must return the updated object, so the natural design is functional and pipeable: `game |> guess("word") |> guess("other")`.
+The deeper difference is about *state*. Ordinary R vectors and lists behave like values: modifying a function argument does not modify the caller's object, so updated values are normally returned and reassigned. This naturally supports functional pipelines such as `game |> guess("word") |> guess("other")`.
 
-Python objects are references - a method changes the object everyone is looking at, so the natural design is `game.guess("word")` returning `None` (or `self` when chaining is desired).
+Python variables refer to objects. A mutating method can change an object visible through every reference to it; by convention, many such methods return `None`, although returning `self` can support chaining.
 :::
 
 :::: {.columns .xsmall}
@@ -1556,4 +1557,4 @@ Neither is better - but mixing the conventions (an R method that silently modifi
 
 * Python classes bundle data and methods, `__init__()` constructs, `__repr__()` / `__str__()` display, and `isinstance()` checks type with inheritance.
 
-* R methods return modified copies, Python methods modify in place - design your functions accordingly.
+* R functions commonly return updated values; Python mutating methods commonly update objects in place - know which convention an interface follows.
