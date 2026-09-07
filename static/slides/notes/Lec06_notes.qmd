@@ -1,0 +1,181 @@
+---
+title: "Lecture 06 - Exercise solutions"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+```{r setup}
+#| include: false
+options(width = 80)
+```
+
+
+# Exercise 1
+
+Represent the JSON record in Python, extract the fax number, add a mobile number and remove `age`, then write a `phone()` lookup function in both languages.
+
+## Building the structure
+
+JSON objects become `dict`s and JSON arrays become `list`s. Since JSON is valid Python syntax (for this record at least - `true` / `false` / `null` would need to become `True` / `False` / `None`) the text can be pasted in directly.
+
+```{python}
+person = {
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25,
+  "address": {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": 10021
+  },
+  "phoneNumber": [
+    {"type": "home", "number": "212 555-1239"},
+    {"type": "fax",  "number": "646 555-4567"}
+  ]
+}
+```
+
+In practice the `json` module does this conversion - `json.loads(text)` returns exactly this structure and `json.dumps(person)` goes back the other way. R's equivalent is `jsonlite::fromJSON(text, simplifyVector = FALSE)`.
+
+## Extracting the fax number
+
+`phoneNumber` is a list, so its entries are selected by position (0-based), and each entry is a `dict` selected by key,
+
+```{python}
+person["phoneNumber"][1]["number"]
+```
+
+Compare with the R version, `person$phoneNumber[[2]]$number` - the same shape, with `[]` doing the work of both `[[` and `$`.
+
+## Adding a mobile number and removing `age`
+
+```{python}
+person["phoneNumber"].append({"type": "mobile", "number": "917 555-0000"})
+del person["age"]
+
+list(person)
+len(person["phoneNumber"])
+```
+
+Both operations modify `person` in place, where the R versions (`person$phoneNumber[[3]] = ...` and `person$age = NULL`) modify a copy that is then rebound to the name `person`. Note that `del person["age"]` would raise a `KeyError` if run a second time, `person.pop("age", None)` is the safe alternative.
+
+## `phone()` in Python
+
+The phone numbers are a list of dictionaries, so finding one requires a scan - return as soon as a match is found, and fall through to `None` if there is none.
+
+```{python}
+def phone(person, type):
+    """Return the phone number of the given type, or None if there is not one."""
+    for entry in person["phoneNumber"]:
+        if entry["type"] == type:
+            return entry["number"]
+    return None
+```
+
+```{python}
+phone(person, "fax")
+print( phone(person, "work") )
+```
+
+If lookups by type were common the better design is to store the numbers as a `dict` keyed by type in the first place - then `numbers.get(type)` does the job with no loop,
+
+```{python}
+numbers = {entry["type"]: entry["number"] for entry in person["phoneNumber"]}
+numbers
+numbers.get("fax")
+```
+
+## `phone()` in R
+
+The direct translation loops over the list and uses `return()`, falling through to `NULL`,
+
+```{r}
+person = list(
+  firstName = "John", lastName = "Smith",
+  address = list(streetAddress = "21 2nd Street", city = "New York", state = "NY", postalCode = 10021),
+  phoneNumber = list(
+    list(type = "home",   number = "212 555-1239"),
+    list(type = "fax",    number = "646 555-4567"),
+    list(type = "mobile", number = "917 555-0000")
+  )
+)
+
+phone = function(person, type) {
+  for (entry in person$phoneNumber) {
+    if (entry$type == type)
+      return(entry$number)
+  }
+  NULL
+}
+```
+
+```{r}
+phone(person, "fax")
+phone(person, "work")
+```
+
+A more R-like approach extracts the vector of types and uses `match()`, which is what we would do if there were many lookups to perform,
+
+```{r}
+types = vapply(person$phoneNumber, function(entry) entry$type, character(1))
+types
+match("fax", types)
+person$phoneNumber[[ match("fax", types) ]]$number
+```
+
+Note that `match()` returns `NA` for a missing type, and `person$phoneNumber[[NA]]` is an error, so this version needs an explicit check before subsetting. Next week's functional programming tools (`purrr::map_chr()`, `purrr::keep()`) make this pattern much cleaner.
+
+
+# Exercise 2
+
+For each scenario, which data structure is the most appropriate and why?
+
+## A fixed collection of 100 integers
+
+Python: a `tuple` - the collection does not change, so immutability documents that intent and lets it be used as a `dict` key. If arithmetic is needed, a NumPy array.
+
+R: an integer atomic vector (`integer(100)`, or `1:100`). R has no immutable containers, but copy on modify means that nothing else can change it out from under you.
+
+## A queue (first in, first out) of customer records
+
+Python: a `deque`. `append()` to add at the back and `popleft()` to serve from the front are both O(1), while `list.pop(0)` has to shift every remaining element.
+
+R: there is no efficient built in option. A `list` with `x[[length(x) + 1]] = record` to add and `x = x[-1]` to remove works but the removal copies the list (O(n)). For a large queue keep an index of the current head instead of removing elements, or use an environment based implementation from a package.
+
+## A stack (first in, last out) of customer records
+
+Python: a plain `list` - `append()` and `pop()` at the end are O(1).
+
+R: a `list`, adding with `x[[length(x) + 1]] = record` and removing with `x[[length(x)]]` / `x = x[-length(x)]`. Removing the last element still copies, but this is the best base R can do.
+
+## A count of word occurrences within a document
+
+Python: a `dict` mapping word to count (or `collections.Counter`, which is a `dict` subclass). Each update is an O(1) lookup.
+
+R: `table(words)` for a one-off count. For incremental counting a named integer vector works for small vocabularies, an environment (`new.env()`) is the hash-based option for large ones.
+
+## The heights of the bars in a histogram with even bin widths
+
+Python: a `list` (or NumPy array) of counts - the position in the sequence identifies the bin, so no keys are needed.
+
+R: a numeric vector, for the same reason. In both cases a `dict` / named list would be wasteful since the keys are just `0, 1, 2, ...`.
+
+## Checking whether each of a million words is in a list of 50 stop words
+
+Python: put the stop words in a `set` and test `word in stop_words` - O(1) per word rather than O(50) with a `list`. The million words themselves can stay in a `list`.
+
+R: `words %in% stop_words`. `%in%` (via `match()`) builds a hash table of its second argument internally, so this is already the efficient approach - and it is vectorized, so no loop is needed.
+
+## The last 10 lines read from a very large log file
+
+Python: `deque(maxlen=10)` - appending a line when full automatically drops the oldest, so the whole file never needs to be held in memory.
+
+R: there is no `maxlen` equivalent. Keep a character vector of length 10 and shift with `x = c(x[-1], line)` (cheap for a length 10 vector), or if the file fits in memory simply `tail(readLines(path), 10)`.

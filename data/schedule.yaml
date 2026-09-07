@@ -73,11 +73,28 @@ schedule:
 - week: 3
   day: 3
   topic: "Fundamentals"
+  lecture: "Lists, S3 & Classes"
+  slides: "Lec05"
+  r_readings:
+    - text: "Adv R - Lists"
+      link: https://adv-r.hadley.nz/vectors-chap.html#lists
+    - text: "Adv R - S3"
+      link: https://adv-r.hadley.nz/s3.html
+  py_readings:
+    - text: "Python tutorial - Classes"
+      link: https://docs.python.org/3/tutorial/classes.html
+    - text: "Python data model - Special method names"
+      link: https://docs.python.org/3/reference/datamodel.html#special-method-names
+
+
+- week: 4
+  day: 1
+  topic: "Fundamentals"
   lecture: "Data Structures"
   slides: ""
   r_readings:
-    - text: "Adv R - OO Field Guide - S3"
-      link: http://adv-r.had.co.nz/OO-essentials.html#s3
+    - text: "Adv R - Environments"
+      link: https://adv-r.hadley.nz/environments.html
   py_readings:
     - text: "Lists, Sets and Dicts"
       link: https://docs.python.org/3/tutorial/datastructures.html
@@ -86,9 +103,8 @@ schedule:
     - text: "Python Internals"
       link: https://github.com/zpoint/CPython-Internals
 
-
 - week: 4
-  day: 1
+  day: 3
   topic: "Tidy Data"
   lecture: "Data Frames"
   slides: ""
@@ -105,8 +121,9 @@ schedule:
     - text: "Python for Data Analysis - pandas basics"
       link: https://wesmckinney.com/book/pandas-basics.html
 
-- week: 4
-  day: 3
+
+- week: 5
+  day: 1
   topic: "Tidy Data"
   lecture: "Data Frames (2)"
   slides: ""
@@ -117,9 +134,8 @@ schedule:
     - text: "Polars - Coming from Pandas"
       link: https://docs.pola.rs/user-guide/migration/pandas/
 
-
 - week: 5
-  day: 1
+  day: 3
   topic: "Tidy Data"
   lecture: "Functional Programming"
   slides: ""
@@ -134,8 +150,9 @@ schedule:
       link: https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf
   py_readings: []
 
-- week: 5
-  day: 3
+
+- week: 6
+  day: 1
   topic: "Tidy Data"
   lecture: "Visualization"
   slides: ""
@@ -154,9 +171,8 @@ schedule:
     - text: "plotnine"
       link: https://plotnine.readthedocs.io/en/stable/
 
-
 - week: 6
-  day: 1
+  day: 3
   topic: "Web Scraping"
   lecture: "Text data"
   slides: ""
@@ -173,8 +189,9 @@ schedule:
     - text: "re — Regular expression operations"
       link: https://docs.python.org/3/library/re.html
 
-- week: 6
-  day: 3
+
+- week: 7
+  day: 1
   topic: "Web Scraping"
   lecture: "Scraping"
   slides: ""
@@ -185,9 +202,8 @@ schedule:
     - text: "BeautifulSoup"
       link: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
-
 - week: 7
-  day: 1
+  day: 3
   topic: "Web Scraping"
   lecture: "http"
   slides: ""
@@ -197,20 +213,6 @@ schedule:
   py_readings:
     - text: "Requests"
       link: https://requests.readthedocs.io/en/latest/
-
-- week: 7
-  day: 3
-  topic: "Web Scraping"
-  lecture: "APIs"
-  slides: ""
-  r_readings:
-    - text: "plumber2"
-      link: https://plumber2.posit.co/
-    - text: "GitHub API Docs"
-      link: https://docs.github.com/en/rest?apiVersion=2022-11-28
-  py_readings:
-    - text: "FastAPI"
-      link: https://fastapi.tiangolo.com/
 
 
 - week: 8
@@ -232,6 +234,20 @@ schedule:
 
 - week: 9
   day: 1
+  topic: "Web Scraping"
+  lecture: "APIs"
+  slides: ""
+  r_readings:
+    - text: "plumber2"
+      link: https://plumber2.posit.co/
+    - text: "GitHub API Docs"
+      link: https://docs.github.com/en/rest?apiVersion=2022-11-28
+  py_readings:
+    - text: "FastAPI"
+      link: https://fastapi.tiangolo.com/
+
+- week: 9
+  day: 3
   topic: "Databases"
   lecture: "SQL"
   slides: ""
@@ -246,17 +262,17 @@ schedule:
     - text: "Python sqlite3 — DB-API"
       link: https://docs.python.org/3/library/sqlite3.html
 
-- week: 9
-  day: 3
+
+- week: 10
+  day: 1
   topic: "Databases"
   lecture: "SQL (2)"
   slides: ""
   r_readings: []
   py_readings: []
 
-
 - week: 10
-  day: 1
+  day: 3
   topic: "Databases"
   lecture: "DuckDB"
   slides: ""
@@ -269,17 +285,17 @@ schedule:
       link: https://www.youtube.com/watch?v=GELhdezYmP0
   py_readings: []
 
-- week: 10
-  day: 3
+
+- week: 11
+  day: 1
   topic: "Databases"
   lecture: "DuckDB (2)"
   slides: ""
   r_readings: []
   py_readings: []
 
-
 - week: 11
-  day: 1
+  day: 3
   topic: "Shiny"
   lecture: "Shiny for R"
   slides: ""
@@ -294,27 +310,19 @@ schedule:
       link: https://posit-conf-2025.github.io/shiny-r/
   py_readings: []
 
-- week: 11
-  day: 3
+
+- week: 12
+  day: 1
   topic: "Shiny"
   lecture: "Shiny for Python"
   slides: ""
   r_readings: []
   py_readings: []
 
-
-- week: 12
-  day: 1
-  topic: "Shiny"
-  lecture: "Dynamic UIs"
-  slides: ""
-  r_readings: []
-  py_readings: []
-
 - week: 12
   day: 3
   topic: "Shiny"
-  lecture: "Modules"
+  lecture: "Dynamic UIs"
   slides: ""
   r_readings: []
   py_readings: []
@@ -322,8 +330,8 @@ schedule:
 
 - week: 13
   day: 1
-  topic: ""
-  lecture: "<i>TBD</i>"
+  topic: "Shiny"
+  lecture: "Modules"
   slides: ""
   r_readings: []
   py_readings: []
