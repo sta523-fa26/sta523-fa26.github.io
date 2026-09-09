@@ -1050,870 +1050,6 @@ display: block;
 margin-left: auto;
 margin-right: 0; }
 </style>
-  <style type="text/css">
-.countdown {
---_margin: 0.6em;
---_running-color: var(--countdown-color-running-text, rgba(0, 0, 0, 0.8));
---_running-background: var(--countdown-color-running-background, #43AC6A);
---_running-border-color: var(--countdown-color-running-border, rgba(0, 0, 0, 0.1));
---_finished-color: var(--countdown-color-finished-text, rgba(0, 0, 0, 0.7));
---_finished-background: var(--countdown-color-finished-background, #F04124);
---_finished-border-color: var(--countdown-color-finished-border, rgba(0, 0, 0, 0.1));
-position: absolute;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-background: var(--countdown-color-background, inherit);
-font-size: var(--countdown-font-size, 3rem);
-line-height: var(--countdown-line-height, 1);
-border-color: var(--countdown-color-border, #ddd);
-border-width: var(--countdown-border-width, 0.1875rem);
-border-style: solid;
-border-radius: var(--countdown-border-radius, 0.9rem);
-box-shadow: var(--countdown-box-shadow, 0px 4px 10px 0px rgba(50, 50, 50, 0.4));
-margin: var(--countdown-margin, var(--_margin, 0.6em));
-padding: var(--countdown-padding, 0.625rem 0.9rem);
-text-align: center;
-z-index: 10;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-countdown-timer[position="static"],
-countdown-timer[position="relative"] {
-position: relative;
-}
-.countdown.inline {
-position: relative;
-width: max-content;
-max-width: 100%;
-}
-.countdown .countdown-time {
-background: none;
-font-size: 100%;
-padding: 0;
-color: currentColor;
-}
-.countdown-digits {
-color: var(--countdown-color-text);
-}
-.countdown.running {
-border-color: var(--_running-border-color);
-background-color: var(--_running-background);
-}
-.countdown.running .countdown-digits {
-color: var(--_running-color);
-}
-.countdown.finished {
-border-color: var(--_finished-border-color);
-background-color: var(--_finished-background);
-}
-.countdown.finished .countdown-digits {
-color: var(--_finished-color);
-}
-.countdown.running.warning {
-border-color: var(--countdown-color-warning-border, rgba(0, 0, 0, 0.1));
-background-color: var(--countdown-color-warning-background, #E6C229);
-}
-.countdown.running.warning .countdown-digits {
-color: var(--countdown-color-warning-text, rgba(0, 0, 0, 0.7));
-}
-.countdown.running.blink-colon .countdown-digits.colon {
-opacity: 0.1;
-}
-
-.countdown:not(.running) .countdown-controls,
-.countdown.no-controls .countdown-controls {
-display: none;
-}
-.countdown-controls {
-position: absolute;
-top: -0.5rem;
-right: -0.5rem;
-left: -0.5rem;
-display: flex;
-justify-content: space-between;
-margin: 0;
-padding: 0;
-}
-.countdown-controls>button {
-position: relative;
-font-size: 1.5rem;
-width: 1rem;
-height: 1rem;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-font-family: monospace;
-padding: 10px;
-margin: 0;
-background: inherit;
-border: 2px solid;
-border-radius: 100%;
-transition: 50ms transform ease-in-out, 150ms opacity ease-in;
-box-shadow: 0px 2px 5px 0px rgba(50, 50, 50, 0.4);
--webkit-box-shadow: 0px 2px 5px 0px rgba(50, 50, 50, 0.4);
---_button-bump: 0;
-opacity: var(--_opacity, 0);
-transform: translate(0, var(--_button-bump));
-}
-
-.countdown .countdown-controls > button::after {
-content: "";
-height: 200%;
-width: 200%;
-position: absolute;
-border-radius: 50%;
-}
-.countdown .countdown-controls>button:last-child {
-color: var(--_running-color);
-background-color: var(--_running-background);
-border-color: var(--_running-border-color);
-}
-.countdown .countdown-controls>button:first-child {
-color: var(--_finished-color);
-background-color: var(--_finished-background);
-border-color: var(--_finished-border-color);
-}
-.countdown.running:hover, .countdown.running:focus-within {
---_opacity: 1;
-}
-.countdown.running:hover .countdown-controls>button,
-.countdown.running:focus-within .countdown-controls>button {
---_button-bump: -3px;
-}
-.countdown.running:hover .countdown-controls>button:active,
-.countdown.running:focus-within .countdown-controls>button:active {
---_button-bump: 0;
-}
-
-.reveal .countdown {
---_margin: 0;
-}
-
-.countdown.countdown-fullscreen {
-z-index: 0;
-}
-.countdown-fullscreen.running .countdown-controls {
-top: 1rem;
-left: 0;
-right: 0;
-justify-content: center;
-}
-.countdown-fullscreen.running .countdown-controls>button+button {
-margin-left: 1rem;
-}
-</style>
-  <script>/* countdown
- * countdown timer for slides and HTML docs in Quarto, R Markdown, and Shiny
- *
- * https://pkg.garrickadenbuie.com/countdown
- *
- * Copyright (c) 2025 countdown authors
- *
- * This software is released under the MIT License.
- * https://opensource.org/licenses/MIT
- */
-
-/* globals Shiny,Audio */
-class CountdownTimer extends window.HTMLElement {
-  constructor () {
-    super()
-
-    // Initialize properties without DOM access
-    this._end = null
-    this._isRunning = false
-    this._timeout = null
-    this._remaining = null
-    this._display = { minutes: 0, seconds: 0 }
-    this._srcLocation = null
-    this._lastTouchTime = null
-
-    // Element references (will be set when DOM is created)
-    this._elements = {
-      controls: null,
-      bumpDown: null,
-      bumpUp: null,
-      timeCode: null,
-      minutes: null,
-      colon: null,
-      seconds: null
-    }
-
-    // For backward compatibility
-    this.countdown = this
-  }
-
-  static get observedAttributes () {
-    return [
-      'warn-when',
-      'update-every',
-      'play-sound',
-      'blink-colon',
-      'start-immediately',
-      'minutes',
-      'seconds'
-    ]
-  }
-
-  connectedCallback () {
-    // Ensure countdown class is present for backward compatibility
-    if (!this.classList.contains('countdown')) {
-      this.classList.add('countdown')
-    }
-
-    // Make the element focusable
-    if (!this.hasAttribute('tabindex')) {
-      this.setAttribute('tabindex', '0')
-    }
-
-    this.initializeFromDOM()
-    this.addEventListeners()
-
-    if (this.start_immediately) {
-      document.addEventListener('DOMContentLoaded', () => this.handleStartImmediately())
-    }
-  }
-
-  disconnectedCallback () {
-    this.cleanup()
-  }
-
-  attributeChangedCallback (name, oldValue, newValue) {
-    if (oldValue === newValue) return
-
-    switch (name) {
-      case 'warn-when':
-        this.warn_when = parseInt(newValue) || -1
-        break
-      case 'update-every':
-        this.update_every = parseInt(newValue) || 1
-        break
-      case 'play-sound':
-        this.play_sound = this.attrIsTrue(newValue) || newValue
-        break
-      case 'blink-colon':
-        this.blink_colon = this.attrIsTrue(newValue)
-        if (!this.blink_colon) {
-          this.classList.remove('blink-colon')
-        }
-        break
-      case 'start-immediately':
-        this.start_immediately = this.attrIsTrue(newValue)
-        break
-      case 'minutes':
-      case 'seconds':
-        // Re-initialize when minutes or seconds change
-        /* eslint-disable-next-line no-case-declarations */
-        const minutes = parseInt(this.getAttribute('minutes') || '0')
-        /* eslint-disable-next-line no-case-declarations */
-        const seconds = parseInt(this.getAttribute('seconds') || '0')
-        this._duration = minutes * 60 + seconds
-        this._display = { minutes, seconds }
-
-        // Update the display if DOM exists
-        if (this._elements.minutes && this._elements.seconds) {
-          this.update(true)
-        }
-        break
-    }
-  }
-
-  createInnerDOM () {
-    // Clear existing content
-    this.innerHTML = ''
-
-    // Controls ----
-    this._elements.controls = document.createElement('div')
-    this._elements.controls.className = 'countdown-controls'
-
-    this._elements.bumpDown = document.createElement('button')
-    this._elements.bumpDown.className = 'countdown-bump-down'
-    this._elements.bumpDown.innerHTML = '&minus;'
-
-    this._elements.bumpUp = document.createElement('button')
-    this._elements.bumpUp.className = 'countdown-bump-up'
-    this._elements.bumpUp.innerHTML = '&plus;'
-
-    this._elements.controls.appendChild(this._elements.bumpDown)
-    this._elements.controls.appendChild(this._elements.bumpUp)
-
-    // Time ----
-    this._elements.timeCode = document.createElement('code')
-    this._elements.timeCode.className = 'countdown-time'
-
-    this._elements.minutes = document.createElement('span')
-    this._elements.minutes.className = 'countdown-digits minutes'
-    this._elements.minutes.innerText = String(this._display.minutes).padStart(2, '0')
-
-    this._elements.colon = document.createElement('span')
-    this._elements.colon.className = 'countdown-digits colon'
-    this._elements.colon.innerText = ':'
-
-    this._elements.seconds = document.createElement('span')
-    this._elements.seconds.className = 'countdown-digits seconds'
-    this._elements.seconds.innerText = String(this._display.seconds).padStart(2, '0')
-
-    this._elements.timeCode.appendChild(this._elements.minutes)
-    this._elements.timeCode.appendChild(this._elements.colon)
-    this._elements.timeCode.appendChild(this._elements.seconds)
-
-    // Assemble ----
-    this.appendChild(this._elements.controls)
-    this.appendChild(this._elements.timeCode)
-  }
-
-  #normalizeTime (minutes, seconds) {
-    minutes = Math.floor(Number(minutes) || 0)
-    seconds = Math.floor(Number(seconds) || 0)
-
-    const totalSeconds = minutes * 60 + seconds
-
-    return {
-      minutes: Math.floor(totalSeconds / 60),
-      seconds: totalSeconds % 60,
-      totalSeconds
-    }
-  }
-
-  initializeFromDOM () {
-    // Get minutes and seconds from attributes, defaulting to 0
-    const { minutes, seconds, totalSeconds } = this.#normalizeTime(
-      this.getAttribute('minutes'),
-      this.getAttribute('seconds')
-    )
-
-    this._duration = totalSeconds
-    this._display = { minutes, seconds }
-
-    // Create the inner DOM structure
-    this.createInnerDOM()
-
-    // Initialize properties from attributes
-    this.warn_when = parseInt(this.getAttribute('warn-when')) || -1
-    this.update_every = parseInt(this.getAttribute('update-every')) || 1
-    this.play_sound =
-      this.attrIsTrue(this.getAttribute('play-sound')) ||
-      this.getAttribute('play-sound')
-    this.blink_colon = this.attrIsTrue(this.getAttribute('blink-colon'))
-    this.start_immediately = this.attrIsTrue(
-      this.getAttribute('start-immediately')
-    )
-
-    // Get source location from script tag if available
-    const currentScript = document.currentScript ||
-      (document.querySelector('script[src*="countdown"]') ?? '')
-    if (currentScript) {
-      this._srcLocation = currentScript.getAttribute('src')
-    }
-  }
-
-  cleanup () {
-    if (this._timeout) {
-      clearTimeout(this._timeout)
-      this._timeout = null
-    }
-    this._isRunning = false
-  }
-
-  attrIsTrue (x) {
-    if (typeof x === 'undefined') return false
-    if (x === true) return true
-    return !!(x === 'true' || x === '' || x === '1')
-  }
-
-  addEventListeners () {
-    const self = this
-
-    function haltEvent (ev) {
-      ev.preventDefault()
-      ev.stopPropagation()
-    }
-    function isSpaceOrEnter (ev) {
-      return ev.code === 'Space' || ev.code === 'Enter'
-    }
-    function isArrowUpOrDown (ev) {
-      return ev.code === 'ArrowUp' || ev.code === 'ArrowDown'
-    }
-
-    // Handle click events (desktop)
-    self.addEventListener('click', function (ev) {
-      haltEvent(ev)
-      self._isRunning ? self.stop({ manual: true }) : self.start()
-    })
-
-    // Handle touch events (mobile) with double-tap detection
-    self.addEventListener('touchend', function (ev) {
-      haltEvent(ev)
-
-      const now = Date.now()
-      const DOUBLE_TAP_THRESHOLD = 300 // milliseconds
-
-      // Check for double-tap
-      if (self._lastTouchTime && (now - self._lastTouchTime) < DOUBLE_TAP_THRESHOLD) {
-        // Double-tap detected
-        self._lastTouchTime = null
-        if (!self._isRunning) {
-          // Double tap while *running* resets the timer, but the first tap
-          // stops the timer and the second tap resets it
-          self.reset()
-        }
-      } else {
-        // Single tap - update timestamp and toggle start/stop
-        self._lastTouchTime = now
-        self._isRunning ? self.stop({ manual: true }) : self.start()
-      }
-    })
-
-    this.addEventListener('keydown', function (ev) {
-      if (ev.code === 'Escape') {
-        self.reset()
-        haltEvent(ev)
-      }
-      if (!isSpaceOrEnter(ev) && !isArrowUpOrDown(ev)) return
-      haltEvent(ev)
-      if (isSpaceOrEnter(ev)) {
-        self._isRunning ? self.stop({ manual: true }) : self.start()
-        return
-      }
-
-      if (!self._isRunning) return
-
-      if (ev.code === 'ArrowUp') {
-        self.bumpUp()
-      } else if (ev.code === 'ArrowDown') {
-        self.bumpDown()
-      }
-    })
-
-    this.addEventListener('dblclick', function (ev) {
-      haltEvent(ev)
-      if (self._isRunning) self.reset()
-    })
-
-    this.addEventListener('touchmove', haltEvent)
-
-    if (this._elements.bumpDown) {
-      ['click', 'touchend'].forEach(function (eventType) {
-        self._elements.bumpDown.addEventListener(eventType, function (ev) {
-          haltEvent(ev)
-          if (self._isRunning) self.bumpDown()
-        })
-      })
-      this._elements.bumpDown.addEventListener('keydown', function (ev) {
-        if (!isSpaceOrEnter(ev) || !self._isRunning) return
-        haltEvent(ev)
-        self.bumpDown()
-      })
-    }
-
-    if (this._elements.bumpUp) {
-      ['click', 'touchend'].forEach(function (eventType) {
-        self._elements.bumpUp.addEventListener(eventType, function (ev) {
-          haltEvent(ev)
-          if (self._isRunning) self.bumpUp()
-        })
-      })
-      this._elements.bumpUp.addEventListener('keydown', function (ev) {
-        if (!isSpaceOrEnter(ev) || !self._isRunning) return
-        haltEvent(ev)
-        self.bumpUp()
-      })
-    }
-
-    if (this._elements.controls) {
-      this._elements.controls.addEventListener('dblclick', function (ev) {
-        haltEvent(ev)
-      })
-    }
-  }
-
-  handleStartImmediately () {
-    const self = this
-
-    if (window.remark && window.slideshow) {
-      // Remark (xaringan) support
-      const isOnVisibleSlide = () => {
-        return document.querySelector('.remark-visible').contains(self)
-      }
-      if (isOnVisibleSlide()) {
-        self.start()
-      } else {
-        let startedOnce = 0
-        window.slideshow.on('afterShowSlide', function () {
-          if (startedOnce > 0) return
-          if (isOnVisibleSlide()) {
-            self.start()
-            startedOnce = 1
-          }
-        })
-      }
-    } else if (window.Reveal) {
-      // Revealjs (quarto) support
-      const isOnVisibleSlide = () => {
-        const currentSlide = document.querySelector('.reveal .slide.present')
-        return currentSlide ? currentSlide.contains(self) : false
-      }
-      if (isOnVisibleSlide()) {
-        self.start()
-      } else {
-        const revealStartTimer = () => {
-          if (isOnVisibleSlide()) {
-            self.start()
-            window.Reveal.off('slidechanged', revealStartTimer)
-          }
-        }
-        window.Reveal.on('slidechanged', revealStartTimer)
-      }
-    } else if (window.IntersectionObserver) {
-      // All other situations use IntersectionObserver
-      const onVisible = (element, callback) => {
-        new window.IntersectionObserver((entries, observer) => {
-          entries.forEach((entry) => {
-            if (entry.intersectionRatio > 0) {
-              callback(element)
-              observer.disconnect()
-            }
-          })
-        }).observe(element)
-      }
-      onVisible(this, (el) => el.countdown.start())
-    } else {
-      // or just start the timer as soon as it's initialized
-      this.start()
-    }
-  }
-
-  remainingTime () {
-    const remaining = this._isRunning
-      ? (this._end - Date.now()) / 1000
-      : this._remaining || this._duration
-
-    let minutes = Math.floor(remaining / 60)
-    let seconds = Math.ceil(remaining - minutes * 60)
-
-    if (seconds > 59) {
-      minutes = minutes + 1
-      seconds = seconds - 60
-    }
-
-    return { remaining, minutes, seconds }
-  }
-
-  start () {
-    if (this._isRunning) return
-
-    this._isRunning = true
-
-    if (this._remaining) {
-      // Having a static remaining time indicates timer was paused
-      this._end = Date.now() + this._remaining * 1000
-      this._remaining = null
-    } else {
-      this._end = Date.now() + this._duration * 1000
-    }
-
-    this.emitStateEvent('start')
-
-    this.classList.remove('finished')
-    this.classList.add('running')
-    this.update(true)
-    this.tick()
-  }
-
-  tick (runAgain) {
-    if (typeof runAgain === 'undefined') {
-      runAgain = true
-    }
-
-    if (!this._isRunning) return
-
-    const { seconds: secondsWas } = this._display
-    this.update()
-
-    if (runAgain) {
-      const delay = this._end - Date.now() > 10000 ? 1000 : 250
-      this.blinkColon(secondsWas)
-      this._timeout = setTimeout(this.tick.bind(this), delay)
-    }
-  }
-
-  blinkColon (secondsWas) {
-    // don't blink unless option is set
-    if (!this.blink_colon) return
-    // warn_when always updates the seconds
-    if (this.warn_when > 0 && Date.now() + this.warn_when > this._end) {
-      this.classList.remove('blink-colon')
-      return
-    }
-    const { seconds: secondsIs } = this._display
-    if (secondsIs > 10 || secondsWas !== secondsIs) {
-      this.classList.toggle('blink-colon')
-    }
-  }
-
-  update (force) {
-    if (typeof force === 'undefined') {
-      force = false
-    }
-
-    const { remaining, minutes, seconds } = this.remainingTime()
-
-    const setRemainingTime = (element, time) => {
-      if (!element) return
-      time = Math.max(time, 0)
-      element.innerText = String(time).padStart(2, 0)
-    }
-
-    if (this._isRunning && remaining < 0.25) {
-      this.stop()
-      setRemainingTime(this._elements.minutes, 0)
-      setRemainingTime(this._elements.seconds, 0)
-      this.playSound()
-      return
-    }
-
-    const shouldUpdate =
-      force ||
-      Math.round(remaining) < this.warn_when ||
-      Math.round(remaining) % this.update_every === 0
-
-    if (shouldUpdate) {
-      const isWarning = remaining <= this.warn_when
-      if (isWarning && !this.classList.contains('warning')) {
-        this.emitStateEvent('warning')
-      }
-      this.classList.toggle('warning', isWarning)
-      this._display = { minutes, seconds }
-      setRemainingTime(this._elements.minutes, minutes)
-      setRemainingTime(this._elements.seconds, seconds)
-    }
-  }
-
-  stop ({ manual = false } = {}) {
-    const { remaining } = this.remainingTime()
-    if (remaining > 1) {
-      this._remaining = remaining
-    }
-    this.classList.remove('running')
-    this.classList.remove('warning')
-    this.classList.remove('blink-colon')
-    this.classList.add('finished')
-    this._isRunning = false
-    this._end = null
-    this.emitStateEvent(manual ? 'stop' : 'finished')
-    this._timeout = clearTimeout(this._timeout)
-  }
-
-  reset () {
-    this.stop({ manual: true })
-    this._remaining = null
-    this.update(true)
-
-    this.classList.remove('finished')
-    this.classList.remove('warning')
-    this._emitEvents = true
-    this.emitStateEvent('reset')
-  }
-
-  setValues (opts) {
-    if (typeof opts.warn_when !== 'undefined') {
-      this.warn_when = opts.warn_when
-    }
-    if (typeof opts.update_every !== 'undefined') {
-      this.update_every = opts.update_every
-    }
-    if (typeof opts.blink_colon !== 'undefined') {
-      this.blink_colon = opts.blink_colon
-      if (!opts.blink_colon) {
-        this.classList.remove('blink-colon')
-      }
-    }
-    if (typeof opts.play_sound !== 'undefined') {
-      this.play_sound = opts.play_sound
-    }
-    if (typeof opts.duration !== 'undefined') {
-      this._duration = opts.duration
-      if (this._isRunning) {
-        this.reset()
-        this.start()
-      }
-    }
-    this.emitStateEvent('update')
-    this.update(true)
-  }
-
-  bumpTimer (val, round) {
-    round = typeof round === 'boolean' ? round : true
-    const { remaining } = this.remainingTime()
-    let newRemaining = remaining + val
-    if (newRemaining <= 0) {
-      this.setRemaining(0)
-      this.stop()
-      return
-    }
-    if (round && newRemaining > 10) {
-      newRemaining = Math.round(newRemaining / 5) * 5
-    }
-    this.setRemaining(newRemaining)
-    this.emitStateEvent(val > 0 ? 'bumpUp' : 'bumpDown')
-    this.update(true)
-  }
-
-  bumpUp (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this.bumpTimer(
-      val || this.bumpIncrementValue(),
-      typeof val === 'undefined'
-    )
-  }
-
-  bumpDown (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this.bumpTimer(
-      val || -1 * this.bumpIncrementValue(),
-      typeof val === 'undefined'
-    )
-  }
-
-  setRemaining (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this._end = Date.now() + val * 1000
-    this.update(true)
-  }
-
-  playSound () {
-    let url = this.play_sound
-    if (!url || url === 'false') return
-    if (typeof url === 'boolean') {
-      const src = this._srcLocation
-        ? this._srcLocation.replace('/countdown.js', '')
-        : 'libs/countdown'
-      url = src + '/smb_stage_clear.mp3'
-    }
-    const sound = new Audio(url)
-    sound.play()
-  }
-
-  bumpIncrementValue (val) {
-    val = val || this.remainingTime().remaining
-    if (val <= 30) {
-      return 5
-    } else if (val <= 300) {
-      return 15
-    } else if (val <= 3000) {
-      return 30
-    } else {
-      return 60
-    }
-  }
-
-  emitStateEvent (action) {
-    const data = {
-      action,
-      time: new Date().toISOString(),
-      timer: {
-        is_running: this._isRunning,
-        end: this._end ? new Date(this._end).toISOString() : null,
-        remaining: this.remainingTime()
-      }
-    }
-
-    this.reportStateToShiny(data)
-    this.dispatchEvent(
-      new CustomEvent('countdown', { detail: data, bubbles: true })
-    )
-  }
-
-  reportStateToShiny (data) {
-    if (!window.Shiny) return
-
-    if (!window.Shiny.setInputValue) {
-      // We're in Shiny but it isn't ready for input updates yet
-      setTimeout(() => this.reportStateToShiny(data), 100)
-      return
-    }
-
-    const { action, time, timer } = data
-
-    const shinyData = { event: { action, time }, timer }
-
-    window.Shiny.setInputValue(this.id, shinyData)
-  }
-}
-
-if (!window.customElements.get('countdown-timer')) {
-  window.customElements.define('countdown-timer', CountdownTimer)
-}
-
-(function () {
-  if (!window.Shiny) {
-    return
-  }
-  Shiny.addCustomMessageHandler('countdown:update', function (x) {
-    if (!x.id) {
-      console.error('No `id` provided, cannot update countdown')
-      return
-    }
-    const el = document.getElementById(x.id)
-    if (el && el.setValues) {
-      el.setValues(x)
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:start', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.start) {
-      el.start()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:stop', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.stop) {
-      el.stop({ manual: true })
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:reset', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.reset) {
-      el.reset()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:bumpUp', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.bumpUp) {
-      el.bumpUp()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:bumpDown', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.bumpDown) {
-      el.bumpDown()
-    }
-  })
-})()
-</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -1939,8 +1075,7 @@ Dr. Colin Rundel
 </section>
 <section id="lists" class="slide level2">
 <h2>Lists</h2>
-<p>Lists are R’s other vector type. Unlike atomic vectors they are <em>heterogeneous</em> - each element can be any R object (atomic vectors, other lists, functions, …).</p>
-<p>They are a direct analog to Python’s <code>list</code>.</p>
+<p>Lists are R’s other vector type (generic). Unlike atomic vectors they are <em>heterogeneous</em> - each element can be any R object: atomic vectors, other lists, functions, etc.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -1971,11 +1106,11 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div></div>
 
 <aside><div>
-<p><code>is.vector()</code> returns <code>TRUE</code> for both atomic and generic vectors, <code>is.atomic()</code> and <code>is.list()</code> can be used for each .</p>
+<p><code>is.vector()</code> returns <code>TRUE</code> for both atomic and generic vectors, instead use <code>is.atomic()</code> and <code>is.list()</code>.</p>
 </div></aside></section>
 <section id="list-structure" class="slide level2">
 <h2>List structure</h2>
-<p>The printed form of a list is verbose, <code>str()</code> gives a compact summary of any object’s structure and is particularly useful for lists.</p>
+<p>The printed form of a list is verbose. <code>str()</code> gives a compact summary of any R object’s structure and is particularly useful for lists.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2015,7 +1150,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 <section id="nested-lists" class="slide level2">
 <h2>Nested lists</h2>
 <p>Lists can contain other lists, so they do not have to be flat.</p>
-<p>This makes them a natural way of representing <em>tree-like</em> data (e.g. JSON).</p>
+<p>This makes them a natural way of representing tree-like data (e.g. JSON).</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2041,11 +1176,14 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div>
 </div>
 </div></div>
-</section>
+
+<aside><div>
+<p>Lists are not the choice for JSON in Python because their elements cannot be named</p>
+</div></aside></section>
 <section id="named-lists" class="slide level2">
 <h2>Named lists</h2>
 <p>Elements of a list (or atomic vector) can be named. Names help avoid magic numbers when accessing elements (more readable code).</p>
-<p>A valid name starts with a letter or <code>.</code> and contains only letters, numbers, <code>.</code>, and <code>_</code>.</p>
+<p>A valid name starts with a letter or <code>.</code> (not followed by a digit) and contains only <code>[A-Za-z0-9._]</code>.</p>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="dv">1</span>, <span class="at">B =</span> <span class="fu">list</span>(<span class="at">C =</span> <span class="dv">2</span>, <span class="at">D =</span> <span class="dv">3</span>))</span>
@@ -2078,8 +1216,12 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </section>
 <section id="vs" class="slide level2">
 <h2><code>[</code> vs <code>[[</code></h2>
-<p>R has three subsetting operators. * <code>[</code> (from last week) typically returns an object of the <em>same type</em> * <code>[[</code> extracts a <em>single element</em> * <code>$</code> is shorthand for named lookup with <code>[[</code></p>
-<div class="small">
+<p>R has two addition subsetting operators.</p>
+<ul>
+<li><p><code>[[</code> extracts a <em>single element</em></p></li>
+<li><p><code>$</code> is shorthand for named lookup with <code>[[</code></p></li>
+</ul>
+<div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href aria-label="1"></a>y <span class="ot">=</span> <span class="fu">list</span>(<span class="at">a =</span> <span class="dv">1</span>, <span class="at">b =</span> <span class="dv">4</span>, <span class="at">c =</span> <span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -2203,7 +1345,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div>
 </div>
 </div></div>
-<p>Vector of length &gt; 1 are interpreted as <em>recursive</em> indexing (<code>y[[c(3, 2)]]</code> is <code>y[[3]][[2]]</code>).</p>
+<p>Vectors of length &gt; 1 are interpreted as <em>recursive</em> indexing - <code>y[[c(3, 2)]]</code> is <code>y[[3]][[2]]</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2224,7 +1366,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </section>
 <section id="subsetting" class="slide level2">
 <h2><code>$</code> subsetting</h2>
-<p><code>$</code> is a shorthand for <code>[[</code> with a <em>literal</em> name, so <code>y$c</code> is <code>y[[&quot;c&quot;]]</code>. It only works with lists (and things built on lists, like data frames), and it <em>partially matches names</em>.</p>
+<p><code>$</code> is a shorthand for <code>[[</code> with a <em>literal</em> name, so <code>y$c</code> is equivalent to <code>y[[&quot;c&quot;]]</code>. It only works with lists and objects built using lists (e.g.data frames) and it <em>partially matches names</em>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2287,7 +1429,8 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </section>
 <section id="modifying-lists" class="slide level2">
 <h2>Modifying lists</h2>
-<p>Assignment with <code>[[</code> or <code>$</code> replaces an element or adds a new one. Assigning <code>NULL</code> <em>removes</em> an element.</p>
+<p>Assignment with <code>[[</code> or <code>$</code> replaces an element or adds a new one.</p>
+<p>Assigning <code>NULL</code> removes an element.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2329,15 +1472,12 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p>R’s <code>append()</code> adds elements at any position, <code>x[[&quot;b&quot;]] = NULL</code> and <code>x[&quot;b&quot;] = list(NULL)</code> behave differently</p>
-</div></aside></section>
+</section>
 <section id="lists-and-atomic-vectors" class="slide level2">
 <h2>Lists and atomic vectors</h2>
-<p>Combining an atomic vector with a list via <code>c()</code> produces a list (the more general type).</p>
+<p>Combining an atomic vector with a list via <code>c()</code> produces a list (the more generic type).</p>
 <p><code>unlist()</code> goes the other way, flattening a list into an atomic vector with the usual coercion rules.</p>
-<div class="columns small">
+<div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href aria-label="1"></a><span class="fu">str</span>( <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">list</span>(<span class="dv">4</span>, <span class="fu">list</span>(<span class="dv">6</span>, <span class="dv">7</span>))) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2362,10 +1502,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p><code>unlist()</code> is frequently paired with <code>strsplit()</code>, which returns a list with one character vector per input string, e.g. <code>unlist(strsplit(c(&quot;a-b&quot;, &quot;c-d&quot;), &quot;-&quot;))</code>.</p>
-</div></aside></section>
+</section>
 <section id="exercise-1" class="slide level2">
 <h2>Exercise 1</h2>
 <p>Represent the following JSON data as a list in R (we will revisit this in Python next week).</p>
@@ -2404,11 +1541,6 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </ul>
 </div>
 </div></div>
-<div class="cell">
-<div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_41bf73fb" minutes="4" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
-</div>
-</div>
 </section></section>
 <section>
 <section id="attributes" class="title-slide slide level1 center">
@@ -2417,7 +1549,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </section>
 <section id="attributes-1" class="slide level2">
 <h2>Attributes</h2>
-<p>Attributes are metadata attached to an R object. Some attributes are special (<code>names</code>, <code>dim</code>, <code>dimnames</code>, <code>class</code>, <code>levels</code>, …) because they change how R treats the object, but any attribute can be attached to any object.</p>
+<p>Attributes are metadata attached to an R object. Some attributes are special (e.g. <code>names</code>, <code>dim</code>, <code>dimnames</code>, <code>class</code>, <code>levels</code>, etc.) because they modoify how the object behaves / is treated.</p>
 <div class="fragment">
 <p>Attributes are stored as a <em>named list</em> attached to the object, accessed via <code>attributes()</code> or <code>attr()</code>.</p>
 <div class="small">
@@ -2454,7 +1586,7 @@ function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </section>
 <section id="setting-attributes" class="slide level2">
 <h2>Setting attributes</h2>
-<p>The important attributes have helper functions for getting and setting (<code>names()</code>, <code>dim()</code>, <code>class()</code>, <code>levels()</code>), which is preferred over <code>attr()</code> as the helper functions validate their input.</p>
+<p>Most important attributes have helper functions for getting and setting (<code>names()</code>, <code>dim()</code>, <code>class()</code>, <code>levels()</code>),</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2500,7 +1632,7 @@ attr(,&quot;other&quot;)
 </div></aside></section>
 <section id="factors" class="slide level2">
 <h2>Factors</h2>
-<p>Factors are how R represents categorical data - a variable with a discrete set of possible values (its <em>levels</em>).</p>
+<p>Factors are how R represents categorical data - a variable with a discrete set of possible values (called levels).</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href aria-label="1"></a>(<span class="at">x =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;Sunny&quot;</span>, <span class="st">&quot;Cloudy&quot;</span>, <span class="st">&quot;Rainy&quot;</span>, <span class="st">&quot;Cloudy&quot;</span>, <span class="st">&quot;Cloudy&quot;</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2639,7 +1771,7 @@ Levels: Cloudy Rainy Sunny</code></pre>
 <pre><code>[1] FALSE</code></pre>
 </div>
 </div>
-</div><div class="column" style="width:50%;">
+</div><div class="column fragment" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href aria-label="1"></a><span class="fu">as.integer</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2655,9 +1787,29 @@ Levels: Cloudy Rainy Sunny</code></pre>
 </div>
 </div>
 </div></div>
+<div class="fragment">
+<div class="columns small">
+<div class="column">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a><span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;10&quot;</span>, <span class="st">&quot;20&quot;</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1 2</code></pre>
+</div>
+</div>
+</div><div class="column">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href aria-label="1"></a><span class="fu">as.numeric</span>(</span>
+<span id="cb147-2"><a href aria-label="2"></a>  <span class="fu">as.character</span>(<span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;10&quot;</span>, <span class="st">&quot;20&quot;</span>)))</span>
+<span id="cb147-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10 20</code></pre>
+</div>
+</div>
+</div></div>
 
+</div>
 <aside><div>
-<p>This is also why <code>as.numeric(factor(c(&quot;10&quot;, &quot;20&quot;)))</code> returns <code>1 2</code> rather than <code>10 20</code> - convert via <code>as.character()</code> first.</p>
+<p>Most of these are pretty sensible choices - this was not always the case</p>
 </div></aside></section></section>
 <section>
 <section id="s3-object-system" class="title-slide slide level1 center">
@@ -2666,7 +1818,7 @@ Levels: Cloudy Rainy Sunny</code></pre>
 </section>
 <section id="class" class="slide level2">
 <h2><code>class</code></h2>
-<p>The <code>class</code> attribute adds a layer on top of R’s type hierarchy - previously we saw <code>typeof()</code> and <code>mode()</code>, <code>class()</code> is what determines how an object is <em>treated</em> by functions like <code>print()</code>.</p>
+<p>The <code>class</code> attribute adds a layer on top of R’s type hierarchy - previously we saw <code>typeof()</code> and <code>mode()</code>.</p>
 <div class="small">
 <table class="caption-top">
 <colgroup>
@@ -2749,19 +1901,19 @@ Levels: Cloudy Rainy Sunny</code></pre>
 </div>
 
 <aside><div>
-<p>Without a <code>class</code> attribute an object has an <em>implicit</em> class derived from its type* - for most vectors this matches <code>mode()</code>.</p>
+<p>Without a <code>class</code> attribute an object has an <em>implicit</em> class derived from its type - for most vectors this matches <code>mode()</code>.</p>
 </div></aside></section>
 <section id="s3-class-specialization" class="slide level2">
 <h2>S3 class specialization</h2>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;C&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;A&quot;</span>, <span class="st">&quot;C&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href aria-label="1"></a><span class="fu">print</span>( x )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb150"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href aria-label="1"></a><span class="fu">print</span>( x )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;A&quot; &quot;B&quot; &quot;A&quot; &quot;C&quot;</code></pre>
 </div>
@@ -2771,7 +1923,7 @@ Levels: Cloudy Rainy Sunny</code></pre>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href aria-label="1"></a><span class="fu">print</span>( <span class="fu">factor</span>(x) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb152"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href aria-label="1"></a><span class="fu">print</span>( <span class="fu">factor</span>(x) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] A B A C
 Levels: A B C</code></pre>
@@ -2782,7 +1934,7 @@ Levels: A B C</code></pre>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb150"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href aria-label="1"></a><span class="fu">print</span>( <span class="fu">unclass</span>( <span class="fu">factor</span>(x) ) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href aria-label="1"></a><span class="fu">print</span>( <span class="fu">unclass</span>( <span class="fu">factor</span>(x) ) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2 1 3
 attr(,&quot;levels&quot;)
@@ -2794,7 +1946,7 @@ attr(,&quot;levels&quot;)
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb152"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href aria-label="1"></a><span class="fu">print.default</span>( <span class="fu">factor</span>(x) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a><span class="fu">print.default</span>( <span class="fu">factor</span>(x) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2 1 3</code></pre>
 </div>
@@ -2802,15 +1954,15 @@ attr(,&quot;levels&quot;)
 </div>
 </div>
 </section>
-<section id="whats-up-with-print" class="slide level2">
+<section id="whats-up-with-print" class="slide level2 scrollable">
 <h2>What’s up with <code>print</code>?</h2>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href aria-label="1"></a>print</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a>print</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;print&quot;)
-&lt;bytecode: 0x75b1838bd8&gt;
+&lt;bytecode: 0x769f953e38&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
@@ -2822,7 +1974,7 @@ UseMethod(&quot;print&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a>print.default</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href aria-label="1"></a>print.default</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, digits = NULL, quote = TRUE, na.print = NULL, print.gap = NULL, 
     right = FALSE, max = NULL, width = NULL, useSource = TRUE, 
@@ -2836,18 +1988,60 @@ UseMethod(&quot;print&quot;)
         missing(useSource))
     .Internal(print.default(x, args, missings))
 }
-&lt;bytecode: 0x75ae4616c8&gt;
+&lt;bytecode: 0x769ca2cba0&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a><span class="fu">head</span>(print.factor, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href aria-label="1"></a>print.factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                                                             
-1 function (x, quote = FALSE, max.levels = NULL, width = getOption(&quot;width&quot;), 
-2     ...)                                                                   
-3 {                                                                          </code></pre>
+<pre><code>function (x, quote = FALSE, max.levels = NULL, width = getOption(&quot;width&quot;), 
+    ...) 
+{
+    ord &lt;- is.ordered(x)
+    if (length(x) == 0L) 
+        cat(if (ord) 
+            &quot;ordered&quot;
+        else &quot;factor&quot;, &quot;()\n&quot;, sep = &quot;&quot;)
+    else {
+        xx &lt;- character(length(x))
+        xx[] &lt;- as.character(x)
+        keepAttrs &lt;- setdiff(names(attributes(x)), c(&quot;levels&quot;, 
+            &quot;class&quot;))
+        attributes(xx)[keepAttrs] &lt;- attributes(x)[keepAttrs]
+        print(xx, quote = quote, ...)
+    }
+    maxl &lt;- max.levels %||% TRUE
+    if (maxl) {
+        n &lt;- length(lev &lt;- encodeString(levels(x), quote = ifelse(quote, 
+            &quot;\&quot;&quot;, &quot;&quot;)))
+        colsep &lt;- if (ord) 
+            &quot; &lt; &quot;
+        else &quot; &quot;
+        T0 &lt;- &quot;Levels: &quot;
+        if (is.logical(maxl)) 
+            maxl &lt;- {
+                width &lt;- width - (nchar(T0, &quot;w&quot;) + 3L + 1L + 
+                  3L)
+                lenl &lt;- cumsum(nchar(lev, &quot;w&quot;) + nchar(colsep, 
+                  &quot;w&quot;))
+                if (n &lt;= 1L || lenl[n] &lt;= width) 
+                  n
+                else max(1L, which.max(lenl &gt; width) - 1L)
+            }
+        drop &lt;- n &gt; maxl
+        cat(if (drop) 
+            paste(format(n), &quot;&quot;), T0, paste(if (drop) 
+            c(lev[1L:max(1, maxl - 1)], &quot;...&quot;, if (maxl &gt; 1) lev[n])
+        else lev, collapse = colsep), &quot;\n&quot;, sep = &quot;&quot;)
+    }
+    if (!isTRUE(val &lt;- .valid.factor(x))) 
+        warning(val)
+    invisible(x)
+}
+&lt;bytecode: 0x769834d9d8&gt;
+&lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
 </div></div>
@@ -2859,35 +2053,35 @@ UseMethod(&quot;print&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href aria-label="1"></a>mean</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href aria-label="1"></a>mean</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;mean&quot;)
-&lt;bytecode: 0x75b000e4a0&gt;
+&lt;bytecode: 0x769e0b5000&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href aria-label="1"></a>summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href aria-label="1"></a>summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (object, ...) 
 UseMethod(&quot;summary&quot;)
-&lt;bytecode: 0x75aa24d700&gt;
+&lt;bytecode: 0x7698211540&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href aria-label="1"></a>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href aria-label="1"></a>plot</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, y, ...) 
 UseMethod(&quot;plot&quot;)
-&lt;bytecode: 0x75aec3aac0&gt;
+&lt;bytecode: 0x7696ffa510&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href aria-label="1"></a>t.test</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href aria-label="1"></a>t.test</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;t.test&quot;)
-&lt;bytecode: 0x75b11b9dc8&gt;
+&lt;bytecode: 0x769f0dca18&gt;
 &lt;environment: namespace:stats&gt;</code></pre>
 </div>
 </div>
@@ -2896,7 +2090,7 @@ UseMethod(&quot;t.test&quot;)
 <p>Other generics, such as <code>sum</code>, dispatch without an explicit call to <code>UseMethod()</code>:</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href aria-label="1"></a>sum</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb172-1"><a href aria-label="1"></a>sum</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (..., na.rm = FALSE)  .Primitive(&quot;sum&quot;)</code></pre>
 </div>
@@ -2905,29 +2099,29 @@ UseMethod(&quot;t.test&quot;)
 
 </div>
 <aside><div>
-<p><code>sum</code> is a primitive implemented in C. It still performs S3 dispatch internally, including to methods such as <code>Summary.class</code>, rather than calling <code>UseMethod()</code> in its visible R definition.</p>
+<p><code>sum</code> is a primitive implemented in C. It still performs S3 dispatch internally, rather than calling <code>UseMethod()</code> in its visible R definition.</p>
 </div></aside></section>
 <section id="what-is-s3" class="slide level2">
 <h2>What is S3?</h2>
 <p><br></p>
 <blockquote>
-<p>S3 is R’s first and simplest OO system. It is the only OO system used in the base and stats packages, and it’s the most commonly used system in CRAN packages. S3 is informal and ad hoc, but it has a certain elegance in its minimalism: you can’t take away any part of it and still have a useful OO system.</p>
+<p>S3 is R’s first and simplest OO system. S3 is R’s first and simplest OO system. S3 is informal and ad hoc, but there is a certain elegance in its minimalism: you can’t take away any part of it and still have a useful OO system.</p>
 <ul>
 <li>Hadley Wickham, Advanced R</li>
 </ul>
 </blockquote>
 
 <aside><div>
-<p>S3 should not be confused with R’s other object oriented systems: S4, Reference classes, R6, and S7.</p>
+<p>S3 is the only OO system used in the base and stats packages and the most common on CRAN. It should not be confused with R’s other object-oriented systems: S4, Reference classes, R6, and S7.</p>
 </div></aside></section>
 <section id="dispatch" class="slide level2 scrollable">
 <h2>Dispatch</h2>
-<p>S3 uses a very simple dispatch mechanism - a generic function calls <code>UseMethod(&quot;func&quot;)</code>, which looks for a function named <code>&lt;func&gt;.&lt;class&gt;</code> for each class of the first argument in turn, and finally <code>&lt;func&gt;.default</code>.</p>
+<p>S3 dispatch is very simple - a generic calls <code>UseMethod(&quot;func&quot;)</code>, which searches for a function named <code>&lt;func&gt;.&lt;class&gt;</code>, trying each class of the first argument in order and falling back to <code>&lt;func&gt;.default</code> if none is found.</p>
 <div class="fragment">
 <p><code>methods()</code> lists the methods available for a generic, or all the methods available for a class,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="st">&quot;summary&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb174-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="st">&quot;summary&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] summary,ANY-method                   summary,diagonalMatrix-method       
  [3] summary,sparseMatrix-method          summary.aov                         
@@ -2963,7 +2157,7 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb172-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="at">class =</span> <span class="st">&quot;factor&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="at">class =</span> <span class="st">&quot;factor&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] [             [[            [[&lt;-          [&lt;-           all.equal    
  [6] Arith         as.character  as.data.frame as.Date       as.list      
@@ -2981,13 +2175,13 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </section>
 <section id="adding-methods" class="slide level2">
 <h2>Adding methods</h2>
-<p>Because dispatch is by <em>name</em>, adding a method for a new class is just defining a function with the proper name - no registration is needed.</p>
+<p>Because dispatch is by <em>name</em>, adding a method for a new class just requires defining a new function with the proper name - no registration is needed.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb174-1"><a href aria-label="1"></a>( <span class="at">x =</span> <span class="fu">structure</span>(</span>
-<span id="cb174-2"><a href aria-label="2"></a>    <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
-<span id="cb174-3"><a href aria-label="3"></a>    <span class="at">class =</span> <span class="st">&quot;class_A&quot;</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href aria-label="1"></a>( <span class="at">x =</span> <span class="fu">structure</span>(</span>
+<span id="cb178-2"><a href aria-label="2"></a>    <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb178-3"><a href aria-label="3"></a>    <span class="at">class =</span> <span class="st">&quot;class_A&quot;</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2 3
 attr(,&quot;class&quot;)
@@ -2996,9 +2190,9 @@ attr(,&quot;class&quot;)
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb176-1"><a href aria-label="1"></a>( <span class="at">y =</span> <span class="fu">structure</span>(</span>
-<span id="cb176-2"><a href aria-label="2"></a>    <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">4</span>),</span>
-<span id="cb176-3"><a href aria-label="3"></a>    <span class="at">class =</span> <span class="st">&quot;class_B&quot;</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href aria-label="1"></a>( <span class="at">y =</span> <span class="fu">structure</span>(</span>
+<span id="cb180-2"><a href aria-label="2"></a>    <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">4</span>),</span>
+<span id="cb180-3"><a href aria-label="3"></a>    <span class="at">class =</span> <span class="st">&quot;class_B&quot;</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6 5 4
 attr(,&quot;class&quot;)
@@ -3010,17 +2204,17 @@ attr(,&quot;class&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href aria-label="1"></a>print.class_A <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb178-2"><a href aria-label="2"></a>  <span class="fu">cat</span>(<span class="st">&quot;(Class A) &quot;</span>)</span>
-<span id="cb178-3"><a href aria-label="3"></a>  <span class="fu">print.default</span>(<span class="fu">unclass</span>(x))</span>
-<span id="cb178-4"><a href aria-label="4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb182-1"><a href aria-label="1"></a>print.class_A <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb182-2"><a href aria-label="2"></a>  <span class="fu">cat</span>(<span class="st">&quot;(Class A) &quot;</span>)</span>
+<span id="cb182-3"><a href aria-label="3"></a>  <span class="fu">print.default</span>(<span class="fu">unclass</span>(x))</span>
+<span id="cb182-4"><a href aria-label="4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb179-1"><a href aria-label="1"></a>print.class_B <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb179-2"><a href aria-label="2"></a>  <span class="fu">cat</span>(<span class="st">&quot;(Class B) &quot;</span>)</span>
-<span id="cb179-3"><a href aria-label="3"></a>  <span class="fu">print.default</span>(<span class="fu">unclass</span>(x))</span>
-<span id="cb179-4"><a href aria-label="4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb183"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href aria-label="1"></a>print.class_B <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb183-2"><a href aria-label="2"></a>  <span class="fu">cat</span>(<span class="st">&quot;(Class B) &quot;</span>)</span>
+<span id="cb183-3"><a href aria-label="3"></a>  <span class="fu">print.default</span>(<span class="fu">unclass</span>(x))</span>
+<span id="cb183-4"><a href aria-label="4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 </div>
@@ -3028,14 +2222,14 @@ attr(,&quot;class&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href aria-label="1"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb184-1"><a href aria-label="1"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Class A) [1] 1 2 3</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb182-1"><a href aria-label="1"></a><span class="fu">print</span>(y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb186-1"><a href aria-label="1"></a><span class="fu">print</span>(y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Class B) [1] 6 5 4</code></pre>
 </div>
@@ -3046,16 +2240,16 @@ attr(,&quot;class&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb184-1"><a href aria-label="1"></a><span class="fu">class</span>(x) <span class="ot">=</span> <span class="st">&quot;class_B&quot;</span></span>
-<span id="cb184-2"><a href aria-label="2"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb188-1"><a href aria-label="1"></a><span class="fu">class</span>(x) <span class="ot">=</span> <span class="st">&quot;class_B&quot;</span></span>
+<span id="cb188-2"><a href aria-label="2"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Class B) [1] 1 2 3</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb186-1"><a href aria-label="1"></a><span class="fu">class</span>(y) <span class="ot">=</span> <span class="st">&quot;class_A&quot;</span></span>
-<span id="cb186-2"><a href aria-label="2"></a><span class="fu">print</span>(y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb190"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb190-1"><a href aria-label="1"></a><span class="fu">class</span>(y) <span class="ot">=</span> <span class="st">&quot;class_A&quot;</span></span>
+<span id="cb190-2"><a href aria-label="2"></a><span class="fu">print</span>(y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(Class A) [1] 6 5 4</code></pre>
 </div>
@@ -3065,33 +2259,33 @@ attr(,&quot;class&quot;)
 </section>
 <section id="writing-a-good-print-method" class="slide level2">
 <h2>Writing a good <code>print</code> method</h2>
-<p>A <code>print</code> method should match the generic’s signature (<code>x, ...</code>), do its output via <code>cat()</code> or <code>print()</code>, and return its input <em>invisibly</em> so that <code>print(x)</code> can be used in a pipeline without printing twice.</p>
+<p>In general, methods should match the generic’s signature (<code>x, ...</code>). For print you should then manage output via <code>cat()</code> or <code>print()</code>, and return the input <em>invisibly</em> so that <code>print(x)</code> can be used in a pipeline.</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb188-1"><a href aria-label="1"></a>pct <span class="ot">=</span> <span class="fu">structure</span>(<span class="fu">c</span>(<span class="fl">0.12</span>, <span class="fl">0.5</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">&quot;percent&quot;</span>)</span>
-<span id="cb188-2"><a href aria-label="2"></a></span>
-<span id="cb188-3"><a href aria-label="3"></a>print.percent <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb188-4"><a href aria-label="4"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="fu">unclass</span>(x) <span class="sc">*</span> <span class="dv">100</span>, <span class="st">&quot;%&quot;</span>), <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb188-5"><a href aria-label="5"></a>  <span class="fu">invisible</span>(x)</span>
-<span id="cb188-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb192"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb192-1"><a href aria-label="1"></a>pct <span class="ot">=</span> <span class="fu">structure</span>(<span class="fu">c</span>(<span class="fl">0.12</span>, <span class="fl">0.5</span>, <span class="dv">1</span>), <span class="at">class =</span> <span class="st">&quot;percent&quot;</span>)</span>
+<span id="cb192-2"><a href aria-label="2"></a></span>
+<span id="cb192-3"><a href aria-label="3"></a>print.percent <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb192-4"><a href aria-label="4"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="fu">unclass</span>(x) <span class="sc">*</span> <span class="dv">100</span>, <span class="st">&quot;%&quot;</span>), <span class="at">quote =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb192-5"><a href aria-label="5"></a>  <span class="fu">invisible</span>(x)</span>
+<span id="cb192-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb189-1"><a href aria-label="1"></a>pct</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb193-1"><a href aria-label="1"></a>pct</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12%  50%  100%</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href aria-label="1"></a>z <span class="ot">=</span> <span class="fu">print</span>(pct)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb195-1"><a href aria-label="1"></a>z <span class="ot">=</span> <span class="fu">print</span>(pct)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12%  50%  100%</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb193-1"><a href aria-label="1"></a><span class="fu">unclass</span>(z)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb197-1"><a href aria-label="1"></a><span class="fu">unclass</span>(z)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.12 0.50 1.00</code></pre>
 </div>
@@ -3100,38 +2294,38 @@ attr(,&quot;class&quot;)
 
 </div>
 <aside><div>
-<p>Calling <code>print(x)</code> (rather than <code>print(unclass(x))</code> or <code>NextMethod()</code>) inside <code>print.percent</code> would dispatch back to <code>print.percent</code> and recurse forever. <code>noquote()</code> is an alternative to <code>quote = FALSE</code> for character output.</p>
+<p>This goes for any new method - match the signature and conform to the common expectations of the other method implementations.</p>
 </div></aside></section>
 <section id="defining-a-new-generic" class="slide level2">
 <h2>Defining a new generic</h2>
 <p>A generic is just a function that calls <code>UseMethod()</code>. By convention the first argument is the object dispatched on and <code>...</code> is included so that methods can add arguments.</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb195-1"><a href aria-label="1"></a>shuffle <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb195-2"><a href aria-label="2"></a>  <span class="fu">UseMethod</span>(<span class="st">&quot;shuffle&quot;</span>)</span>
-<span id="cb195-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href aria-label="1"></a>shuffle <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb199-2"><a href aria-label="2"></a>  <span class="fu">UseMethod</span>(<span class="st">&quot;shuffle&quot;</span>)</span>
+<span id="cb199-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb196-1"><a href aria-label="1"></a>shuffle.default <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb196-2"><a href aria-label="2"></a>  <span class="fu">stop</span>(<span class="st">&quot;Class &quot;</span>, <span class="fu">class</span>(x), <span class="st">&quot; is not supported by shuffle.&quot;</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb196-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb200-1"><a href aria-label="1"></a>shuffle.default <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb200-2"><a href aria-label="2"></a>  <span class="fu">stop</span>(<span class="st">&quot;Class &quot;</span>, <span class="fu">class</span>(x), <span class="st">&quot; is not supported by shuffle.&quot;</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb200-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb197-1"><a href aria-label="1"></a>shuffle.factor <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb197-2"><a href aria-label="2"></a>  <span class="fu">factor</span>( <span class="fu">sample</span>(<span class="fu">as.character</span>(x)), <span class="at">levels =</span> <span class="fu">sample</span>(<span class="fu">levels</span>(x)) )</span>
-<span id="cb197-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb201"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb201-1"><a href aria-label="1"></a>shuffle.factor <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb201-2"><a href aria-label="2"></a>  <span class="fu">factor</span>( <span class="fu">sample</span>(<span class="fu">as.character</span>(x)), <span class="at">levels =</span> <span class="fu">sample</span>(<span class="fu">levels</span>(x)) )</span>
+<span id="cb201-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb198-1"><a href aria-label="1"></a>shuffle.integer <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb198-2"><a href aria-label="2"></a>  <span class="fu">sample</span>(x)</span>
-<span id="cb198-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb202-1"><a href aria-label="1"></a>shuffle.integer <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb202-2"><a href aria-label="2"></a>  <span class="fu">sample</span>(x)</span>
+<span id="cb202-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -3140,19 +2334,19 @@ attr(,&quot;class&quot;)
 <h2>Shuffle results</h2>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb203-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1]  9  7  8  5  2  4 10  3  1  6</code></pre>
+<pre><code> [1]  4  5  6  7  1  2  9 10  8  3</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb201"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb201-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;A&quot;</span>)) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;A&quot;</span>)) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] B A C A
-Levels: B A C</code></pre>
+<pre><code>[1] A B C A
+Levels: B C A</code></pre>
 </div>
 </div>
 </div>
@@ -3160,7 +2354,7 @@ Levels: B A C</code></pre>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb203-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error:
 ! Class numeric is not supported by shuffle.</code></pre>
@@ -3171,7 +2365,7 @@ Levels: B A C</code></pre>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>] )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>] )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error:
 ! Class character is not supported by shuffle.</code></pre>
@@ -3182,7 +2376,7 @@ Levels: B A C</code></pre>
 <div class="fragment">
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="st">&quot;shuffle&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb211-1"><a href aria-label="1"></a><span class="fu">methods</span>(<span class="st">&quot;shuffle&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] shuffle.default shuffle.factor  shuffle.integer
 see &#39;?methods&#39; for accessing help and source code</code></pre>
@@ -3193,55 +2387,55 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </section>
 <section id="implicit-classes" class="slide level2">
 <h2>Implicit classes</h2>
-<p>Why did <code>shuffle(c(1, 2, 3, 4, 5))</code> fail when <code>class(1)</code> is <code>&quot;numeric&quot;</code>? Objects without a <code>class</code> attribute dispatch on an <em>implicit</em> class vector that is more detailed than what <code>class()</code> reports.</p>
+<p>Objects without a <code>class</code> attribute dispatch on an <em>implicit</em> class vector that is more detailed than what <code>class()</code> reports.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href aria-label="1"></a>report <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
-<span id="cb209-2"><a href aria-label="2"></a>  <span class="fu">UseMethod</span>(<span class="st">&quot;report&quot;</span>)</span>
-<span id="cb209-3"><a href aria-label="3"></a>}</span>
-<span id="cb209-4"><a href aria-label="4"></a>report.default <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="st">&quot;Class &quot;</span>, <span class="fu">class</span>(x), <span class="st">&quot; does not have a method defined.&quot;</span>)</span>
-<span id="cb209-5"><a href aria-label="5"></a>report.integer <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m an integer!&quot;</span></span>
-<span id="cb209-6"><a href aria-label="6"></a>report.double  <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m a double!&quot;</span></span>
-<span id="cb209-7"><a href aria-label="7"></a>report.numeric <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m a numeric!&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb213-1"><a href aria-label="1"></a>report <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb213-2"><a href aria-label="2"></a>  <span class="fu">UseMethod</span>(<span class="st">&quot;report&quot;</span>)</span>
+<span id="cb213-3"><a href aria-label="3"></a>}</span>
+<span id="cb213-4"><a href aria-label="4"></a>report.default <span class="ot">=</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="st">&quot;Class &quot;</span>, <span class="fu">class</span>(x), <span class="st">&quot; does not have a method defined.&quot;</span>)</span>
+<span id="cb213-5"><a href aria-label="5"></a>report.integer <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m an integer!&quot;</span></span>
+<span id="cb213-6"><a href aria-label="6"></a>report.double  <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m a double!&quot;</span></span>
+<span id="cb213-7"><a href aria-label="7"></a>report.numeric <span class="ot">=</span> <span class="cf">function</span>(x) <span class="st">&quot;I&#39;m a numeric!&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="columns xsmall">
 <div class="column" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb210-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb214-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;I&#39;m a double!&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb212-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb216-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;I&#39;m an integer!&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb214-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="st">&quot;1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb218-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="st">&quot;1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Class character does not have a method defined.&quot;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb216-1"><a href aria-label="1"></a><span class="fu">rm</span>(report.integer, report.double)</span>
-<span id="cb216-2"><a href aria-label="2"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb220"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb220-1"><a href aria-label="1"></a><span class="fu">rm</span>(report.integer, report.double)</span>
+<span id="cb220-2"><a href aria-label="2"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;I&#39;m a numeric!&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb218-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb222"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb222-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;I&#39;m a numeric!&quot;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb220"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb220-1"><a href aria-label="1"></a><span class="fu">rm</span>(report.numeric)</span>
-<span id="cb220-2"><a href aria-label="2"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb224-1"><a href aria-label="1"></a><span class="fu">rm</span>(report.numeric)</span>
+<span id="cb224-2"><a href aria-label="2"></a><span class="fu">report</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Class numeric does not have a method defined.&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb222"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb222-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb226"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb226-1"><a href aria-label="1"></a><span class="fu">report</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Class integer does not have a method defined.&quot;</code></pre>
 </div>
@@ -3251,25 +2445,27 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </section>
 <section id="why" class="slide level2">
 <h2>Why?</h2>
-<div class="small">
+<div class="medium">
 <p>From <code>UseMethod</code>’s R documentation:</p>
 <blockquote>
 <p>If the object does not have a class attribute, it has an implicit class. Matrices and arrays have class “matrix” or “array” followed by the class of the underlying vector. Most vectors have class the result of <code>mode(x)</code>, except that integer vectors have class <code>c(&quot;integer&quot;, &quot;numeric&quot;)</code> and real vectors have class <code>c(&quot;double&quot;, &quot;numeric&quot;)</code>.</p>
 </blockquote>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="medium">
 <p>The implicit class vector can be inspected with <code>.class2()</code>,</p>
+</div>
+<div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb224-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb228"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb228-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;double&quot;  &quot;numeric&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb226"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb226-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb230"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb230-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="dv">1</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;integer&quot; &quot;numeric&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb228"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb228-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb232"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb232-1"><a href aria-label="1"></a><span class="fu">.class2</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;matrix&quot;  &quot;array&quot;   &quot;integer&quot; &quot;numeric&quot;</code></pre>
 </div>
@@ -3279,157 +2475,7 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </div>
 <aside><div>
 <p><code>report(1)</code> tries <code>report.double</code>, then <code>report.numeric</code>, then <code>report.default</code> - which is why a method for <code>double</code> is found even though <code>class(1)</code> says <code>&quot;numeric&quot;</code>.</p>
-</div></aside></section>
-<section id="inheritance" class="slide level2">
-<h2>Inheritance</h2>
-<div class="medium">
-<p>The <code>class</code> attribute can be a <em>vector</em> - dispatch tries each class in order, so earlier classes “inherit” the methods of later ones. <code>NextMethod()</code> calls the method for the next class in the vector.</p>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb230"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb230-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">structure</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">class =</span> <span class="fu">c</span>(<span class="st">&quot;child&quot;</span>, <span class="st">&quot;parent&quot;</span>))</span>
-<span id="cb230-2"><a href aria-label="2"></a></span>
-<span id="cb230-3"><a href aria-label="3"></a>print.parent <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb230-4"><a href aria-label="4"></a>  <span class="fu">cat</span>(<span class="st">&quot;parent method: &quot;</span>)</span>
-<span id="cb230-5"><a href aria-label="5"></a>  <span class="fu">print</span>(<span class="fu">unclass</span>(x))</span>
-<span id="cb230-6"><a href aria-label="6"></a>  <span class="fu">invisible</span>(x)</span>
-<span id="cb230-7"><a href aria-label="7"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb231-1"><a href aria-label="1"></a>print.child <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb231-2"><a href aria-label="2"></a>  <span class="fu">cat</span>(<span class="st">&quot;child method -&gt; &quot;</span>)</span>
-<span id="cb231-3"><a href aria-label="3"></a>  <span class="fu">NextMethod</span>()</span>
-<span id="cb231-4"><a href aria-label="4"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb232"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb232-1"><a href aria-label="1"></a><span class="fu">print</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>child method -&gt; parent method: [1] 1 2 3</code></pre>
-</div>
-</div>
-</div></div>
-<div class="fragment">
-<div class="medium">
-<p><code>inherits()</code> tests class membership and is the right tool for validating method arguments,</p>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb234"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb234-1"><a href aria-label="1"></a><span class="fu">inherits</span>(x, <span class="st">&quot;parent&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb236"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb236-1"><a href aria-label="1"></a><span class="fu">inherits</span>(x, <span class="st">&quot;child&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb238"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb238-1"><a href aria-label="1"></a><span class="fu">inherits</span>(x, <span class="st">&quot;integer&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] FALSE</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb240"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb240-1"><a href aria-label="1"></a><span class="fu">typeof</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;integer&quot;</code></pre>
-</div>
-</div>
-</div></div>
-
-</div>
-<aside><div>
-<p><code>inherits()</code> only looks at the <code>class</code> attribute, which is why the <code>&quot;integer&quot;</code> check is <code>FALSE</code> despite the underlying type.</p>
-</div></aside></section>
-<section id="building-an-s3-class" class="slide level2">
-<h2>Building an S3 class</h2>
-<p>Most S3 classes are a list with a class attribute, created by a <em>constructor</em> function that validates its inputs. Methods then access the elements with <code>$</code> and return <em>modified copies</em>.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb242"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb242-1"><a href aria-label="1"></a>rect <span class="ot">=</span> <span class="cf">function</span>(<span class="at">p1 =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>), <span class="at">p2 =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>)) {</span>
-<span id="cb242-2"><a href aria-label="2"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(p1), <span class="fu">length</span>(p1) <span class="sc">==</span> <span class="dv">2</span>, <span class="fu">is.numeric</span>(p2), <span class="fu">length</span>(p2) <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb242-3"><a href aria-label="3"></a>  <span class="fu">structure</span>(<span class="fu">list</span>(<span class="at">p1 =</span> p1, <span class="at">p2 =</span> p2), <span class="at">class =</span> <span class="st">&quot;rect&quot;</span>)</span>
-<span id="cb242-4"><a href aria-label="4"></a>}</span>
-<span id="cb242-5"><a href aria-label="5"></a></span>
-<span id="cb242-6"><a href aria-label="6"></a>area <span class="ot">=</span> <span class="cf">function</span>(x, ...) <span class="fu">UseMethod</span>(<span class="st">&quot;area&quot;</span>)</span>
-<span id="cb242-7"><a href aria-label="7"></a>area.rect <span class="ot">=</span> <span class="cf">function</span>(x, ...) <span class="fu">abs</span>(<span class="fu">prod</span>(x<span class="sc">$</span>p2 <span class="sc">-</span> x<span class="sc">$</span>p1))</span>
-<span id="cb242-8"><a href aria-label="8"></a></span>
-<span id="cb242-9"><a href aria-label="9"></a>set_p1 <span class="ot">=</span> <span class="cf">function</span>(x, p1, ...) <span class="fu">UseMethod</span>(<span class="st">&quot;set_p1&quot;</span>)</span>
-<span id="cb242-10"><a href aria-label="10"></a>set_p1.rect <span class="ot">=</span> <span class="cf">function</span>(x, p1, ...) {</span>
-<span id="cb242-11"><a href aria-label="11"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(p1), <span class="fu">length</span>(p1) <span class="sc">==</span> <span class="dv">2</span>)</span>
-<span id="cb242-12"><a href aria-label="12"></a>  x<span class="sc">$</span>p1 <span class="ot">=</span> p1</span>
-<span id="cb242-13"><a href aria-label="13"></a>  x</span>
-<span id="cb242-14"><a href aria-label="14"></a>}</span>
-<span id="cb242-15"><a href aria-label="15"></a></span>
-<span id="cb242-16"><a href aria-label="16"></a>print.rect <span class="ot">=</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb242-17"><a href aria-label="17"></a>  <span class="fu">cat</span>(<span class="st">&quot;rect: (&quot;</span>, x<span class="sc">$</span>p1[<span class="dv">1</span>], <span class="st">&quot;,&quot;</span>, x<span class="sc">$</span>p1[<span class="dv">2</span>], <span class="st">&quot;) to (&quot;</span>, x<span class="sc">$</span>p2[<span class="dv">1</span>], <span class="st">&quot;,&quot;</span>, x<span class="sc">$</span>p2[<span class="dv">2</span>], <span class="st">&quot;)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb242-18"><a href aria-label="18"></a>  <span class="fu">invisible</span>(x)</span>
-<span id="cb242-19"><a href aria-label="19"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</section>
-<section id="using-the-class" class="slide level2">
-<h2>Using the class</h2>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb243"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb243-1"><a href aria-label="1"></a>r <span class="ot">=</span> <span class="fu">rect</span>()</span>
-<span id="cb243-2"><a href aria-label="2"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect: ( 0 , 0 ) to ( 1 , 1 )</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb245"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb245-1"><a href aria-label="1"></a><span class="fu">str</span>(<span class="fu">unclass</span>(r))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>List of 2
- $ p1: num [1:2] 0 0
- $ p2: num [1:2] 1 1</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb247"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb247-1"><a href aria-label="1"></a><span class="fu">area</span>(r)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 1</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb249"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb249-1"><a href aria-label="1"></a>r2 <span class="ot">=</span> <span class="fu">set_p1</span>(r, <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>))</span>
-<span id="cb249-2"><a href aria-label="2"></a>r2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect: ( -1 , -1 ) to ( 1 , 1 )</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb251"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb251-1"><a href aria-label="1"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect: ( 0 , 0 ) to ( 1 , 1 )</code></pre>
-</div>
-</div>
-</div></div>
-<div class="fragment">
-<p>Because each method returns the updated object, the class is naturally pipeable,</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb253"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb253-1"><a href aria-label="1"></a><span class="fu">rect</span>() <span class="sc">|&gt;</span> <span class="fu">set_p1</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">area</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 4</code></pre>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb255"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb255-1"><a href aria-label="1"></a><span class="fu">area</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `UseMethod()`:
-! no applicable method for &#39;area&#39; applied to an object of class &quot;c(&#39;integer&#39;, &#39;numeric&#39;)&quot;</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb257"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb257-1"><a href aria-label="1"></a><span class="fu">rect</span>(<span class="at">p1 =</span> <span class="st">&quot;a&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in `rect()`:
-! is.numeric(p1) is not TRUE</code></pre>
-</div>
-</div>
-</div></div>
-</div>
-</section></section>
+</div></aside></section></section>
 <section>
 <section id="python-classes" class="title-slide slide level1 center">
 <h1>Python classes</h1>
@@ -3441,84 +2487,81 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb259"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb259-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
-<span id="cb259-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
-<span id="cb259-3"><a href aria-label="3"></a>  p1 <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb259-4"><a href aria-label="4"></a>  p2 <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb259-5"><a href aria-label="5"></a></span>
-<span id="cb259-6"><a href aria-label="6"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
-<span id="cb259-7"><a href aria-label="7"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
-<span id="cb259-8"><a href aria-label="8"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span>
-<span id="cb259-9"><a href aria-label="9"></a></span>
-<span id="cb259-10"><a href aria-label="10"></a>  <span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
-<span id="cb259-11"><a href aria-label="11"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb234"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb234-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
+<span id="cb234-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
+<span id="cb234-3"><a href aria-label="3"></a>  p1 <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb234-4"><a href aria-label="4"></a>  p2 <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb234-5"><a href aria-label="5"></a></span>
+<span id="cb234-6"><a href aria-label="6"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
+<span id="cb234-7"><a href aria-label="7"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
+<span id="cb234-8"><a href aria-label="8"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span>
+<span id="cb234-9"><a href aria-label="9"></a></span>
+<span id="cb234-10"><a href aria-label="10"></a>  <span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
+<span id="cb234-11"><a href aria-label="11"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb260"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb260-1"><a href aria-label="1"></a>x <span class="op">=</span> rect()</span>
-<span id="cb260-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb235"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href aria-label="1"></a>x <span class="op">=</span> rect()</span>
+<span id="cb235-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb262"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb262-1"><a href aria-label="1"></a>x.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb237"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href aria-label="1"></a>x.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(0, 0)</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb264"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb264-1"><a href aria-label="1"></a>x.set_p1((<span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb264-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb239"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb239-1"><a href aria-label="1"></a>x.set_p1((<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb239-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb266"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb266-1"><a href aria-label="1"></a>x.p2 <span class="op">=</span> (<span class="dv">3</span>, <span class="dv">3</span>)</span>
-<span id="cb266-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb241"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb241-1"><a href aria-label="1"></a>x.p2 <span class="op">=</span> (<span class="dv">3</span>, <span class="dv">3</span>)</span>
+<span id="cb241-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>4</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p><code>x.area()</code> is shorthand for <code>rect.area(x)</code> - Python passes the object as <code>self</code> automatically. We have been using this system all along: <code>type()</code>, list methods like <code>.append()</code>, and exception classes are all part of it.</p>
-</div></aside></section>
+</section>
 <section id="init__" class="slide level2">
 <h2><code>__init__</code></h2>
 <p>Calling the class (<code>rect()</code>) creates a new <em>instance</em> and then calls its <code>__init__()</code> method with any arguments - this is the constructor, and where instance attributes should be set.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb268"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb268-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
-<span id="cb268-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
-<span id="cb268-3"><a href aria-label="3"></a></span>
-<span id="cb268-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), p2<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>)):</span>
-<span id="cb268-5"><a href aria-label="5"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
-<span id="cb268-6"><a href aria-label="6"></a>    <span class="va">self</span>.p2 <span class="op">=</span> p2</span>
-<span id="cb268-7"><a href aria-label="7"></a></span>
-<span id="cb268-8"><a href aria-label="8"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
-<span id="cb268-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
-<span id="cb268-10"><a href aria-label="10"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb243"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb243-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
+<span id="cb243-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
+<span id="cb243-3"><a href aria-label="3"></a></span>
+<span id="cb243-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), p2<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>)):</span>
+<span id="cb243-5"><a href aria-label="5"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
+<span id="cb243-6"><a href aria-label="6"></a>    <span class="va">self</span>.p2 <span class="op">=</span> p2</span>
+<span id="cb243-7"><a href aria-label="7"></a></span>
+<span id="cb243-8"><a href aria-label="8"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
+<span id="cb243-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
+<span id="cb243-10"><a href aria-label="10"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb269"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb269-1"><a href aria-label="1"></a>rect().area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb244"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb244-1"><a href aria-label="1"></a>rect().area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb271"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb271-1"><a href aria-label="1"></a>rect((<span class="dv">0</span>, <span class="dv">0</span>), (<span class="dv">3</span>, <span class="dv">3</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb246"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb246-1"><a href aria-label="1"></a>rect((<span class="dv">0</span>, <span class="dv">0</span>), (<span class="dv">3</span>, <span class="dv">3</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>9</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb273"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb273-1"><a href aria-label="1"></a>z <span class="op">=</span> rect(p1<span class="op">=</span>(<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb273-2"><a href aria-label="2"></a>z.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb248"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb248-1"><a href aria-label="1"></a>z <span class="op">=</span> rect(p1<span class="op">=</span>(<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb248-2"><a href aria-label="2"></a>z.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(-1, -1)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb275"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb275-1"><a href aria-label="1"></a>z.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb250"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb250-1"><a href aria-label="1"></a>z.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(1, 1)</code></pre>
 </div>
@@ -3526,48 +2569,48 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </div></div>
 
 <aside><div>
-<p>Methods whose names start and end with double underscores (<code>__init__</code>, <code>__repr__</code>, …) are “dunder” or <em>special</em> methods - Python calls them implicitly in specific situations.</p>
+<p>Methods whose names start and end with double underscores (<code>__init__</code>, <code>__repr__</code>, …) are called “dunder” or <em>special</em> methods - Python calls them implicitly in specific situations.</p>
 </div></aside></section>
 <section id="class-vs-instance-attributes" class="slide level2">
 <h2>Class vs instance attributes</h2>
-<p>Attributes assigned in the class body are <em>class attributes</em> shared by every instance (useful for constants), attributes assigned via <code>self</code> are <em>instance attributes</em> belonging to one object.</p>
+<p>Attributes assigned in the class body are <em>class attributes</em> shared by every instance (useful for constants), while attributes assigned via <code>self</code> are <em>instance attributes</em> belonging to one object.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb277"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb277-1"><a href aria-label="1"></a><span class="kw">class</span> die:</span>
-<span id="cb277-2"><a href aria-label="2"></a>  sides <span class="op">=</span> <span class="dv">6</span></span>
-<span id="cb277-3"><a href aria-label="3"></a></span>
-<span id="cb277-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb277-5"><a href aria-label="5"></a>    <span class="va">self</span>.value <span class="op">=</span> value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb252"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb252-1"><a href aria-label="1"></a><span class="kw">class</span> die:</span>
+<span id="cb252-2"><a href aria-label="2"></a>  sides <span class="op">=</span> <span class="dv">6</span></span>
+<span id="cb252-3"><a href aria-label="3"></a></span>
+<span id="cb252-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb252-5"><a href aria-label="5"></a>    <span class="va">self</span>.value <span class="op">=</span> value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb278"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb278-1"><a href aria-label="1"></a>d <span class="op">=</span> die(<span class="dv">3</span>)</span>
-<span id="cb278-2"><a href aria-label="2"></a>d.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb253"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb253-1"><a href aria-label="1"></a>d <span class="op">=</span> die(<span class="dv">3</span>)</span>
+<span id="cb253-2"><a href aria-label="2"></a>d.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb280"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb280-1"><a href aria-label="1"></a>d.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb255"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb255-1"><a href aria-label="1"></a>d.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>6</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb282"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb282-1"><a href aria-label="1"></a>die.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb257"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb257-1"><a href aria-label="1"></a>die.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>6</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb284"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb284-1"><a href aria-label="1"></a>die.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb259"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb259-1"><a href aria-label="1"></a>die.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>AttributeError: type object &#39;die&#39; has no attribute &#39;value&#39;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb286"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb286-1"><a href aria-label="1"></a><span class="bu">vars</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb261"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb261-1"><a href aria-label="1"></a><span class="bu">vars</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{&#39;value&#39;: 3}</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb288"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb288-1"><a href aria-label="1"></a>[m <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">dir</span>(d) <span class="cf">if</span> <span class="kw">not</span> m.startswith(<span class="st">&quot;__&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb263"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb263-1"><a href aria-label="1"></a>[m <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">dir</span>(d) <span class="cf">if</span> <span class="kw">not</span> m.startswith(<span class="st">&quot;__&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;sides&#39;, &#39;value&#39;]</code></pre>
 </div>
@@ -3575,70 +2618,70 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </div></div>
 
 <aside><div>
-<p><code>dir()</code> lists all attributes and methods of an object (including inherited dunder methods), <code>vars()</code> returns just the instance attributes as a <code>dict</code>.</p>
+<p><code>dir()</code> lists all attributes and methods of an object (including inherited dunder methods), while <code>vars()</code> returns just the instance attributes as a <code>dict</code>.</p>
 </div></aside></section>
 <section id="mutate-or-return" class="slide level2">
 <h2>Mutate or return?</h2>
-<p>Python methods that mutate an object conventionally modify <code>self</code> in place and return <code>None</code>. In R, modifying an ordinary vector or list inside a function does not modify the caller’s object, so a function must return the updated value. Returning <code>self</code> from a Python mutating method instead enables method chaining.</p>
+<div class="medium">
+<p>Python methods that mutate an object conventionally modify <code>self</code> in place and return <code>None</code>. In R, modifying an ordinary vector or list inside a function does not modify the caller’s object, so a function must return the updated value.</p>
+<p>Returning <code>self</code> from a Python mutating method instead enables method chaining.</p>
+</div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb290"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb290-1"><a href aria-label="1"></a>x <span class="op">=</span> [<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>]</span>
-<span id="cb290-2"><a href aria-label="2"></a><span class="bu">print</span>( x.sort() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb265"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb265-1"><a href aria-label="1"></a>x <span class="op">=</span> [<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>]</span>
+<span id="cb265-2"><a href aria-label="2"></a><span class="bu">print</span>( x.sort() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>None</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb292"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb292-1"><a href aria-label="1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb267"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb267-1"><a href aria-label="1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 2, 3]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb294"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb294-1"><a href aria-label="1"></a><span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
-<span id="cb294-2"><a href aria-label="2"></a>  <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
-<span id="cb294-3"><a href aria-label="3"></a>  <span class="cf">return</span> <span class="va">self</span></span>
-<span id="cb294-4"><a href aria-label="4"></a></span>
-<span id="cb294-5"><a href aria-label="5"></a>rect.set_p1 <span class="op">=</span> set_p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb269"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb269-1"><a href aria-label="1"></a><span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
+<span id="cb269-2"><a href aria-label="2"></a>  <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
+<span id="cb269-3"><a href aria-label="3"></a>  <span class="cf">return</span> <span class="va">self</span></span>
+<span id="cb269-4"><a href aria-label="4"></a></span>
+<span id="cb269-5"><a href aria-label="5"></a>rect.set_p1 <span class="op">=</span> set_p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb295"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb295-1"><a href aria-label="1"></a>r1 <span class="op">=</span> rect()</span>
-<span id="cb295-2"><a href aria-label="2"></a>r2 <span class="op">=</span> r1</span>
-<span id="cb295-3"><a href aria-label="3"></a>r1.set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb270"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb270-1"><a href aria-label="1"></a>r1 <span class="op">=</span> rect()</span>
+<span id="cb270-2"><a href aria-label="2"></a>r2 <span class="op">=</span> r1</span>
+<span id="cb270-3"><a href aria-label="3"></a>r1.set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>4</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb297"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb297-1"><a href aria-label="1"></a>r2.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb272"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb272-1"><a href aria-label="1"></a>r2.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(-1, -1)</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb299"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb299-1"><a href aria-label="1"></a>( rect()</span>
-<span id="cb299-2"><a href aria-label="2"></a>  .set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb299-3"><a href aria-label="3"></a>  .area()</span>
-<span id="cb299-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb274"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb274-1"><a href aria-label="1"></a>( rect()</span>
+<span id="cb274-2"><a href aria-label="2"></a>  .set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
+<span id="cb274-3"><a href aria-label="3"></a>  .area()</span>
+<span id="cb274-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>4</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p>Methods are just functions stored on the class, so they can be attached after the fact - this keeps the examples short, but in real code define everything inside the <code>class</code> block. Note that <code>r2</code> was never copied, so it sees the change made through <code>r1</code>.</p>
-</div></aside></section>
+</section>
 <section id="str__-and-__repr__" class="slide level2">
 <h2><code>__str__</code> and <code>__repr__</code></h2>
-<p>Every object has a default string representation, but it is not very useful,</p>
+<p>Every object has a default string representation, but it is not usually very useful,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb301"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb301-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb276"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb276-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;__main__.rect object at 0x10b146bd0&gt;</code></pre>
+<pre><code>&lt;__main__.rect object at 0x11443ec30&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb303"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb303-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb278"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb278-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;__main__.rect object at 0x10b0cc3b0&gt;</code></pre>
+<pre><code>&lt;__main__.rect object at 0x114478160&gt;</code></pre>
 </div>
 </div>
 </div>
@@ -3647,22 +2690,22 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb305"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb305-1"><a href aria-label="1"></a><span class="kw">def</span> rect_repr(<span class="va">self</span>):</span>
-<span id="cb305-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="ss">f&quot;rect(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p2<span class="sc">}</span><span class="ss">)&quot;</span></span>
-<span id="cb305-3"><a href aria-label="3"></a></span>
-<span id="cb305-4"><a href aria-label="4"></a>rect.<span class="fu">__repr__</span> <span class="op">=</span> rect_repr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb280"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb280-1"><a href aria-label="1"></a><span class="kw">def</span> rect_repr(<span class="va">self</span>):</span>
+<span id="cb280-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="ss">f&quot;rect(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p2<span class="sc">}</span><span class="ss">)&quot;</span></span>
+<span id="cb280-3"><a href aria-label="3"></a></span>
+<span id="cb280-4"><a href aria-label="4"></a>rect.<span class="fu">__repr__</span> <span class="op">=</span> rect_repr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb306"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb306-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb281"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb281-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>rect((0, 0), (1, 1))</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb308"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb308-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb283"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb283-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>rect((0, 0), (1, 1))</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb310"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb310-1"><a href aria-label="1"></a>[rect(), rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb285"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb285-1"><a href aria-label="1"></a>[rect(), rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[rect((0, 0), (1, 1)), rect((1, 1), (2, 2))]</code></pre>
 </div>
@@ -3675,37 +2718,37 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </div></aside></section>
 <section id="other-special-methods" class="slide level2">
 <h2>Other special methods</h2>
-<p>Operators and built in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (<code>&quot;abc&quot; * 3</code>, <code>[1] + [2]</code>).</p>
+<p>Operators and built-in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (<code>&quot;abc&quot; * 3</code>, <code>[1, 2] + [3, 4]</code>).</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb312"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb312-1"><a href aria-label="1"></a><span class="kw">def</span> rect_eq(<span class="va">self</span>, other):</span>
-<span id="cb312-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="va">self</span>.p1 <span class="op">==</span> other.p1 <span class="kw">and</span> <span class="va">self</span>.p2 <span class="op">==</span> other.p2</span>
-<span id="cb312-3"><a href aria-label="3"></a></span>
-<span id="cb312-4"><a href aria-label="4"></a><span class="kw">def</span> rect_contains(<span class="va">self</span>, pt):</span>
-<span id="cb312-5"><a href aria-label="5"></a>  <span class="cf">return</span> <span class="bu">all</span>(<span class="bu">min</span>(a, b) <span class="op">&lt;=</span> x <span class="op">&lt;=</span> <span class="bu">max</span>(a, b)</span>
-<span id="cb312-6"><a href aria-label="6"></a>             <span class="cf">for</span> a, b, x <span class="kw">in</span> <span class="bu">zip</span>(<span class="va">self</span>.p1, <span class="va">self</span>.p2, pt))</span>
-<span id="cb312-7"><a href aria-label="7"></a></span>
-<span id="cb312-8"><a href aria-label="8"></a>rect.<span class="fu">__eq__</span> <span class="op">=</span> rect_eq</span>
-<span id="cb312-9"><a href aria-label="9"></a>rect.<span class="fu">__contains__</span> <span class="op">=</span> rect_contains</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb287"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb287-1"><a href aria-label="1"></a><span class="kw">def</span> rect_eq(<span class="va">self</span>, other):</span>
+<span id="cb287-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="va">self</span>.p1 <span class="op">==</span> other.p1 <span class="kw">and</span> <span class="va">self</span>.p2 <span class="op">==</span> other.p2</span>
+<span id="cb287-3"><a href aria-label="3"></a></span>
+<span id="cb287-4"><a href aria-label="4"></a><span class="kw">def</span> rect_contains(<span class="va">self</span>, pt):</span>
+<span id="cb287-5"><a href aria-label="5"></a>  <span class="cf">return</span> <span class="bu">all</span>(<span class="bu">min</span>(a, b) <span class="op">&lt;=</span> x <span class="op">&lt;=</span> <span class="bu">max</span>(a, b)</span>
+<span id="cb287-6"><a href aria-label="6"></a>             <span class="cf">for</span> a, b, x <span class="kw">in</span> <span class="bu">zip</span>(<span class="va">self</span>.p1, <span class="va">self</span>.p2, pt))</span>
+<span id="cb287-7"><a href aria-label="7"></a></span>
+<span id="cb287-8"><a href aria-label="8"></a>rect.<span class="fu">__eq__</span> <span class="op">=</span> rect_eq</span>
+<span id="cb287-9"><a href aria-label="9"></a>rect.<span class="fu">__contains__</span> <span class="op">=</span> rect_contains</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb313"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb313-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb288"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb288-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb315"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb315-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb290"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb290-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb317"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb317-1"><a href aria-label="1"></a>(<span class="fl">0.5</span>, <span class="fl">0.5</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb292"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb292-1"><a href aria-label="1"></a>(<span class="fl">0.5</span>, <span class="fl">0.5</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb319"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb319-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb294"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb294-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
@@ -3715,93 +2758,90 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 <aside><div>
 <p>Without <code>__eq__</code>, <code>==</code> compares object identity (like <code>is</code>). See the <a href="https://docs.python.org/3/reference/datamodel.html#special-method-names">data model</a> docs for the full list, including <code>__len__</code>, <code>__getitem__</code>, <code>__add__</code>, and <code>__lt__</code>.</p>
 </div></aside></section>
-<section id="inheritance-1" class="slide level2">
+<section id="inheritance" class="slide level2">
 <h2>Inheritance</h2>
-<p>A class can <em>inherit</em> from another, gaining all of its attributes and methods. The subclass can add new methods and override existing ones - <code>super()</code> gives access to the parent’s version.</p>
+<p>A class can <em>inherit</em> from another class, gaining all of its attributes and methods. The subclass can add new methods and override existing ones - <code>super()</code> gives access to the parent’s version.</p>
 <div class="columns xsmall">
-<div class="column" style="width:50%;">
+<div class="column" style="width:60%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb321"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb321-1"><a href aria-label="1"></a><span class="kw">class</span> square(rect):</span>
-<span id="cb321-2"><a href aria-label="2"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), l<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb321-3"><a href aria-label="3"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(l, (<span class="bu">int</span>, <span class="bu">float</span>)):</span>
-<span id="cb321-4"><a href aria-label="4"></a>      <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">&quot;l must be a number&quot;</span>)</span>
-<span id="cb321-5"><a href aria-label="5"></a>    <span class="va">self</span>.l <span class="op">=</span> l</span>
-<span id="cb321-6"><a href aria-label="6"></a>    <span class="bu">super</span>().<span class="fu">__init__</span>(p1, (p1[<span class="dv">0</span>] <span class="op">+</span> l, p1[<span class="dv">1</span>] <span class="op">+</span> l))</span>
-<span id="cb321-7"><a href aria-label="7"></a></span>
-<span id="cb321-8"><a href aria-label="8"></a>  <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
-<span id="cb321-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="ss">f&quot;square(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>l<span class="sc">}</span><span class="ss">)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb296"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb296-1"><a href aria-label="1"></a><span class="kw">class</span> square(rect):</span>
+<span id="cb296-2"><a href aria-label="2"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), l<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb296-3"><a href aria-label="3"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(l, (<span class="bu">int</span>, <span class="bu">float</span>)):</span>
+<span id="cb296-4"><a href aria-label="4"></a>      <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">&quot;l must be a number&quot;</span>)</span>
+<span id="cb296-5"><a href aria-label="5"></a>    <span class="va">self</span>.l <span class="op">=</span> l</span>
+<span id="cb296-6"><a href aria-label="6"></a>    <span class="bu">super</span>().<span class="fu">__init__</span>(p1, (p1[<span class="dv">0</span>] <span class="op">+</span> l, p1[<span class="dv">1</span>] <span class="op">+</span> l))</span>
+<span id="cb296-7"><a href aria-label="7"></a></span>
+<span id="cb296-8"><a href aria-label="8"></a>  <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
+<span id="cb296-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="ss">f&quot;square(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>l<span class="sc">}</span><span class="ss">)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div><div class="column fragment" style="width:50%;">
+</div><div class="column fragment" style="width:40%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb322"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb322-1"><a href aria-label="1"></a>s <span class="op">=</span> square((<span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">2</span>)</span>
-<span id="cb322-2"><a href aria-label="2"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb297"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb297-1"><a href aria-label="1"></a>s <span class="op">=</span> square((<span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">2</span>)</span>
+<span id="cb297-2"><a href aria-label="2"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>square((1, 1), 2)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb324"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb324-1"><a href aria-label="1"></a>s.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb299"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb299-1"><a href aria-label="1"></a>s.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(3, 3)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb326"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb326-1"><a href aria-label="1"></a>s.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb301"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb301-1"><a href aria-label="1"></a>s.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>4</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb328"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb328-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb303"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb303-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb330"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb330-1"><a href aria-label="1"></a>square(l<span class="op">=</span><span class="st">&quot;a&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb305"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb305-1"><a href aria-label="1"></a>square(l<span class="op">=</span><span class="st">&quot;a&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TypeError: l must be a number</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p>This is the same idea as R’s class vector <code>c(&quot;square&quot;, &quot;rect&quot;)</code>, with <code>super()</code> playing the role of <code>NextMethod()</code>. Python’s exception classes form a hierarchy of exactly this kind.</p>
-</div></aside></section>
+</section>
 <section id="isinstance-vs-type" class="slide level2">
 <h2><code>isinstance()</code> vs <code>type()</code></h2>
 <p><code>isinstance()</code> respects inheritance while <code>type()</code> reports the exact class - the former is almost always what you want when validating inputs, but be aware of what a type inherits from.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb332"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb332-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, square)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb307"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb307-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, square)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb334"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb334-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, rect)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb309"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb309-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, rect)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb336"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb336-1"><a href aria-label="1"></a><span class="bu">type</span>(s) <span class="kw">is</span> rect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb311"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb311-1"><a href aria-label="1"></a><span class="bu">type</span>(s) <span class="kw">is</span> rect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb338"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb338-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="dv">3</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb313"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb313-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="dv">3</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb340"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb340-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="st">&quot;3&quot;</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb315"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb315-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="st">&quot;3&quot;</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb342"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb342-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="va">True</span>, <span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb317"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb317-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="va">True</span>, <span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb344"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb344-1"><a href aria-label="1"></a><span class="bu">type</span>(<span class="va">True</span>) <span class="kw">is</span> <span class="bu">int</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb319"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb319-1"><a href aria-label="1"></a><span class="bu">type</span>(<span class="va">True</span>) <span class="kw">is</span> <span class="bu">int</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>False</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb346"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb346-1"><a href aria-label="1"></a><span class="bu">bool</span>.__mro__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb321"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb321-1"><a href aria-label="1"></a><span class="bu">bool</span>.__mro__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(&lt;class &#39;bool&#39;&gt;, &lt;class &#39;int&#39;&gt;, &lt;class &#39;object&#39;&gt;)</code></pre>
 </div>
@@ -3810,33 +2850,7 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 
 <aside><div>
 <p><code>__mro__</code> (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since <code>bool</code> inherits from <code>int</code>, code accepting <code>int</code>s accepts <code>True</code> and <code>False</code> unless it checks for <code>bool</code> explicitly.</p>
-</div></aside></section>
-<section id="exercise-2" class="slide level2">
-<h2>Exercise 2</h2>
-<p>Implement a <code>circle</code> class in Python and the equivalent S3 class in R.</p>
-<div class="columns small">
-<div class="column" style="width:50%;">
-<p>Python:</p>
-<ul>
-<li><p><code>__init__(self, r=1)</code> stores the radius and raises a <code>ValueError</code> if it is negative.</p></li>
-<li><p><code>area()</code> returns <span class="math inline">\(\pi r^2\)</span>.</p></li>
-<li><p><code>__repr__()</code> returns <code>circle(r=1)</code>.</p></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<p>R:</p>
-<ul>
-<li><p><code>circle(r = 1)</code> validates <code>r</code> and returns a list with class <code>&quot;circle&quot;</code>.</p></li>
-<li><p>an <code>area()</code> method for the <code>area</code> generic defined earlier.</p></li>
-<li><p>a <code>print.circle()</code> method that returns its input invisibly.</p></li>
-</ul>
-</div></div>
-<p>Check that <code>circle(2)</code>, <code>area(circle(2))</code> / <code>circle(2).area()</code>, and <code>circle(-1)</code> behave as expected.</p>
-<div class="cell">
-<div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_a0015216" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
-</div>
-</div>
-</section></section>
+</div></aside></section></section>
 <section>
 <section id="comparing-r-python" class="title-slide slide level1 center">
 <h1>Comparing R &amp; Python</h1>
@@ -3881,7 +2895,7 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">operators</td>
-<td style="text-align: left;"><code>Ops.x()</code>, <code>&quot;+.x&quot;()</code></td>
+<td style="text-align: left;"><code>Ops.x()</code>, <code>`+.x`()</code></td>
 <td style="text-align: left;"><code>__add__()</code>, <code>__eq__()</code>, …</td>
 </tr>
 <tr class="even">
@@ -3908,42 +2922,6 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </table>
 </div>
 </section>
-<section id="functional-vs-in-place" class="slide level2">
-<h2>Functional vs in-place</h2>
-<div class="medium">
-<p>The deeper difference is about <em>state</em>. Ordinary R vectors and lists behave like values: modifying a function argument does not modify the caller’s object, so updated values are normally returned and reassigned. This naturally supports functional pipelines such as <code>game |&gt; guess(&quot;word&quot;) |&gt; guess(&quot;other&quot;)</code>.</p>
-<p>Python variables refer to objects. A mutating method can change an object visible through every reference to it; by convention, many such methods return <code>None</code>, although returning <code>self</code> can support chaining.</p>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb348"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb348-1"><a href aria-label="1"></a>r <span class="ot">=</span> <span class="fu">rect</span>()</span>
-<span id="cb348-2"><a href aria-label="2"></a><span class="fu">set_p1</span>(r, <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect: ( -1 , -1 ) to ( 1 , 1 )</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb350"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb350-1"><a href aria-label="1"></a>r<span class="sc">$</span>p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0 0</code></pre>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb352"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb352-1"><a href aria-label="1"></a>r <span class="op">=</span> rect()</span>
-<span id="cb352-2"><a href aria-label="2"></a>r.set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect((-1, -1), (1, 1))</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb354"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb354-1"><a href aria-label="1"></a>r.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(-1, -1)</code></pre>
-</div>
-</div>
-</div></div>
-
-<aside><div>
-<p>Neither is better - but mixing the conventions (an R method that silently modifies a global, or a Python method that returns a modified copy when the caller expects mutation) is a reliable source of bugs.</p>
-</div></aside></section>
 <section id="takeaways" class="slide level2">
 <h2>Takeaways</h2>
 <ul>
