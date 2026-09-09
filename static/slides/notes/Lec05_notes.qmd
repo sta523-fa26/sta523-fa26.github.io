@@ -21,10 +21,6 @@ options(width = 80)
 
 Represent the JSON record as a list in R, then extract the fax number, add a mobile number, and remove the `age` element.
 
-## Building the list
-
-JSON objects (`{}`) become named lists and JSON arrays (`[]`) become unnamed lists. Atomic values stay as length one vectors.
-
 ```{r}
 person = list(
   firstName = "John",
@@ -44,48 +40,3 @@ person = list(
 
 str(person)
 ```
-
-The `phoneNumber` array could also be represented as a data frame (two columns, two rows) since every entry has the same fields - this is what `jsonlite::fromJSON()` does by default. The list of lists above is the more literal translation and is what `jsonlite::fromJSON(txt, simplifyVector = FALSE)` returns.
-
-## Extracting the fax number
-
-`phoneNumber` is an unnamed list, so its elements must be selected by position with `[[`. The elements inside are named lists, so `$` or `[[` with a name both work.
-
-```{r}
-person$phoneNumber[[2]]$number
-person[["phoneNumber"]][[2]][["number"]]
-```
-
-Recursive indexing with a vector of positions also works (`phoneNumber` is the 5th element, the fax entry is its 2nd, and `number` is the 2nd element of that), but it is much harder to read and names cannot be mixed with positions,
-
-```{r}
-person[[c(5, 2, 2)]]
-```
-
-## Adding a mobile number
-
-Assigning to a position one past the end of a list appends an element,
-
-```{r}
-person$phoneNumber[[3]] = list(type = "mobile", number = "917 555-0000")
-str(person$phoneNumber)
-```
-
-`append()` is an alternative, but note that the new element must itself be wrapped in a `list()` since `append()` concatenates its arguments,
-
-```{r}
-str( append(person$phoneNumber, list(list(type = "work", number = "212 555-0000"))) )
-```
-
-## Removing `age`
-
-Assigning `NULL` removes an element,
-
-```{r}
-person$age = NULL
-names(person)
-```
-
-To store an actual `NULL` value instead use `person["age"] = list(NULL)`.
-
-

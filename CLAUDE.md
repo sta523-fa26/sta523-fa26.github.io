@@ -48,6 +48,10 @@ Note: When reviewing slides, do not review or comment on the content of exercise
 
 Note: Avoid ending a slide with a text statement revealed as a fragment (`. . .` followed by prose); this usually reads as a fact tacked on after the fact. Fold the point into the slide's intro text or an `::: {.aside}`, or drop it. Reserve end-of-slide text fragments for genuinely important punchlines, used sparingly.
 
+## Lecture Notes
+
+Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd`. These are code solutions only: restate the exercise prompt, then give the code that solves it. Do not add expository text, explanations, or walkthroughs. A very short inline comment is acceptable only when it is necessary to explain a non-obvious result (e.g. annotating a coercion outcome).
+
 ## Key Configuration
 
 - `config.yaml`: Hugo site config, menu structure, course params (assignments, classroom info)
