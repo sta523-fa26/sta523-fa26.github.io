@@ -1,0 +1,1560 @@
+---
+title: "Lists, S3, &<br/>Python Classes"
+subtitle: "Lecture 05"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+options(
+  width = 80
+)
+```
+
+
+# R Lists
+
+## Lists
+
+Lists are R's other vector type. Unlike atomic vectors they are *heterogeneous* - each element can be any R object (atomic vectors, other lists, functions, ...). 
+
+They are a direct analog to Python's `list`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+list("A", (1:4)/2, list(1L), sum)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+["A", [0.5, 1.0, 1.5, 2.0], [1], sum]
+```
+:::
+::::
+
+::: {.aside}
+`is.vector()` returns `TRUE` for both atomic and generic vectors, `is.atomic()` and `is.list()` can be used for each .
+:::
+
+
+## List structure
+
+The printed form of a list is verbose, `str()` gives a compact summary of any object's structure and is particularly useful for lists.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+str(c(1, 2))
+str(1:100)
+str("A")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+str( list(
+  "A", c(TRUE, FALSE),
+  (1:4)/2, list(TRUE, 1),
+  function(x) x^2
+) )
+```
+:::
+::::
+
+
+## Nested lists
+
+Lists can contain other lists, so they do not have to be flat. 
+
+This makes them a natural way of representing *tree-like* data (e.g. JSON).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+x = list(1, list(2, list(3, 4), 5))
+str(x)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+x = [1, [2, [3, 4], 5]]
+x
+```
+:::
+::::
+
+
+
+## Named lists
+
+Elements of a list (or atomic vector) can be named. Names help avoid magic numbers when accessing elements (more readable code).
+
+A valid name starts with a letter or `.` and contains only letters, numbers, `.`, and `_`. 
+
+::: {.xsmall}
+```{r}
+x = list(A = 1, B = list(C = 2, D = 3))
+str(x)
+names(x)
+```
+:::
+
+. . .
+
+Any other name must be surrounded with backticks,
+
+::: {.xsmall}
+```{r}
+list("knock knock" = "who's there?")
+```
+:::
+
+
+## `[` vs `[[`
+
+R has three subsetting operators. 
+* `[` (from last week) typically returns an object of the *same type* 
+* `[[` extracts a *single element*
+* `$` is shorthand for named lookup with `[[`
+
+::: {.small}
+```{r}
+y = list(a = 1, b = 4, c = 7:9)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+y[2]
+str( y[2] )
+y["b"]
+str( y["b"] )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+y[[2]]
+str( y[[2]] )
+y[["b"]]
+str( y[["b"]] )
+y$b
+```
+:::
+::::
+
+
+
+
+## Hadley's analogy
+
+```{r}
+#| echo: false
+#| fig-align: center
+#| out-width: 37%
+knitr::include_graphics("imgs/list_train1.png")
+```
+. . .
+```{r}
+#| echo: false
+#| fig-align: center
+#| out-width: 37%
+knitr::include_graphics("imgs/list_train2.png")
+```
+. . .
+```{r}
+#| echo: false
+#| fig-align: center
+#| out-width: 37%
+knitr::include_graphics("imgs/list_train3.png")
+```
+
+::: {.aside}
+From Advanced R - [Chapter 4.3](https://adv-r.hadley.nz/subsetting.html#subset-single)
+:::
+
+
+## `[[` details
+
+`[[` selects by position or by name and only ever returns one element. 
+
+::: {.small}
+```{r}
+y = list(a = 1, b = 4, c = 7:9)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+y[[3]]
+y[["c"]]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+#| error: true
+y[[4]]
+y[["d"]]
+```
+:::
+::::
+
+
+Vector of length > 1 are interpreted as *recursive* indexing (`y[[c(3, 2)]]` is `y[[3]][[2]]`).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+y[[c(3, 2)]]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+#| error: true
+y[[1:2]]
+```
+:::
+::::
+
+
+## `$` subsetting
+
+`$` is a shorthand for `[[` with a *literal* name, so `y$c` is `y[["c"]]`. It only works with lists (and things built on lists, like data frames), and it *partially matches names*.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+y = list(abc = 1, def = 5)
+```
+```{r}
+#| error: true
+y[["abc"]]
+y$abc
+y$a
+y[["a"]]
+```
+:::
+
+::: {.column width='50%' .fragment}
+
+```{r}
+x = c(abc = 1, def = 5)
+```
+```{r}
+#| error: true
+x[["abc"]]
+x$abc
+```
+:::
+::::
+
+. . .
+
+A common error is using `$` with a variable that holds a name,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+name = "def"
+y[[name]]
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+y$name
+```
+:::
+::::
+
+
+## Modifying lists
+
+Assignment with `[[` or `$` replaces an element or adds a new one. Assigning `NULL` *removes* an element.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = list(a = 1, b = 2)
+x$c = "new"
+x[["a"]] = 100
+str(x)
+```
+```{r}
+x$b = NULL
+str(x)
+```
+:::
+
+::: {.column .fragment width='50%'}
+```{python}
+x = [1, 2]
+x.append("new")
+x[0] = 100
+x
+```
+```{python}
+del x[1]
+x
+```
+:::
+::::
+
+::: {.aside}
+R's `append()` adds elements at any position, `x[["b"]] = NULL` and `x["b"] = list(NULL)` behave differently
+:::
+
+
+## Lists and atomic vectors
+
+Combining an atomic vector with a list via `c()` produces a list (the more general type). 
+
+`unlist()` goes the other way, flattening a list into an atomic vector with the usual coercion rules.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+str( c(1, list(4, list(6, 7))) )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+unlist( list(1:3, list(4:5, 6)) )
+unlist( list(1, list(2, list(3, "Hello"))) )
+```
+:::
+::::
+
+::: {.aside}
+`unlist()` is frequently paired with `strsplit()`, which returns a list with one character vector per input string, e.g. `unlist(strsplit(c("a-b", "c-d"), "-"))`.
+:::
+
+
+## Exercise 1
+
+Represent the following JSON data as a list in R (we will revisit this in Python next week).
+
+:::: {.columns}
+::: {.column width='60%'}
+::: {.xsmall}
+```json
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25,
+  "address":
+  {
+    "streetAddress": "21 2nd Street",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": 10021
+  },
+  "phoneNumber":
+  [ {
+      "type": "home",
+      "number": "212 555-1239"
+    },
+    {
+      "type": "fax",
+      "number": "646 555-4567"
+  } ]
+}
+```
+:::
+:::
+
+::: {.column width='40%'}
+::: {.small}
+Once you have the list:
+
+* Extract the fax number using `$` and `[[`.
+
+* Add a `"mobile"` phone number.
+
+* Remove the `age` element.
+:::
+:::
+::::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 4)
+```
+
+
+# Attributes
+
+## Attributes
+
+Attributes are metadata attached to an R object. Some attributes are special (`names`, `dim`, `dimnames`, `class`, `levels`, ...) because they change how R treats the object, but any attribute can be attached to any object.
+
+. . .
+
+Attributes are stored as a *named list* attached to the object, accessed via `attributes()` or `attr()`.
+
+::: {.small}
+```{r}
+(x = c(L = 1, M = 2, N = 3))
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+str( attributes(x) )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+attr(x, "names")
+attr(x, "other")
+```
+:::
+::::
+
+
+## Setting attributes
+
+The important attributes have helper functions for getting and setting (`names()`, `dim()`, `class()`, `levels()`), which is preferred over `attr()` as the helper functions validate their input.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+names(x) = c("Z", "Y", "X")
+x
+names(x) = 1:3
+x
+attributes(x)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+attr(x, "other") = "anything"
+x
+str( attributes(x) )
+```
+:::
+::::
+
+::: {.aside}
+Note that `names(x) = 1:3` silently coerced the integers to character, since the `names` attribute must be a character vector of the same length as the object.
+:::
+
+
+## Factors
+
+Factors are how R represents categorical data - a variable with a discrete set of possible values (its *levels*).
+
+::: {.small}
+```{r}
+(x = factor(c("Sunny", "Cloudy", "Rainy", "Cloudy", "Cloudy")))
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+str(x)
+```
+:::
+
+. . .
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+typeof(x)
+mode(x)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+class(x)
+levels(x)
+```
+:::
+::::
+
+
+## Composition
+
+A factor is just an integer vector with two attributes: `levels` and `class`.
+
+::: {.small}
+```{r}
+str( attributes(x) )
+unclass(x)
+```
+:::
+
+. . .
+
+We can build our own from scratch using `attr()`,
+
+::: {.small}
+```{r}
+y = c(3L, 1L, 2L, 1L, 1L)
+attr(y, "levels") = c("Cloudy", "Rainy", "Sunny")
+attr(y, "class") = "factor"
+y
+```
+:::
+
+
+## Building objects with `structure()`
+
+Setting attributes one at a time is clunky - `structure()` attaches any number of attributes to an object in a single call and is the standard way to construct objects like this.
+
+::: {.small}
+```{r}
+( y = structure(
+    c(3L, 1L, 2L, 1L, 1L),
+    levels = c("Cloudy", "Rainy", "Sunny"),
+    class = "factor"
+) )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+class(y)
+is.factor(y)
+identical(x, y)
+```
+:::
+
+
+## Factors are integer vectors?
+
+Knowing that factors are stored as integers explains some of their more surprising behaviors,
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| error: true
+x + 1
+is.integer(x)
+is.numeric(x)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+#| error: true
+as.integer(x)
+as.character(x)
+as.logical(x)
+```
+:::
+::::
+
+::: {.aside}
+This is also why `as.numeric(factor(c("10", "20")))` returns `1 2` rather than `10 20` - convert via `as.character()` first.
+:::
+
+
+# S3 Object System
+
+## `class`
+
+The `class` attribute adds a layer on top of R's type hierarchy - previously we saw `typeof()` and `mode()`, `class()` is what determines how an object is *treated* by functions like `print()`.
+
+```{r}
+#| echo: false
+f = function(x) x^2
+x = factor("A")
+l = list(1, "A")
+m = matrix(1:4, 2)
+```
+
+::: {.small}
+ value             | `typeof()`       | `mode()`       | `class()`
+:------------------|:-----------------|:---------------|:---------------
+`TRUE`             | `r typeof(TRUE)` | `r mode(TRUE)` | `r class(TRUE)`
+`1`                | `r typeof(1)`    | `r mode(1)`    | `r class(1)`
+`1L`               | `r typeof(1L)`   | `r mode(1L)`   | `r class(1L)`
+`"A"`              | `r typeof("A")`  | `r mode("A")`  | `r class("A")`
+`NULL`             | `r typeof(NULL)` | `r mode(NULL)` | `r class(NULL)`
+`list(1, "A")`     | `r typeof(l)`    | `r mode(l)`    | `r class(l)`
+`factor("A")`      | `r typeof(x)`    | `r mode(x)`    | `r class(x)`
+`matrix(1:4, 2)`   | `r typeof(m)`    | `r mode(m)`    | `r paste(class(m), collapse = ", ")`
+`function(x) x^2`  | `r typeof(f)`    | `r mode(f)`    | `r class(f)`
+`sum`              | `r typeof(sum)`  | `r mode(sum)`  | `r class(sum)`
+:::
+
+::: {.aside}
+Without a `class` attribute an object has an *implicit* class derived from its type* - for most vectors this matches `mode()`.
+:::
+
+
+## S3 class specialization
+
+::: {.small}
+```{r}
+x = c("A", "B", "A", "C")
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+print( x )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+print( factor(x) )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+print( unclass( factor(x) ) )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+print.default( factor(x) )
+```
+:::
+
+
+## What's up with `print`?
+
+::: {.xsmall}
+```{r}
+print
+```
+:::
+
+. . .
+
+::: {.medium}
+`print` does no printing itself - `UseMethod()` looks at the class of `x` and calls the matching *method*. For a factor that is `print.factor()`, for everything without a more specific method `print.default()` is used.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+print.default
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+head(print.factor, 3)
+```
+:::
+::::
+
+
+## Generics are everywhere
+
+Many of the base R functions you use regularly are S3 generics whose only job is to dispatch on class,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+mean
+summary
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+plot
+t.test
+```
+:::
+::::
+
+. . .
+
+Other generics, such as `sum`, dispatch without an explicit call to `UseMethod()`:
+
+::: {.xsmall}
+```{r}
+sum
+```
+:::
+
+::: {.aside}
+`sum` is a primitive implemented in C. It still performs S3 dispatch internally, including to methods such as `Summary.class`, rather than calling `UseMethod()` in its visible R definition.
+:::
+
+
+## What is S3?
+
+<br/>
+
+> S3 is R's first and simplest OO system. It is the only OO system used in the base and stats packages, and it's the most commonly used system in CRAN packages. S3 is informal and ad hoc, but it has a certain elegance in its minimalism: you can't take away any part of it and still have a useful OO system.
+>
+> - Hadley Wickham, Advanced R
+
+::: {.aside}
+S3 should not be confused with R's other object oriented systems: S4, Reference classes, R6, and S7.
+:::
+
+
+## Dispatch {.scrollable}
+
+S3 uses a very simple dispatch mechanism - a generic function calls `UseMethod("func")`, which looks for a function named `<func>.<class>` for each class of the first argument in turn, and finally `<func>.default`.
+
+. . .
+
+`methods()` lists the methods available for a generic, or all the methods available for a class,
+
+::: {.xsmall}
+```{r}
+methods("summary")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+methods(class = "factor")
+```
+:::
+
+
+## Adding methods
+
+Because dispatch is by *name*, adding a method for a new class is just defining a function with the proper name - no registration is needed.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+( x = structure(
+    c(1, 2, 3),
+    class = "class_A") )
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+( y = structure(
+    c(6, 5, 4),
+    class = "class_B") )
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+print.class_A = function(x, ...) {
+  cat("(Class A) ")
+  print.default(unclass(x))
+}
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+print.class_B = function(x, ...) {
+  cat("(Class B) ")
+  print.default(unclass(x))
+}
+```
+:::
+::::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+print(x)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+print(y)
+```
+:::
+::::
+
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+class(x) = "class_B"
+print(x)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+class(y) = "class_A"
+print(y)
+```
+:::
+::::
+
+
+## Writing a good `print` method
+
+A `print` method should match the generic's signature (`x, ...`), do its output via `cat()` or `print()`, and return its input *invisibly* so that `print(x)` can be used in a pipeline without printing twice.
+
+::: {.small}
+```{r}
+pct = structure(c(0.12, 0.5, 1), class = "percent")
+
+print.percent = function(x, ...) {
+  print(paste0(unclass(x) * 100, "%"), quote = FALSE)
+  invisible(x)
+}
+```
+:::
+
+. . .
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+pct
+z = print(pct)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+unclass(z)
+```
+:::
+::::
+
+::: {.aside}
+Calling `print(x)` (rather than `print(unclass(x))` or `NextMethod()`) inside `print.percent` would dispatch back to `print.percent` and recurse forever. `noquote()` is an alternative to `quote = FALSE` for character output.
+:::
+
+
+## Defining a new generic
+
+A generic is just a function that calls `UseMethod()`. By convention the first argument is the object dispatched on and `...` is included so that methods can add arguments.
+
+::: {.small}
+```{r}
+shuffle = function(x, ...) {
+  UseMethod("shuffle")
+}
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+shuffle.default = function(x, ...) {
+  stop("Class ", class(x), " is not supported by shuffle.", call. = FALSE)
+}
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+shuffle.factor = function(x, ...) {
+  factor( sample(as.character(x)), levels = sample(levels(x)) )
+}
+```
+```{r}
+shuffle.integer = function(x, ...) {
+  sample(x)
+}
+```
+:::
+
+
+## Shuffle results
+
+::: {.small}
+```{r}
+shuffle( 1:10 )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+shuffle( factor(c("A", "B", "C", "A")) )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+#| error: true
+shuffle( c(1, 2, 3, 4, 5) )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+#| error: true
+shuffle( letters[1:5] )
+```
+:::
+
+. . .
+
+::: {.small}
+```{r}
+methods("shuffle")
+```
+:::
+
+
+## Implicit classes
+
+Why did `shuffle(c(1, 2, 3, 4, 5))` fail when `class(1)` is `"numeric"`? Objects without a `class` attribute dispatch on an *implicit* class vector that is more detailed than what `class()` reports.
+
+::: {.xsmall}
+```{r}
+report = function(x) {
+  UseMethod("report")
+}
+report.default = function(x) paste0("Class ", class(x), " does not have a method defined.")
+report.integer = function(x) "I'm an integer!"
+report.double  = function(x) "I'm a double!"
+report.numeric = function(x) "I'm a numeric!"
+```
+:::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='33%'}
+```{r}
+report(1)
+report(1L)
+report("1")
+```
+:::
+
+::: {.column width='33%' .fragment}
+```{r}
+rm(report.integer, report.double)
+report(1)
+report(1L)
+```
+:::
+
+::: {.column width='33%' .fragment}
+```{r}
+rm(report.numeric)
+report(1)
+report(1L)
+```
+:::
+::::
+
+
+## Why?
+
+::: {.small}
+From `UseMethod`'s R documentation:
+
+> If the object does not have a class attribute, it has an implicit class. Matrices and arrays have class "matrix" or "array" followed by the class of the underlying vector. Most vectors have class the result of `mode(x)`, except that integer vectors have class `c("integer", "numeric")` and real vectors have class `c("double", "numeric")`.
+:::
+
+. . .
+
+::: {.small}
+The implicit class vector can be inspected with `.class2()`,
+```{r}
+.class2(1)
+.class2(1L)
+.class2(matrix(1:4, 2))
+```
+:::
+
+::: {.aside}
+`report(1)` tries `report.double`, then `report.numeric`, then `report.default` - which is why a method for `double` is found even though `class(1)` says `"numeric"`.
+:::
+
+
+## Inheritance
+
+::: {.medium}
+The `class` attribute can be a *vector* - dispatch tries each class in order, so earlier classes "inherit" the methods of later ones. `NextMethod()` calls the method for the next class in the vector.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = structure(1:3, class = c("child", "parent"))
+
+print.parent = function(x, ...) {
+  cat("parent method: ")
+  print(unclass(x))
+  invisible(x)
+}
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+print.child = function(x, ...) {
+  cat("child method -> ")
+  NextMethod()
+}
+```
+```{r}
+print(x)
+```
+:::
+::::
+
+. . .
+
+::: {.medium}
+`inherits()` tests class membership and is the right tool for validating method arguments,
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+inherits(x, "parent")
+inherits(x, "child")
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+inherits(x, "integer")
+typeof(x)
+```
+:::
+::::
+
+::: {.aside}
+`inherits()` only looks at the `class` attribute, which is why the `"integer"` check is `FALSE` despite the underlying type.
+:::
+
+
+## Building an S3 class
+
+Most S3 classes are a list with a class attribute, created by a *constructor* function that validates its inputs. Methods then access the elements with `$` and return *modified copies*.
+
+::: {.xsmall}
+```{r}
+rect = function(p1 = c(0, 0), p2 = c(1, 1)) {
+  stopifnot(is.numeric(p1), length(p1) == 2, is.numeric(p2), length(p2) == 2)
+  structure(list(p1 = p1, p2 = p2), class = "rect")
+}
+
+area = function(x, ...) UseMethod("area")
+area.rect = function(x, ...) abs(prod(x$p2 - x$p1))
+
+set_p1 = function(x, p1, ...) UseMethod("set_p1")
+set_p1.rect = function(x, p1, ...) {
+  stopifnot(is.numeric(p1), length(p1) == 2)
+  x$p1 = p1
+  x
+}
+
+print.rect = function(x, ...) {
+  cat("rect: (", x$p1[1], ",", x$p1[2], ") to (", x$p2[1], ",", x$p2[2], ")\n")
+  invisible(x)
+}
+```
+:::
+
+
+## Using the class
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+r = rect()
+r
+str(unclass(r))
+area(r)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+r2 = set_p1(r, c(-1, -1))
+r2
+r
+```
+:::
+::::
+
+. . .
+
+Because each method returns the updated object, the class is naturally pipeable,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+rect() |> set_p1(c(-1, -1)) |> area()
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+#| error: true
+area(1:3)
+rect(p1 = "a")
+```
+:::
+::::
+
+
+# Python classes
+
+## Basic syntax
+
+A `class` statement bundles *attributes* (data) and *methods* (functions) into a new type. Methods receive the instance as their first argument, conventionally named `self`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class rect:
+  """An object representing a rectangle"""
+  p1 = (0, 0)
+  p2 = (1, 2)
+
+  def area(self):
+    return abs((self.p1[0] - self.p2[0]) *
+               (self.p1[1] - self.p2[1]))
+
+  def set_p1(self, p1):
+    self.p1 = p1
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x = rect()
+x.area()
+x.p1
+```
+```{python}
+x.set_p1((1, 1))
+x.area()
+```
+```{python}
+x.p2 = (3, 3)
+x.area()
+```
+:::
+::::
+
+::: {.aside}
+`x.area()` is shorthand for `rect.area(x)` - Python passes the object as `self` automatically. We have been using this system all along: `type()`, list methods like `.append()`, and exception classes are all part of it.
+:::
+
+
+## `__init__`
+
+Calling the class (`rect()`) creates a new *instance* and then calls its `__init__()` method with any arguments - this is the constructor, and where instance attributes should be set.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class rect:
+  """An object representing a rectangle"""
+
+  def __init__(self, p1=(0, 0), p2=(1, 1)):
+    self.p1 = p1
+    self.p2 = p2
+
+  def area(self):
+    return abs((self.p1[0] - self.p2[0]) *
+               (self.p1[1] - self.p2[1]))
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+rect().area()
+rect((0, 0), (3, 3)).area()
+```
+```{python}
+z = rect(p1=(-1, -1))
+z.p1
+z.p2
+```
+:::
+::::
+
+::: {.aside}
+Methods whose names start and end with double underscores (`__init__`, `__repr__`, ...) are "dunder" or *special* methods - Python calls them implicitly in specific situations.
+:::
+
+
+## Class vs instance attributes
+
+Attributes assigned in the class body are *class attributes* shared by every instance (useful for constants), attributes assigned via `self` are *instance attributes* belonging to one object.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class die:
+  sides = 6
+
+  def __init__(self, value=1):
+    self.value = value
+```
+```{python}
+d = die(3)
+d.value
+d.sides
+die.sides
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+die.value
+```
+```{python}
+vars(d)
+[m for m in dir(d) if not m.startswith("__")]
+```
+:::
+::::
+
+::: {.aside}
+`dir()` lists all attributes and methods of an object (including inherited dunder methods), `vars()` returns just the instance attributes as a `dict`.
+:::
+
+
+## Mutate or return?
+
+Python methods that mutate an object conventionally modify `self` in place and return `None`. In R, modifying an ordinary vector or list inside a function does not modify the caller's object, so a function must return the updated value. Returning `self` from a Python mutating method instead enables method chaining.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x = [3, 1, 2]
+print( x.sort() )
+x
+```
+```{python}
+def set_p1(self, p1):
+  self.p1 = p1
+  return self
+
+rect.set_p1 = set_p1
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+r1 = rect()
+r2 = r1
+r1.set_p1((-1, -1)).area()
+r2.p1
+```
+```{python}
+( rect()
+  .set_p1((-1, -1))
+  .area()
+)
+```
+:::
+::::
+
+::: {.aside}
+Methods are just functions stored on the class, so they can be attached after the fact - this keeps the examples short, but in real code define everything inside the `class` block. Note that `r2` was never copied, so it sees the change made through `r1`.
+:::
+
+
+## `__str__` and `__repr__`
+
+Every object has a default string representation, but it is not very useful,
+
+::: {.xsmall}
+```{python}
+rect()
+print(rect())
+```
+:::
+
+. . .
+
+`__repr__()` should return an unambiguous representation, ideally valid Python that recreates the object. `__str__()` is used by `print()` and `str()`, and falls back to `__repr__()` if not defined.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+def rect_repr(self):
+  return f"rect({self.p1}, {self.p2})"
+
+rect.__repr__ = rect_repr
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+rect()
+print(rect())
+[rect(), rect((1, 1), (2, 2))]
+```
+:::
+::::
+
+::: {.aside}
+R's equivalent is `print.rect()`, with `format.rect()` playing a role similar to `__str__()`.
+:::
+
+
+## Other special methods
+
+Operators and built in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (`"abc" * 3`, `[1] + [2]`).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+def rect_eq(self, other):
+  return self.p1 == other.p1 and self.p2 == other.p2
+
+def rect_contains(self, pt):
+  return all(min(a, b) <= x <= max(a, b)
+             for a, b, x in zip(self.p1, self.p2, pt))
+
+rect.__eq__ = rect_eq
+rect.__contains__ = rect_contains
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+rect() == rect()
+rect() == rect((1, 1), (2, 2))
+```
+```{python}
+(0.5, 0.5) in rect()
+(2, 2) in rect()
+```
+:::
+::::
+
+::: {.aside}
+Without `__eq__`, `==` compares object identity (like `is`). See the [data model](https://docs.python.org/3/reference/datamodel.html#special-method-names) docs for the full list, including `__len__`, `__getitem__`, `__add__`, and `__lt__`.
+:::
+
+
+## Inheritance
+
+A class can *inherit* from another, gaining all of its attributes and methods. The subclass can add new methods and override existing ones - `super()` gives access to the parent's version.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class square(rect):
+  def __init__(self, p1=(0, 0), l=1):
+    if not isinstance(l, (int, float)):
+      raise TypeError("l must be a number")
+    self.l = l
+    super().__init__(p1, (p1[0] + l, p1[1] + l))
+
+  def __repr__(self):
+    return f"square({self.p1}, {self.l})"
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+s = square((1, 1), 2)
+s
+s.p2
+s.area()
+(2, 2) in s
+```
+```{python}
+#| error: true
+square(l="a")
+```
+:::
+::::
+
+::: {.aside}
+This is the same idea as R's class vector `c("square", "rect")`, with `super()` playing the role of `NextMethod()`. Python's exception classes form a hierarchy of exactly this kind.
+:::
+
+
+## `isinstance()` vs `type()`
+
+`isinstance()` respects inheritance while `type()` reports the exact class - the former is almost always what you want when validating inputs, but be aware of what a type inherits from.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+isinstance(s, square)
+isinstance(s, rect)
+type(s) is rect
+```
+```{python}
+isinstance(3, (int, float))
+isinstance("3", (int, float))
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+isinstance(True, int)
+type(True) is int
+bool.__mro__
+```
+:::
+::::
+
+::: {.aside}
+`__mro__` (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since `bool` inherits from `int`, code accepting `int`s accepts `True` and `False` unless it checks for `bool` explicitly.
+:::
+
+
+## Exercise 2
+
+Implement a `circle` class in Python and the equivalent S3 class in R.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+Python:
+
+* `__init__(self, r=1)` stores the radius and raises a `ValueError` if it is negative.
+
+* `area()` returns $\pi r^2$.
+
+* `__repr__()` returns `circle(r=1)`.
+:::
+
+::: {.column width='50%'}
+R:
+
+* `circle(r = 1)` validates `r` and returns a list with class `"circle"`.
+
+* an `area()` method for the `area` generic defined earlier.
+
+* a `print.circle()` method that returns its input invisibly.
+:::
+::::
+
+Check that `circle(2)`, `area(circle(2))` / `circle(2).area()`, and `circle(-1)` behave as expected.
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Comparing R & Python
+
+## Object systems summary
+
+::: {.small}
+| Concept                 | R (S3)                                       | Python                                      |
+|:------------------------|:---------------------------------------------|:--------------------------------------------|
+| define a class          | `structure(list(...), class = "x")`          | `class x:` with `__init__()`                |
+| where methods live      | separate functions `generic.class()`         | inside the class definition                 |
+| dispatch                | `UseMethod()` on the first argument's class  | `obj.method()` on the object's type         |
+| printing                | `print.x()` (returns `invisible(x)`)         | `__repr__()` and `__str__()`                |
+| operators               | `Ops.x()`, `"+.x"()`                         | `__add__()`, `__eq__()`, ...                |
+| inheritance             | `class = c("child", "parent")`               | `class child(parent):`                      |
+| call the parent method  | `NextMethod()`                               | `super().method()`                          |
+| type check              | `inherits(x, "class")`                       | `isinstance(x, cls)`                        |
+| list methods            | `methods(class = "x")`                       | `dir(x)`                                    |
+:::
+
+
+## Functional vs in-place
+
+::: {.medium}
+The deeper difference is about *state*. Ordinary R vectors and lists behave like values: modifying a function argument does not modify the caller's object, so updated values are normally returned and reassigned. This naturally supports functional pipelines such as `game |> guess("word") |> guess("other")`.
+
+Python variables refer to objects. A mutating method can change an object visible through every reference to it; by convention, many such methods return `None`, although returning `self` can support chaining.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+r = rect()
+set_p1(r, c(-1, -1))
+r$p1
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+r = rect()
+r.set_p1((-1, -1))
+r.p1
+```
+:::
+::::
+
+::: {.aside}
+Neither is better - but mixing the conventions (an R method that silently modifies a global, or a Python method that returns a modified copy when the caller expects mutation) is a reliable source of bugs.
+:::
+
+
+## Takeaways
+
+* R lists are heterogeneous vectors - `[` returns a list, `[[` and `$` return a single element, and assigning `NULL` removes one.
+
+* Attributes are metadata attached to any R object, `structure()` sets them in one call, and `class` is the attribute S3 dispatches on.
+
+* An S3 generic is a function that calls `UseMethod()`, methods are just functions named `generic.class`, and `default` catches everything else.
+
+* Objects without a `class` attribute dispatch on an implicit class such as `c("double", "numeric")`.
+
+* Python classes bundle data and methods, `__init__()` constructs, `__repr__()` / `__str__()` display, and `isinstance()` checks type with inheritance.
+
+* R functions commonly return updated values; Python mutating methods commonly update objects in place - know which convention an interface follows.
