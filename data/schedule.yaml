@@ -91,7 +91,7 @@ schedule:
   day: 1
   topic: "Fundamentals"
   lecture: "Data Structures"
-  slides: ""
+  slides: "Lec06"
   r_readings:
     - text: "Adv R - Environments"
       link: https://adv-r.hadley.nz/environments.html

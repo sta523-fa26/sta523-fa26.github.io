@@ -25,52 +25,36 @@ options(
 )
 ```
 
+```{python py_setup}
+#| include: false
+import numpy as np
+```
+
 
 # Tuples
 
 ## Tuples
 
-Python tuples are *heterogeneous*, *ordered*, **immutable** containers. They are nearly identical to lists except that their contents cannot be changed - you will most often meet them as the return value of functions and in `enumerate()`, `zip()`, and `dict.items()`.
+Python tuples are *heterogeneous*, *ordered*, **immutable** containers - lists whose contents cannot be changed. R has no tuple type, a list (or an atomic vector) is used instead.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
 ```{python}
 (1, 2, 3)
 (1, True, "abc")
-(1, (2, 3), [4, 5])
+```
+```{python}
+type( (1) )
+type( (1,) )
 ```
 :::
 
 ::: {.column width='50%' .fragment}
-```{python}
-type( (1) )
-type( (1,) )
-x = 1, 2
-x
-```
-:::
-::::
-
-::: {.aside}
-It is the *comma* that creates a tuple, not the parentheses - `(1)` is just the number 1 and a one element tuple must be written `(1,)`. R has no tuple type, a list (or an atomic vector) is used instead.
-:::
-
-
-## Tuples are immutable
-
-Once created, a tuple's elements cannot be replaced or removed. Immutability is *shallow* though - a mutable object stored in a tuple can still be modified in place, which matters for hashing (coming up shortly).
-
-:::: {.columns .small}
-::: {.column width='50%'}
 ```{python}
 #| error: true
 x = (1, 2, 3)
 x[2] = 5
-del x[2]
 ```
-:::
-
-::: {.column width='50%' .fragment}
 ```{python}
 x = (1, [2, 3])
 x[1].append(4)
@@ -80,45 +64,23 @@ x
 ::::
 
 ::: {.aside}
-Tuples can be converted to and from lists with `list()` and `tuple()`, and a tuple is never equal to a list with the same contents - `(1, 2) == [1, 2]` is `False`.
+It is the *comma* that creates a tuple, not the parentheses - `(1)` is just the number 1 and a one element tuple must be written `(1,)`. Immutability is *shallow*, a mutable object stored in a tuple can still be modified in place.
 :::
 
 
-## Value unpacking
+## Unpacking
 
-Assigning a sequence to several names at once *unpacks* it - this is how Python functions return multiple values. The R equivalent is to return a list and extract the pieces.
+Assigning a sequence to several names at once *unpacks* it - this is how Python functions return multiple values. A name prefixed with `*` collects any remaining values into a list.
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
 def minmax(x):
     return min(x), max(x)
-
 minmax([3, 1, 2])
 lo, hi = minmax([3, 1, 2])
-lo
-hi
+print(lo, hi)
 ```
-:::
-
-::: {.column width='50%'}
-```{r}
-minmax = function(x) {
-  list(min = min(x), max = max(x))
-}
-
-res = minmax(c(3, 1, 2))
-str(res)
-res$min
-res[["max"]]
-```
-:::
-::::
-
-. . .
-
-:::: {.columns .small}
-::: {.column width='50%'}
 ```{python}
 x, y = 1, 2
 x, y = y, x
@@ -126,56 +88,22 @@ x, y
 ```
 :::
 
-::: {.column width='50%'}
-```{python}
-(x1, y1), (x2, y2) = [[0, 1], [2, 3]]
-x1, y1
-x2, y2
-```
-:::
-::::
-
-
-## Extended unpacking
-
-The number of names must match the length of the sequence unless one name is prefixed with `*`, which collects the remaining values into a list.
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-#| error: true
-x, y = [1, 2, 3]
-```
+::: {.column width='50%' .fragment}
 ```{python}
 first, *rest = range(6)
 first
 rest
 ```
-:::
-
-::: {.column width='50%' .fragment}
 ```{python}
-first, *middle, last = range(6)
-middle
-last
-```
-```{python}
-*init, last = "abc"
-init
+pairs = [("a", 1), ("b", 2)]
+for i, (k, v) in enumerate(pairs):
+    print(i, k, v)
 ```
 :::
 ::::
 
-. . .
-
-Unpacking also happens in `for` loops, which is how `enumerate()`, `zip()`, and `dict.items()` provide several values per iteration,
-
-::: {.small}
-```{python}
-pairs = [("a", 1), ("b", 2)]
-for i, (key, value) in enumerate(pairs):
-    print(i, key, value)
-```
+::: {.aside}
+The number of names must match the length of the sequence (`x, y = [1, 2, 3]` is a `ValueError`) unless one of them is starred. The same unpacking happens in `for` loops with `enumerate()`, `zip()`, and `dict.items()`.
 :::
 
 
@@ -191,6 +119,7 @@ Python `dict`s are *mutable* containers of **key: value** pairs, designed for th
 {"abc": 123, "def": 456}
 dict([("abc", 123), ("def", 456)])
 dict(abc=123, hello=456)
+dict(zip(["abc", "def"], [1, 2]))
 ```
 :::
 
@@ -214,9 +143,12 @@ Since Python 3.7 dictionaries preserve insertion order. The keyword form of `dic
 Keys can be any *immutable* (technically, *hashable*) object - numbers, strings, tuples of immutable objects. Values can be anything.
 
 ::: {.small}
-```{python}
-{1: "abc", 1.1: (1, 1), "one": ["a", "n"], (1, 1): lambda x: x**2}
-```
+| Immutable                                   | Mutable                         |
+|:--------------------------------------------|:--------------------------------|
+| `int`, `float`, `bool`, `complex`           | `list`                          |
+| `str`, `bytes`                              | `dict`                          |
+| `tuple`, `frozenset`, `range`               | `set`                           |
+| `None`                                      | instances of your own classes   |
 :::
 
 . . .
@@ -240,26 +172,20 @@ Using a mutable object as a key is an error, even when it is nested inside a tup
 ::::
 
 ::: {.aside}
-The `hash()` function maps an object to an integer that is used to locate the key in memory - a mutable object's hash could change after insertion, which is why it is disallowed. Instances of user defined classes are hashable by identity unless `__eq__` is defined.
+`hash()` maps an object to an integer that is used to locate the key in memory - a mutable object's hash could change after insertion, which is why it is disallowed. Instances of your own classes hash by identity unless `__eq__` is defined.
 :::
 
 
 ## Lookup
 
-`[]` retrieves the value for a key, missing keys are a `KeyError`. Use `in` to test for a key and `.get()` to supply a default.
-
-::: {.xsmall}
-```{python}
-x = {1: "abc", "y": "hello", (1, 1): 3.14159}
-```
-:::
+`[]` raises a `KeyError` for a missing key, `in` tests for a key and `.get()` supplies a default.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
 #| error: true
+x = {1: "abc", "y": "hello", (1, 1): 3.14}
 x[1]
-x["y"]
 x[(1, 1)]
 x["def"]
 ```
@@ -271,27 +197,6 @@ x["def"]
 "hello" in x
 print( x.get("def") )
 x.get("def", 0)
-```
-:::
-::::
-
-. . .
-
-R named lists are more forgiving - a missing name returns `NULL` rather than an error, so check with `%in% names()` or `is.null()`,
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{r}
-y = list(abc = 123, def = 456)
-y[["abc"]]
-y[["ghi"]]
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-"ghi" %in% names(y)
-is.null(y$ghi)
 ```
 :::
 ::::
@@ -312,9 +217,6 @@ x
 ```{python}
 del x[1]
 x.pop("def")
-x
-```
-```{python}
 x["y"] = None
 x
 ```
@@ -331,43 +233,34 @@ str(y)
 y$abc = NULL
 str(y)
 ```
-```{r}
-y["def"] = list(NULL)
-str(y)
-```
 :::
 ::::
 
 
-## Common methods
+## Methods & iteration
 
-::: {.small}
-```{python}
-x = {1: "abc", "y": "hello"}
-```
-:::
+Iterating over a `dict` yields its *keys* - use `.items()` to get keys and values together.
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
-len(x)
-list(x)
-1 in x
-```
-```{python}
+x = {1: "abc", "y": "hello"}
 x.keys()
 x.values()
 x.items()
+```
+```{python}
+for k, v in x.items():
+    print(k, "->", v)
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{python}
-x | {(1, 1): 3.14159}
-x | {"y": "goodbye"}
+x | {"y": "goodbye", "w": 0}
 ```
 ```{python}
-x.update({"y": "updated", "w": 0})
+x.update({"y": "goodbye", "w": 0})
 x
 ```
 :::
@@ -378,127 +271,81 @@ x
 :::
 
 
-## Iterating
+# Environments
 
-Iterating over a `dict` yields its *keys* - use `.items()` to get keys and values together. Comprehensions work too, and `dict(zip(keys, values))` is a common way to build one.
+## Environments
+
+An environment is a set of name-object *bindings* - the workspace is one, each package is one, and every function call creates a fresh one for its local variables. A lookup that fails in an environment continues in its *parent*.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
-```{python}
-x = {1: "abc", "y": "hello"}
-for k in x:
-    print(k)
+```{r}
+x = 1
+f = function() {
+  y = 2
+  environment()
+}
+e = f()
+ls(e)
 ```
-```{python}
-for k, v in x.items():
-    print(k, "->", v)
+```{r}
+parent.env(e)
+get("x", envir = e)
 ```
 :::
 
 ::: {.column width='50%' .fragment}
-```{python}
-names = ["Alice", "Bob", "Carol"]
-grades = ["A", "A-", "B"]
-
-{n: g for n, g in zip(names, grades)}
-dict(zip(names, grades))
-```
-:::
-::::
-
-. . .
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
 ```{r}
-y = list(abc = 123, def = 456)
-for (n in names(y)) {
-  cat(n, "->", y[[n]], "\n")
+g = function() {
+  z = 3
+  z
 }
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-names = c("Alice", "Bob", "Carol")
-grades = c("A", "A-", "B")
-str( setNames(as.list(grades), names) )
-```
-:::
-::::
-
-
-## Counting things
-
-The canonical use of a dictionary is tallying - `.get()` with a default avoids checking for the key first. The standard library's `Counter` does this for you, and R has `table()`.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-words = "the quick fox and the lazy dog and the end".split()
-
-counts = {}
-for w in words:
-    counts[w] = counts.get(w, 0) + 1
-counts
-```
-```{python}
-from collections import Counter
-Counter(words).most_common(2)
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-words = strsplit("the quick fox and the lazy dog and the end", " ")[[1]]
-table(words)
-```
-```{r}
-sort(table(words), decreasing = TRUE)[1:2]
+g()
+exists("z")
 ```
 :::
 ::::
 
 ::: {.aside}
-`collections.defaultdict(int)` is another option - a missing key is created with a default value (`int()` is `0`) so `counts[w] += 1` just works.
+`globalenv()` is the workspace and the chain of parents ends at `emptyenv()`. Looking up through the parents is *lexical scoping* - `f()` finds `x` in the global environment, and `z` is gone once `g()` returns. More on this with functional programming.
 :::
 
 
-## Hash maps in R
+## Environments as hash maps
 
-R has no `dict`. A named list works for small lookup tables but finding a name means scanning all of the names. Environments are R's hash tables - string keys, fast lookup, and (unusually for R) *reference* semantics.
+Bindings are stored in a hash table, so an environment makes a good `dict` - use `parent = emptyenv()` so that lookups do not fall through to the workspace.
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{r}
-e = new.env()
-e$a = 1
-e[["b"]] = 2
-assign("c", 3, envir = e)
+h = new.env(parent = emptyenv())
+h$a = 1
+h[["b"]] = 2
 ```
 ```{r}
-ls(e)
-e$a
-exists("b", envir = e)
-mget(c("a", "b"), envir = e)
+ls(h)
+h$a
+exists("x", envir = h)
+rm("a", envir = h)
+ls(h)
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{r}
-f = e
-f$d = 4
-ls(e)
+h2 = h
+h2$d = 4
+ls(h)
 ```
 ```{r}
 #| error: true
-e[1]
+h[1]
 ```
 :::
 ::::
 
 ::: {.aside}
-Modifying `f` changed `e` - both names refer to the same environment, exactly like two Python names bound to one `dict`. `utils::hashtab()` (R 4.2+) provides a hash table with arbitrary keys, and `match()`, `%in%`, `unique()`, and `duplicated()` all use hashing internally.
+Modifying `h2` changed `h` - environments have *reference* semantics, both names refer to the same object exactly like two Python names bound to one `dict`. `utils::hashtab()` (R 4.2+) provides a hash table with arbitrary keys.
 :::
 
 
@@ -514,22 +361,18 @@ Represent the JSON record from last lecture in Python using `dict`s and `list`s 
   "firstName": "John",
   "lastName": "Smith",
   "age": 25,
-  "address":
-  {
+  "address": {
     "streetAddress": "21 2nd Street",
     "city": "New York",
     "state": "NY",
     "postalCode": 10021
   },
-  "phoneNumber":
-  [ {
-      "type": "home",
-      "number": "212 555-1239"
-    },
-    {
-      "type": "fax",
-      "number": "646 555-4567"
-  } ]
+  "phoneNumber": [
+    { "type": "home",
+      "number": "212 555-1239" },
+    { "type": "fax",
+      "number": "646 555-4567" }
+  ]
 }
 ```
 :::
@@ -558,60 +401,25 @@ countdown::countdown(minutes = 5)
 
 ## Sets
 
-A `set` is a *mutable*, *unordered* collection of **unique** hashable elements. Sets are constructed with `{}` (no `:`) or `set()`,
+A `set` is a *mutable*, *unordered* collection of **unique** hashable elements - there are no positions, so the primary operation is membership testing with `in`.
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
-{1, 2, 3, 4, 1, 2}
-set((1, 2, 3, 4, 1, 2))
+x = {1, 2, 3, 4, 1, 2}
+x
 set("mississippi")
 ```
-:::
-
-::: {.column width='50%' .fragment}
 ```{python}
 #| error: true
-{1, 2, [1, 2]}
-```
-```{python}
-type( {} )
-set()
-```
-:::
-::::
-
-::: {.aside}
-`{}` creates an empty *dictionary*, an empty set must be written `set()`.
-:::
-
-
-## Sets are not sequences
-
-Sets have no positions, so `[]` does not work - the primary operation is membership testing with `in`, which is fast regardless of the size of the set.
-
-::: {.small}
-```{python}
-x = set(range(5))
-```
-:::
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-#| error: true
-x[4]
-```
-```{python}
 3 in x
-len(x)
+x[0]
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{python}
 x.add(9)
-x.remove(9)
 x.discard(8)
 x.update([7, 8])
 x
@@ -620,175 +428,52 @@ x
 #| error: true
 x.remove(6)
 ```
+```{python}
+#| error: true
+{1, 2, [1, 2]}
+```
 :::
 ::::
 
 ::: {.aside}
-`remove()` raises a `KeyError` if the element is absent while `discard()` does not. `pop()` removes and returns an arbitrary element. Iteration order is not guaranteed - use `sorted(x)` for a stable order.
+`{}` creates an empty *dictionary*, an empty set must be written `set()`. `remove()` raises a `KeyError` if the element is absent while `discard()` does not, and iteration order is not guaranteed (use `sorted(x)` for a stable order).
 :::
 
 
 ## Set operations
 
-Sets support the usual mathematical operations, either as operators (both sides must be sets) or methods (which accept any iterable).
+Sets support the usual mathematical operations. R has no set type - any vector can be treated as one via `unique()` and the set functions.
 
-::: {.small}
-```{python}
-x = set(range(5))
-y = set(range(3, 8))
-```
-:::
-
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
+x = {1, 2, 3}
+y = {2, 3, 4}
 x | y
 x & y
 x - y
-x ^ y
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-x.union(range(3, 8))
-x.intersection([3, 4, 9])
-x <= set(range(6))
-x.isdisjoint({7, 8})
-```
-:::
-::::
-
-
-## Sets in R
-
-R has no set type - any vector can be treated as a set using `unique()` and the set functions, all of which return a vector of unique values in order of first appearance.
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-a = {"a", "b", "c"}
-b = {"b", "c", "d"}
-a | b
-a & b
-a - b
-"a" in a
+1 in x
 ```
 :::
 
 ::: {.column width='50%'}
 ```{r}
-a = c("a", "b", "c", "a")
-b = c("b", "c", "d")
-union(a, b)
-intersect(a, b)
-setdiff(a, b)
-a %in% b
-```
-:::
-::::
-
-. . .
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-words = ["apple", "paper", "pale"]
-sorted( set("".join(words)) - {"a"} )
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-words = c("apple", "paper", "pale")
-setdiff( unique(unlist(strsplit(words, ""))), "a" )
-duplicated(a)
+x = c(1, 2, 3, 1)
+y = c(2, 3, 4)
+union(x, y)
+intersect(x, y)
+setdiff(x, y)
+1 %in% x
 ```
 :::
 ::::
 
 ::: {.aside}
-`duplicated()` flags repeats of earlier elements and `setequal()` tests two vectors for the same set of values.
-:::
-
-
-## Set & dict comprehensions
-
-Comprehensions exist for sets and dictionaries, but not for tuples - parentheses produce a *generator* (more on these later).
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-{c.lower() for c in "The Quick Brown Fox"}
-```
-```{python}
-{n: len(n) for n in ["Alice", "Bob"]}
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-(x**2 for x in range(5))
-tuple(x**2 for x in range(5))
-```
-```{python}
-{frozenset({1, 2}): "ok"}
-```
-:::
-::::
-
-::: {.aside}
-A `frozenset` is an immutable (and therefore hashable) set, which allows a set to be used as a dictionary key or as an element of another set.
+Python's set methods (`x.union(y)`, `x.intersection(y)`, ...) accept any iterable, the operators require sets on both sides. R's set functions return unique values in order of first appearance.
 :::
 
 
 # Mutability & copies
-
-## Mutable vs immutable
-
-::: {.medium}
-| Immutable                                   | Mutable                         |
-|:--------------------------------------------|:--------------------------------|
-| `int`, `float`, `bool`, `complex`           | `list`                          |
-| `str`, `bytes`                              | `dict`                          |
-| `tuple`, `frozenset`, `range`               | `set`                           |
-| `None`                                      | instances of your own classes   |
-:::
-
-. . .
-
-Only immutable objects can be dictionary keys or set elements, and mutable objects should never be used as default argument values,
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-def f(x=[]):
-    x.append(1)
-    return x
-
-f()
-f()
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-def f(x=None):
-    if x is None:
-        x = []
-    x.append(1)
-    return x
-
-f()
-f()
-```
-:::
-::::
-
-::: {.aside}
-Default values are evaluated *once*, when the function is defined, so every call without `x` shares the same list.
-:::
-
 
 ## Nested containers
 
@@ -828,133 +513,174 @@ z
 :::
 
 
-## Copies in R
+## Mutable default arguments
 
-R copies on modify at every level of a nested structure, so none of this applies - the exceptions are environments (previous section) and objects from packages that wrap external code (e.g. `reticulate`, `R6`, database connections).
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{r}
-x = list(a = list(b = 1))
-y = x
-y$a$b = 100
-x$a$b
-y$a$b
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-x = {"a": {"b": 1}}
-y = x
-y["a"]["b"] = 100
-x["a"]["b"]
-y["a"]["b"]
-```
-:::
-::::
-
-::: {.aside}
-The cost of this convenience is that R has to copy - it does so lazily (only when an object is actually modified and shared), but functions that build up large objects step by step can pay for it, as we will see below.
-:::
-
-
-# deques
-
-## deques
-
-A `deque` (double ended queue) is a list-like container from the `collections` module that supports efficient additions and removals at *both* ends. A `list` is efficient only at the end.
-
-::: {.small}
-```{python}
-from collections import deque
-
-x = deque(range(3))
-x
-```
-:::
-
-. . .
+Default values are evaluated *once*, when the function is defined, so a mutable default is shared by every call that does not supply the argument. Use `None` as the default and create the object inside the function instead.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
 ```{python}
-x.appendleft(-1)
-x.append(3)
-x
-```
-:::
+def f(x=[]):
+    x.append(1)
+    return x
 
-::: {.column width='50%'}
-```{python}
-x.popleft()
-x.pop()
-x
-```
-:::
-::::
-
-::: {.aside}
-Use a `deque` when you need a queue (first in, first out) - `list.pop(0)` and `list.insert(0, v)` have to shift every remaining element.
-:::
-
-
-## `maxlen`
-
-A `deque` can be given a maximum length - when full, adding to one end drops an element from the other. This makes a rolling window of the last $n$ items trivial.
-
-::: {.small}
-```{python}
-x = deque(range(3), maxlen=4)
-x
-```
-:::
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-x.append(10)
-x
-x.append(11)
-x
+f()
+f()
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{python}
-x.appendleft(-1)
-x
+def f(x=None):
+    if x is None:
+        x = []
+    x.append(1)
+    return x
+
+f()
+f()
 ```
 :::
 ::::
 
 
-# Algorithms & data structure basics
+# Algorithms & data structures
+
 
 ## Big-O notation
 
 ::: {.medium}
-Big-O notation describes the *complexity* of an algorithm (usually time, sometimes memory) - how the resources required grow as the size of the input, $n$, grows.
+Big-O notation describes the *complexity* of an algorithm - how the time (or memory) required grows with the size of the input $n$. Only the fastest growing term matters (constant factors and lower order terms are dropped), so two algorithms with the same Big-O can still differ greatly in practice.
 
-If a function exactly captures the number of steps for an input of size $n$, the Big-O value is its largest term in $n$, ignoring constant factors and lower order terms. Two algorithms with the same Big-O can still differ greatly in practice.
+Since performance depends on the data we usually quote *average* or *worst case* complexity, and *amortized* complexity when an occasional expensive step is paid for by many cheap ones (e.g. growing a list).
+:::
 
-Because performance depends on the exact data, we usually talk about *average* and *worst case* complexity, and sometimes *amortized* complexity when an occasional expensive step is paid for by many cheap ones (e.g. growing a list).
+::: {.small .center}
+| Complexity  | Big-O           |
+|-------------|-----------------|
+| Constant    | O($1$)          |
+| Logarithmic | O($\log n$)     |
+| Linear      | O($n$)          |
+| Quasilinear | O($n \log n$)   |
+| Quadratic   | O($n^2$)        |
+| Exponential | O($C^n$)        |
 :::
 
 
-## Common terminology
+## Under the hood
 
-<br/>
+The containers in both languages are built from a handful of basic structures - knowing which is which explains what each container is good, and bad, at.
 
-::: {.center}
-| Complexity  | Big-O           | Example                              |
-|-------------|-----------------|--------------------------------------|
-| Constant    | O($1$)          | `x[i]` for a list, `k in d` for a dict |
-| Logarithmic | O($\log n$)     | binary search in a sorted vector     |
-| Linear      | O($n$)          | `v in x` for a list, `sum(x)`        |
-| Quasilinear | O($n \log n$)   | sorting                              |
-| Quadratic   | O($n^2$)        | nested loops over the same input     |
-| Exponential | O($C^n$)        | trying every subset                  |
+::: {.small}
+| Structure              | Layout                                              | R                                  | Python              |
+|:-----------------------|:----------------------------------------------------|:-----------------------------------|:--------------------|
+| Array                  | contiguous block of same-sized values               | atomic vector                      | `ndarray`           |
+| Array of pointers      | contiguous block of *references* to objects         | list                               | `list`, `tuple`     |
+| Linked list            | nodes that each point to their neighbors            | pairlist                           | `deque`             |
+| Hash table             | array indexed by `hash(key)`                        | environment                        | `dict`, `set`       |
+:::
+
+::: {.aside}
+See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html) and [CPython Internals](https://github.com/zpoint/CPython-Internals) for the gory details.
+:::
+
+
+
+## Vectors
+
+An atomic vector or `ndarray` is a single contiguous block of memory holding values of one type - element $i$ sits at a fixed offset from the start, so accessing any element is O(1). The cost is that every element must have the same size.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+object.size(numeric(1e6))
+object.size(integer(1e6))
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+np.zeros(1_000_000).nbytes
+np.zeros(1_000_000, dtype="int64").nbytes
+np.zeros(1_000_000, dtype="int32").nbytes
+```
+:::
+::::
+
+::: {.aside}
+8 bytes per `double`, 4 per `integer`, and nothing else (the extra 48 bytes are R's object header).
+:::
+
+
+## Growing a vector
+
+Growing a vector allocates a new block and copies everything, so `c(x, i)` in a loop is O($n^2$) overall. 
+
+
+::: {.xsmall}
+```{r}
+n = 5e4
+x = c()
+system.time(
+  for (i in seq_len(n)) x = c(x, i)
+)
+```
+:::
+
+Assigning past the end grows in place and preallocating avoids the question entirely.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+x = numeric()
+system.time(
+  for (i in seq_len(n)) x[i] = i
+)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+x = numeric(n)
+system.time(
+  for (i in seq_len(n)) x[i] = i
+)
+```
+:::
+::::
+
+
+## Generic vectors
+
+A `list` in either language is an array of *pointers* to separately allocated objects - elements can be any type and size because the array only stores addresses, and indexing is still O(1), but every value carries its own header.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+Every R object is a `SEXP`, a pointer to a struct holding
+
+* a header with the type (`SEXPTYPE`), flags, and garbage collector bookkeeping
+
+* a pointer to the object's attributes (a pairlist)
+
+* the data
+  - for an atomic vector (`REALSXP`, `INTSXP`, ...) the length followed by a block of values
+  - for a list (`VECSXP`) the length followed by an array of `SEXP`s
+:::
+
+::: {.column width='50%' .fragment}
+Every Python value is a `PyObject`, a struct holding
+
+* a reference count (`ob_refcnt`) and a pointer to its type (`ob_type`)
+
+* type specific data 
+  - a `float` stores its value
+
+  - a `list` stores its length, its allocated capacity, and a pointer to an array of `PyObject *`
+:::
+::::
+
+::: {.aside}
+The pointer array is over-allocated so that appending is amortized O(1) - a copy is only needed when the spare slots run out. See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs) and the [CPython docs](https://docs.python.org/3/c-api/structures.html) for the full structs.
 :::
 
 
@@ -968,6 +694,43 @@ Because performance depends on the exact data, we usually talk about *average* a
 :::
 
 
+## deques
+
+A `deque` (double ended queue) from the `collections` module is a linked list, so adding or removing at *either* end is O(1) - a `list` is only efficient at the end, and reaching element $i$ of a deque means walking the chain.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+from collections import deque
+x = deque(range(3))
+x.appendleft(-1)
+x
+```
+```{python}
+x.popleft()
+x
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x = deque(range(3), maxlen=4)
+x.append(10)
+x.append(11)
+x
+```
+```{python}
+x.appendleft(-1)
+x
+```
+:::
+::::
+
+::: {.aside}
+With `maxlen` set, adding to a full deque drops an element from the opposite end - a rolling window of the last $n$ items. `list.pop(0)` and `list.insert(0, v)` have to shift every remaining element.
+:::
+
+
 ## Linked list
 
 <iframe data-src="https://visualgo.net/en/list" width="100%" height="450px" style="border:1px solid;border-radius: 5px;" data-external="1">
@@ -978,13 +741,55 @@ Because performance depends on the exact data, we usually talk about *average* a
 :::
 
 
+## Hash tables in practice
+
+A hash table stores each entry in a slot chosen by `hash(key)`, so lookup is O(1) on average however many entries there are, while a `list` (or a loop over a vector) has to check each element. Measuring confirms it,
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+import time
+big_list = list(range(100_000))
+big_set = set(big_list)
+queries = range(0, 100_000, 100)
+
+start = time.perf_counter()
+res = [q in big_list for q in queries]
+print(time.perf_counter() - start)
+
+start = time.perf_counter()
+res = [q in big_set for q in queries]
+print(time.perf_counter() - start)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+big = sample(1e5)
+queries = sample(1e5, 1e3)
+
+system.time({
+  for (q in queries) any(big == q)
+})
+system.time({
+  queries %in% big
+})
+```
+:::
+::::
+
+::: {.aside}
+The slot array is kept sparse so that collisions stay rare, hence the extra memory. For careful timing use `timeit` (Python) or `bench::mark()` (R), which repeat the expression many times and report the distribution.
+:::
+
+
 ## Hash table
 
 <iframe data-src="https://visualgo.net/en/hashtable" width="100%" height="450px" style="border:1px solid;border-radius: 5px;" data-external="1">
 </iframe>
 
 ::: {.aside}
-<https://visualgo.net/en/hashtable> - Python's `dict` and `set` are hash tables, as are R environments. R's `match()`, `%in%`, `unique()`, and `duplicated()` build a hash table of one argument, which is why they are fast.
+<https://visualgo.net/en/hashtable> - Python's `dict` and `set` are hash tables, as are R environments. R's `match()`, `%in%`, `unique()`, and `duplicated()` build a hash table of one argument, which is why they are fast. Equal keys must hash equally, so `1`, `1.0`, and `True` are the same `dict` key.
 :::
 
 
@@ -1009,120 +814,11 @@ Average case complexities, from <https://wiki.python.org/moin/TimeComplexity>. A
 :::
 
 
-## Growing vectors in R
-
-The same ideas apply in R. `c(x, i)` allocates a *new* vector and copies everything on every iteration (O($n^2$) overall), assigning past the end grows in place with over-allocation (since R 3.4), and preallocating avoids the question entirely.
-
-::: {.small}
-```{r}
-n = 5e4
-```
-:::
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{r}
-system.time({
-  x = c()
-  for (i in seq_len(n)) x = c(x, i)
-})
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{r}
-system.time({
-  x = numeric()
-  for (i in seq_len(n)) x[length(x) + 1] = i
-})
-```
-```{r}
-system.time({
-  x = numeric(n)
-  for (i in seq_len(n)) x[i] = i
-})
-```
-:::
-::::
-
-::: {.aside}
-The same applies to lists - `x[[length(x) + 1]] = value` or `vector("list", n)` rather than repeated `c()` or `append()`. Better still, use a vectorized operation or `lapply()` and avoid the loop.
-:::
-
-
-## Measuring
-
-Reasoning about complexity tells you what to expect, measuring confirms it. `time.perf_counter()` and `system.time()` are the simplest tools - here, membership testing in a `list` vs a `set` and a loop vs `%in%`.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-import time
-
-big_list = list(range(100_000))
-big_set = set(big_list)
-queries = range(0, 100_000, 100)
-
-start = time.perf_counter()
-res = [q in big_list for q in queries]
-list_time = time.perf_counter() - start
-
-start = time.perf_counter()
-res = [q in big_set for q in queries]
-set_time = time.perf_counter() - start
-
-print(f"list: {list_time:.5f}s, set: {set_time:.5f}s")
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-big = sample(1e5)
-queries = sample(1e5, 1e3)
-
-system.time({
-  res = vapply(
-    queries, function(q) any(big == q), logical(1)
-  )
-})
-system.time({
-  res = queries %in% big
-})
-```
-:::
-::::
-
-::: {.aside}
-For anything more careful use `timeit` (Python) or `bench::mark()` (R), which repeat the expression many times and report the distribution of timings (and memory allocations in the case of `bench`).
-:::
-
-
-## Data structures in R
-
-To tie things together - R's core objects are implemented using the data structures we have just discussed,
-
-::: {.medium}
-* Atomic vectors - array of the given type (`int`, `double`, ...)
-
-* Generic vectors (lists) - array of pointers to R objects (the same layout as a Python `list`)
-
-* Environments - hash table with string keys
-
-* Pairlists - linked list (function arguments, attributes)
-
-* Data frames - a list of equal length vectors (next week)
-:::
-
-::: {.aside}
-See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html) and [CPython Internals](https://github.com/zpoint/CPython-Internals) for the gory details.
-:::
-
-
 ## Exercise 2
 
 For each of the following scenarios, which data structure (in Python and in R) is the most appropriate and why?
 
-::: {.medium}
+::: {.small}
 * A fixed collection of 100 integers.
 
 * A queue (first in, first out) of customer records.
@@ -1161,20 +857,6 @@ countdown::countdown(minutes = 3)
 :::
 
 
-## Copies & references
-
-::: {.small}
-| Behavior                    | R                                                  | Python                                          |
-|:----------------------------|:---------------------------------------------------|:------------------------------------------------|
-| `y = x`                     | `y` behaves as an independent copy                 | `y` is another name for the same object         |
-| modify `y`                  | `x` unchanged (copy on modify)                     | `x` changes too if the object is mutable        |
-| nested structures           | copied at every level                              | `.copy()` is shallow, use `copy.deepcopy()`     |
-| reference semantics         | environments, R6, external pointers                | every mutable object                            |
-| lookup by name              | linear scan of `names()` (hash via `new.env()`)    | hash table (`dict`, `set`)                      |
-| growing in a loop           | assign past the end or preallocate, avoid `c()`    | `.append()` is amortized O(1)                   |
-:::
-
-
 ## Takeaways
 
 * Tuples are immutable lists - use them for fixed groups of values and unpack them into names.
@@ -1183,6 +865,6 @@ countdown::countdown(minutes = 3)
 
 * Sets give O(1) membership and the standard set algebra, R provides the same via `unique()`, `union()`, `intersect()`, `setdiff()`, and `%in%`.
 
-* Only immutable objects can be keys, shallow copies share nested objects, and `[[0] * n] * m` shares its rows - reach for `deepcopy()` when in doubt.
+* Only immutable objects can be keys, shallow copies share nested objects, and mutable default arguments are shared between calls - reach for `deepcopy()` (or `None`) when in doubt.
 
-* Know the complexity of the operations you use, and measure when it matters.
+* Know the complexity of the operations you use (a `deque` for queues, a `set` for membership, preallocation in R), and measure when it matters.
