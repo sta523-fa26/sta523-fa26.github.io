@@ -2088,17 +2088,17 @@ $def
 </div></aside></section>
 <section id="keys-must-be-hashable" class="slide level2">
 <h2>Keys must be hashable</h2>
-<p>Keys can be any <em>immutable</em> (technically, <em>hashable</em>) object - numbers, strings, tuples of immutable objects. Values can be anything.</p>
+<p>Dictionary keys and set elements must be <strong>hashable</strong>: their hash must remain stable during their lifetime, and objects that compare equal must have equal hashes. Dictionary values can be anything.</p>
 <div class="small">
 <table class="caption-top">
 <colgroup>
-<col style="width: 57%">
-<col style="width: 42%">
+<col style="width: 51%">
+<col style="width: 48%">
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Immutable</th>
-<th style="text-align: left;">Mutable</th>
+<th style="text-align: left;">Hashable</th>
+<th style="text-align: left;">Unhashable</th>
 </tr>
 </thead>
 <tbody>
@@ -2107,22 +2107,22 @@ $def
 <td style="text-align: left;"><code>list</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>str</code>, <code>bytes</code></td>
+<td style="text-align: left;"><code>str</code>, <code>bytes</code>, <code>range</code></td>
 <td style="text-align: left;"><code>dict</code></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><code>tuple</code>, <code>frozenset</code>, <code>range</code></td>
+<td style="text-align: left;"><code>None</code>, <code>frozenset</code></td>
 <td style="text-align: left;"><code>set</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><code>None</code></td>
-<td style="text-align: left;">instances of your own classes</td>
+<td style="text-align: left;"><code>tuple</code> if all its elements are hashable</td>
+<td style="text-align: left;"><code>tuple</code> containing an unhashable element</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
-<p>Using a mutable object as a key is an error, even when it is nested inside a tuple,</p>
+<p>Lists are unhashable, so neither a list nor a tuple containing a list can be a key:</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2142,7 +2142,7 @@ $def
 
 </div>
 <aside><div>
-<p><code>hash()</code> maps an object to an integer that is used to locate the key in memory - a mutable object’s hash could change after insertion, which is why it is disallowed. Instances of your own classes hash by identity unless <code>__eq__</code> is defined.</p>
+<p><code>hash()</code> returns an integer used to locate an entry in a hash table. Hashability is distinct from immutability: instances of user-defined classes are hashable by identity by default, even when their attributes can change. Defining <code>__eq__</code> in a class without defining <code>__hash__</code> makes its instances unhashable.</p>
 </div></aside></section>
 <section id="lookup" class="slide level2">
 <h2>Lookup</h2>
@@ -2386,44 +2386,47 @@ y -&gt; hello</code></pre>
 </div></aside></section>
 <section id="exercise-1" class="slide level2">
 <h2>Exercise 1</h2>
-<p>Represent the JSON record from last lecture in Python using <code>dict</code>s and <code>list</code>s (JSON happens to be valid Python syntax), then:</p>
+<p>Using the record from last lecture, complete these tasks in Python:</p>
 <div class="columns">
 <div class="column" style="width:55%;">
 <div class="xsmall">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb100"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">{</span></span>
-<span id="cb100-2"><a href aria-label="2"></a>  <span class="dt">&quot;firstName&quot;</span><span class="fu">:</span> <span class="st">&quot;John&quot;</span><span class="fu">,</span></span>
-<span id="cb100-3"><a href aria-label="3"></a>  <span class="dt">&quot;lastName&quot;</span><span class="fu">:</span> <span class="st">&quot;Smith&quot;</span><span class="fu">,</span></span>
-<span id="cb100-4"><a href aria-label="4"></a>  <span class="dt">&quot;age&quot;</span><span class="fu">:</span> <span class="dv">25</span><span class="fu">,</span></span>
-<span id="cb100-5"><a href aria-label="5"></a>  <span class="dt">&quot;address&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb100-6"><a href aria-label="6"></a>    <span class="dt">&quot;streetAddress&quot;</span><span class="fu">:</span> <span class="st">&quot;21 2nd Street&quot;</span><span class="fu">,</span></span>
-<span id="cb100-7"><a href aria-label="7"></a>    <span class="dt">&quot;city&quot;</span><span class="fu">:</span> <span class="st">&quot;New York&quot;</span><span class="fu">,</span></span>
-<span id="cb100-8"><a href aria-label="8"></a>    <span class="dt">&quot;state&quot;</span><span class="fu">:</span> <span class="st">&quot;NY&quot;</span><span class="fu">,</span></span>
-<span id="cb100-9"><a href aria-label="9"></a>    <span class="dt">&quot;postalCode&quot;</span><span class="fu">:</span> <span class="dv">10021</span></span>
-<span id="cb100-10"><a href aria-label="10"></a>  <span class="fu">},</span></span>
-<span id="cb100-11"><a href aria-label="11"></a>  <span class="dt">&quot;phoneNumber&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb100-12"><a href aria-label="12"></a>    <span class="fu">{</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;home&quot;</span><span class="fu">,</span></span>
-<span id="cb100-13"><a href aria-label="13"></a>      <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="st">&quot;212 555-1239&quot;</span> <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb100-14"><a href aria-label="14"></a>    <span class="fu">{</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;fax&quot;</span><span class="fu">,</span></span>
-<span id="cb100-15"><a href aria-label="15"></a>      <span class="dt">&quot;number&quot;</span><span class="fu">:</span> <span class="st">&quot;646 555-4567&quot;</span> <span class="fu">}</span></span>
-<span id="cb100-16"><a href aria-label="16"></a>  <span class="ot">]</span></span>
-<span id="cb100-17"><a href aria-label="17"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb100"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href aria-label="1"></a>person <span class="op">=</span> {</span>
+<span id="cb100-2"><a href aria-label="2"></a>  <span class="st">&quot;firstName&quot;</span>: <span class="st">&quot;John&quot;</span>,</span>
+<span id="cb100-3"><a href aria-label="3"></a>  <span class="st">&quot;lastName&quot;</span>: <span class="st">&quot;Smith&quot;</span>,</span>
+<span id="cb100-4"><a href aria-label="4"></a>  <span class="st">&quot;age&quot;</span>: <span class="dv">25</span>,</span>
+<span id="cb100-5"><a href aria-label="5"></a>  <span class="st">&quot;address&quot;</span>: {</span>
+<span id="cb100-6"><a href aria-label="6"></a>    <span class="st">&quot;streetAddress&quot;</span>: <span class="st">&quot;21 2nd Street&quot;</span>,</span>
+<span id="cb100-7"><a href aria-label="7"></a>    <span class="st">&quot;city&quot;</span>: <span class="st">&quot;New York&quot;</span>,</span>
+<span id="cb100-8"><a href aria-label="8"></a>    <span class="st">&quot;state&quot;</span>: <span class="st">&quot;NY&quot;</span>,</span>
+<span id="cb100-9"><a href aria-label="9"></a>    <span class="st">&quot;postalCode&quot;</span>: <span class="dv">10021</span></span>
+<span id="cb100-10"><a href aria-label="10"></a>  },</span>
+<span id="cb100-11"><a href aria-label="11"></a>  <span class="st">&quot;phoneNumber&quot;</span>: [</span>
+<span id="cb100-12"><a href aria-label="12"></a>    { <span class="st">&quot;type&quot;</span>: <span class="st">&quot;home&quot;</span>,</span>
+<span id="cb100-13"><a href aria-label="13"></a>      <span class="st">&quot;number&quot;</span>: <span class="st">&quot;212 555-1239&quot;</span> },</span>
+<span id="cb100-14"><a href aria-label="14"></a>    { <span class="st">&quot;type&quot;</span>: <span class="st">&quot;fax&quot;</span>,</span>
+<span id="cb100-15"><a href aria-label="15"></a>      <span class="st">&quot;number&quot;</span>: <span class="st">&quot;646 555-4567&quot;</span> }</span>
+<span id="cb100-16"><a href aria-label="16"></a>  ]</span>
+<span id="cb100-17"><a href aria-label="17"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:45%;">
 <div class="small">
 <ul>
 <li><p>Extract the fax number.</p></li>
 <li><p>Add a <code>&quot;mobile&quot;</code> phone number and remove <code>age</code>.</p></li>
-<li><p>Write a function <code>phone(person, type)</code> that returns the number of the requested type, or <code>None</code> if there is no such entry.</p></li>
-<li><p>How would <code>phone()</code> look in R for the list version from last time?</p></li>
+<li><p>Write <code>phone(person, phone_type)</code> to return the requested number, or <code>None</code> if absent.</p></li>
+<li><p><strong>Extension:</strong> Write the equivalent function in R.</p></li>
 </ul>
 </div>
 </div></div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_3c6b3942" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_14af2239" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
-</section></section>
+
+<aside><div>
+<p>JSON uses <code>true</code>, <code>false</code>, and <code>null</code> where Python uses <code>True</code>, <code>False</code>, and <code>None</code>. Use <code>json.loads()</code> to parse JSON text.</p>
+</div></aside></section></section>
 <section>
 <section id="sets" class="title-slide slide level1 center">
 <h1>Sets</h1>
@@ -2442,7 +2445,7 @@ y -&gt; hello</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb103-1"><a href aria-label="1"></a><span class="bu">set</span>(<span class="st">&quot;mississippi&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>{&#39;s&#39;, &#39;p&#39;, &#39;i&#39;, &#39;m&#39;}</code></pre>
+<pre><code>{&#39;i&#39;, &#39;p&#39;, &#39;s&#39;, &#39;m&#39;}</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -2691,8 +2694,8 @@ y -&gt; hello</code></pre>
 <tr class="odd">
 <td style="text-align: left;">Array</td>
 <td style="text-align: left;">contiguous block of same-sized values</td>
-<td style="text-align: left;">atomic vector</td>
-<td style="text-align: left;"><code>ndarray</code></td>
+<td style="text-align: left;">materialized numeric vector</td>
+<td style="text-align: left;">contiguous numeric <code>ndarray</code></td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Array of pointers</td>
@@ -2704,7 +2707,7 @@ y -&gt; hello</code></pre>
 <td style="text-align: left;">Linked list</td>
 <td style="text-align: left;">nodes that each point to their neighbors</td>
 <td style="text-align: left;">pairlist</td>
-<td style="text-align: left;"><code>deque</code></td>
+<td style="text-align: left;"><code>deque</code> (linked blocks)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Hash table</td>
@@ -2721,7 +2724,7 @@ y -&gt; hello</code></pre>
 </div></aside></section>
 <section id="vectors" class="slide level2">
 <h2>Vectors</h2>
-<p>An atomic vector or <code>ndarray</code> is a single contiguous block of memory holding values of one type - element <span class="math inline">\(i\)</span> sits at a fixed offset from the start, so accessing any element is O(1). The cost is that every element must have the same size.</p>
+<p>Materialized numeric vectors in R and contiguous numeric NumPy arrays store fixed-size values together, giving O(1) element access. NumPy views can have gaps or reversed strides.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2752,11 +2755,11 @@ y -&gt; hello</code></pre>
 </div></div>
 
 <aside><div>
-<p>8 bytes per <code>double</code>, 4 per <code>integer</code>, and nothing else (the extra 48 bytes are R’s object header).</p>
+<p>R doubles use 8 bytes per element; integers use 4. <code>object.size()</code> includes object overhead; NumPy’s <code>.nbytes</code> counts only element storage.</p>
 </div></aside></section>
 <section id="growing-a-vector" class="slide level2">
 <h2>Growing a vector</h2>
-<p>Growing a vector allocates a new block and copies everything, so <code>c(x, i)</code> in a loop is O(<span class="math inline">\(n^2\)</span>) overall.</p>
+<p>Repeatedly appending with <code>c(x, i)</code> copies the existing elements each time, giving O(<span class="math inline">\(n^2\)</span>) work overall.</p>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href aria-label="1"></a>n <span class="ot">=</span> <span class="fl">5e4</span></span>
@@ -2766,11 +2769,11 @@ y -&gt; hello</code></pre>
 <span id="cb157-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  1.073   0.019   1.092 </code></pre>
+  1.050   0.020   1.071 </code></pre>
 </div>
 </div>
 </div>
-<p>Assigning past the end grows in place and preallocating avoids the question entirely.</p>
+<p>Indexed growth can reuse spare capacity, but still needs occasional copying. Preallocation avoids repeated growth.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2791,16 +2794,27 @@ y -&gt; hello</code></pre>
 <span id="cb161-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.001   0.000   0.001 </code></pre>
+  0.002   0.000   0.001 </code></pre>
 </div>
 </div>
 </div></div>
 </section>
 <section id="generic-vectors" class="slide level2">
 <h2>Generic vectors</h2>
-<p>A <code>list</code> in either language is an array of <em>pointers</em> to separately allocated objects - elements can be any type and size because the array only stores addresses, and indexing is still O(1), but every value carries its own header.</p>
-<div class="columns small">
-<div class="column" style="width:50%;">
+<p>R and Python lists store references to objects. Elements can have different types and sizes, while indexing remains O(1). References and object headers add memory overhead.</p>
+<div class="small">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb163"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb163-1"><a href aria-label="1"></a>Numeric vector: values stored together</span>
+<span id="cb163-2"><a href aria-label="2"></a></span>
+<span id="cb163-3"><a href aria-label="3"></a>[ 1.0 | 2.0 | 3.0 ]</span>
+<span id="cb163-4"><a href aria-label="4"></a></span>
+<span id="cb163-5"><a href aria-label="5"></a></span>
+<span id="cb163-6"><a href aria-label="6"></a>List: references stored together</span>
+<span id="cb163-7"><a href aria-label="7"></a></span>
+<span id="cb163-8"><a href aria-label="8"></a>[  •  |  •  |  •  ]</span>
+<span id="cb163-9"><a href aria-label="9"></a>   ↓     ↓     ↓</span>
+<span id="cb163-10"><a href aria-label="10"></a>   1   &quot;abc&quot;  TRUE</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<aside class="notes">
 <p>Every R object is a <code>SEXP</code>, a pointer to a struct holding</p>
 <ul>
 <li><p>a header with the type (<code>SEXPTYPE</code>), flags, and garbage collector bookkeeping</p></li>
@@ -2811,7 +2825,6 @@ y -&gt; hello</code></pre>
 <li>for a list (<code>VECSXP</code>) the length followed by an array of <code>SEXP</code>s</li>
 </ul></li>
 </ul>
-</div><div class="column fragment" style="width:50%;">
 <p>Every Python value is a <code>PyObject</code>, a struct holding</p>
 <ul>
 <li><p>a reference count (<code>ob_refcnt</code>) and a pointer to its type (<code>ob_type</code>)</p></li>
@@ -2821,10 +2834,20 @@ y -&gt; hello</code></pre>
 <li><p>a <code>list</code> stores its length, its allocated capacity, and a pointer to an array of <code>PyObject *</code></p></li>
 </ul></li>
 </ul>
-</div></div>
+<style type="text/css">
+span.MJX_Assistive_MathML {
+position:absolute!important;
+clip: rect(1px, 1px, 1px, 1px);
+padding: 1px 0 0 0!important;
+border: 0!important;
+height: 1px!important;
+width: 1px!important;
+overflow: hidden!important;
+display:block!important;
+}</style></aside>
 
 <aside><div>
-<p>The pointer array is over-allocated so that appending is amortized O(1) - a copy is only needed when the spare slots run out. See <a href="https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs">R Internals</a> and the <a href="https://docs.python.org/3/c-api/structures.html">CPython docs</a> for the full structs.</p>
+<p>CPython lists reserve extra slots, making appends amortized O(1). Resizing may copy the pointer array. See <a href="https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs">R Internals</a> and the <a href="https://docs.python.org/3/c-api/structures.html">CPython docs</a> for the full structs.</p>
 </div></aside></section>
 <section id="array" class="slide level2">
 <h2>Array</h2>
@@ -2832,45 +2855,45 @@ y -&gt; hello</code></pre>
 </iframe>
 
 <aside><div>
-<p><a href="https://visualgo.net/en/array" class="uri">https://visualgo.net/en/array</a> - R atomic vectors and NumPy arrays are contiguous blocks of same-typed values. A Python <code>list</code> is a contiguous array of <em>pointers</em> to objects, which is why it can be heterogeneous and why it uses far more memory.</p>
+<p><a href="https://visualgo.net/en/array" class="uri">https://visualgo.net/en/array</a> - Materialized numeric R vectors and contiguous numeric NumPy arrays store same-typed values together. A Python <code>list</code> is a contiguous array of <em>pointers</em> to objects, which is why it can be heterogeneous and why it uses far more memory.</p>
 </div></aside></section>
 <section id="deques" class="slide level2">
 <h2>deques</h2>
-<p>A <code>deque</code> (double ended queue) from the <code>collections</code> module is a linked list, so adding or removing at <em>either</em> end is O(1) - a <code>list</code> is only efficient at the end, and reaching element <span class="math inline">\(i\)</span> of a deque means walking the chain.</p>
+<p>A <code>deque</code> (double-ended queue) supports O(1) additions and removals at either end. CPython stores it as a doubly linked chain of fixed-size blocks. Indexing is O(1) near either end and O(n) in the middle.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
-<span id="cb163-2"><a href aria-label="2"></a>x <span class="op">=</span> deque(<span class="bu">range</span>(<span class="dv">3</span>))</span>
-<span id="cb163-3"><a href aria-label="3"></a>x.appendleft(<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb163-4"><a href aria-label="4"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href aria-label="1"></a><span class="im">from</span> collections <span class="im">import</span> deque</span>
+<span id="cb164-2"><a href aria-label="2"></a>x <span class="op">=</span> deque(<span class="bu">range</span>(<span class="dv">3</span>))</span>
+<span id="cb164-3"><a href aria-label="3"></a>x.appendleft(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb164-4"><a href aria-label="4"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>deque([-1, 0, 1, 2])</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href aria-label="1"></a>x.popleft()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>x.popleft()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>-1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb167"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href aria-label="1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>deque([0, 1, 2])</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb169"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb169-1"><a href aria-label="1"></a>x <span class="op">=</span> deque(<span class="bu">range</span>(<span class="dv">3</span>), maxlen<span class="op">=</span><span class="dv">4</span>)</span>
-<span id="cb169-2"><a href aria-label="2"></a>x.append(<span class="dv">10</span>)</span>
-<span id="cb169-3"><a href aria-label="3"></a>x.append(<span class="dv">11</span>)</span>
-<span id="cb169-4"><a href aria-label="4"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>x <span class="op">=</span> deque(<span class="bu">range</span>(<span class="dv">3</span>), maxlen<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb170-2"><a href aria-label="2"></a>x.append(<span class="dv">10</span>)</span>
+<span id="cb170-3"><a href aria-label="3"></a>x.append(<span class="dv">11</span>)</span>
+<span id="cb170-4"><a href aria-label="4"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>deque([1, 2, 10, 11], maxlen=4)</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb171"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb171-1"><a href aria-label="1"></a>x.appendleft(<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb171-2"><a href aria-label="2"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>x.appendleft(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb172-2"><a href aria-label="2"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>deque([-1, 1, 2, 10], maxlen=4)</code></pre>
 </div>
@@ -2886,56 +2909,56 @@ y -&gt; hello</code></pre>
 </iframe>
 
 <aside><div>
-<p><a href="https://visualgo.net/en/list" class="uri">https://visualgo.net/en/list</a> - Python’s <code>deque</code> is a doubly linked list of small arrays. R uses <em>pairlists</em> (linked lists) internally for function arguments and attributes.</p>
+<p><a href="https://visualgo.net/en/list" class="uri">https://visualgo.net/en/list</a> - CPython’s <code>deque</code> links blocks of elements. R uses <em>pairlists</em> (linked lists) internally for function arguments and attributes.</p>
 </div></aside></section>
 <section id="hash-tables-in-practice" class="slide level2">
 <h2>Hash tables in practice</h2>
-<p>A hash table stores each entry in a slot chosen by <code>hash(key)</code>, so lookup is O(1) on average however many entries there are, while a <code>list</code> (or a loop over a vector) has to check each element. Measuring confirms it,</p>
+<p>Hash-table membership is O(1) on average; searching a list is O(n). These timings illustrate the practical difference:</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb173"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb173-1"><a href aria-label="1"></a><span class="im">import</span> time</span>
-<span id="cb173-2"><a href aria-label="2"></a>big_list <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">100_000</span>))</span>
-<span id="cb173-3"><a href aria-label="3"></a>big_set <span class="op">=</span> <span class="bu">set</span>(big_list)</span>
-<span id="cb173-4"><a href aria-label="4"></a>queries <span class="op">=</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">100_000</span>, <span class="dv">100</span>)</span>
-<span id="cb173-5"><a href aria-label="5"></a></span>
-<span id="cb173-6"><a href aria-label="6"></a>start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb173-7"><a href aria-label="7"></a>res <span class="op">=</span> [q <span class="kw">in</span> big_list <span class="cf">for</span> q <span class="kw">in</span> queries]</span>
-<span id="cb173-8"><a href aria-label="8"></a><span class="bu">print</span>(time.perf_counter() <span class="op">-</span> start)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a><span class="im">import</span> time</span>
+<span id="cb174-2"><a href aria-label="2"></a>big_list <span class="op">=</span> <span class="bu">list</span>(<span class="bu">range</span>(<span class="dv">100_000</span>))</span>
+<span id="cb174-3"><a href aria-label="3"></a>big_set <span class="op">=</span> <span class="bu">set</span>(big_list)</span>
+<span id="cb174-4"><a href aria-label="4"></a>queries <span class="op">=</span> <span class="bu">range</span>(<span class="dv">0</span>, <span class="dv">100_000</span>, <span class="dv">100</span>)</span>
+<span id="cb174-5"><a href aria-label="5"></a></span>
+<span id="cb174-6"><a href aria-label="6"></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb174-7"><a href aria-label="7"></a>res <span class="op">=</span> [q <span class="kw">in</span> big_list <span class="cf">for</span> q <span class="kw">in</span> queries]</span>
+<span id="cb174-8"><a href aria-label="8"></a><span class="bu">print</span>(time.perf_counter() <span class="op">-</span> start)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.20874766599445138</code></pre>
+<pre><code>0.20772770800977014</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb175"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb175-1"><a href aria-label="1"></a>start <span class="op">=</span> time.perf_counter()</span>
-<span id="cb175-2"><a href aria-label="2"></a>res <span class="op">=</span> [q <span class="kw">in</span> big_set <span class="cf">for</span> q <span class="kw">in</span> queries]</span>
-<span id="cb175-3"><a href aria-label="3"></a><span class="bu">print</span>(time.perf_counter() <span class="op">-</span> start)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href aria-label="1"></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb176-2"><a href aria-label="2"></a>res <span class="op">=</span> [q <span class="kw">in</span> big_set <span class="cf">for</span> q <span class="kw">in</span> queries]</span>
+<span id="cb176-3"><a href aria-label="3"></a><span class="bu">print</span>(time.perf_counter() <span class="op">-</span> start)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0014721659972565249</code></pre>
+<pre><code>0.0014382079971255735</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb177"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href aria-label="1"></a>big <span class="ot">=</span> <span class="fu">sample</span>(<span class="fl">1e5</span>)</span>
-<span id="cb177-2"><a href aria-label="2"></a>queries <span class="ot">=</span> <span class="fu">sample</span>(<span class="fl">1e5</span>, <span class="fl">1e3</span>)</span>
-<span id="cb177-3"><a href aria-label="3"></a></span>
-<span id="cb177-4"><a href aria-label="4"></a><span class="fu">system.time</span>({</span>
-<span id="cb177-5"><a href aria-label="5"></a>  <span class="cf">for</span> (q <span class="cf">in</span> queries) <span class="fu">any</span>(big <span class="sc">==</span> q)</span>
-<span id="cb177-6"><a href aria-label="6"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb178-1"><a href aria-label="1"></a>big <span class="ot">=</span> <span class="fu">sample</span>(<span class="fl">1e5</span>)</span>
+<span id="cb178-2"><a href aria-label="2"></a>queries <span class="ot">=</span> <span class="fu">sample</span>(<span class="fl">1e5</span>, <span class="fl">1e3</span>)</span>
+<span id="cb178-3"><a href aria-label="3"></a></span>
+<span id="cb178-4"><a href aria-label="4"></a><span class="fu">system.time</span>({</span>
+<span id="cb178-5"><a href aria-label="5"></a>  <span class="cf">for</span> (q <span class="cf">in</span> queries) <span class="fu">any</span>(big <span class="sc">==</span> q)</span>
+<span id="cb178-6"><a href aria-label="6"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.112   0.000   0.112 </code></pre>
+  0.111   0.000   0.111 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb179-1"><a href aria-label="1"></a><span class="fu">system.time</span>({</span>
-<span id="cb179-2"><a href aria-label="2"></a>  queries <span class="sc">%in%</span> big</span>
-<span id="cb179-3"><a href aria-label="3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb180-1"><a href aria-label="1"></a><span class="fu">system.time</span>({</span>
+<span id="cb180-2"><a href aria-label="2"></a>  queries <span class="sc">%in%</span> big</span>
+<span id="cb180-3"><a href aria-label="3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.005   0.000   0.004 </code></pre>
+  0.005   0.000   0.005 </code></pre>
 </div>
 </div>
 </div></div>
 
 <aside><div>
-<p>The slot array is kept sparse so that collisions stay rare, hence the extra memory. For careful timing use <code>timeit</code> (Python) or <code>bench::mark()</code> (R), which repeat the expression many times and report the distribution.</p>
+<p>Python’s set is built before timing; R’s <code>%in%</code> includes lookup preparation. To study scaling, vary the container size while keeping the number of queries fixed. Use <code>timeit</code> (Python) or <code>bench::mark()</code> (R) for repeated timings.</p>
 </div></aside></section>
 <section id="hash-table" class="slide level2">
 <h2>Hash table</h2>
@@ -2945,86 +2968,120 @@ y -&gt; hello</code></pre>
 <aside><div>
 <p><a href="https://visualgo.net/en/hashtable" class="uri">https://visualgo.net/en/hashtable</a> - Python’s <code>dict</code> and <code>set</code> are hash tables, as are R environments. R’s <code>match()</code>, <code>%in%</code>, <code>unique()</code>, and <code>duplicated()</code> build a hash table of one argument, which is why they are fast. Equal keys must hash equally, so <code>1</code>, <code>1.0</code>, and <code>True</code> are the same <code>dict</code> key.</p>
 </div></aside></section>
-<section id="time-complexity-in-python" class="slide level2">
-<h2>Time complexity in Python</h2>
-<div class="center">
+<section id="sequence-operation-costs" class="slide level2">
+<h2>Sequence operation costs</h2>
+<div class="small">
 <table class="caption-top">
+<colgroup>
+<col style="width: 29%">
+<col style="width: 35%">
+<col style="width: 35%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Operation</th>
-<th>list</th>
-<th>dict / set</th>
-<th>deque</th>
+<th style="text-align: left;">Operation</th>
+<th style="text-align: left;"><code>list</code></th>
+<th style="text-align: left;"><code>deque</code></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Copy</td>
-<td>O(n)</td>
-<td>O(n)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Copy</td>
+<td style="text-align: left;"><code>.copy()</code>: O(n)</td>
+<td style="text-align: left;"><code>.copy()</code>: O(n)</td>
 </tr>
 <tr class="even">
-<td>Append</td>
-<td>O(1)</td>
-<td>O(1)</td>
-<td>O(1)</td>
+<td style="text-align: left;">Get / replace by index</td>
+<td style="text-align: left;"><code>s[i]</code> / <code>s[i] = v</code>: O(1)</td>
+<td style="text-align: left;"><code>s[i]</code> / <code>s[i] = v</code>: O(n)</td>
 </tr>
 <tr class="odd">
-<td>Insert</td>
-<td>O(n)</td>
-<td>O(1)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Append at end</td>
+<td style="text-align: left;"><code>.append(v)</code>: O(1)*</td>
+<td style="text-align: left;"><code>.append(v)</code>: O(1)</td>
 </tr>
 <tr class="even">
-<td>Get item</td>
-<td>O(1)</td>
-<td>O(1)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Remove from end</td>
+<td style="text-align: left;"><code>.pop()</code>: O(1)*</td>
+<td style="text-align: left;"><code>.pop()</code>: O(1)</td>
 </tr>
 <tr class="odd">
-<td>Set item</td>
-<td>O(1)</td>
-<td>O(1)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Insert at front</td>
+<td style="text-align: left;"><code>.insert(0, v)</code>: O(n)</td>
+<td style="text-align: left;"><code>.appendleft(v)</code>: O(1)</td>
 </tr>
 <tr class="even">
-<td>Delete item</td>
-<td>O(n)</td>
-<td>O(1)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Remove from front</td>
+<td style="text-align: left;"><code>.pop(0)</code>: O(n)</td>
+<td style="text-align: left;"><code>.popleft()</code>: O(1)</td>
 </tr>
 <tr class="odd">
-<td><code>x in s</code></td>
-<td>O(n)</td>
-<td>O(1)</td>
-<td>O(n)</td>
+<td style="text-align: left;">Insert / delete in middle</td>
+<td style="text-align: left;">O(n)</td>
+<td style="text-align: left;">O(n)</td>
 </tr>
 <tr class="even">
-<td><code>pop()</code></td>
-<td>O(1)</td>
-<td>O(1)</td>
-<td>O(1)</td>
-</tr>
-<tr class="odd">
-<td><code>pop(0)</code></td>
-<td>O(n)</td>
-<td>—</td>
-<td>O(1)</td>
+<td style="text-align: left;">Membership</td>
+<td style="text-align: left;"><code>v in s</code>: O(n)</td>
+<td style="text-align: left;"><code>v in s</code>: O(n)</td>
 </tr>
 </tbody>
 </table>
 </div>
 
 <aside><div>
-<p>Average case complexities, from <a href="https://wiki.python.org/moin/TimeComplexity" class="uri">https://wiki.python.org/moin/TimeComplexity</a>. Appends are <em>amortized</em> O(1) - the list over-allocates so that most appends do not require a copy.</p>
+<p>CPython costs for n elements. *List append and end-pop costs are amortized. Deque indexing is O(1) near either end and O(n) in the middle. See <a href="https://wiki.python.org/moin/TimeComplexity" class="uri">https://wiki.python.org/moin/TimeComplexity</a>.</p>
+</div></aside></section>
+<section id="dictionary-and-set-operation-costs" class="slide level2">
+<h2>Dictionary and set operation costs</h2>
+<div class="small">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operation</th>
+<th style="text-align: left;"><code>dict</code></th>
+<th style="text-align: left;"><code>set</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Copy</td>
+<td style="text-align: left;"><code>.copy()</code>: O(n)</td>
+<td style="text-align: left;"><code>.copy()</code>: O(n)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Lookup value</td>
+<td style="text-align: left;"><code>d[k]</code>: O(1)</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insert / update</td>
+<td style="text-align: left;"><code>d[k] = v</code>: O(1)</td>
+<td style="text-align: left;"><code>.add(v)</code>: O(1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Remove</td>
+<td style="text-align: left;"><code>.pop(k)</code>: O(1)</td>
+<td style="text-align: left;"><code>.remove(v)</code>: O(1)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Membership</td>
+<td style="text-align: left;"><code>k in d</code>: O(1)</td>
+<td style="text-align: left;"><code>v in s</code>: O(1)</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<aside><div>
+<p>Hash-table operations are O(1) on average, assuming constant-cost hashing and equality; individual operations can take O(n). Insertions are amortized over occasional table resizing. Dictionary membership tests keys.</p>
 </div></aside></section>
 <section id="exercise-2" class="slide level2">
 <h2>Exercise 2</h2>
-<p>For each of the following scenarios, which data structure (in Python and in R) is the most appropriate and why?</p>
+<p>Choose two scenarios. For each, suggest a data structure in Python and R. Explain which operations your choice makes efficient, and state any assumptions.</p>
 <div class="small">
 <ul>
-<li><p>A fixed collection of 100 integers.</p></li>
+<li><p>A collection of 100 integers used repeatedly in elementwise arithmetic.</p></li>
 <li><p>A queue (first in, first out) of customer records.</p></li>
 <li><p>A stack (first in, last out) of customer records.</p></li>
 <li><p>A count of word occurrences within a document.</p></li>
@@ -3035,7 +3092,7 @@ y -&gt; hello</code></pre>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_edcd05cb" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_79d7e78c" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3089,7 +3146,7 @@ y -&gt; hello</code></pre>
 <tr class="even">
 <td style="text-align: left;"><code>range</code></td>
 <td style="text-align: left;">lazy integer sequence, immutable</td>
-<td style="text-align: left;"><code>seq_len()</code>, <code>:</code> (materialized)</td>
+<td style="text-align: left;"><code>seq_len()</code>, <code>:</code> (often stored compactly via ALTREP)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">NumPy <code>ndarray</code></td>
@@ -3103,11 +3160,12 @@ y -&gt; hello</code></pre>
 <section id="takeaways" class="slide level2">
 <h2>Takeaways</h2>
 <ul>
-<li><p>Tuples are immutable lists - use them for fixed groups of values and unpack them into names.</p></li>
-<li><p>Dictionaries map hashable keys to values with O(1) lookup, R’s named lists do the same job for small tables and environments for large ones.</p></li>
-<li><p>Sets give O(1) membership and the standard set algebra, R provides the same via <code>unique()</code>, <code>union()</code>, <code>intersect()</code>, <code>setdiff()</code>, and <code>%in%</code>.</p></li>
-<li><p>Only immutable objects can be keys, shallow copies share nested objects, and mutable default arguments are shared between calls - reach for <code>deepcopy()</code> (or <code>None</code>) when in doubt.</p></li>
-<li><p>Know the complexity of the operations you use (a <code>deque</code> for queues, a <code>set</code> for membership, preallocation in R), and measure when it matters.</p></li>
+<li><p><strong>Tuples</strong> are immutable sequences—use them for fixed groups of values and unpacking.</p></li>
+<li><p><strong>Dictionaries</strong> map hashable keys to values, with O(1) lookup on average. R offers named lists and hash-based environments.</p></li>
+<li><p><strong>Sets</strong> provide O(1) membership on average and set algebra. In R, use <code>%in%</code>, <code>union()</code>, <code>intersect()</code>, and <code>setdiff()</code>.</p></li>
+<li><p><strong>Shallow copies</strong> share nested objects. Use <code>deepcopy()</code> when nested objects need independent mutation.</p></li>
+<li><p><strong>Mutable defaults</strong> are shared between calls. Use <code>None</code> and create the object inside the function.</p></li>
+<li><p>Choose containers for their operations: deques for queues, sets for membership, and preallocated R vectors when the size is known. Measure when performance matters.</p></li>
 </ul>
 
 </section></section>

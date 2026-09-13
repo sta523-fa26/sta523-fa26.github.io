@@ -140,20 +140,20 @@ Since Python 3.7 dictionaries preserve insertion order. The keyword form of `dic
 
 ## Keys must be hashable
 
-Keys can be any *immutable* (technically, *hashable*) object - numbers, strings, tuples of immutable objects. Values can be anything.
+Dictionary keys and set elements must be **hashable**: their hash must remain stable during their lifetime, and objects that compare equal must have equal hashes. Dictionary values can be anything.
 
 ::: {.small}
-| Immutable                                   | Mutable                         |
-|:--------------------------------------------|:--------------------------------|
-| `int`, `float`, `bool`, `complex`           | `list`                          |
-| `str`, `bytes`                              | `dict`                          |
-| `tuple`, `frozenset`, `range`               | `set`                           |
-| `None`                                      | instances of your own classes   |
+| Hashable                                      | Unhashable                                  |
+|:----------------------------------------------|:--------------------------------------------|
+| `int`, `float`, `bool`, `complex`               | `list`                                      |
+| `str`, `bytes`, `range`                        | `dict`                                      |
+| `None`, `frozenset`                            | `set`                                       |
+| `tuple` if all its elements are hashable       | `tuple` containing an unhashable element     |
 :::
 
 . . .
 
-Using a mutable object as a key is an error, even when it is nested inside a tuple,
+Lists are unhashable, so neither a list nor a tuple containing a list can be a key:
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -172,7 +172,7 @@ Using a mutable object as a key is an error, even when it is nested inside a tup
 ::::
 
 ::: {.aside}
-`hash()` maps an object to an integer that is used to locate the key in memory - a mutable object's hash could change after insertion, which is why it is disallowed. Instances of your own classes hash by identity unless `__eq__` is defined.
+`hash()` returns an integer used to locate an entry in a hash table. Hashability is distinct from immutability: instances of user-defined classes are hashable by identity by default, even when their attributes can change. Defining `__eq__` in a class without defining `__hash__` makes its instances unhashable.
 :::
 
 
@@ -351,13 +351,13 @@ Modifying `h2` changed `h` - environments have *reference* semantics, both names
 
 ## Exercise 1
 
-Represent the JSON record from last lecture in Python using `dict`s and `list`s (JSON happens to be valid Python syntax), then:
+Using the record from last lecture, complete these tasks in Python:
 
 :::: {.columns}
 ::: {.column width='55%'}
 ::: {.xsmall}
-```json
-{
+```python
+person = {
   "firstName": "John",
   "lastName": "Smith",
   "age": 25,
@@ -384,9 +384,9 @@ Represent the JSON record from last lecture in Python using `dict`s and `list`s 
 
 * Add a `"mobile"` phone number and remove `age`.
 
-* Write a function `phone(person, type)` that returns the number of the requested type, or `None` if there is no such entry.
+* Write `phone(person, phone_type)` to return the requested number, or `None` if absent.
 
-* How would `phone()` look in R for the list version from last time?
+* **Extension:** Write the equivalent function in R.
 :::
 :::
 ::::
@@ -395,6 +395,10 @@ Represent the JSON record from last lecture in Python using `dict`s and `list`s 
 #| echo: false
 countdown::countdown(minutes = 5)
 ```
+
+::: {.aside}
+JSON uses `true`, `false`, and `null` where Python uses `True`, `False`, and `None`. Use `json.loads()` to parse JSON text.
+:::
 
 
 # Sets
@@ -574,9 +578,9 @@ The containers in both languages are built from a handful of basic structures - 
 ::: {.small}
 | Structure              | Layout                                              | R                                  | Python              |
 |:-----------------------|:----------------------------------------------------|:-----------------------------------|:--------------------|
-| Array                  | contiguous block of same-sized values               | atomic vector                      | `ndarray`           |
+| Array                  | contiguous block of same-sized values               | materialized numeric vector        | contiguous numeric `ndarray` |
 | Array of pointers      | contiguous block of *references* to objects         | list                               | `list`, `tuple`     |
-| Linked list            | nodes that each point to their neighbors            | pairlist                           | `deque`             |
+| Linked list            | nodes that each point to their neighbors            | pairlist                           | `deque` (linked blocks) |
 | Hash table             | array indexed by `hash(key)`                        | environment                        | `dict`, `set`       |
 :::
 
@@ -588,7 +592,7 @@ See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html) 
 
 ## Vectors
 
-An atomic vector or `ndarray` is a single contiguous block of memory holding values of one type - element $i$ sits at a fixed offset from the start, so accessing any element is O(1). The cost is that every element must have the same size.
+Materialized numeric vectors in R and contiguous numeric NumPy arrays store fixed-size values together, giving O(1) element access. NumPy views can have gaps or reversed strides.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -608,13 +612,13 @@ np.zeros(1_000_000, dtype="int32").nbytes
 ::::
 
 ::: {.aside}
-8 bytes per `double`, 4 per `integer`, and nothing else (the extra 48 bytes are R's object header).
+R doubles use 8 bytes per element; integers use 4. `object.size()` includes object overhead; NumPy's `.nbytes` counts only element storage.
 :::
 
 
 ## Growing a vector
 
-Growing a vector allocates a new block and copies everything, so `c(x, i)` in a loop is O($n^2$) overall. 
+Repeatedly appending with `c(x, i)` copies the existing elements each time, giving O($n^2$) work overall.
 
 
 ::: {.xsmall}
@@ -627,7 +631,7 @@ system.time(
 ```
 :::
 
-Assigning past the end grows in place and preallocating avoids the question entirely.
+Indexed growth can reuse spare capacity, but still needs occasional copying. Preallocation avoids repeated growth.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -652,10 +656,24 @@ system.time(
 
 ## Generic vectors
 
-A `list` in either language is an array of *pointers* to separately allocated objects - elements can be any type and size because the array only stores addresses, and indexing is still O(1), but every value carries its own header.
+R and Python lists store references to objects. Elements can have different types and sizes, while indexing remains O(1). References and object headers add memory overhead.
 
-:::: {.columns .small}
-::: {.column width='50%'}
+::: {.small}
+```text
+Numeric vector: values stored together
+
+[ 1.0 | 2.0 | 3.0 ]
+
+
+List: references stored together
+
+[  •  |  •  |  •  ]
+   ↓     ↓     ↓
+   1   "abc"  TRUE
+```
+:::
+
+::: {.notes}
 Every R object is a `SEXP`, a pointer to a struct holding
 
 * a header with the type (`SEXPTYPE`), flags, and garbage collector bookkeeping
@@ -665,9 +683,7 @@ Every R object is a `SEXP`, a pointer to a struct holding
 * the data
   - for an atomic vector (`REALSXP`, `INTSXP`, ...) the length followed by a block of values
   - for a list (`VECSXP`) the length followed by an array of `SEXP`s
-:::
 
-::: {.column width='50%' .fragment}
 Every Python value is a `PyObject`, a struct holding
 
 * a reference count (`ob_refcnt`) and a pointer to its type (`ob_type`)
@@ -677,10 +693,9 @@ Every Python value is a `PyObject`, a struct holding
 
   - a `list` stores its length, its allocated capacity, and a pointer to an array of `PyObject *`
 :::
-::::
 
 ::: {.aside}
-The pointer array is over-allocated so that appending is amortized O(1) - a copy is only needed when the spare slots run out. See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs) and the [CPython docs](https://docs.python.org/3/c-api/structures.html) for the full structs.
+CPython lists reserve extra slots, making appends amortized O(1). Resizing may copy the pointer array. See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs) and the [CPython docs](https://docs.python.org/3/c-api/structures.html) for the full structs.
 :::
 
 
@@ -690,13 +705,13 @@ The pointer array is over-allocated so that appending is amortized O(1) - a copy
 </iframe>
 
 ::: {.aside}
-<https://visualgo.net/en/array> - R atomic vectors and NumPy arrays are contiguous blocks of same-typed values. A Python `list` is a contiguous array of *pointers* to objects, which is why it can be heterogeneous and why it uses far more memory.
+<https://visualgo.net/en/array> - Materialized numeric R vectors and contiguous numeric NumPy arrays store same-typed values together. A Python `list` is a contiguous array of *pointers* to objects, which is why it can be heterogeneous and why it uses far more memory.
 :::
 
 
 ## deques
 
-A `deque` (double ended queue) from the `collections` module is a linked list, so adding or removing at *either* end is O(1) - a `list` is only efficient at the end, and reaching element $i$ of a deque means walking the chain.
+A `deque` (double-ended queue) supports O(1) additions and removals at either end. CPython stores it as a doubly linked chain of fixed-size blocks. Indexing is O(1) near either end and O(n) in the middle.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -737,13 +752,13 @@ With `maxlen` set, adding to a full deque drops an element from the opposite end
 </iframe>
 
 ::: {.aside}
-<https://visualgo.net/en/list> - Python's `deque` is a doubly linked list of small arrays. R uses *pairlists* (linked lists) internally for function arguments and attributes.
+<https://visualgo.net/en/list> - CPython's `deque` links blocks of elements. R uses *pairlists* (linked lists) internally for function arguments and attributes.
 :::
 
 
 ## Hash tables in practice
 
-A hash table stores each entry in a slot chosen by `hash(key)`, so lookup is O(1) on average however many entries there are, while a `list` (or a loop over a vector) has to check each element. Measuring confirms it,
+Hash-table membership is O(1) on average; searching a list is O(n). These timings illustrate the practical difference:
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -779,7 +794,7 @@ system.time({
 ::::
 
 ::: {.aside}
-The slot array is kept sparse so that collisions stay rare, hence the extra memory. For careful timing use `timeit` (Python) or `bench::mark()` (R), which repeat the expression many times and report the distribution.
+Python's set is built before timing; R's `%in%` includes lookup preparation. To study scaling, vary the container size while keeping the number of queries fixed. Use `timeit` (Python) or `bench::mark()` (R) for repeated timings.
 :::
 
 
@@ -793,33 +808,49 @@ The slot array is kept sparse so that collisions stay rare, hence the extra memo
 :::
 
 
-## Time complexity in Python
+## Sequence operation costs
 
-::: {.center}
-| Operation        | list         | dict / set   | deque        |
-|------------------|--------------|--------------|--------------|
-| Copy             | O(n)         | O(n)         | O(n)         |
-| Append           | O(1)         | O(1)         | O(1)         |
-| Insert           | O(n)         | O(1)         | O(n)         |
-| Get item         | O(1)         | O(1)         | O(n)         |
-| Set item         | O(1)         | O(1)         | O(n)         |
-| Delete item      | O(n)         | O(1)         | O(n)         |
-| `x in s`         | O(n)         | O(1)         | O(n)         |
-| `pop()`          | O(1)         | O(1)         | O(1)         |
-| `pop(0)`         | O(n)         | ---          | O(1)         |
+::: {.small}
+| Operation                 | `list`                         | `deque`                        |
+|:--------------------------|:-------------------------------|:-------------------------------|
+| Copy                      | `.copy()`: O(n)                | `.copy()`: O(n)                |
+| Get / replace by index    | `s[i]` / `s[i] = v`: O(1)      | `s[i]` / `s[i] = v`: O(n)      |
+| Append at end             | `.append(v)`: O(1)\*           | `.append(v)`: O(1)             |
+| Remove from end           | `.pop()`: O(1)\*               | `.pop()`: O(1)                 |
+| Insert at front           | `.insert(0, v)`: O(n)          | `.appendleft(v)`: O(1)         |
+| Remove from front         | `.pop(0)`: O(n)                | `.popleft()`: O(1)             |
+| Insert / delete in middle | O(n)                           | O(n)                           |
+| Membership                | `v in s`: O(n)                 | `v in s`: O(n)                 |
 :::
 
 ::: {.aside}
-Average case complexities, from <https://wiki.python.org/moin/TimeComplexity>. Appends are *amortized* O(1) - the list over-allocates so that most appends do not require a copy.
+CPython costs for n elements. \*List append and end-pop costs are amortized. Deque indexing is O(1) near either end and O(n) in the middle. See <https://wiki.python.org/moin/TimeComplexity>.
+:::
+
+
+## Dictionary and set operation costs
+
+::: {.small}
+| Operation       | `dict`                | `set`                 |
+|:----------------|:----------------------|:----------------------|
+| Copy            | `.copy()`: O(n)       | `.copy()`: O(n)       |
+| Lookup value    | `d[k]`: O(1)          | —                     |
+| Insert / update | `d[k] = v`: O(1)      | `.add(v)`: O(1)       |
+| Remove          | `.pop(k)`: O(1)       | `.remove(v)`: O(1)    |
+| Membership      | `k in d`: O(1)        | `v in s`: O(1)        |
+:::
+
+::: {.aside}
+Hash-table operations are O(1) on average, assuming constant-cost hashing and equality; individual operations can take O(n). Insertions are amortized over occasional table resizing. Dictionary membership tests keys.
 :::
 
 
 ## Exercise 2
 
-For each of the following scenarios, which data structure (in Python and in R) is the most appropriate and why?
+Choose two scenarios. For each, suggest a data structure in Python and R. Explain which operations your choice makes efficient, and state any assumptions.
 
 ::: {.small}
-* A fixed collection of 100 integers.
+* A collection of 100 integers used repeatedly in elementwise arithmetic.
 
 * A queue (first in, first out) of customer records.
 
@@ -852,19 +883,21 @@ countdown::countdown(minutes = 3)
 | `dict`                     | key lookup, mutable, insertion ordered  | named `list()`, `new.env()` for hashing     |
 | `set`                      | unique, unordered, mutable              | vector + `unique()`, `union()`, `%in%`, ... |
 | `deque`                    | fast at both ends                       | none (use a list or vector)                 |
-| `range`                    | lazy integer sequence, immutable        | `seq_len()`, `:` (materialized)             |
+| `range`                    | lazy integer sequence, immutable        | `seq_len()`, `:` (often stored compactly via ALTREP) |
 | NumPy `ndarray`            | homogeneous, vectorized                 | atomic vector, matrix, array                |
 :::
 
 
 ## Takeaways
 
-* Tuples are immutable lists - use them for fixed groups of values and unpack them into names.
+* **Tuples** are immutable sequences—use them for fixed groups of values and unpacking.
 
-* Dictionaries map hashable keys to values with O(1) lookup, R's named lists do the same job for small tables and environments for large ones.
+* **Dictionaries** map hashable keys to values, with O(1) lookup on average. R offers named lists and hash-based environments.
 
-* Sets give O(1) membership and the standard set algebra, R provides the same via `unique()`, `union()`, `intersect()`, `setdiff()`, and `%in%`.
+* **Sets** provide O(1) membership on average and set algebra. In R, use `%in%`, `union()`, `intersect()`, and `setdiff()`.
 
-* Only immutable objects can be keys, shallow copies share nested objects, and mutable default arguments are shared between calls - reach for `deepcopy()` (or `None`) when in doubt.
+* **Shallow copies** share nested objects. Use `deepcopy()` when nested objects need independent mutation.
 
-* Know the complexity of the operations you use (a `deque` for queues, a `set` for membership, preallocation in R), and measure when it matters.
+* **Mutable defaults** are shared between calls. Use `None` and create the object inside the function.
+
+* Choose containers for their operations: deques for queues, sets for membership, and preallocated R vectors when the size is known. Measure when performance matters.
