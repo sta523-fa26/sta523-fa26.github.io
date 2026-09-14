@@ -1032,8 +1032,6 @@ For each of the following, suggest a data structure in Python and R. Explain whi
 * The heights of the bars in a histogram with even bin widths.
 
 * Checking whether each of a million words is in a list of 50 stop words.
-
-* The last 10 lines read from a very large log file.
 :::
 
 ```{r}
