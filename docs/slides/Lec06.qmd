@@ -1018,7 +1018,7 @@ CPython costs for n elements.
 
 ## Exercise 2
 
-Choose two scenarios. For each, suggest a data structure in Python and R. Explain which operations your choice makes efficient, and state any assumptions.
+For each of the following, suggest a data structure in Python and R. Explain which operations your choice makes efficient, and state any assumptions.
 
 ::: {.small}
 * A collection of 100 integers used repeatedly in elementwise arithmetic.

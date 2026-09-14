@@ -50,7 +50,12 @@ Note: Avoid ending a slide with a text statement revealed as a fragment (`. . .`
 
 ## Lecture Notes
 
-Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd`. These are code solutions only: restate the exercise prompt, then give the code that solves it. Do not add expository text, explanations, or walkthroughs. A very short inline comment is acceptable only when it is necessary to explain a non-obvious result (e.g. annotating a coercion outcome).
+Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd`. Keep them minimal:
+
+- One `# Exercise N` header per exercise, followed by the prompt restated in one or two sentences. Match the slide's wording and scope: if the slide asks for Python only, do not add an R solution.
+- Then the code that solves it, and nothing else. No prose between chunks, no sub-headings for each step, no alternative or "more idiomatic" solutions, no comparisons to the other language, no follow-up notes or asides.
+- A very short inline comment is acceptable only when needed to explain a non-obvious result (e.g. annotating a coercion outcome).
+- For discussion exercises with no code answer, give a compact table or one line per item, with at most a few words of justification.
 
 ## Key Configuration
 
