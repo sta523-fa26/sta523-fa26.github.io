@@ -74,7 +74,7 @@ x.area()
 
 ## `__init__`
 
-Calling the class (`rect()`) creates a new instance of the class and then calls its `__init__()` method - this is called the constructor.
+Class construction, i.e. calling the class `rect()`, creates a new instance of the class its `__init__()` method.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -106,7 +106,7 @@ z.p2
 ::::
 
 ::: {.aside}
-Methods whose names start and end with double underscores (`__init__`, `__repr__`, ...) are called "dunder" or *special* methods - Python calls them implicitly in specific situations.
+Methods whose names start and end with double underscores (`__init__`, `__repr__`, ...) are called "dunder" methods - Python calls them implicitly in specific situations.
 :::
 
 
@@ -155,9 +155,7 @@ d.sides
 ## Mutate or return?
 
 ::: {.medium}
-Python methods that mutate an object conventionally modify `self` in place and return `None`. In R, modifying an ordinary vector or list inside a function does not modify the caller's object, so a function must return the updated value. 
-
-Returning `self` from a Python mutating method instead enables method chaining.
+Python methods like `sort()` and `append()` modify the object in place and return `None`, while functions like `sorted()` return a new object and leave the original alone. R functions essentially always do the latter, so results must be assigned back to be kept.
 :::
 
 :::: {.columns .xsmall}
@@ -167,6 +165,37 @@ x = [3, 1, 2]
 print( x.sort() )
 x
 ```
+
+::: {.fragment}
+```{python}
+x = [3, 1, 2]
+sorted(x)
+x
+```
+:::
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+x = c(3, 1, 2)
+sort(x)
+x
+```
+```{r}
+x = sort(x)
+x
+```
+:::
+::::
+
+
+## Method chaining
+
+::: {.medium}
+Returning `self` (or a new object) from a method allows calls to be chained, with each method operating on the result of the previous one. This plays the same role in Python that the pipe does in R.
+:::
+
+::: {.xsmall}
 ```{python}
 def set_p1(self, p1):
   self.p1 = p1
@@ -176,13 +205,9 @@ rect.set_p1 = set_p1
 ```
 :::
 
-::: {.column width='50%' .fragment}
-```{python}
-r1 = rect()
-r2 = r1
-r1.set_p1((-1, -1)).area()
-r2.p1
-```
+. . .
+
+::: {.xsmall}
 ```{python}
 ( rect()
   .set_p1((-1, -1))
@@ -190,13 +215,24 @@ r2.p1
 )
 ```
 :::
-::::
 
+. . .
+
+::: {.xsmall}
+```{python}
+" Hello World ".strip().lower().split()
+```
+:::
+
+
+::: {.aside}
+Chaining in libraries like pandas works the same way, though most of those methods return a new object rather than modifying `self` in place.
+:::
 
 
 ## `__str__` and `__repr__`
 
-Every object has a default string representation, but it is not usually very useful,
+Every object has a default string representation, which can be overridden these dunder methods:
 
 ::: {.xsmall}
 ```{python}
@@ -207,7 +243,11 @@ print(rect())
 
 . . .
 
-`__repr__()` should return an unambiguous representation, ideally valid Python that recreates the object. `__str__()` is used by `print()` and `str()`, and falls back to `__repr__()` if not defined.
+::: {.medium}
+* `__repr__()` - returns an unambiguous representation (ideally valid Python).
+
+* `__str__()` - used by `print()` and `str()`, falls back to `__repr__()`.
+:::
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -217,11 +257,13 @@ def rect_repr(self):
 
 rect.__repr__ = rect_repr
 ```
+```{python}
+rect()
+```
 :::
 
 ::: {.column width='50%'}
 ```{python}
-rect()
 print(rect())
 [rect(), rect((1, 1), (2, 2))]
 ```
@@ -231,19 +273,22 @@ print(rect())
 
 ## Other special methods
 
-Operators and built-in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (`"abc" * 3`, `[1, 2] + [3, 4]`).
+Operators and built-in functions also dispatch to special methods - this is the mechanism behind the operator overloading we've seen previously.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
 def rect_eq(self, other):
-  return self.p1 == other.p1 and self.p2 == other.p2
+  return (self.p1 == other.p1 and 
+          self.p2 == other.p2)
 
 rect.__eq__ = rect_eq
 
 def rect_contains(self, pt):
-  return all(min(a, b) <= x <= max(a, b)
-             for a, b, x in zip(self.p1, self.p2, pt))
+  return all(
+    min(a, b) <= x <= max(a, b)
+    for a, b, x in zip(self.p1, self.p2, pt)
+  )
 
 rect.__contains__ = rect_contains
 ```
@@ -251,6 +296,7 @@ rect.__contains__ = rect_contains
 
 ::: {.column width='50%' .fragment}
 ```{python}
+rect()
 rect() == rect()
 rect() == rect((1, 1), (2, 2))
 ```
@@ -262,13 +308,13 @@ rect() == rect((1, 1), (2, 2))
 ::::
 
 ::: {.aside}
-Without `__eq__`, `==` compares object identity (like `is`). See the [data model](https://docs.python.org/3/reference/datamodel.html#special-method-names) docs for the full list, including `__len__`, `__getitem__`, `__add__`, and `__lt__`.
+See the [data model](https://docs.python.org/3/reference/datamodel.html#special-method-names) docs for the full list, including `__eq__`, `__len__`, `__getitem__`, `__add__`, and `__lt__`.
 :::
 
 
 ## Inheritance
 
-A class can *inherit* from another class(es), gaining all of its attributes and methods. The subclass can add new methods and override existing ones - `super()` gives access to the parent's version.
+A class can inherit from another class(es), gaining all of its attributes and methods. The subclass can add new methods and override existing ones - `super()` gives access to the parent's version.
 
 :::: {.columns .xsmall}
 ::: {.column width='60%'}
@@ -304,7 +350,7 @@ square(l="a")
 
 ## `isinstance()` vs `type()`
 
-`isinstance()` respects inheritance while `type()` reports the exact class - the former is almost always what you want when validating inputs, but be aware of what a type inherits from.
+`isinstance()` respects inheritance while `type()` reports the exact class - the former is almost always what you want when validating inputs, but be aware of what type inherits what.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -328,9 +374,6 @@ bool.__mro__
 :::
 ::::
 
-::: {.aside}
-`__mro__` (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since `bool` inherits from `int`, code accepting `int`s accepts `True` and `False` unless it checks for `bool` explicitly.
-:::
 
 # Tuples
 
@@ -414,7 +457,7 @@ The number of names must match the length of the sequence (`x, y = [1, 2, 3]` is
 
 ## Dictionaries
 
-Python `dict`s are *mutable* containers of **key: value** pairs, designed for the efficient lookup of a value by its key. The closest (common) R analog is a named list (or a named atomic vector).
+Python `dict`s are *mutable* containers of `key: value` pairs, designed for the efficient lookup of a value by its key. The closest (common) R analog is a named list (or a named atomic vector).
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -474,10 +517,30 @@ Lists are unhashable, so neither a list nor a tuple containing a list can be a k
 :::
 ::::
 
+. . .
+
+You can always coerce a list to a tuple (but this is shallow),
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{python}
+#| error: true
+{tuple([1]): "Okay"}
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+{(1, tuple([2])): "Okay"}
+```
+:::
+::::
+
 
 ## Lookup
 
-`[]` raises a `KeyError` for a missing key, `in` tests for a key and `.get()` supplies a default.
+Key lookup is via `[]`, if the key is missing a `KeyError` is raised. Alternatively, use `.get()` with a default. `in` checks for the presence of a key.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -503,7 +566,7 @@ x.get("def", 0)
 
 ## Insert, replace, remove
 
-Assigning to a key inserts or replaces a value, `del` and `.pop()` remove one. Unlike R - assigning `None` does *not* remove a key.
+Assigning to `d[key]` inserts or replaces a value for that key. `del` and `.pop()` remove key & value.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -535,15 +598,20 @@ str(y)
 :::
 ::::
 
+::: {.aside}
+Unlike R - assigning `None` does *not* remove a key.
+:::
 
 ## Methods & iteration
 
-Iterating over a `dict` yields its *keys* - use `.items()` to get keys and values together.
+Iterating over a `dict` yields its keys - use `.items()` to get keys and values together.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
 x = {1: "abc", "y": "hello"}
+```
+```{python}
 x.keys()
 x.values()
 ```
@@ -566,7 +634,7 @@ x
 ::::
 
 ::: {.aside}
-`.keys()`, `.values()`, and `.items()` return dynamic *views* of the dictionary rather than copies - see the [docs](https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects). 
+`.keys()`, `.values()`, and `.items()` return dynamic views of the dictionary rather than copies - see the [docs](https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects). 
 
 `|` returns a *new* merged dictionary (right side wins), `.update()` merges in place.
 :::
@@ -599,7 +667,7 @@ person = {
 ```
 :::
 
-::: {.column width='45%' .small}
+::: {.column width='45%' .medium}
 * Extract the fax number.
 
 * Add a `"mobile"` phone number and remove `age`.
@@ -608,10 +676,6 @@ person = {
 :::
 ::::
 
-```{r}
-#| echo: false
-countdown::countdown(minutes = 5)
-```
 
 ::: {.aside}
 JSON uses `true`, `false`, and `null` where Python uses `True`, `False`, and `None`.
@@ -670,6 +734,8 @@ Sets support the usual mathematical operations. R has no set type - any vector c
 ```{python}
 x = {1, 2, 3}
 y = {2, 3, 4}
+```
+```{python}
 x | y
 x & y
 x - y
@@ -681,6 +747,8 @@ x - y
 ```{r}
 x = c(1, 2, 3, 1)
 y = c(2, 3, 4)
+```
+```{r}
 union(x, y)
 intersect(x, y)
 setdiff(x, y)
