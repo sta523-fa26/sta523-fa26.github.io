@@ -1962,7 +1962,7 @@ attr(,&quot;levels&quot;)
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;print&quot;)
-&lt;bytecode: 0x74cdeb9bd0&gt;
+&lt;bytecode: 0x75fffdccb8&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
@@ -1988,7 +1988,7 @@ UseMethod(&quot;print&quot;)
         missing(useSource))
     .Internal(print.default(x, args, missings))
 }
-&lt;bytecode: 0x74cae99038&gt;
+&lt;bytecode: 0x75fcd11968&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
@@ -2040,7 +2040,7 @@ UseMethod(&quot;print&quot;)
         warning(val)
     invisible(x)
 }
-&lt;bytecode: 0x74c5c0c0b0&gt;
+&lt;bytecode: 0x75f7c06c80&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
@@ -2057,14 +2057,14 @@ UseMethod(&quot;print&quot;)
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;mean&quot;)
-&lt;bytecode: 0x74cc494fc8&gt;
+&lt;bytecode: 0x75fe471738&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href aria-label="1"></a>summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (object, ...) 
 UseMethod(&quot;summary&quot;)
-&lt;bytecode: 0x74c62d15b0&gt;
+&lt;bytecode: 0x75f80fca88&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 </div>
@@ -2074,14 +2074,14 @@ UseMethod(&quot;summary&quot;)
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, y, ...) 
 UseMethod(&quot;plot&quot;)
-&lt;bytecode: 0x74c48bc1c8&gt;
+&lt;bytecode: 0x75f694dc08&gt;
 &lt;environment: namespace:base&gt;</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href aria-label="1"></a>t.test</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>function (x, ...) 
 UseMethod(&quot;t.test&quot;)
-&lt;bytecode: 0x74cd2209e0&gt;
+&lt;bytecode: 0x75ff1b1150&gt;
 &lt;environment: namespace:stats&gt;</code></pre>
 </div>
 </div>
@@ -2336,7 +2336,7 @@ attr(,&quot;class&quot;)
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb203-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> [1]  5  1 10  6  9  4  7  8  3  2</code></pre>
+<pre><code> [1]  6  8  9  3  4  1  2  5  7 10</code></pre>
 </div>
 </div>
 </div>
@@ -2345,8 +2345,8 @@ attr(,&quot;class&quot;)
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href aria-label="1"></a><span class="fu">shuffle</span>( <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>, <span class="st">&quot;C&quot;</span>, <span class="st">&quot;A&quot;</span>)) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] B C A A
-Levels: C B A</code></pre>
+<pre><code>[1] C A A B
+Levels: A C B</code></pre>
 </div>
 </div>
 </div>
@@ -2472,468 +2472,11 @@ see &#39;?methods&#39; for accessing help and source code</code></pre>
 </div>
 </div>
 
+
 </div>
 <aside><div>
 <p><code>report(1)</code> tries <code>report.double</code>, then <code>report.numeric</code>, then <code>report.default</code> - which is why a method for <code>double</code> is found even though <code>class(1)</code> says <code>&quot;numeric&quot;</code>.</p>
 </div></aside></section></section>
-<section>
-<section id="python-classes" class="title-slide slide level1 center">
-<h1>Python classes</h1>
-
-</section>
-<section id="basic-syntax" class="slide level2">
-<h2>Basic syntax</h2>
-<p>A <code>class</code> statement bundles <em>attributes</em> (data) and <em>methods</em> (functions) into a new type. Methods receive the instance as their first argument, conventionally named <code>self</code>.</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb234"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb234-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
-<span id="cb234-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
-<span id="cb234-3"><a href aria-label="3"></a>  p1 <span class="op">=</span> (<span class="dv">0</span>, <span class="dv">0</span>)</span>
-<span id="cb234-4"><a href aria-label="4"></a>  p2 <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>)</span>
-<span id="cb234-5"><a href aria-label="5"></a></span>
-<span id="cb234-6"><a href aria-label="6"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
-<span id="cb234-7"><a href aria-label="7"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
-<span id="cb234-8"><a href aria-label="8"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span>
-<span id="cb234-9"><a href aria-label="9"></a></span>
-<span id="cb234-10"><a href aria-label="10"></a>  <span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
-<span id="cb234-11"><a href aria-label="11"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb235"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href aria-label="1"></a>x <span class="op">=</span> rect()</span>
-<span id="cb235-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>2</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb237"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href aria-label="1"></a>x.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(0, 0)</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb239"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb239-1"><a href aria-label="1"></a>x.set_p1((<span class="dv">1</span>, <span class="dv">1</span>))</span>
-<span id="cb239-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb241"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb241-1"><a href aria-label="1"></a>x.p2 <span class="op">=</span> (<span class="dv">3</span>, <span class="dv">3</span>)</span>
-<span id="cb241-2"><a href aria-label="2"></a>x.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>4</code></pre>
-</div>
-</div>
-</div></div>
-</section>
-<section id="init__" class="slide level2">
-<h2><code>__init__</code></h2>
-<p>Calling the class (<code>rect()</code>) creates a new <em>instance</em> and then calls its <code>__init__()</code> method with any arguments - this is the constructor, and where instance attributes should be set.</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb243"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb243-1"><a href aria-label="1"></a><span class="kw">class</span> rect:</span>
-<span id="cb243-2"><a href aria-label="2"></a>  <span class="co">&quot;&quot;&quot;An object representing a rectangle&quot;&quot;&quot;</span></span>
-<span id="cb243-3"><a href aria-label="3"></a></span>
-<span id="cb243-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), p2<span class="op">=</span>(<span class="dv">1</span>, <span class="dv">1</span>)):</span>
-<span id="cb243-5"><a href aria-label="5"></a>    <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
-<span id="cb243-6"><a href aria-label="6"></a>    <span class="va">self</span>.p2 <span class="op">=</span> p2</span>
-<span id="cb243-7"><a href aria-label="7"></a></span>
-<span id="cb243-8"><a href aria-label="8"></a>  <span class="kw">def</span> area(<span class="va">self</span>):</span>
-<span id="cb243-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="bu">abs</span>((<span class="va">self</span>.p1[<span class="dv">0</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">0</span>]) <span class="op">*</span></span>
-<span id="cb243-10"><a href aria-label="10"></a>               (<span class="va">self</span>.p1[<span class="dv">1</span>] <span class="op">-</span> <span class="va">self</span>.p2[<span class="dv">1</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb244"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb244-1"><a href aria-label="1"></a>rect().area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>1</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb246"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb246-1"><a href aria-label="1"></a>rect((<span class="dv">0</span>, <span class="dv">0</span>), (<span class="dv">3</span>, <span class="dv">3</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>9</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb248"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb248-1"><a href aria-label="1"></a>z <span class="op">=</span> rect(p1<span class="op">=</span>(<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb248-2"><a href aria-label="2"></a>z.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(-1, -1)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb250"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb250-1"><a href aria-label="1"></a>z.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(1, 1)</code></pre>
-</div>
-</div>
-</div></div>
-
-<aside><div>
-<p>Methods whose names start and end with double underscores (<code>__init__</code>, <code>__repr__</code>, …) are called “dunder” or <em>special</em> methods - Python calls them implicitly in specific situations.</p>
-</div></aside></section>
-<section id="class-vs-instance-attributes" class="slide level2">
-<h2>Class vs instance attributes</h2>
-<p>Attributes assigned in the class body are <em>class attributes</em> shared by every instance (useful for constants), while attributes assigned via <code>self</code> are <em>instance attributes</em> belonging to one object.</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb252"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb252-1"><a href aria-label="1"></a><span class="kw">class</span> die:</span>
-<span id="cb252-2"><a href aria-label="2"></a>  sides <span class="op">=</span> <span class="dv">6</span></span>
-<span id="cb252-3"><a href aria-label="3"></a></span>
-<span id="cb252-4"><a href aria-label="4"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, value<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb252-5"><a href aria-label="5"></a>    <span class="va">self</span>.value <span class="op">=</span> value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb253"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb253-1"><a href aria-label="1"></a>d <span class="op">=</span> die(<span class="dv">3</span>)</span>
-<span id="cb253-2"><a href aria-label="2"></a>d.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>3</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb255"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb255-1"><a href aria-label="1"></a>d.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>6</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb257"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb257-1"><a href aria-label="1"></a>die.sides</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>6</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb259"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb259-1"><a href aria-label="1"></a>die.value</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>AttributeError: type object &#39;die&#39; has no attribute &#39;value&#39;</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb261"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb261-1"><a href aria-label="1"></a><span class="bu">vars</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>{&#39;value&#39;: 3}</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb263"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb263-1"><a href aria-label="1"></a>[m <span class="cf">for</span> m <span class="kw">in</span> <span class="bu">dir</span>(d) <span class="cf">if</span> <span class="kw">not</span> m.startswith(<span class="st">&quot;__&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[&#39;sides&#39;, &#39;value&#39;]</code></pre>
-</div>
-</div>
-</div></div>
-
-<aside><div>
-<p><code>dir()</code> lists all attributes and methods of an object (including inherited dunder methods), while <code>vars()</code> returns just the instance attributes as a <code>dict</code>.</p>
-</div></aside></section>
-<section id="mutate-or-return" class="slide level2">
-<h2>Mutate or return?</h2>
-<div class="medium">
-<p>Python methods that mutate an object conventionally modify <code>self</code> in place and return <code>None</code>. In R, modifying an ordinary vector or list inside a function does not modify the caller’s object, so a function must return the updated value.</p>
-<p>Returning <code>self</code> from a Python mutating method instead enables method chaining.</p>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb265"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb265-1"><a href aria-label="1"></a>x <span class="op">=</span> [<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">2</span>]</span>
-<span id="cb265-2"><a href aria-label="2"></a><span class="bu">print</span>( x.sort() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>None</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb267"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb267-1"><a href aria-label="1"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1, 2, 3]</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb269"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb269-1"><a href aria-label="1"></a><span class="kw">def</span> set_p1(<span class="va">self</span>, p1):</span>
-<span id="cb269-2"><a href aria-label="2"></a>  <span class="va">self</span>.p1 <span class="op">=</span> p1</span>
-<span id="cb269-3"><a href aria-label="3"></a>  <span class="cf">return</span> <span class="va">self</span></span>
-<span id="cb269-4"><a href aria-label="4"></a></span>
-<span id="cb269-5"><a href aria-label="5"></a>rect.set_p1 <span class="op">=</span> set_p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb270"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb270-1"><a href aria-label="1"></a>r1 <span class="op">=</span> rect()</span>
-<span id="cb270-2"><a href aria-label="2"></a>r2 <span class="op">=</span> r1</span>
-<span id="cb270-3"><a href aria-label="3"></a>r1.set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>)).area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>4</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb272"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb272-1"><a href aria-label="1"></a>r2.p1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(-1, -1)</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb274"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb274-1"><a href aria-label="1"></a>( rect()</span>
-<span id="cb274-2"><a href aria-label="2"></a>  .set_p1((<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">1</span>))</span>
-<span id="cb274-3"><a href aria-label="3"></a>  .area()</span>
-<span id="cb274-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>4</code></pre>
-</div>
-</div>
-</div></div>
-</section>
-<section id="str__-and-__repr__" class="slide level2">
-<h2><code>__str__</code> and <code>__repr__</code></h2>
-<p>Every object has a default string representation, but it is not usually very useful,</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb276"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb276-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>&lt;__main__.rect object at 0x114862c30&gt;</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb278"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb278-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>&lt;__main__.rect object at 0x11489c160&gt;</code></pre>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p><code>__repr__()</code> should return an unambiguous representation, ideally valid Python that recreates the object. <code>__str__()</code> is used by <code>print()</code> and <code>str()</code>, and falls back to <code>__repr__()</code> if not defined.</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb280"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb280-1"><a href aria-label="1"></a><span class="kw">def</span> rect_repr(<span class="va">self</span>):</span>
-<span id="cb280-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="ss">f&quot;rect(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p2<span class="sc">}</span><span class="ss">)&quot;</span></span>
-<span id="cb280-3"><a href aria-label="3"></a></span>
-<span id="cb280-4"><a href aria-label="4"></a>rect.<span class="fu">__repr__</span> <span class="op">=</span> rect_repr</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb281"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb281-1"><a href aria-label="1"></a>rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect((0, 0), (1, 1))</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb283"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb283-1"><a href aria-label="1"></a><span class="bu">print</span>(rect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>rect((0, 0), (1, 1))</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb285"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb285-1"><a href aria-label="1"></a>[rect(), rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[rect((0, 0), (1, 1)), rect((1, 1), (2, 2))]</code></pre>
-</div>
-</div>
-</div></div>
-
-</div>
-<aside><div>
-<p>R’s equivalent is <code>print.rect()</code>, with <code>format.rect()</code> playing a role similar to <code>__str__()</code>.</p>
-</div></aside></section>
-<section id="other-special-methods" class="slide level2">
-<h2>Other special methods</h2>
-<p>Operators and built-in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (<code>&quot;abc&quot; * 3</code>, <code>[1, 2] + [3, 4]</code>).</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb287"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb287-1"><a href aria-label="1"></a><span class="kw">def</span> rect_eq(<span class="va">self</span>, other):</span>
-<span id="cb287-2"><a href aria-label="2"></a>  <span class="cf">return</span> <span class="va">self</span>.p1 <span class="op">==</span> other.p1 <span class="kw">and</span> <span class="va">self</span>.p2 <span class="op">==</span> other.p2</span>
-<span id="cb287-3"><a href aria-label="3"></a></span>
-<span id="cb287-4"><a href aria-label="4"></a><span class="kw">def</span> rect_contains(<span class="va">self</span>, pt):</span>
-<span id="cb287-5"><a href aria-label="5"></a>  <span class="cf">return</span> <span class="bu">all</span>(<span class="bu">min</span>(a, b) <span class="op">&lt;=</span> x <span class="op">&lt;=</span> <span class="bu">max</span>(a, b)</span>
-<span id="cb287-6"><a href aria-label="6"></a>             <span class="cf">for</span> a, b, x <span class="kw">in</span> <span class="bu">zip</span>(<span class="va">self</span>.p1, <span class="va">self</span>.p2, pt))</span>
-<span id="cb287-7"><a href aria-label="7"></a></span>
-<span id="cb287-8"><a href aria-label="8"></a>rect.<span class="fu">__eq__</span> <span class="op">=</span> rect_eq</span>
-<span id="cb287-9"><a href aria-label="9"></a>rect.<span class="fu">__contains__</span> <span class="op">=</span> rect_contains</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb288"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb288-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb290"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb290-1"><a href aria-label="1"></a>rect() <span class="op">==</span> rect((<span class="dv">1</span>, <span class="dv">1</span>), (<span class="dv">2</span>, <span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>False</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb292"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb292-1"><a href aria-label="1"></a>(<span class="fl">0.5</span>, <span class="fl">0.5</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb294"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb294-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> rect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>False</code></pre>
-</div>
-</div>
-</div></div>
-
-<aside><div>
-<p>Without <code>__eq__</code>, <code>==</code> compares object identity (like <code>is</code>). See the <a href="https://docs.python.org/3/reference/datamodel.html#special-method-names">data model</a> docs for the full list, including <code>__len__</code>, <code>__getitem__</code>, <code>__add__</code>, and <code>__lt__</code>.</p>
-</div></aside></section>
-<section id="inheritance" class="slide level2">
-<h2>Inheritance</h2>
-<p>A class can <em>inherit</em> from another class, gaining all of its attributes and methods. The subclass can add new methods and override existing ones - <code>super()</code> gives access to the parent’s version.</p>
-<div class="columns xsmall">
-<div class="column" style="width:60%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb296"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb296-1"><a href aria-label="1"></a><span class="kw">class</span> square(rect):</span>
-<span id="cb296-2"><a href aria-label="2"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, p1<span class="op">=</span>(<span class="dv">0</span>, <span class="dv">0</span>), l<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb296-3"><a href aria-label="3"></a>    <span class="cf">if</span> <span class="kw">not</span> <span class="bu">isinstance</span>(l, (<span class="bu">int</span>, <span class="bu">float</span>)):</span>
-<span id="cb296-4"><a href aria-label="4"></a>      <span class="cf">raise</span> <span class="pp">TypeError</span>(<span class="st">&quot;l must be a number&quot;</span>)</span>
-<span id="cb296-5"><a href aria-label="5"></a>    <span class="va">self</span>.l <span class="op">=</span> l</span>
-<span id="cb296-6"><a href aria-label="6"></a>    <span class="bu">super</span>().<span class="fu">__init__</span>(p1, (p1[<span class="dv">0</span>] <span class="op">+</span> l, p1[<span class="dv">1</span>] <span class="op">+</span> l))</span>
-<span id="cb296-7"><a href aria-label="7"></a></span>
-<span id="cb296-8"><a href aria-label="8"></a>  <span class="kw">def</span> <span class="fu">__repr__</span>(<span class="va">self</span>):</span>
-<span id="cb296-9"><a href aria-label="9"></a>    <span class="cf">return</span> <span class="ss">f&quot;square(</span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>p1<span class="sc">}</span><span class="ss">, </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>l<span class="sc">}</span><span class="ss">)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div><div class="column fragment" style="width:40%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb297"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb297-1"><a href aria-label="1"></a>s <span class="op">=</span> square((<span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">2</span>)</span>
-<span id="cb297-2"><a href aria-label="2"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>square((1, 1), 2)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb299"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb299-1"><a href aria-label="1"></a>s.p2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(3, 3)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb301"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb301-1"><a href aria-label="1"></a>s.area()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>4</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb303"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb303-1"><a href aria-label="1"></a>(<span class="dv">2</span>, <span class="dv">2</span>) <span class="kw">in</span> s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb305"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb305-1"><a href aria-label="1"></a>square(l<span class="op">=</span><span class="st">&quot;a&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>TypeError: l must be a number</code></pre>
-</div>
-</div>
-</div></div>
-</section>
-<section id="isinstance-vs-type" class="slide level2">
-<h2><code>isinstance()</code> vs <code>type()</code></h2>
-<p><code>isinstance()</code> respects inheritance while <code>type()</code> reports the exact class - the former is almost always what you want when validating inputs, but be aware of what a type inherits from.</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb307"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb307-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, square)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb309"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb309-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(s, rect)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb311"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb311-1"><a href aria-label="1"></a><span class="bu">type</span>(s) <span class="kw">is</span> rect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>False</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb313"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb313-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="dv">3</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb315"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb315-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="st">&quot;3&quot;</span>, (<span class="bu">int</span>, <span class="bu">float</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>False</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb317"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb317-1"><a href aria-label="1"></a><span class="bu">isinstance</span>(<span class="va">True</span>, <span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>True</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb319"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb319-1"><a href aria-label="1"></a><span class="bu">type</span>(<span class="va">True</span>) <span class="kw">is</span> <span class="bu">int</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>False</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb321"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb321-1"><a href aria-label="1"></a><span class="bu">bool</span>.__mro__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>(&lt;class &#39;bool&#39;&gt;, &lt;class &#39;int&#39;&gt;, &lt;class &#39;object&#39;&gt;)</code></pre>
-</div>
-</div>
-</div></div>
-
-<aside><div>
-<p><code>__mro__</code> (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since <code>bool</code> inherits from <code>int</code>, code accepting <code>int</code>s accepts <code>True</code> and <code>False</code> unless it checks for <code>bool</code> explicitly.</p>
-</div></aside></section></section>
-<section>
-<section id="comparing-r-python" class="title-slide slide level1 center">
-<h1>Comparing R &amp; Python</h1>
-
-</section>
-<section id="object-systems-summary" class="slide level2">
-<h2>Object systems summary</h2>
-<div class="small">
-<table class="caption-top">
-<colgroup>
-<col style="width: 21%">
-<col style="width: 39%">
-<col style="width: 38%">
-</colgroup>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Concept</th>
-<th style="text-align: left;">R (S3)</th>
-<th style="text-align: left;">Python</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">define a class</td>
-<td style="text-align: left;"><code>structure(list(...), class = &quot;x&quot;)</code></td>
-<td style="text-align: left;"><code>class x:</code> with <code>__init__()</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">where methods live</td>
-<td style="text-align: left;">separate functions <code>generic.class()</code></td>
-<td style="text-align: left;">inside the class definition</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">dispatch</td>
-<td style="text-align: left;"><code>UseMethod()</code> on the first argument’s class</td>
-<td style="text-align: left;"><code>obj.method()</code> on the object’s type</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">printing</td>
-<td style="text-align: left;"><code>print.x()</code> (returns <code>invisible(x)</code>)</td>
-<td style="text-align: left;"><code>__repr__()</code> and <code>__str__()</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">operators</td>
-<td style="text-align: left;"><code>Ops.x()</code>, <code>`+.x`()</code></td>
-<td style="text-align: left;"><code>__add__()</code>, <code>__eq__()</code>, …</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">inheritance</td>
-<td style="text-align: left;"><code>class = c(&quot;child&quot;, &quot;parent&quot;)</code></td>
-<td style="text-align: left;"><code>class child(parent):</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">call the parent method</td>
-<td style="text-align: left;"><code>NextMethod()</code></td>
-<td style="text-align: left;"><code>super().method()</code></td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">type check</td>
-<td style="text-align: left;"><code>inherits(x, &quot;class&quot;)</code></td>
-<td style="text-align: left;"><code>isinstance(x, cls)</code></td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">list methods</td>
-<td style="text-align: left;"><code>methods(class = &quot;x&quot;)</code></td>
-<td style="text-align: left;"><code>dir(x)</code></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="takeaways" class="slide level2">
-<h2>Takeaways</h2>
-<ul>
-<li><p>R lists are heterogeneous vectors - <code>[</code> returns a list, <code>[[</code> and <code>$</code> return a single element, and assigning <code>NULL</code> removes one.</p></li>
-<li><p>Attributes are metadata attached to any R object, <code>structure()</code> sets them in one call, and <code>class</code> is the attribute S3 dispatches on.</p></li>
-<li><p>An S3 generic is a function that calls <code>UseMethod()</code>, methods are just functions named <code>generic.class</code>, and <code>default</code> catches everything else.</p></li>
-<li><p>Objects without a <code>class</code> attribute dispatch on an implicit class such as <code>c(&quot;double&quot;, &quot;numeric&quot;)</code>.</p></li>
-<li><p>Python classes bundle data and methods, <code>__init__()</code> constructs, <code>__repr__()</code> / <code>__str__()</code> display, and <code>isinstance()</code> checks type with inheritance.</p></li>
-<li><p>R functions commonly return updated values; Python mutating methods commonly update objects in place - know which convention an interface follows.</p></li>
-</ul>
-
-</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

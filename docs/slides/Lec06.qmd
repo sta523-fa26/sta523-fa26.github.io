@@ -30,6 +30,307 @@ options(
 import numpy as np
 ```
 
+# Python classes
+
+## Basic syntax
+
+A `class` statement bundles attributes (data) and methods (functions) into a new type. Methods receive the instance as their first argument, conventionally named `self`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class rect:
+  """An object representing a rectangle"""
+  p1 = (0, 0)
+  p2 = (1, 2)
+
+  def area(self):
+    return abs((self.p1[0] - self.p2[0]) *
+               (self.p1[1] - self.p2[1]))
+
+  def set_p1(self, p1):
+    self.p1 = p1
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+x = rect()
+x.area()
+x.p1
+```
+```{python}
+x.set_p1((1, 1))
+x.area()
+```
+```{python}
+x.p2 = (3, 3)
+x.area()
+```
+:::
+::::
+
+
+
+## `__init__`
+
+Calling the class (`rect()`) creates a new instance of the class and then calls its `__init__()` method - this is called the constructor.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class rect:
+  """An object representing a rectangle"""
+
+  def __init__(self, p1=(0, 0), p2=(1, 1)):
+    self.p1 = p1
+    self.p2 = p2
+
+  def area(self):
+    return abs((self.p1[0] - self.p2[0]) *
+               (self.p1[1] - self.p2[1]))
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+rect().area()
+rect((0, 0), (3, 3)).area()
+```
+```{python}
+z = rect(p1=(-1, -1))
+z.p1
+z.p2
+```
+:::
+::::
+
+::: {.aside}
+Methods whose names start and end with double underscores (`__init__`, `__repr__`, ...) are called "dunder" or *special* methods - Python calls them implicitly in specific situations.
+:::
+
+
+## Class vs instance attributes
+
+Attributes assigned in the class body are class attributes shared by every instance (useful for constants), while attributes assigned via `self` are instance attributes belonging to a specific object.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+class die:
+  sides = 6
+
+  def __init__(self, value=1):
+    self.value = value
+```
+```{python}
+d = die(3)
+d.value
+d.sides
+die.sides
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+#| error: true
+die.value
+```
+```{python}
+vars(d)
+[m for m in dir(d) if not m.startswith("__")]
+```
+```{python}
+die.sides = 3
+d.sides
+```
+:::
+::::
+
+::: {.aside}
+`dir()` lists all attributes and methods of an object (including inherited dunder methods), while `vars()` returns just the instance attributes as a `dict`.
+:::
+
+
+## Mutate or return?
+
+::: {.medium}
+Python methods that mutate an object conventionally modify `self` in place and return `None`. In R, modifying an ordinary vector or list inside a function does not modify the caller's object, so a function must return the updated value. 
+
+Returning `self` from a Python mutating method instead enables method chaining.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+x = [3, 1, 2]
+print( x.sort() )
+x
+```
+```{python}
+def set_p1(self, p1):
+  self.p1 = p1
+  return self
+
+rect.set_p1 = set_p1
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+r1 = rect()
+r2 = r1
+r1.set_p1((-1, -1)).area()
+r2.p1
+```
+```{python}
+( rect()
+  .set_p1((-1, -1))
+  .area()
+)
+```
+:::
+::::
+
+
+
+## `__str__` and `__repr__`
+
+Every object has a default string representation, but it is not usually very useful,
+
+::: {.xsmall}
+```{python}
+rect()
+print(rect())
+```
+:::
+
+. . .
+
+`__repr__()` should return an unambiguous representation, ideally valid Python that recreates the object. `__str__()` is used by `print()` and `str()`, and falls back to `__repr__()` if not defined.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+def rect_repr(self):
+  return f"rect({self.p1}, {self.p2})"
+
+rect.__repr__ = rect_repr
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+rect()
+print(rect())
+[rect(), rect((1, 1), (2, 2))]
+```
+:::
+::::
+
+
+## Other special methods
+
+Operators and built-in functions also dispatch to special methods - this is the mechanism behind the operator overloading we saw in Lecture 2 (`"abc" * 3`, `[1, 2] + [3, 4]`).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+def rect_eq(self, other):
+  return self.p1 == other.p1 and self.p2 == other.p2
+
+rect.__eq__ = rect_eq
+
+def rect_contains(self, pt):
+  return all(min(a, b) <= x <= max(a, b)
+             for a, b, x in zip(self.p1, self.p2, pt))
+
+rect.__contains__ = rect_contains
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+rect() == rect()
+rect() == rect((1, 1), (2, 2))
+```
+```{python}
+(0.5, 0.5) in rect()
+(2, 2) in rect()
+```
+:::
+::::
+
+::: {.aside}
+Without `__eq__`, `==` compares object identity (like `is`). See the [data model](https://docs.python.org/3/reference/datamodel.html#special-method-names) docs for the full list, including `__len__`, `__getitem__`, `__add__`, and `__lt__`.
+:::
+
+
+## Inheritance
+
+A class can *inherit* from another class(es), gaining all of its attributes and methods. The subclass can add new methods and override existing ones - `super()` gives access to the parent's version.
+
+:::: {.columns .xsmall}
+::: {.column width='60%'}
+```{python}
+class square(rect):
+  def __init__(self, p1=(0, 0), l=1):
+    if not isinstance(l, (int, float)):
+      raise TypeError("l must be a number")
+    self.l = l
+    super().__init__(p1, (p1[0] + l, p1[1] + l))
+
+  def __repr__(self):
+    return f"square({self.p1}, {self.l})"
+```
+:::
+
+::: {.column width='40%' .fragment}
+```{python}
+s = square((1, 1), 2)
+s
+s.p2
+s.area()
+(2, 2) in s
+```
+```{python}
+#| error: true
+square(l="a")
+```
+:::
+::::
+
+
+
+## `isinstance()` vs `type()`
+
+`isinstance()` respects inheritance while `type()` reports the exact class - the former is almost always what you want when validating inputs, but be aware of what a type inherits from.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+isinstance(s, square)
+isinstance(s, rect)
+type(s) is rect
+```
+```{python}
+isinstance(3, (int, float))
+isinstance("3", (int, float))
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+isinstance(True, int)
+type(True) is int
+bool.__mro__
+```
+:::
+::::
+
+::: {.aside}
+`__mro__` (method resolution order) is the tuple of classes Python searches for inherited attributes and methods - roughly analogous to the dispatch order in an R S3 class vector. Since `bool` inherits from `int`, code accepting `int`s accepts `True` and `False` unless it checks for `bool` explicitly.
+:::
 
 # Tuples
 
@@ -64,13 +365,15 @@ x
 ::::
 
 ::: {.aside}
-It is the *comma* that creates a tuple, not the parentheses - `(1)` is just the number 1 and a one element tuple must be written `(1,)`. Immutability is *shallow*, a mutable object stored in a tuple can still be modified in place.
+It is the *comma* that creates a tuple, not the parentheses - `(1)` is just the number 1 and a one element tuple must be written `(1,)`. 
+
+Immutability is *shallow*, a mutable object stored in a tuple can still be modified in place.
 :::
 
 
 ## Unpacking
 
-Assigning a sequence to several names at once *unpacks* it - this is how Python functions return multiple values. A name prefixed with `*` collects any remaining values into a list.
+Assigning a sequence to several names at once *unpacks* it. A name prefixed with `*` collects any remaining values into a list.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -103,7 +406,7 @@ for i, (k, v) in enumerate(pairs):
 ::::
 
 ::: {.aside}
-The number of names must match the length of the sequence (`x, y = [1, 2, 3]` is a `ValueError`) unless one of them is starred. The same unpacking happens in `for` loops with `enumerate()`, `zip()`, and `dict.items()`.
+The number of names must match the length of the sequence (`x, y = [1, 2, 3]` is a `ValueError`) unless one of them is starred.
 :::
 
 
@@ -111,7 +414,7 @@ The number of names must match the length of the sequence (`x, y = [1, 2, 3]` is
 
 ## Dictionaries
 
-Python `dict`s are *mutable* containers of **key: value** pairs, designed for the efficient lookup of a value by its key. The closest R analog is a named list (or a named atomic vector when the values are homogeneous).
+Python `dict`s are *mutable* containers of **key: value** pairs, designed for the efficient lookup of a value by its key. The closest (common) R analog is a named list (or a named atomic vector).
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -134,21 +437,21 @@ c(abc = 123, def = 456)
 ::::
 
 ::: {.aside}
-Since Python 3.7 dictionaries preserve insertion order. The keyword form of `dict()` only works for keys that are valid Python names (`def` is a reserved word).
+Since Python 3.7 dictionaries preserve insertion order. The keyword form of `dict()` only works for keys that are valid Python names (e.g. `def` is a reserved word).
 :::
 
 
 ## Keys must be hashable
 
-Dictionary keys and set elements must be **hashable**: their hash must remain stable during their lifetime, and objects that compare equal must have equal hashes. Dictionary values can be anything.
+Dictionary keys and set elements must be hashable and values can be anything.
 
 ::: {.small}
 | Hashable                                      | Unhashable                                  |
 |:----------------------------------------------|:--------------------------------------------|
-| `int`, `float`, `bool`, `complex`               | `list`                                      |
-| `str`, `bytes`, `range`                        | `dict`                                      |
-| `None`, `frozenset`                            | `set`                                       |
-| `tuple` if all its elements are hashable       | `tuple` containing an unhashable element     |
+| `int`, `float`, `bool`, `complex`             | `list`                                      |
+| `str`, `bytes`, `range`                       | `dict`                                      |
+| `None`, `frozenset`                           | `set`                                       |
+| `tuple` if all its elements are hashable      | `tuple` containing an unhashable element     |
 :::
 
 . . .
@@ -170,10 +473,6 @@ Lists are unhashable, so neither a list nor a tuple containing a list can be a k
 ```
 :::
 ::::
-
-::: {.aside}
-`hash()` returns an integer used to locate an entry in a hash table. Hashability is distinct from immutability: instances of user-defined classes are hashable by identity by default, even when their attributes can change. Defining `__eq__` in a class without defining `__hash__` makes its instances unhashable.
-:::
 
 
 ## Lookup
@@ -204,7 +503,7 @@ x.get("def", 0)
 
 ## Insert, replace, remove
 
-Assigning to a key inserts or replaces, `del` and `.pop()` remove. Note that assigning `None` does *not* remove a key, whereas in R assigning `NULL` does.
+Assigning to a key inserts or replaces a value, `del` and `.pop()` remove one. Unlike R - assigning `None` does *not* remove a key.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -247,11 +546,11 @@ Iterating over a `dict` yields its *keys* - use `.items()` to get keys and value
 x = {1: "abc", "y": "hello"}
 x.keys()
 x.values()
-x.items()
 ```
 ```{python}
 for k, v in x.items():
     print(k, "->", v)
+x.items()
 ```
 :::
 
@@ -267,95 +566,18 @@ x
 ::::
 
 ::: {.aside}
-`.keys()`, `.values()`, and `.items()` return dynamic *views* of the dictionary rather than copies - see the [docs](https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects). `|` returns a new merged dictionary (right side wins), `.update()` merges in place.
+`.keys()`, `.values()`, and `.items()` return dynamic *views* of the dictionary rather than copies - see the [docs](https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects). 
+
+`|` returns a *new* merged dictionary (right side wins), `.update()` merges in place.
 :::
-
-
-# Environments
-
-## Environments
-
-An environment is a set of name-object *bindings* - the workspace is one, each package is one, and every function call creates a fresh one for its local variables. A lookup that fails in an environment continues in its *parent*.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{r}
-x = 1
-f = function() {
-  y = 2
-  environment()
-}
-e = f()
-ls(e)
-```
-```{r}
-parent.env(e)
-get("x", envir = e)
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{r}
-g = function() {
-  z = 3
-  z
-}
-g()
-exists("z")
-```
-:::
-::::
-
-::: {.aside}
-`globalenv()` is the workspace and the chain of parents ends at `emptyenv()`. Looking up through the parents is *lexical scoping* - `f()` finds `x` in the global environment, and `z` is gone once `g()` returns. More on this with functional programming.
-:::
-
-
-## Environments as hash maps
-
-Bindings are stored in a hash table, so an environment makes a good `dict` - use `parent = emptyenv()` so that lookups do not fall through to the workspace.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{r}
-h = new.env(parent = emptyenv())
-h$a = 1
-h[["b"]] = 2
-```
-```{r}
-ls(h)
-h$a
-exists("x", envir = h)
-rm("a", envir = h)
-ls(h)
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{r}
-h2 = h
-h2$d = 4
-ls(h)
-```
-```{r}
-#| error: true
-h[1]
-```
-:::
-::::
-
-::: {.aside}
-Modifying `h2` changed `h` - environments have *reference* semantics, both names refer to the same object exactly like two Python names bound to one `dict`. `utils::hashtab()` (R 4.2+) provides a hash table with arbitrary keys.
-:::
-
 
 ## Exercise 1
 
 Using the record from last lecture, complete these tasks in Python:
 
 :::: {.columns}
-::: {.column width='55%'}
-::: {.xsmall}
+::: {.column width='55%' .xsmall}
+
 ```python
 person = {
   "firstName": "John",
@@ -376,18 +598,13 @@ person = {
 }
 ```
 :::
-:::
 
-::: {.column width='45%'}
-::: {.small}
+::: {.column width='45%' .small}
 * Extract the fax number.
 
 * Add a `"mobile"` phone number and remove `age`.
 
 * Write `phone(person, phone_type)` to return the requested number, or `None` if absent.
-
-* **Extension:** Write the equivalent function in R.
-:::
 :::
 ::::
 
@@ -397,7 +614,7 @@ countdown::countdown(minutes = 5)
 ```
 
 ::: {.aside}
-JSON uses `true`, `false`, and `null` where Python uses `True`, `False`, and `None`. Use `json.loads()` to parse JSON text.
+JSON uses `true`, `false`, and `null` where Python uses `True`, `False`, and `None`.
 :::
 
 
@@ -476,76 +693,6 @@ setdiff(x, y)
 Python's set methods (`x.union(y)`, `x.intersection(y)`, ...) accept any iterable, the operators require sets on both sides. R's set functions return unique values in order of first appearance.
 :::
 
-
-# Mutability & copies
-
-## Nested containers
-
-In Lecture 2 we saw that `.copy()` is *shallow*, and `copy.deepcopy()` copies recursively. The same sharing problem occurs when building nested structures by repetition,
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-grid = [[0] * 3] * 3
-grid[0][0] = 1
-grid
-```
-```{python}
-grid = [[0] * 3 for _ in range(3)]
-grid[0][0] = 1
-grid
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-import copy
-
-x = {"a": [1, 2], "b": [3, 4]}
-y = x.copy()
-z = copy.deepcopy(x)
-
-x["a"].append(99)
-y
-z
-```
-:::
-::::
-
-::: {.aside}
-`[[0] * 3] * 3` creates *one* inner list and references it three times. The comprehension evaluates `[0] * 3` three separate times.
-:::
-
-
-## Mutable default arguments
-
-Default values are evaluated *once*, when the function is defined, so a mutable default is shared by every call that does not supply the argument. Use `None` as the default and create the object inside the function instead.
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```{python}
-def f(x=[]):
-    x.append(1)
-    return x
-
-f()
-f()
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-def f(x=None):
-    if x is None:
-        x = []
-    x.append(1)
-    return x
-
-f()
-f()
-```
-:::
-::::
 
 
 # Algorithms & data structures
@@ -654,52 +801,8 @@ system.time(
 ::::
 
 
-## Generic vectors
 
-R and Python lists store references to objects. Elements can have different types and sizes, while indexing remains O(1). References and object headers add memory overhead.
-
-::: {.small}
-```text
-Numeric vector: values stored together
-
-[ 1.0 | 2.0 | 3.0 ]
-
-
-List: references stored together
-
-[  •  |  •  |  •  ]
-   ↓     ↓     ↓
-   1   "abc"  TRUE
-```
-:::
-
-::: {.notes}
-Every R object is a `SEXP`, a pointer to a struct holding
-
-* a header with the type (`SEXPTYPE`), flags, and garbage collector bookkeeping
-
-* a pointer to the object's attributes (a pairlist)
-
-* the data
-  - for an atomic vector (`REALSXP`, `INTSXP`, ...) the length followed by a block of values
-  - for a list (`VECSXP`) the length followed by an array of `SEXP`s
-
-Every Python value is a `PyObject`, a struct holding
-
-* a reference count (`ob_refcnt`) and a pointer to its type (`ob_type`)
-
-* type specific data 
-  - a `float` stores its value
-
-  - a `list` stores its length, its allocated capacity, and a pointer to an array of `PyObject *`
-:::
-
-::: {.aside}
-CPython lists reserve extra slots, making appends amortized O(1). Resizing may copy the pointer array. See [R Internals](https://cran.r-project.org/doc/manuals/r-release/R-ints.html#SEXPs) and the [CPython docs](https://docs.python.org/3/c-api/structures.html) for the full structs.
-:::
-
-
-## Array
+## Array (Vector)
 
 <iframe data-src="https://visualgo.net/en/array" width="100%" height="450px" style="border:1px solid;border-radius: 5px;" data-external="1">
 </iframe>
@@ -707,6 +810,28 @@ CPython lists reserve extra slots, making appends amortized O(1). Resizing may c
 ::: {.aside}
 <https://visualgo.net/en/array> - Materialized numeric R vectors and contiguous numeric NumPy arrays store same-typed values together. A Python `list` is a contiguous array of *pointers* to objects, which is why it can be heterogeneous and why it uses far more memory.
 :::
+
+## Generic vectors
+
+R and Python lists store references to objects. Elements can have different types and sizes, while indexing remains O(1). References and object headers add memory overhead.
+
+* Numeric vector - values stored contiguously:
+
+  ::: {.small}
+  ```
+  [ 1.0 | 2.0 | 3.0 ]
+  ```
+  :::
+
+* List -  *references* stored contiguously
+
+  ::: {.small}
+  ```
+  [  P  |  P  |  P  ]
+     ↓     ↓     ↓
+     1   "abc"  TRUE
+  ```
+  :::
 
 
 ## deques
@@ -756,45 +881,38 @@ With `maxlen` set, adding to a full deque drops an element from the opposite end
 :::
 
 
-## Hash tables in practice
+## Hashing
 
-Hash-table membership is O(1) on average; searching a list is O(n). These timings illustrate the practical difference:
+A hash table is an array of *buckets* - a key's `hash()` picks its bucket, so lookup, insertion and deletion are O(1) on average with no scanning. Two keys landing in the same bucket is a *collision*, and the table is resized as it fills to keep collisions rare.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
-import time
-big_list = list(range(100_000))
-big_set = set(big_list)
-queries = range(0, 100_000, 100)
-
-start = time.perf_counter()
-res = [q in big_list for q in queries]
-print(time.perf_counter() - start)
-
-start = time.perf_counter()
-res = [q in big_set for q in queries]
-print(time.perf_counter() - start)
+hash(1), hash(1.0), hash(True)
+hash(2.5)
+hash((1, 2))
+```
+```{python}
+keys = (1, 9, 17, 2.5)
+[hash(k) % 8 for k in keys]
 ```
 :::
 
-::: {.column width='50%'}
+::: {.column width='50%' .fragment}
 ```{r}
-big = sample(1e5)
-queries = sample(1e5, 1e3)
-
-system.time({
-  for (q in queries) any(big == q)
-})
-system.time({
-  queries %in% big
-})
+h = new.env(size = 8L)
+for (k in letters[1:5]) h[[k]] = k
+str(env.profile(h))
+```
+```{r}
+for (k in letters[6:20]) h[[k]] = k
+env.profile(h)$size
 ```
 :::
 ::::
 
 ::: {.aside}
-Python's set is built before timing; R's `%in%` includes lookup preparation. To study scaling, vary the container size while keeping the number of queries fixed. Use `timeit` (Python) or `bench::mark()` (R) for repeated timings.
+Equal keys must hash equally, which is why `1`, `1.0`, and `True` are the same `dict` key. String hashes are randomized per process, so `hash("abc")` (and the iteration order of a set of strings) changes between runs. `env.profile()` reports the bucket sizes of an environment's table - R chains colliding keys within a bucket, CPython probes for another free slot.
 :::
 
 
@@ -804,44 +922,29 @@ Python's set is built before timing; R's `%in%` includes lookup preparation. To 
 </iframe>
 
 ::: {.aside}
-<https://visualgo.net/en/hashtable> - Python's `dict` and `set` are hash tables, as are R environments. R's `match()`, `%in%`, `unique()`, and `duplicated()` build a hash table of one argument, which is why they are fast. Equal keys must hash equally, so `1`, `1.0`, and `True` are the same `dict` key.
+<https://visualgo.net/en/hashtable> - Python's `dict` and `set` are hash tables, as are R environments. R's `match()`, `%in%`, `unique()`, and `duplicated()` build a hash table of one argument, which is why they are fast.
 :::
 
 
-## Sequence operation costs
+## Operation costs
 
 ::: {.small}
-| Operation                 | `list`                         | `deque`                        |
-|:--------------------------|:-------------------------------|:-------------------------------|
-| Copy                      | `.copy()`: O(n)                | `.copy()`: O(n)                |
-| Get / replace by index    | `s[i]` / `s[i] = v`: O(1)      | `s[i]` / `s[i] = v`: O(n)      |
-| Append at end             | `.append(v)`: O(1)\*           | `.append(v)`: O(1)             |
-| Remove from end           | `.pop()`: O(1)\*               | `.pop()`: O(1)                 |
-| Insert at front           | `.insert(0, v)`: O(n)          | `.appendleft(v)`: O(1)         |
-| Remove from front         | `.pop(0)`: O(n)                | `.popleft()`: O(1)             |
-| Insert / delete in middle | O(n)                           | O(n)                           |
-| Membership                | `v in s`: O(n)                 | `v in s`: O(n)                 |
+| Operation                 | `list`                  | `deque`                   | `dict`                | `set`                 |
+|:--------------------------|:------------------------|:--------------------------|:----------------------|:----------------------|
+| Copy                      | `.copy()`: O(n)         | `.copy()`: O(n)           | `.copy()`: O(n)       | `.copy()`: O(n)       |
+| Get / set by index or key | `s[i]`: O(1)            | `s[i]`: O(n)              | `d[k]`: O(1)          | —                     |
+| Append / add              | `.append(v)`: O(1)\*    | `.append(v)`: O(1)        | `d[k] = v`: O(1)\*    | `.add(v)`: O(1)\*     |
+| Pop from end / remove     | `.pop()`: O(1)\*        | `.pop()`: O(1)            | `.pop(k)`: O(1)       | `.remove(v)`: O(1)    |
+| Insert at front           | `.insert(0, v)`: O(n)   | `.appendleft(v)`: O(1)    | —                     | —                     |
+| Remove from front         | `.pop(0)`: O(n)         | `.popleft()`: O(1)        | —                     | —                     |
+| Insert / delete in middle | O(n)                    | O(n)                      | —                     | —                     |
+| Membership                | `v in s`: O(n)          | `v in s`: O(n)            | `k in d`: O(1)        | `v in s`: O(1)        |
 :::
 
 ::: {.aside}
-CPython costs for n elements. \*List append and end-pop costs are amortized. Deque indexing is O(1) near either end and O(n) in the middle. See <https://wiki.python.org/moin/TimeComplexity>.
-:::
+CPython costs for n elements. 
 
-
-## Dictionary and set operation costs
-
-::: {.small}
-| Operation       | `dict`                | `set`                 |
-|:----------------|:----------------------|:----------------------|
-| Copy            | `.copy()`: O(n)       | `.copy()`: O(n)       |
-| Lookup value    | `d[k]`: O(1)          | —                     |
-| Insert / update | `d[k] = v`: O(1)      | `.add(v)`: O(1)       |
-| Remove          | `.pop(k)`: O(1)       | `.remove(v)`: O(1)    |
-| Membership      | `k in d`: O(1)        | `v in s`: O(1)        |
-:::
-
-::: {.aside}
-Hash-table operations are O(1) on average, assuming constant-cost hashing and equality; individual operations can take O(n). Insertions are amortized over occasional table resizing. Dictionary membership tests keys.
+\*Amortized - list append and end pop, and hash table insertion, occasionally trigger a resize. Deque indexing is O(1) near either end. Hash table costs are averages that assume constant-cost hashing and equality, an individual operation can be O(n). Dictionary membership tests keys. See <https://wiki.python.org/moin/TimeComplexity>.
 :::
 
 
@@ -869,6 +972,96 @@ Choose two scenarios. For each, suggest a data structure in Python and R. Explai
 #| echo: false
 countdown::countdown(minutes = 3)
 ```
+
+
+## Measuring vector growth
+
+Reasoning about complexity tells you what to expect, measuring confirms it
+
+::: {.panel-tabset}
+
+### Code
+
+
+::: {.columns .xsmall}
+
+::: {.column}
+```{r}
+grow_concat = function(n) {
+  x = c()
+  for (i in seq_len(n)) x = c(x, i)
+}
+grow_index = function(n) {
+  x = numeric()
+  for (i in seq_len(n)) x[i] = i
+}
+grow_prealloc = function(n) {
+  x = numeric(n)
+  for (i in seq_len(n)) x[i] = i
+}
+```
+:::
+
+::: {.column}
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+
+res = bench::press(
+  n = c(1e3, 2.5e3, 5e3, 1e4, 2.5e4, 5e4),
+  bench::mark(
+    concat   = grow_concat(n),
+    index    = grow_index(n),
+    prealloc = grow_prealloc(n),
+    check = FALSE
+  )
+)
+```
+:::
+:::
+
+
+
+::: {.xsmall}
+
+:::
+
+### Linear
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4.25
+#| fig-align: center
+timings = res |>
+  dplyr::mutate(method = as.character(expression), median = as.numeric(median))
+
+g = ggplot2::ggplot(timings, ggplot2::aes(x = n, y = median, color = method)) +
+  ggplot2::geom_line() +
+  ggplot2::geom_point() +
+  ggplot2::labs(x = "n", y = "median time (s)", color = NULL) +
+  ggplot2::theme_minimal(base_size = 16)
+g
+```
+
+### Log
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4.25
+#| fig-align: center
+g +
+  ggplot2::scale_x_log10() +
+  ggplot2::scale_y_log10(labels = scales::label_log())
+```
+
+:::
+
+::: {.aside}
+`bench::mark()` repeats each expression and reports the distribution of timings, `bench::press()` runs it over a grid of parameters.
+:::
 
 
 # Comparing R & Python
