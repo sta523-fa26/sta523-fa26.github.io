@@ -106,7 +106,7 @@ schedule:
 - week: 4
   day: 3
   topic: "Tidy Data"
-  lecture: "Data Frames"
+  lecture: "Data Frames & dplyr"
   slides: "Lec07"
   r_readings:
     - text: "Tidy Data"
@@ -129,7 +129,7 @@ schedule:
 - week: 5
   day: 1
   topic: "Tidy Data"
-  lecture: "Data Frames (2)"
+  lecture: "pandas & polars"
   slides: ""
   r_readings: []
   py_readings:
