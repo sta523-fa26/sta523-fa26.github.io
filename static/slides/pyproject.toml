@@ -1,12 +1,15 @@
 [project]
-name = "website"
+name = "slides"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
     "numpy>=2.5.2",
+    "pandas>=3.0.5",
+    "polars>=1.44.2",
+    "pyarrow>=25.0.1",
 ]
 
 [tool.uv.workspace]
 members = [
-    "static/slides/notes",
+    "notes",
 ]

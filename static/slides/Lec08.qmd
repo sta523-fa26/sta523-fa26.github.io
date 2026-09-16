@@ -1,0 +1,999 @@
+---
+title: "pandas & polars"
+subtitle: "Lecture 08"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+
+options(width = 80)
+
+if (!file.exists("data/flights.parquet")) {
+  nanoparquet::write_parquet(nycflights13::flights, "data/flights.parquet")
+  readr::write_csv(nycflights13::flights, "data/flights.csv")
+}
+```
+
+```{python py_setup}
+#| include: false
+import numpy as np
+import pandas as pd
+import polars as pl
+
+pd.set_option("display.width", 80)
+pd.set_option("display.max_rows", 8)
+pd.set_option("display.min_rows", 4)
+
+pl.Config.set_tbl_rows(6)
+pl.Config.set_tbl_cols(6)
+pl.Config.set_tbl_width_chars(80)
+pl.Config.set_tbl_hide_dtype_separator(True)
+```
+
+# pandas
+
+## pandas
+
+Python has no built-in tabular structure, a data frame is something a library provides. pandas (2008) is the established choice - it is built on NumPy and borrows heavily from R, but differs from R's data frames in a few important ways that are the subject of this lecture.
+
+::: {.medium}
+Three classes do all of the work,
+
+* `Series` - a 1d typed array with an index (a column)
+
+* `DataFrame` - a collection of `Series` sharing an index (a table)
+
+* `Index` - the labels attached to rows and columns
+:::
+
+::: {.small}
+```{python}
+import pandas as pd
+pd.__version__
+```
+:::
+
+::: {.aside}
+pandas 3.0 (released early 2026) changed some long standing defaults - strings have their own dtype and copy-on-write is always on. Older tutorials and answers will show different behavior.
+:::
+
+
+## Series
+
+A `Series` is a 1d array of one dtype together with an *index* of labels - the closest thing in R is a named vector. The difference is that a Series always has an index (integer positions by default) and the index participates in lookup, alignment, and joins rather than being decoration.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+s = pd.Series([4, 2, 1, 3])
+s
+s.index
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+t = pd.Series(
+  [4, 2, 1, 3],
+  index=["a", "b", "c", "d"]
+)
+t
+```
+:::
+::::
+
+::: {.aside}
+A dict also works as input, its keys become the index - `pd.Series({"a": 4, "b": 2})`.
+:::
+
+
+## dtypes
+
+pandas dtypes come from NumPy (`int64`, `float64`, `bool`) plus its own extension dtypes (`str`, `category`, `datetime64`, ...). Where R coerces mixed values to a common type, pandas falls back to `object` - a column of arbitrary Python objects that behaves like a list rather than a vector, and is slow.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+pd.Series([1, 2, 3]).dtype
+pd.Series([1.5, 2]).dtype
+pd.Series([True, False]).dtype
+pd.Series(["a", "b"]).dtype
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pd.Series([1, "a", True]).dtype
+pd.Series([1, "a", True])
+pd.Series(["1", "2"]).astype("int64")
+```
+:::
+::::
+
+
+## Labels vs positions
+
+A pandas index can hold integers, so `[]` on a Series would be ambiguous - it uses labels (`t[1]` is a `KeyError`), positions go through `.iloc` and labels through `.loc`. Label slices include their endpoint, position slices do not.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+t["b"]
+t.loc["b":"c"]
+t[t > 2]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+t.iloc[1]
+t.iloc[1:3]
+```
+```{python}
+u = pd.Series([4, 2, 1, 3],
+              index=[3, 2, 1, 0])
+u[1]
+u.iloc[1]
+```
+:::
+::::
+
+
+## Index alignment
+
+The index is not just for lookup, arithmetic between Series aligns on labels rather than positions. The result spans the union of both indexes with `NaN` for labels missing on one side, and assigning a Series to a column aligns the same way.
+
+::: {.xsmall}
+```{python}
+m = pd.Series([1, 2, 3], index=["a", "b", "c"])
+n = pd.Series([10, 20, 30], index=["c", "b", "a"])
+d = pd.DataFrame({"x": [1, 2, 3]}, index=["a", "b", "c"])
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+m + n
+m + n[["a", "c"]]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+d["y"] = n[["a", "c"]]
+d
+```
+:::
+::::
+
+
+## DataFrame
+
+A `DataFrame` is a dict-like collection of Series sharing a row index, plus an index of column names - R's list of vectors with `names` and `row.names`. The difference is emphasis: R treats row names as an afterthought (tibbles drop them), the pandas index is central.
+
+::: {.xsmall}
+```{python}
+penguins = pd.read_csv("data/penguins.csv")
+penguins
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+penguins.index
+penguins.columns
+```
+:::
+
+
+## Column types
+
+Types are guessed from the file - there is no factor by default (`category` is opt in) and the two integer columns with missing values were upcast to `float64`. Asking for the `numpy_nullable` backend gives pandas' extension dtypes instead, which keep integers as integers (more on these shortly).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins.dtypes
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pd.read_csv(
+  "data/penguins.csv",
+  dtype_backend="numpy_nullable"
+).dtypes
+```
+:::
+::::
+
+
+## Missing values
+
+R has one `NA` that fits inside any vector type. NumPy has no missing value at all, so pandas adopted the floating point `NaN` as its sentinel - which means a missing value changes the dtype of a column: integers become `float64`, booleans become `object` holding `None`, and datetimes get their own `NaT`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+pd.Series([1, 2, None])
+pd.Series([True, False, None])
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pd.Series(["a", None])
+pd.Series(
+  [pd.Timestamp("2026-09-15"), None]
+)
+```
+:::
+::::
+
+::: {.aside}
+The `str` dtype uses `NaN` for missing strings as well, which is why `None` came back as `NaN` above.
+:::
+
+
+## Detecting missing values
+
+`NaN` is not equal to anything, including itself, so `==` cannot find missing values - `isna()` (and `notna()`) recognize `NaN`, `None`, `NaT`, and `pd.NA` alike. `dropna()` and `fillna()` are the usual next steps.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+s = pd.Series([1, 2, None])
+s == np.nan
+s.isna()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+s.isna().sum()
+s.dropna()
+s.fillna(0)
+```
+:::
+::::
+
+
+## Missing values in aggregations
+
+Reductions skip missing values by default (`skipna=True`), the opposite of R's `na.rm = FALSE` - a mean silently ignores the gaps and the sum of an entirely missing column is 0. `count()` gives the number of non-missing values, `isna().sum()` the number missing.
+
+::: {.xsmall}
+```{python}
+mass = penguins["body_mass_g"]
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+mass.mean()
+mass.mean(skipna=False)
+mass.count()
+penguins.dropna().shape
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+penguins.isna().sum()
+```
+:::
+::::
+
+
+## Nullable dtypes
+
+The extension dtypes `Int64`, `Float64`, `boolean`, and `string` (capitalized, unlike NumPy's) have a proper missing value, `pd.NA`, which keeps the column's dtype and propagates through arithmetic and comparisons with three valued logic - `pd.NA == 1` is `<NA>` rather than `False`. They are opt in, via `dtype=`, `dtype_backend=` when reading, or `convert_dtypes()`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+t = pd.Series(
+  [1, 2, None], dtype="Int64"
+)
+t
+t > 1
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pd.NA == 1
+pd.NA | True
+pd.NA & True
+```
+```{python}
+#| error: true
+bool(pd.NA)
+```
+:::
+::::
+
+::: {.aside}
+So a pandas column can hold `NaN`, `None`, `NaT`, or `pd.NA` depending on its dtype - `isna()` treats all of them as missing, which is why it, and not `==`, is the tool to use.
+:::
+
+
+## Subsetting with `[]`
+
+`df[...]` is overloaded on the type of its argument - a string picks a column, a list of strings a set of columns, and a slice or boolean Series picks rows. There is no two argument `df[i, j]` form.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins["species"]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+penguins[["species", "island"]]
+```
+:::
+::::
+
+::: {.fragment .xsmall}
+```{python}
+penguins[penguins["body_mass_g"] > 6000]
+```
+:::
+
+::: {.aside}
+Note the inversion from R - `df["x"]` returns a Series (R's `df[["x"]]`) and `df[["x"]]` a DataFrame (R's `df["x"]`).
+:::
+
+
+## `.loc` and `.iloc`
+
+Two dimensional subsetting like R's `df[i, j]` goes through the `.loc` (labels) and `.iloc` (positions) accessors - each takes `[rows, cols]` where either can be a single value, a list, a slice, or a boolean mask. The same slice means different rows in the two.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins.loc[0:2, "species":"island"]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+penguins.iloc[0:2, 0:2]
+```
+:::
+::::
+
+::: {.fragment .xsmall}
+```{python}
+penguins.loc[penguins["species"] == "Gentoo", ["species", "body_mass_g"]]
+```
+:::
+
+
+## Rows are Series too
+
+Selecting a single row returns a Series, and a Series has one dtype - so a heterogeneous row is upcast to `object`. R keeps a single row as a data frame for exactly this reason. Use a list to get a one row DataFrame instead.
+
+::: {.xsmall}
+```{python}
+cols = ["species", "year"]
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins.loc[0, cols]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+r = penguins.loc[[0], cols]
+r
+r.dtypes
+```
+:::
+::::
+
+
+## Mutation
+
+DataFrames are mutable Python objects - `df["z"] = ...` changes the frame in place, and any other name bound to the same object sees the change (reference semantics, Lecture 06). This is unlike R's copy-on-modify, where the same code would leave `d` untouched. `copy()` makes an independent frame, and methods such as `assign()` return a new one.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+d = pd.DataFrame({"x": [1, 2, 3]})
+d2 = d
+d2["y"] = d2["x"] * 2
+d
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+d3 = d.copy()
+d3["z"] = 1
+d.columns
+```
+:::
+::::
+
+::: {.aside}
+pandas 3.0 turned on copy-on-write - subsets and `.copy()` are always independent of their source, so aliasing a name is the only remaining way to modify a frame by accident. `inplace=True` arguments still exist but are discouraged.
+:::
+
+
+## Referring to columns
+
+dplyr's `filter(df, x > 1)` works because R captures the unevaluated expression. Python evaluates arguments eagerly and a bare `x` is a `NameError`, so pandas offers several workarounds, none of which are quite as convenient.
+
+::: {.xsmall}
+```{python}
+pg = penguins[["species", "island", "body_mass_g"]]
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+Explicit - repeat the frame's name,
+```{python}
+pg[pg["body_mass_g"] > 6000]
+```
+Callable - a function receiving the frame,
+```{python}
+pg[lambda d: d["body_mass_g"] > 6000]
+```
+:::
+
+::: {.column width='50%' .fragment}
+String - a mini language parsed by pandas,
+```{python}
+pg.query("body_mass_g > 6000")
+```
+Expression - `pd.col()`, new in pandas 3.0,
+```{python}
+pg[pd.col("body_mass_g") > 6000]
+```
+:::
+::::
+
+::: {.aside}
+`pd.col()` is borrowed from polars (later in this lecture) and still has some rough edges.
+:::
+
+
+## Method chaining
+
+There is no pipe, but since nearly every method returns a new DataFrame the equivalent is a chain of methods, wrapped in parentheses so it can span lines. Callables and `pd.col()` are what let a step refer to columns of the intermediate result.
+
+::: {.xsmall}
+```{python}
+(penguins
+  .query("species == 'Gentoo'")
+  .assign(kg = pd.col("body_mass_g") / 1000)
+  .sort_values("kg", ascending=False)
+  [["species", "island", "kg"]]
+  .head(3)
+)
+```
+:::
+
+::: {.aside}
+`.pipe(f, ...)` calls `f(df, ...)` as a step in the chain, for anything that is not already a method.
+:::
+
+
+## groupby
+
+Split-apply-combine works the same way - `groupby()` returns a lazy `DataFrameGroupBy` and nothing is computed until an aggregation is applied. Unlike dplyr the group keys become the *index* of the result (`as_index=False` keeps them as columns, like `.by`), and aggregations are given as `(column, function)` pairs.
+
+::: {.xsmall}
+```{python}
+g = penguins.groupby("species")
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+type(g)
+g["body_mass_g"].mean()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+(penguins
+  .groupby("species", as_index=False)
+  .agg(
+    n = ("species", "size"),
+    mass = ("body_mass_g", "mean")
+  )
+)
+```
+:::
+::::
+
+
+## Grouped transforms
+
+`transform()` returns a result the same length as its input, broadcasting each group's value back over that group's rows - the equivalent of `mutate()` with `.by`. Since the result shares the frame's index it can be used directly in arithmetic or assignment.
+
+::: {.xsmall}
+```{python}
+avg = g["body_mass_g"].transform("mean")
+avg.head(3)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+penguins.assign(rel = pd.col("body_mass_g") / avg)[["species", "rel"]].head(3)
+```
+:::
+
+::: {.aside}
+`g.filter(f)` keeps whole groups for which `f(group)` is true, the analog of `filter(n() > 10, .by = g)`.
+:::
+
+
+## MultiIndex
+
+Group by two keys and the result has a hierarchical `MultiIndex`, aggregate a column two ways and the columns get one too. There is no R analog (the tidyverse keeps keys as ordinary columns) and most code is simpler after a `reset_index()` back to a flat table.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+(penguins
+  .groupby(["species", "island"])
+  ["body_mass_g"].mean()
+)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+(penguins
+  .groupby("species")
+  .agg({
+    "body_mass_g": ["mean", "max"]
+  })
+)
+```
+:::
+::::
+
+::: {.aside}
+`.index` on the left result and `.columns` on the right are both `MultiIndex` objects - indexing into them uses tuples, e.g. `res[("body_mass_g", "max")]`.
+:::
+
+
+## Exercise 1
+
+Using pandas and `data/penguins.csv`,
+
+::: {.medium}
+1. Select the rows for Gentoo penguins with a body mass above 5000 g, keeping only the `species`, `island`, and `body_mass_g` columns.
+
+2. Add a column `body_mass_kg` containing the body mass in kilograms.
+
+3. Calculate the mean bill length and the number of penguins for each combination of species and island - the result should be a flat table with `species` and `island` as columns, not an index.
+:::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# {#polars-logo data-menu-title="polars" .nostretch}
+
+![](imgs/polars_github_banner.svg){fig-align="center" width="80%"}
+
+
+## polars
+
+polars (2020) is a newer data frame library written in Rust on top of Apache Arrow's memory layout, with bindings for Python, R, and JavaScript. Rather than extend NumPy conventions it was designed from scratch around a few ideas,
+
+::: {.medium}
+* No index - rows are only ever positions
+
+* A strict schema - every column's dtype is known and never silently changes
+
+* Expressions - computations on columns are objects, built up and then evaluated in a context
+
+* Lazy evaluation - queries are planned and optimized before running, on all available cores
+:::
+
+::: {.small}
+```{python}
+import polars as pl
+pl.__version__
+```
+:::
+
+
+## Series
+
+A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or one side has length one). This is R's rule without recycling.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+pl.Series("x", [4, 2, 1, 3])
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+a = pl.Series([1, 2, 3])
+b = pl.Series([10, 20, 30])
+a + b
+```
+:::
+::::
+
+::: {.aside}
+Construction is strict as well - `pl.Series([1, "a", True])` is a `TypeError` rather than an `object` column.
+:::
+
+
+## DataFrame
+
+The print shows the shape and every column's dtype, much like a tibble. Note that the integer columns stayed integers despite the missing values, and that `"NA"` had to be declared as a missing value marker - polars does not guess.
+
+::: {.xsmall}
+```{python}
+penguins = pl.read_csv("data/penguins.csv", null_values="NA")
+penguins
+```
+:::
+
+
+## Subsetting
+
+Without an index there is no `.loc` / `.iloc` distinction - `df[...]` takes column names or row positions and a slice is just a slice. This is fine for a quick look, but the idiomatic way to subset is with expressions in `filter()` and `select()`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins["species"]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+penguins[0:3, ["species", "island"]]
+penguins[0, "species"]
+```
+:::
+::::
+
+
+## Missing values
+
+Missing data is `null` in every dtype (like R's `NA`) and `NaN` is just a floating point value, distinct from missing. Aggregations skip `null` by default and propagate `NaN`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+s = pl.Series([1.0, None, np.nan])
+s
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+s.is_null().to_list()
+s.is_nan().to_list()
+s.mean()
+s.fill_nan(None).mean()
+```
+:::
+::::
+
+::: {.aside}
+R blurs this line - `is.na(NaN)` is `TRUE` and `mean(c(1, NaN))` is `NaN`, pandas treats `NaN` *as* the missing value.
+:::
+
+
+## Expressions
+
+`pl.col("x")` does not return a column, it returns an *expression* - a description of a computation that is not attached to any DataFrame and has not been evaluated. Expressions compose with operators and methods and are only evaluated when handed to a context. This is polars' answer to data masking - build an object that represents the code rather than capturing it.
+
+::: {.xsmall}
+```{python}
+mass_kg = pl.col("body_mass_g") / 1000
+mass_kg
+type(mass_kg)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+pl.col("body_mass_g").mean().alias("avg_mass")
+```
+:::
+
+::: {.aside}
+The R analog is a formula or a quosure - code stored now to be evaluated against data later.
+:::
+
+
+## Contexts
+
+A context is a DataFrame method that evaluates expressions against its columns, each corresponding to a dplyr verb,
+
+::: {.small}
+| Context             | Result                                          | dplyr                        |
+|:--------------------|:------------------------------------------------|:-----------------------------|
+| `select()`          | a new frame containing only these expressions   | `select()`, `summarize()`    |
+| `with_columns()`    | the frame with these expressions added          | `mutate()`                   |
+| `filter()`          | the rows where these expressions are true       | `filter()`                   |
+| `group_by().agg()`  | one row per group of these expressions          | `group_by() |> summarize()`  |
+:::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins.select(
+  "species", mass_kg.alias("mass_kg")
+).head(2)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+penguins.filter(
+  pl.col("body_mass_g") > 6000
+).select("species", "body_mass_g")
+```
+:::
+::::
+
+
+## Expression expansion
+
+One expression can expand to many columns - by listing names, by dtype, or with selectors from `polars.selectors`. This is `across()` with tidy selection, available in every context.
+
+::: {.xsmall}
+```{python}
+import polars.selectors as cs
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+penguins.select(cs.ends_with("_mm").mean().name.suffix("_mean"))
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+penguins.select(pl.col(pl.String).n_unique())
+```
+:::
+
+
+## group_by
+
+`group_by()` followed by `agg()` evaluates each expression once per group and the keys come back as ordinary columns (like `.by`), in no guaranteed order. Since expressions are values the same one can be reused across contexts, and `.over()` turns an aggregation into a window computation for a grouped mutate.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+mass = pl.col("body_mass_g")
+penguins.group_by("species").agg(
+  n = pl.len(), avg = mass.mean()
+).sort("species")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+avg = mass.mean().over("species")
+(penguins
+  .with_columns(rel = mass / avg)
+  .select("species", "rel")
+  .head(2)
+)
+```
+:::
+::::
+
+
+## Lazy evaluation
+
+A `LazyFrame` has the same API as a `DataFrame` but records the query instead of running it. The `scan_*()` readers start lazy, `.lazy()` converts an existing frame, and nothing is computed until `.collect()` is called.
+
+::: {.xsmall}
+```{python}
+q = (
+  pl.scan_parquet("data/flights.parquet")
+  .filter(pl.col("dest") == "LAX")
+  .group_by("carrier")
+  .agg(pl.len(), pl.col("dep_delay").mean())
+  .sort("len", descending=True)
+)
+type(q)
+```
+:::
+
+. . .
+
+::: {.medium}
+Recording the whole query before running it is what makes optimization possible - the same idea underlies SQL databases and dbplyr, which we will see later in the course.
+:::
+
+
+## Query plan
+
+Before running, the plan is optimized - here only 3 of the 19 columns are read from the parquet file and the filter is applied during the scan (projection and predicate *pushdown*).
+
+::: {.xsmall}
+```{python}
+print( q.explain() )
+```
+:::
+
+
+## Collecting
+
+`collect()` runs the optimized plan and returns an ordinary DataFrame. Since the plan is known up front it can also be executed in a streaming fashion, in batches, for data larger than memory (`collect(engine="streaming")`).
+
+::: {.xsmall}
+```{python}
+q.collect()
+```
+:::
+
+
+## Speed
+
+Both libraries are compiled underneath, but polars is multithreaded and its optimizer can avoid work entirely. The gap is largest for parsing text and for pipelines where pushdown reduces the data read.
+
+::: {.xsmall}
+```{python}
+import timeit
+def time(f): return round( min(timeit.repeat(f, number=1, repeat=5)), 4 )
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+time(lambda: pd.read_csv("data/flights.csv"))
+time(lambda: pl.read_csv("data/flights.csv", null_values="NA"))
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+flights_pd = pd.read_parquet("data/flights.parquet")
+time(lambda: flights_pd.groupby("carrier")["dep_delay"].mean())
+time(lambda: q.collect())
+```
+:::
+
+
+## Interop
+
+All three implementations can exchange data through Apache Arrow - polars and pandas convert directly, and R's arrow and reticulate packages move tables in and out of Python. The dtype names differ but the underlying data does not. For anything on disk, parquet is the shared format (Lecture 07).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+penguins.to_pandas().dtypes
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+penguins.to_arrow().schema
+```
+:::
+::::
+
+
+## Exercise 2
+
+Using polars and `data/penguins.csv`,
+
+::: {.medium}
+1. Repeat the three tasks from Exercise 1 - select the Gentoo penguins above 5000 g keeping `species`, `island`, and `body_mass_g`, add a `body_mass_kg` column, and calculate the mean bill length and count for each species and island.
+
+2. Rewrite part 3 to start from `pl.scan_csv()` and look at the output of `explain()` before collecting - how many of the 8 columns does polars read?
+:::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# Summary
+
+## Three data frames
+
+::: {.small}
+| Concept            | R / tibble                     | pandas                                  | polars                           |
+|:-------------------|:-------------------------------|:----------------------------------------|:---------------------------------|
+| column             | atomic vector                  | `Series` (values + index)               | `Series` (values only)           |
+| row labels         | `row.names`, rarely used       | `Index`, central                        | none                             |
+| alignment          | by position, with recycling    | by index label                          | by position, lengths must match  |
+| mixed types        | coerced to a common type       | `object` dtype                          | error                            |
+| missing values     | `NA` in any type               | `NaN` / `None` / `NaT` / `pd.NA` by dtype | `null` in any type             |
+| column references  | data masking                   | strings, callables, `pd.col()`          | `pl.col()` expressions           |
+| mutation           | copy-on-modify                 | in place, copy-on-write for subsets     | immutable                        |
+| grouped result     | keys as columns                | keys as (Multi)Index                    | keys as columns                  |
+| laziness           | none (dbplyr, dtplyr)          | none                                    | `LazyFrame` + optimizer          |
+| engine             | C, single threaded             | NumPy, single threaded                  | Rust + Arrow, multithreaded      |
+:::
+
+
+## Verbs
+
+::: {.xsmall}
+| dplyr                              | pandas                                   | polars                                   |
+|:-----------------------------------|:-----------------------------------------|:-----------------------------------------|
+| `filter(x > 1)`                    | `query("x > 1")`, `[pd.col("x") > 1]`    | `filter(pl.col("x") > 1)`                |
+| `select(x, y)`                     | `[["x", "y"]]`, `filter(regex=)`         | `select("x", "y")`, `select(cs.…())`     |
+| `mutate(z = x * 2)`                | `assign(z = pd.col("x") * 2)`            | `with_columns(z = pl.col("x") * 2)`      |
+| `arrange(desc(x))`                 | `sort_values("x", ascending=False)`      | `sort("x", descending=True)`             |
+| `summarize(m = mean(x))`           | `agg(m = ("x", "mean"))`                 | `select(m = pl.col("x").mean())`         |
+| `group_by(g)`                      | `groupby("g", as_index=False)`           | `group_by("g")`                          |
+| `mutate(m = mean(x), .by = g)`     | `groupby("g")["x"].transform("mean")`    | `pl.col("x").mean().over("g")`           |
+| `across(where(is.numeric), f)`     | `select_dtypes("number").apply(f)`       | `cs.numeric().f()`                       |
+| `rename(new = old)`                | `rename(columns={"old": "new"})`         | `rename({"old": "new"})`                 |
+| `left_join(y, by = "k")`           | `merge(y, on="k", how="left")`           | `join(y, on="k", how="left")`            |
+| `pivot_longer()` / `pivot_wider()` | `melt()` / `pivot()`                     | `unpivot()` / `pivot()`                  |
+:::
+
+
+## Takeaways
+
+::: {.medium}
+* A pandas Series is a typed array plus an index, and the index is what makes pandas different from R - lookup is by label, arithmetic and assignment align on labels, and group keys end up in the index. `.loc` and `.iloc` exist because `[]` cannot tell labels from positions.
+
+* pandas dtypes are messier than R's - mixed data becomes `object`, and missing values are `NaN`, `None`, `NaT`, or `pd.NA` depending on the dtype, with `NaN` silently turning integer columns into floats. Use `isna()`, never `==`, and remember that aggregations skip missing values by default.
+
+* Python has no data masking, so pandas refers to columns with strings, callables, or `pd.col()` and chains methods instead of piping. DataFrames are mutable, so aliases matter.
+
+* polars drops the index and adds a strict schema, `null` for every dtype, expressions evaluated inside contexts, and a lazy mode with a query optimizer - much of which will look familiar again when we get to SQL and DuckDB.
+:::

@@ -79,3 +79,11 @@ Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd
 - Use `=` for assignment (not `<-`)
 - Prefer `pkg::function()` syntax over importing functions
 - Minimize comments (only for "why", not "how")
+
+## New Lecture Workflow
+
+A new lecture deck is not published until it has been revised. When drafting a new `LecXX.qmd`, do not add or fill in its `data/schedule.yaml` entry (the `slides:` field is what links the deck from the course schedule); the user will say when the deck is ready to be scheduled and published.
+
+## Python Environment
+
+The uv project for the course's Python code lives in `static/slides/` (`pyproject.toml`, `uv.lock`, `.venv`), with `static/slides/notes` as a workspace member (`notes/.venv` is a symlink to `../.venv`). It sits there because reticulate only finds a `.venv` in the working directory of the document being rendered, so a plain `quarto render`/`quarto preview` from any launcher picks it up. Add Python dependencies with `uv add <pkg>` run inside `static/slides` (never `uv pip install`, which a later sync would undo); run ad hoc checks with `static/slides/.venv/bin/python`. `config.yaml` ignores `.venv` so Hugo does not copy it into `docs/`.

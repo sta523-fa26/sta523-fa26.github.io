@@ -1,0 +1,95 @@
+---
+title: "Lecture 08 - Exercise solutions"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+```{python setup}
+#| include: false
+import pandas as pd
+import polars as pl
+
+pd.set_option("display.width", 80)
+```
+
+
+# Exercise 1
+
+Using pandas and `penguins.csv`: select the Gentoo penguins with body mass above 5000 g keeping `species`, `island`, and `body_mass_g`, add a `body_mass_kg` column, and calculate the mean bill length and count for each species and island as a flat table.
+
+```{python}
+penguins = pd.read_csv("../data/penguins.csv")
+```
+
+```{python}
+gentoo = penguins.loc[
+  (penguins["species"] == "Gentoo") & (penguins["body_mass_g"] > 5000),
+  ["species", "island", "body_mass_g"]
+]
+gentoo.head()
+gentoo.shape
+```
+
+```{python}
+penguins = penguins.assign(body_mass_kg = pd.col("body_mass_g") / 1000)
+penguins.head()
+```
+
+```{python}
+(penguins
+  .groupby(["species", "island"], as_index=False)
+  .agg(
+    bill_length = ("bill_length_mm", "mean"),
+    n = ("species", "size")
+  )
+)
+```
+
+
+# Exercise 2
+
+Using polars: repeat the three tasks from Exercise 1, then rewrite part 3 to start from `pl.scan_csv()` and look at `explain()` before collecting.
+
+```{python}
+penguins = pl.read_csv("../data/penguins.csv", null_values="NA")
+```
+
+```{python}
+penguins.filter(
+  pl.col("species") == "Gentoo",
+  pl.col("body_mass_g") > 5000
+).select("species", "island", "body_mass_g")
+```
+
+```{python}
+penguins = penguins.with_columns(body_mass_kg = pl.col("body_mass_g") / 1000)
+penguins.head()
+```
+
+```{python}
+penguins.group_by("species", "island").agg(
+  bill_length = pl.col("bill_length_mm").mean(),
+  n = pl.len()
+).sort("species", "island")
+```
+
+```{python}
+q = (
+  pl.scan_csv("../data/penguins.csv", null_values="NA")
+  .group_by("species", "island")
+  .agg(
+    bill_length = pl.col("bill_length_mm").mean(),
+    n = pl.len()
+  )
+  .sort("species", "island")
+)
+print( q.explain() )  # PROJECT 3/8 COLUMNS
+q.collect()
+```

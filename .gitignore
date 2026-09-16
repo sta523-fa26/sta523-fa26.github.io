@@ -10,3 +10,8 @@ static/slides/data/cifar10/
 docs/slides/data/cifar10/
 bfg-*.jar
 *.bfg-report/
+
+static/slides/data/flights.parquet
+static/slides/data/flights.csv
+docs/slides/data/flights.parquet
+docs/slides/data/flights.csv

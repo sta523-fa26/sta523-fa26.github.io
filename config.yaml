@@ -12,6 +12,8 @@ module:
         - "! /slides/prev*/**"
         - "! /slides/notes"
         - "! /slides/notes/**"
+        - "! /slides/.venv"
+        - "! /slides/.venv/**"
 publishDir: "docs"
 disableKinds:
   - taxonomy
