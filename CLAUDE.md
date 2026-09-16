@@ -48,6 +48,18 @@ Note: When reviewing slides, do not review or comment on the content of exercise
 
 Note: Avoid ending a slide with a text statement revealed as a fragment (`. . .` followed by prose); this usually reads as a fact tacked on after the fact. Fold the point into the slide's intro text or an `::: {.aside}`, or drop it. Reserve end-of-slide text fragments for genuinely important punchlines, used sparingly.
 
+Note: Use italics (`*text*`) and bold (`**text**`) very, very sparingly in slide prose. Emphasis should be rare enough that it stands out; most sentences and terms need none.
+
+Note: Use `::: {.aside}` blocks judiciously. There is no point in having an aside on every slide; most slides should have none. An aside is for a genuinely useful footnote (a caveat, a pointer to docs, a gotcha), not a place to park every extra detail or a second explanation of the slide. If a point matters, put it in the slide text; if it does not, drop it.
+
+Note: When a `#` section header introduces a package that has a hex sticker in `static/slides/imgs/` (`hex-*.png` or `hex_*.png`), use the sticker as the section slide instead of a plain name, e.g.
+
+```
+# {#tibble-logo data-menu-title="tibble" .nostretch}
+
+![](imgs/hex-tibble.png){fig-align="center" width="32%"}
+```
+
 ## Lecture Notes
 
 Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd`. Keep them minimal:

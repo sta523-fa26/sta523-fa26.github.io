@@ -1,0 +1,109 @@
+---
+title: "Lecture 07 - Exercise solutions"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+```{r setup}
+#| include: false
+options(width = 80)
+```
+
+
+# Exercise 1
+
+Using base R and the `penguins` data frame from `palmerpenguins`: convert it to a plain data frame and check its structure, select the Gentoo penguins with body mass above 5000 g keeping `species`, `island`, and `body_mass_g`, add a `body_mass_kg` column, and calculate the mean bill length of the Adelie penguins ignoring missing values.
+
+```{r}
+p = as.data.frame(palmerpenguins::penguins)
+str(p)
+```
+
+```{r}
+# which() drops the row with a missing body mass, a plain logical index keeps it as a row of NAs
+g = p[which(p$species == "Gentoo" & p$body_mass_g > 5000), c("species", "island", "body_mass_g")]
+head(g)
+nrow(g)
+```
+
+```{r}
+p$body_mass_kg = p$body_mass_g / 1000
+str(p)
+```
+
+```{r}
+mean(p$bill_length_mm[p$species == "Adelie"], na.rm = TRUE)
+```
+
+
+# Exercise 2
+
+Write `penguins` to a CSV and a parquet file in `tempdir()` and compare the file sizes, read both back and compare the column types to the original, then read only the `species` and `body_mass_g` columns from the parquet file with `arrow::read_parquet()`.
+
+```{r}
+dir = tempdir()
+readr::write_csv(palmerpenguins::penguins, file.path(dir, "penguins.csv"))
+nanoparquet::write_parquet(palmerpenguins::penguins, file.path(dir, "penguins.parquet"))
+file.size(file.path(dir, c("penguins.csv", "penguins.parquet")))
+```
+
+```{r}
+dplyr::glimpse(palmerpenguins::penguins)
+dplyr::glimpse(readr::read_csv(file.path(dir, "penguins.csv"), show_col_types = FALSE))
+dplyr::glimpse(nanoparquet::read_parquet(file.path(dir, "penguins.parquet")))
+```
+
+```{r}
+arrow::read_parquet(
+  file.path(dir, "penguins.parquet"),
+  col_select = c("species", "body_mass_g")
+)
+```
+
+
+# Example
+
+Using `flights`: how many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK and what was their average duration, which plane flew out of each New York airport the most, which 5 days have the lowest average departure delay, and which flight has the largest arrival delay as a percentage of its scheduled air time.
+
+```{r}
+#| message: false
+library(dplyr)
+library(nycflights13)
+```
+
+```{r}
+flights |>
+  filter(dest == "LAX", carrier %in% c("AA", "UA", "DL", "US"), month == 5, origin == "JFK") |>
+  summarize(
+    n = n(),
+    avg_duration = mean(air_time, na.rm = TRUE),
+    .by = carrier
+  )
+```
+
+```{r}
+flights |>
+  filter(!is.na(tailnum)) |>
+  count(origin, tailnum) |>
+  slice_max(n, n = 1, by = origin)
+```
+
+```{r}
+flights |>
+  summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE), .by = c(month, day)) |>
+  slice_min(avg_dep_delay, n = 5)
+```
+
+```{r}
+flights |>
+  mutate(arr_delay_pct = arr_delay / air_time * 100) |>
+  slice_max(arr_delay_pct, n = 1) |>
+  select(year:day, carrier, flight, origin, dest, arr_delay, air_time, arr_delay_pct)
+```

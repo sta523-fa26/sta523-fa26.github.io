@@ -107,7 +107,7 @@ schedule:
   day: 3
   topic: "Tidy Data"
   lecture: "Data Frames"
-  slides: ""
+  slides: "Lec07"
   r_readings:
     - text: "Tidy Data"
       link: https://vita.had.co.nz/papers/tidy-data.pdf
@@ -117,6 +117,10 @@ schedule:
       link: https://r4ds.hadley.nz/data-tidy.html
     - text: "tidyr pivoting"
       link: https://tidyr.tidyverse.org/articles/pivot.html
+    - text: "rlang - What is data-masking and why do I need {{?"
+      link: https://rlang.r-lib.org/reference/topic-data-mask.html
+    - text: "rlang - Data mask programming patterns"
+      link: https://rlang.r-lib.org/reference/topic-data-mask-programming.html
   py_readings:
     - text: "Python for Data Analysis - pandas basics"
       link: https://wesmckinney.com/book/pandas-basics.html

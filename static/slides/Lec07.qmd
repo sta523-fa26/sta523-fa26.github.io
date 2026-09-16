@@ -1,0 +1,1030 @@
+---
+title: "Data Frames"
+subtitle: "Lecture 07"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+
+library(palmerpenguins)
+
+options(
+  width = 80,
+  pillar.print_max = 5,
+  pillar.print_min = 5
+)
+```
+
+# Data frames in R
+
+## Data frames
+
+A data frame is R's structure for heterogeneous tabular data - the table is composed of a generic vector containing one or more equal length vectors forming the columns.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+(df = data.frame(
+  x = 1:3,
+  y = c("a", "b", "c"),
+  z = TRUE              # Recycled
+))
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+str(df)
+```
+```{r}
+nrow(df)
+ncol(df)
+```
+:::
+::::
+
+
+
+## Data frame structure
+
+Beyond the`list` and equal length vectors all data frames have three attributes: `names` (the columns), `row.names`, and `class`.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+typeof(df)
+class(df)
+str( attributes(df) )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+str( unclass(df) )
+```
+```{r}
+length(df)
+names(df)
+```
+:::
+::::
+
+## Build your own data frame
+
+Since it is only a list plus attributes, we can build a data frame by hand just like we constructed a factor previously.
+
+::: {.xsmall}
+```{r}
+l = list(x = 1:3, y = c("a", "b", "c"), z = c(TRUE, TRUE, TRUE))
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+attr(l, "class") = "data.frame"
+l
+```
+```{r}
+attr(l, "row.names") = 1:3
+l
+identical(l, df)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+s = structure(
+  list(x = 1:3, y = c("a", "b", "c"),
+       z = c(TRUE, TRUE, TRUE)),
+  class = "data.frame",
+  row.names = 1:3
+)
+s
+identical(s, df)
+```
+:::
+::::
+
+
+
+## Data frames are S3 objects
+
+Everything that makes a data frame behave like a table comes from S3 methods dispatched on the `data.frame` class.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+length( methods(class = "data.frame") )
+```
+```{r}
+sloop::s3_dispatch( print(df) )
+sloop::s3_dispatch( df[1, ] )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+sloop::s3_dispatch( dim(df) )
+```
+```{r}
+dim(df)
+dim( unclass(df) )
+```
+:::
+::::
+
+
+## Recycling
+
+`data.frame()` recycles shorter columns to the longest column's length (as long as it is a whole multiple, anything else is an error).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+data.frame(x = 1:4, y = "a")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+data.frame(x = 1:4, y = 1:2)
+```
+:::
+::::
+
+. . .
+
+::: {.xsmall}
+```{r}
+#| error: true
+data.frame(x = 1:4, y = 1:3)
+```
+:::
+
+
+
+## Subsetting
+
+::: {.msmall}
+A data frame is a named list that also has a matrix like shape, so both the list and matrix subsetting rules from earlier lectures apply:
+
+* List style (one index) - `df$x` and `df[["x"]]` return a column as a vector, while `df["x"]` and `df[c("x", "z")]` return a smaller data frame.
+
+* Matrix style (two indices) - `df[rows, cols]` where each index can be positive or negative integers, logicals, or names, and an empty index keeps everything, e.g. `df[df$x > 1, c("x", "y")]`.
+
+* Assignment works with all of these forms - `df$w = df$x * 2` adds a column, `df[df$x > 1, "y"] = "zz"` replaces values, and `df$z = NULL` removes a column.
+:::
+
+. . .
+
+::: {.msmall}
+As with matrices, a single column is *simplified* to a vector, but a single row is *preserved* as a data frame since its values are heterogeneous - `drop` controls this.
+:::
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+df[, "x"]
+df[, "x", drop = FALSE]
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+df[1, ]
+df[1, , drop = TRUE] |> str()
+```
+:::
+::::
+
+
+## Exercise 1
+
+Using base R and the `penguins` data frame from the `palmerpenguins` package,
+
+::: {.medium}
+1. Select the rows for Gentoo penguins with a body mass above 5000 g, keeping only the `species`, `island`, and `body_mass_g` columns.
+
+2. Add a column `body_mass_kg` containing the body mass in kilograms.
+
+3. Calculate the mean bill length (in mm) of the Adelie penguins, ignoring missing values.
+:::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 3)
+```
+
+
+# {#tibble-logo data-menu-title="tibble" .nostretch}
+
+![](imgs/hex-tibble.png){fig-align="center" width="45%"}
+
+
+## Modern data frames
+
+The tidyverse's tibble package provides `tbl_df` (and other S3 classes and methods) as an extension to data frames.
+
+::: {.xsmall}
+```{r}
+library(tibble)
+df = data.frame(x = 1:3, y = c("a", "b", "c"), z = TRUE)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+tb = as_tibble(df)
+class(tb)
+inherits(tb, "data.frame")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+str( unclass(tb) )
+```
+:::
+::::
+
+
+
+## Printing {.scrollable}
+
+Data frames print every row and column, tibbles print what fits along with the dimensions and column types.
+
+```{r}
+#| include: false
+options(width = 40)
+```
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+as.data.frame(penguins)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+penguins
+```
+:::
+::::
+
+```{r}
+#| include: false
+options(width = 80)
+```
+
+
+## Tibbles are strict - subsetting
+
+Tibbles never simplify with `[` (there is no `drop` surprise), and `$` does not partially match column names.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+tb[, 1]
+tb[1, ]
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+tb[[1]]
+tb$x
+```
+:::
+::::
+
+. . .
+
+
+::: {.columns .xsmall}
+::: {.column}
+```{r}
+penguins$sp
+```
+:::
+
+::: {.column}
+```{r}
+as.data.frame(penguins)$sp |> head()
+```
+:::
+:::
+
+
+
+## Tibbles are strict - construction
+
+`tibble()` only recycles length one values, never coerces strings to factors, leaves column names alone, and lets later columns refer to earlier ones.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+tibble(x = 1:4, y = 1:2)
+```
+```{r}
+names( data.frame(`a b` = 1, `1x` = 2) )
+names( tibble(`a b` = 1, `1x` = 2) )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+#| error: true
+data.frame(x = 1:3, y = x^2)
+```
+```{r}
+tibble(x = 1:3, y = x^2)
+```
+:::
+::::
+
+
+## Constructing tibbles
+
+:::: {.columns }
+::: {.column width='50%'}
+`tribble()` builds a tibble row by row, which is convenient for small hand-entered tables,
+:::
+
+::: {.column width='50%'}
+`as_tibble()` converts data frames, matrices, and lists of columns,
+:::
+::::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+tribble(
+  ~species,    ~n,
+  "Adelie",    152,
+  "Gentoo",    124,
+  "Chinstrap",  68
+)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+as_tibble(
+  list(x = 1:2, y = c("a", "b"))
+)
+```
+:::
+::::
+
+## List columns
+
+A column only needs to be a vector of the right length, and lists are also vectors - a *list column* holds an arbitrary object in each cell. `tibble()` supports them directly, `data.frame()` needs `I()`.
+
+::: {.xsmall}
+```{r}
+v = list(1:3, c("a", "b"))
+```
+:::
+
+. . .
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+tibble(id = 1:2, vals = v)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+data.frame(id = 1:2, vals = I(v))
+```
+:::
+::::
+
+::: {.aside}
+Without `I()`, `data.frame()` treats a list argument as a set of columns to splice in and errors on the mismatched lengths.
+:::
+
+
+# Column-oriented data
+
+## Rows or columns?
+
+A table can be stored as a collection of *rows* (records) or a collection of *columns* (variables).
+
+:::: {.columns .small}
+::: {.column width='50%'}
+Row-oriented - a list of records:
+:::
+
+::: {.column width='50%'}
+Column-oriented - a list of vectors:
+:::
+::::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+recs = list(
+  list(x = 1, y = "a"),
+  list(x = 2, y = "b"),
+  list(x = 3, y = "c")
+)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+cols = list(
+  x = c(1, 2, 3),
+  y = c("a", "b", "c")
+)
+```
+:::
+::::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+Rows make records cheap: `recs[[i]]` is one element and a new record is one append. A variable is scattered across all $n$ records and must be gathered by a loop before anything vectorized can happen.
+:::
+
+::: {.column width='50%'}
+Columns make variables cheap: `cols$x` is one element and already a typed vector, so vectorized functions apply directly. A record is scattered across all $p$ columns and must be gathered and assembled.
+:::
+::::
+
+. . .
+
+Analysis works down variables far more often than across records, so R and pandas chose columns. Transactional databases and web APIs work one record at a time and typically chose rows.
+
+
+
+## Why columns?
+
+::: {.medium}
+* Each column is one typed vector stored contiguously - exactly what vectorized operations expect. `df$x * 2` and `mean(df$x)` work on the column directly, no unpacking of records needed.
+
+* Type information is stored once per column rather than once per value, so memory use is compact and the type of a column is known without scanning it or storing a separate schema.
+
+* Row access is the awkward direction - `df[i, ]` must extract one element from every column and assemble a new data frame.
+:::
+
+
+## Example data
+
+The `nycflights13` package contains every flight that departed from a New York City airport in 2013 - large enough for performance to matter.
+
+::: {.xsmall}
+```{r}
+library(nycflights13)
+flights
+```
+:::
+
+
+## Row iteration in R
+
+::: {.xsmall}
+```{r}
+d = as.data.frame(flights)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+by_row = function(d) {
+  out = numeric(nrow(d))
+  for (i in seq_len(nrow(d)))
+    out[i] = d[i, "distance"] * 1.6
+  out
+}
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+by_element = function(d) {
+  out = numeric(nrow(d))
+  for (i in seq_len(nrow(d)))
+    out[i] = d$distance[i] * 1.6
+  out
+}
+```
+:::
+::::
+
+. . .
+
+::: {.xsmall}
+```{r}
+#| warning: false
+#| cache: true
+bench::mark(
+  rows       = by_row(d),
+  elements   = by_element(d),
+  vectorized = d$distance * 1.6
+)
+```
+:::
+
+::: {.aside}
+Every `d[i, "distance"]` goes through `[.data.frame`, whose bookkeeping dwarfs the multiplication (on a tibble it would even return a 1 × 1 tibble rather than a number).
+:::
+
+
+## Storage formats
+
+The column-oriented distinction also applies to files on disk,
+
+::: {.small}
+| Format          | Layout       | Types          | Notes                                                   |
+|:----------------|:-------------|:---------------|:--------------------------------------------------------|
+| CSV / TSV       | rows (text)  | none, guessed  | universal, human readable, slow to parse, large         |
+| JSON            | rows (text)  | partial        | nested records, web APIs                                |
+| Parquet         | columns      | full schema    | compressed, read a subset of columns                    |
+| Arrow / Feather | columns      | full schema    | Arrow's memory layout on disk, fast, less compression   |
+| RDS / pickle    | serialized   | full           | any R / Python object, only readable by that language   |
+| SQLite / DuckDB | rows / columns | full schema  | database in a file, queried with SQL                    |
+:::
+
+
+## File size
+
+`flights` written to disk in both formats,
+
+::: {.xsmall}
+```{r}
+csv = file.path(tempdir(), "flights.csv")
+pq = file.path(tempdir(), "flights.parquet")
+```
+```{r}
+readr::write_csv(flights, csv)
+nanoparquet::write_parquet(flights, pq)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+fs::file_size( c(csv, pq) )
+```
+:::
+
+
+## Read speed
+
+::: {.xsmall}
+```{r}
+#| warning: false
+#| cache: true
+bench::mark(
+  csv_base        = read.csv(csv),
+  csv_readr       = readr::read_csv(csv, show_col_types = FALSE),
+  csv_fread       = data.table::fread(csv),
+  par_nanoparquet = nanoparquet::read_parquet(pq),
+  par_arrow       = arrow::read_parquet(pq),
+  check = FALSE
+)
+```
+:::
+
+
+## Exercise 2
+
+Using the `penguins` data from `palmerpenguins`,
+
+::: {.medium}
+1. Write `penguins` to a CSV file and to a parquet file (`readr::write_csv()` and `nanoparquet::write_parquet()`) in `tempdir()` and compare the file sizes.
+
+2. Read both files back in and compare the column types to the original using `str()` or `glimpse()`. Which columns changed and why?
+
+3. Read only the `species` and `body_mass_g` columns from the parquet file using `arrow::read_parquet()` and its `col_select` argument.
+:::
+
+```{r}
+#| echo: false
+countdown::countdown(minutes = 5)
+```
+
+
+# {#dplyr-logo data-menu-title="dplyr" .nostretch}
+
+![](imgs/hex-dplyr.png){fig-align="center" width="45%"}
+
+
+## dplyr verbs
+
+::: {.medium}
+dplyr provides a set of functions (verbs) that each do one thing to a data frame - each corresponds to one of the vectorized operations from before.
+
+Core single table verbs:
+
+* `filter()` / `slice()` - pick rows based on their values or position
+* `select()` / `rename()` / `relocate()` - pick, rename, or reorder columns by name
+* `mutate()` - create or modify columns
+* `arrange()` - reorder rows
+* `summarize()` / `count()` - reduce columns to values
+* `group_by()` / `.by` - make other verbs act within groups
+* `distinct()` - filter for unique rows
+* `pull()` - extract a column as a vector
+:::
+
+::: {.aside}
+We will not go through the verbs one at a time - see [R4DS](https://r4ds.hadley.nz/data-transform.html) for that. The rest of this section is about the two ideas that make them work: non-standard evaluation and grouping.
+:::
+
+
+## dplyr rules
+
+::: {.xsmall}
+```{r}
+#| message: false
+library(dplyr)
+```
+:::
+
+::: {.medium}
+1. The first argument is *always* a data frame
+
+2. Subsequent arguments describe what to do with its columns, referring to them by bare name
+
+3. The result is *always* a new data frame, the input is never modified
+
+4. Nothing happens in place - a sequence of verbs is a pipeline of copies (copy-on-modify makes this cheaper than it sounds)
+:::
+
+. . .
+
+::: {.medium}
+Rules 1 and 3 are what make the verbs composable - the output of one is always a valid input for the next.
+:::
+
+
+## The pipe
+
+R's pipe `|>` passes the value on its left as the first argument of the function on its right, so a nested call can be written as a left to right sequence.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+#| eval: false
+h( g( f(x), n = 1 ), m = 2 )
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+#| eval: false
+x |>
+  f() |>
+  g(n = 1) |>
+  h(m = 2)
+```
+:::
+::::
+
+. . .
+
+Since every dplyr verb takes and returns a data frame, the pipe is the natural way to chain them,
+
+::: {.small}
+```{r}
+#| eval: false
+flights |>
+  filter(dest == "LAX") |>
+  count(carrier) |>
+  arrange(desc(n))
+```
+:::
+
+::: {.aside}
+`_` can be used as a placeholder to pipe into a named argument other than the first, e.g. `d |> lm(y ~ x, data = _)`. The magrittr pipe `%>%` predates `|>` and is still common in older code.
+:::
+
+
+# Non-standard evaluation
+
+## Data masking
+
+dplyr verbs capture their arguments and evaluate them with the columns in scope - *data masking*, a form of non-standard evaluation (NSE).
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| error: true
+dest == "LAX"
+```
+```{r}
+flights |>
+  filter(dest == "LAX", month == 5) |>
+  select(month, day, carrier)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+flights[flights$dest == "LAX" &
+        flights$month == 5,
+        c("month", "day", "carrier")]
+```
+:::
+::::
+
+::: {.aside}
+Base R uses the same trick in `with()`, `subset()`, and model formulas like `y ~ x`.
+:::
+
+
+## Where names come from
+
+Names in a masked expression are looked up in the data frame first and then in the calling environment, so columns and ordinary variables can be mixed - but a column always wins a tie.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+long = 60
+flights |>
+  filter(dep_delay > long) |>
+  select(carrier, dep_delay)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+month = 5
+flights |>
+  filter(month == month) |>
+  nrow()
+```
+```{r}
+flights |>
+  filter(month == .env$month) |>
+  nrow()
+```
+:::
+::::
+
+::: {.aside}
+The `.data` and `.env` pronouns (from rlang) make the lookup explicit: `.data$month` is always the column and `.env$month` is always the variable. Use them whenever a name is ambiguous, particularly inside functions.
+:::
+
+
+## Why bother?
+
+::: {.medium}
+Data masking is what makes dplyr code short and readable - a column is just `dep_delay`, not `flights$dep_delay` or `"dep_delay"` - and it is what lets the same expression be evaluated by different backends (e.g. dbplyr, duckplyr, etc.).
+
+The price is that the arguments are not ordinary values,
+
+* a verb cannot tell the difference between a column name and a variable holding a column name,
+
+* passing column names through your own functions needs extra machinery,
+
+* and code that constructs column names programmatically has to work a little harder.
+:::
+
+
+# tidyselect
+
+## Tidy selection
+
+`select()`, `rename()`, `across()`, and `.by` use a second flavor of NSE - *tidy selection* where expressions describe *which* columns, not values.
+
+::: {.xsmall}
+```{r}
+flights |> select(year:day, dep_delay) |> names()
+```
+```{r}
+flights |> select(starts_with("dep"), ends_with("delay")) |> names()
+```
+```{r}
+flights |> select(where(is.character) | year) |> names()
+```
+```{r}
+flights |> select(!where(is.numeric)) |> names()
+```
+:::
+
+::: {.aside}
+Inside a selection `:` is a column range, `!` or `-` excludes, `|` and `&` combine
+:::
+
+
+## Selection helpers
+
+::: {.small}
+| Helper                                                    | Selects                                            |
+|:----------------------------------------------------------|:---------------------------------------------------|
+| `x`, `x:y`, `c(x, y)`, `!x`, `-x`                          | by name, range, union, and exclusion               |
+| `starts_with()`, `ends_with()`, `contains()`, `matches()` | by prefix, suffix, substring, or regular expression|
+| `num_range("x", 1:3)`                                     | `x1`, `x2`, `x3`                                   |
+| `where(f)`                                                | columns for which `f(column)` is `TRUE`            |
+| `everything()`, `last_col()`                              | all remaining columns, the last column             |
+| `all_of(chr)`, `any_of(chr)`                              | names in a character vector (strict / lenient)     |
+:::
+
+. . .
+
+<br/>
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+cols = c("year", "month", "day")
+flights |>
+  select(all_of(cols)) |>
+  names()
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+flights |>
+  select(any_of(c(cols, "weight"))) |>
+  names()
+```
+:::
+::::
+
+::: {.aside}
+`all_of()` and `any_of()` exist because of NSE - given a bare `cols`, `select()` cannot tell whether you mean a column called `cols` or the vector of names it holds. `all_of()` errors on a missing name, `any_of()` skips it.
+:::
+
+
+## `across()`
+
+`across()` brings tidy selection into the data masking verbs - it applies a function to every selected column inside `mutate()` or `summarize()`.
+
+::: {.xsmall}
+```{r}
+penguins |>
+  summarize(across(where(is.numeric), \(x) mean(x, na.rm = TRUE)))
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+penguins |>
+  summarize(across(
+    ends_with("_g"),
+    list(mean = \(x) mean(x, na.rm = TRUE), sd = \(x) sd(x, na.rm = TRUE))
+  ))
+```
+:::
+
+
+# Grouped operations
+
+## Split-apply-combine
+
+Most summaries follow the same pattern: *split* the rows into groups, *apply* a computation to each group, *combine* the results. `group_by()` records the grouping on the data frame and the verbs that follows respect the groups.
+
+::: {.xsmall}
+```{r}
+g = group_by(flights, origin, carrier)
+class(g)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+g |> select(origin, carrier, dep_delay) |> head(n = 3)
+```
+:::
+
+
+## Grouped summaries
+
+`summarize()` collapses each group to one row - any function that reduces a vector to a single value can be used, and multiple summaries and grouping variables can be combined.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+flights |>
+  filter(!is.na(dep_delay)) |>
+  summarize(
+    n = n(),
+    delay = mean(dep_delay),
+    .by = origin
+  )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+#| message: false
+flights |>
+  group_by(origin, carrier) |>
+  summarize(n = n()) |>
+  arrange(desc(n))
+```
+:::
+::::
+
+::: {.aside}
+With `group_by()` the result stays grouped by all but the last grouping variable (note the `Groups` line) unless `.groups` says otherwise. `.by` always returns an ungrouped result.
+:::
+
+
+## Grouped mutates and filters
+
+`mutate()` and `filter()` within groups evaluate their expressions on each group's columns separately - a summary such as `sum()` or `max()` becomes a per-group value that is recycled across that group's rows.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+flights |>
+  count(origin, carrier) |>
+  mutate(share = n / sum(n), .by = origin)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+flights |>
+  filter(!is.na(dep_delay)) |>
+  filter(
+    dep_delay == max(dep_delay),
+    .by = origin
+  ) |>
+  select(origin, carrier, dep_delay)
+```
+:::
+::::
+
+
+
+## Example
+
+Using `flights`,
+
+::: {.medium}
+1. How many flights to Los Angeles (LAX) did each of the legacy carriers (AA, UA, DL or US) have in May from JFK, and what was their average duration?
+
+2. Which plane (check the tail numbers) flew out of each New York airport the most?
+
+3. Which 5 days should you consider flying on if you want to have the lowest possible average departure delay?
+
+4. Which flight has the largest arrival delay as a percentage of its scheduled air time?
+:::
+
+
+# Summary
+
+## Base R vs dplyr
+
+::: {.small}
+| Task                   | Base R                                     | dplyr                                        |
+|:-----------------------|:-------------------------------------------|:---------------------------------------------|
+| refer to a column      | `df$x` (standard evaluation)               | `x` (data masking)                           |
+| filter rows            | `df[df$x > 1, ]`                           | `filter(df, x > 1)`                          |
+| pick columns           | `df[c("x", "y")]`                          | `select(df, x, y)`, `select(df, starts_with("x"))` |
+| new column             | `df$z = df$x * 2`                          | `mutate(df, z = x * 2)`                      |
+| many columns at once   | `lapply(df[cols], f)`                      | `mutate(df, across(all_of(cols), f))`        |
+| sort rows              | `df[order(df$x), ]`                        | `arrange(df, x)`                             |
+| summarize              | `mean(df$x)`                               | `summarize(df, m = mean(x))`                 |
+| grouped summary        | `tapply(df$x, df$g, mean)`, `aggregate()`  | `summarize(df, m = mean(x), .by = g)`        |
+| grouped transform      | `ave(df$x, df$g)`                          | `mutate(df, m = mean(x), .by = g)`           |
+| column as vector       | `df$x`, `df[["x"]]`                        | `pull(df, x)`                                |
+:::
+
+
+## Takeaways
+
+::: {.medium}
+* An R data frame is a list of equal length vectors with a `class` attribute - every table-like behavior is an S3 method
+
+* Tibbles are data frames with stricter, more predictable subsetting and construction, plus a better print method. Code written for data frames works on them via S3 dispatch.
+
+* Tables are stored by column because columns are what vectorized operations consume - filtering, transforming, and summarizing are all column-wise vector operations. Avoid row loops.
+
+* CSV is universal but has no types, parquet preserves the schema, compresses well, and reads a subset of columns cheaply. Use parquet for anything large or shared across languages.
+
+* dplyr verbs use data masking to evaluate expressions inside the data frame and tidy selection to describe sets of columns. Grouping turns the same vectorized expressions into per-group computations.
+:::
