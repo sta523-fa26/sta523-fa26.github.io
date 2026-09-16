@@ -115,15 +115,12 @@ schedule:
       link: https://r4ds.hadley.nz/data-transform.html
     - text: "R4DS - Data tidying"
       link: https://r4ds.hadley.nz/data-tidy.html
-    - text: "tidyr pivoting"
-      link: https://tidyr.tidyverse.org/articles/pivot.html
     - text: "rlang - What is data-masking and why do I need {{?"
       link: https://rlang.r-lib.org/reference/topic-data-mask.html
     - text: "rlang - Data mask programming patterns"
       link: https://rlang.r-lib.org/reference/topic-data-mask-programming.html
   py_readings:
-    - text: "Python for Data Analysis - pandas basics"
-      link: https://wesmckinney.com/book/pandas-basics.html
+
 
 
 - week: 5
@@ -133,6 +130,8 @@ schedule:
   slides: ""
   r_readings: []
   py_readings:
+    - text: "Python for Data Analysis - pandas basics"
+      link: https://wesmckinney.com/book/pandas-basics.html
     - text: "Polars user guide"
       link: https://docs.pola.rs/
     - text: "Polars - Coming from Pandas"
@@ -148,6 +147,8 @@ schedule:
       link: https://jennybc.github.io/purrr-tutorial/index.html
     - text: "tidyr rectangling"
       link: https://tidyr.tidyverse.org/articles/rectangle.html
+    - text: "tidyr pivoting"
+      link: https://tidyr.tidyverse.org/articles/pivot.html
     - text: "R4DS - Iteration"
       link: http://r4ds.had.co.nz/iteration.html
     - text: "purrr cheatsheet"
