@@ -611,24 +611,6 @@ bench::mark(
 :::
 
 
-## Exercise 2
-
-Using the `penguins` data from `palmerpenguins`,
-
-::: {.medium}
-1. Write `penguins` to a CSV file and to a parquet file (`readr::write_csv()` and `nanoparquet::write_parquet()`) in `tempdir()` and compare the file sizes.
-
-2. Read both files back in and compare the column types to the original using `str()` or `glimpse()`. Which columns changed and why?
-
-3. Read only the `species` and `body_mass_g` columns from the parquet file using `arrow::read_parquet()` and its `col_select` argument.
-:::
-
-```{r}
-#| echo: false
-countdown::countdown(minutes = 5)
-```
-
-
 # {#dplyr-logo data-menu-title="dplyr" .nostretch}
 
 ![](imgs/hex-dplyr.png){fig-align="center" width="45%"}

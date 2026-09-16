@@ -2219,7 +2219,7 @@ Dr. Colin Rundel
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_5a95470d" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_76226bd9" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3746,22 +3746,6 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 4 par_nanoparquet  81.26ms  89.29ms     10.2     52.3MB     8.47
 5 par_arrow         4.88ms   5.78ms    168.      21.5MB     3.96</code></pre>
 </div>
-</div>
-</div>
-</section>
-<section id="exercise-2" class="slide level2">
-<h2>Exercise 2</h2>
-<p>Using the <code>penguins</code> data from <code>palmerpenguins</code>,</p>
-<div class="medium">
-<ol type="1">
-<li><p>Write <code>penguins</code> to a CSV file and to a parquet file (<code>readr::write_csv()</code> and <code>nanoparquet::write_parquet()</code>) in <code>tempdir()</code> and compare the file sizes.</p></li>
-<li><p>Read both files back in and compare the column types to the original using <code>str()</code> or <code>glimpse()</code>. Which columns changed and why?</p></li>
-<li><p>Read only the <code>species</code> and <code>body_mass_g</code> columns from the parquet file using <code>arrow::read_parquet()</code> and its <code>col_select</code> argument.</p></li>
-</ol>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_2695903a" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>

@@ -19,109 +19,78 @@ options(width = 80)
 
 # Exercise 1
 
-## Part 1
-
-What is the type of the following R vectors? Explain why they have that type.
+What is the type of each of the R vectors and why, and what is the value (and type) of each of the Python expressions? How does R's implicit conversion hierarchy for `logical`, `integer`, `double`, and `character` compare to Python's numeric promotion rules?
 
 ```{r}
-c(1, NA+1L, "C")   # c(1, NA_integer_, "C") -> character
-c(1L / 0, NA)      # c(Inf, NA)              -> double
-c(1:3, 5)          # c(1L, 2L, 3L, 5)        -> double
-c(3L, NaN+1L)      # c(3L, NaN)              -> double
-c(NA, TRUE)        # c(NA, TRUE)             -> logical
-c(1L, NULL, NA)    # c(1L, NA)               -> integer
+typeof(c(1, NA+1L, "C"))   # NA + 1L is NA_integer_, character is the highest type present
+typeof(c(1L / 0, NA))      # 1L / 0 is Inf, a double
+typeof(c(1:3, 5))          # 5 is a double literal
+typeof(c(3L, NaN+1L))      # NaN + 1L is NaN, a double
+typeof(c(NA, TRUE))        # NA is logical by default
+typeof(c(1L, NULL, NA))    # NULL contributes nothing, NA is coerced to NA_integer_
 ```
-
-
-## Part 2
-
-Without running the code, what is the value (and type) of each of the following Python expressions?
 
 ```{python}
-True + 1.5                # 2.5   -> float
-"1" * 3                   # '111' -> str
-int("3") + float("1.5")   # 4.5   -> float
-bool("False")             # True  -> bool
-int(True) / True          # 1.0   -> float
+True + 1.5                # bool promotes to float
+"1" * 3                   # str * int repeats the string
+int("3") + float("1.5")   # int + float promotes to float
+bool("False")             # any non-empty string is truthy
+int(True) / True          # / always returns a float
 ```
 
+R: `logical` < `integer` < `double` < `character`, a mixed vector is coerced to the highest type present.
 
-## Part 3
-
-Considering R's four most commonly used atomic types (`logical`, `integer`, `double`, and `character`), what is the implicit conversion hierarchy from highest to lowest priority? How does this compare to Python's numeric promotion rules?
-
-R:
-`character` > `double` > `integer` > `logical`
-
-Python:
-`complex` > `float` > `int` > `bool`
+Python: `bool` < `int` < `float` < `complex`, promotion only happens between numeric types and mixing a number with a `str` raises a `TypeError` rather than coercing.
 
 
 # Exercise 2
 
-Without running the code, predict the output (or error) of each of the following in *both* R and Python.
+Without running the code, predict the output (or error) of each of the following in both R and Python.
 
-## Assignment and coercion
-
-### R
+## R
 
 ```{r}
 x = c(1, 2, 3)
-y = x                    # copy on modify
-y[1] = "a"               # coerces y to character
-x                        # c(1, 2, 3)
-y                        # c("a", "2", "3")
+y = x
+y[1] = "a"               # y is copied on modify and coerced to character, x is unchanged
+x
+y
 ```
 
-### Python
+```{r}
+TRUE + TRUE == 2         # TRUE is coerced to 1
+"2" == 2                 # 2 is coerced to "2"
+as.integer("2") + 1L
+0.1 + 0.2 == 0.3         # 0.1 + 0.2 is 0.30000000000000004
+```
+
+```{r}
+c(1, 2.5, NA)            # NA is coerced to NA_real_
+sum(c(1, 2.5, NA))       # NA is sticky
+```
+
+## Python
 
 ```{python}
 x = [1, 2, 3]
-y = x                    # same object
-y[0] = "a"               # modifies x and y
-x                        # ['a', 2, 3]
-y                        # ['a', 2, 3]
+y = x
+y[0] = "a"               # y is another name for the same list, so x changes too
+x
+y
 ```
-
-
-## Comparisons and arithmetic
-
-### R
-
-```{r}
-TRUE + TRUE == 2         # 2 == 2     -> TRUE
-"2" == 2                 # "2" == "2" -> TRUE
-as.integer("2") + 1L     # 2L + 1L    -> 3L
-0.1 + 0.2 == 0.3         # 0.30000000000000004 == 0.3 -> FALSE
-```
-
-### Python
 
 ```{python}
-True + True == 2         # 2 == 2     -> True
-"2" == 2                 # str != int -> False
-int("2") + 1             # 2 + 1      -> 3
-0.1 + 0.2 == 0.3         # 0.30000000000000004 == 0.3 -> False
+True + True == 2         # bool is a subclass of int
+"2" == 2                 # no coercion, values of different types are not equal
+int("2") + 1
+0.1 + 0.2 == 0.3         # 0.1 + 0.2 is 0.30000000000000004
 ```
-
-
-## Missing values in aggregation
-
-### R
-
-```{r}
-c(1, 2.5, NA)            # c(1, 2.5, NA_real_) -> double
-sum(c(1, 2.5, NA))       # NA
-```
-
-### Python
 
 ```{python}
-[1, 2.5, None]           # [1, 2.5, None] -> list
+[1, 2.5, None]           # lists are heterogeneous, nothing is coerced
 ```
 
 ```{python}
 #| error: true
-sum([1, 2.5, None])      # 3.5 + None -> TypeError
+sum([1, 2.5, None])      # float + None is not defined
 ```
-

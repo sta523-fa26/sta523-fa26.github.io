@@ -19,24 +19,28 @@ options(width = 80)
 
 # Exercise 1
 
-Using base R and the `penguins` data frame from `palmerpenguins`: convert it to a plain data frame and check its structure, select the Gentoo penguins with body mass above 5000 g keeping `species`, `island`, and `body_mass_g`, add a `body_mass_kg` column, and calculate the mean bill length of the Adelie penguins ignoring missing values.
+### Convert it to a plain data frame and check its structure
 
 ```{r}
 p = as.data.frame(palmerpenguins::penguins)
 str(p)
 ```
 
+### select the Gentoo penguins with body mass above 5000 g keeping `species`, `island`, and `body_mass_g`
+
 ```{r}
 # which() drops the row with a missing body mass, a plain logical index keeps it as a row of NAs
-g = p[which(p$species == "Gentoo" & p$body_mass_g > 5000), c("species", "island", "body_mass_g")]
-head(g)
-nrow(g)
+p[p$species == "Gentoo" & p$body_mass_g > 5000, c("species", "island", "body_mass_g")]
 ```
+
+### add a `body_mass_kg` column
 
 ```{r}
 p$body_mass_kg = p$body_mass_g / 1000
 str(p)
 ```
+
+### Calculate the mean bill length of the Adelie penguins ignoring missing values.
 
 ```{r}
 mean(p$bill_length_mm[p$species == "Adelie"], na.rm = TRUE)
@@ -70,13 +74,15 @@ arrow::read_parquet(
 
 # Example
 
-Using `flights`: how many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK and what was their average duration, which plane flew out of each New York airport the most, which 5 days have the lowest average departure delay, and which flight has the largest arrival delay as a percentage of its scheduled air time.
+Setup
 
 ```{r}
 #| message: false
 library(dplyr)
 library(nycflights13)
 ```
+
+### How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK and what was their average duration?
 
 ```{r}
 flights |>
@@ -88,6 +94,8 @@ flights |>
   )
 ```
 
+### Which plane flew out of each New York airport the most?
+
 ```{r}
 flights |>
   filter(!is.na(tailnum)) |>
@@ -95,11 +103,15 @@ flights |>
   slice_max(n, n = 1, by = origin)
 ```
 
+### Which 5 days have the lowest average departure delay, and 
+
 ```{r}
 flights |>
   summarize(avg_dep_delay = mean(dep_delay, na.rm = TRUE), .by = c(month, day)) |>
   slice_min(avg_dep_delay, n = 5)
 ```
+
+### which flight has the largest arrival delay as a percentage of its scheduled air time.
 
 ```{r}
 flights |>
