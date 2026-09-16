@@ -123,7 +123,7 @@ identical(s, df)
 
 
 
-## Data frames are S3 objects
+## Data frames as S3 objects
 
 Everything that makes a data frame behave like a table comes from S3 methods dispatched on the `data.frame` class.
 
@@ -152,7 +152,7 @@ dim( unclass(df) )
 
 ## Recycling
 
-`data.frame()` recycles shorter columns to the longest column's length (as long as it is a whole multiple, anything else is an error).
+`data.frame()` (and other construction methods) recycle shorter columns to the longest column's length - as long as it is a whole multiple, anything else is an error.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -194,7 +194,7 @@ A data frame is a named list that also has a matrix like shape, so both the list
 . . .
 
 ::: {.msmall}
-As with matrices, a single column is *simplified* to a vector, but a single row is *preserved* as a data frame since its values are heterogeneous - `drop` controls this.
+As with matrices, a single column is simplified to a vector, but a single row is preserved as a data frame since its values are heterogeneous - `drop` controls this.
 :::
 
 :::: {.columns .mxsmall}
@@ -239,7 +239,7 @@ countdown::countdown(minutes = 3)
 
 ## Modern data frames
 
-The tidyverse's tibble package provides `tbl_df` (and other S3 classes and methods) as an extension to data frames.
+The tidyverse's tibble package provides `tbl_df` (and other S3 classes and methods) as a modern extension of data frames.
 
 ::: {.xsmall}
 ```{r}
@@ -268,7 +268,7 @@ str( unclass(tb) )
 
 ## Printing {.scrollable}
 
-Data frames print every row and column, tibbles print what fits along with the dimensions and column types.
+Data frames print every row and column, tibbles print what fits along with dimensions and column types.
 
 ```{r}
 #| include: false
@@ -282,7 +282,7 @@ as.data.frame(penguins)
 ```
 :::
 
-::: {.column width='50%' .fragment}
+::: {.column width='50%'}
 ```{r}
 penguins
 ```
@@ -295,7 +295,7 @@ options(width = 80)
 ```
 
 
-## Tibbles are strict - subsetting
+## Stricter subsetting
 
 Tibbles never simplify with `[` (there is no `drop` surprise), and `$` does not partially match column names.
 
@@ -334,7 +334,7 @@ as.data.frame(penguins)$sp |> head()
 
 
 
-## Tibbles are strict - construction
+## Stricter construction
 
 `tibble()` only recycles length one values, never coerces strings to factors, leaves column names alone, and lets later columns refer to earlier ones.
 
@@ -362,21 +362,36 @@ tibble(x = 1:3, y = x^2)
 ::::
 
 
-## Constructing tibbles
+## Alternative construction
 
-:::: {.columns }
-::: {.column width='50%'}
-`tribble()` builds a tibble row by row, which is convenient for small hand-entered tables,
-:::
+`tibble()` is a drop in replacement for `data.frame()`
 
-::: {.column width='50%'}
-`as_tibble()` converts data frames, matrices, and lists of columns,
-:::
-::::
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
+::: {.xsmall}
 ```{r}
+#| output-location: column
+tibble(
+  x = 1:2, y = c("a", "b")
+)
+```
+:::
+
+`as_tibble()` converts data frames, matrices, and lists of columns,
+
+::: {.xsmall}
+```{r}
+#| output-location: column
+as_tibble(
+  list(x = 1:2, y = c("a", "b"))
+)
+```
+:::
+
+`tribble()` builds a tibble row by row, which is convenient for small hand-entered tables,
+
+
+::: {.xsmall}
+```{r}
+#| output-location: column
 tribble(
   ~species,    ~n,
   "Adelie",    152,
@@ -384,45 +399,6 @@ tribble(
   "Chinstrap",  68
 )
 ```
-:::
-
-::: {.column width='50%'}
-```{r}
-as_tibble(
-  list(x = 1:2, y = c("a", "b"))
-)
-```
-:::
-::::
-
-## List columns
-
-A column only needs to be a vector of the right length, and lists are also vectors - a *list column* holds an arbitrary object in each cell. `tibble()` supports them directly, `data.frame()` needs `I()`.
-
-::: {.xsmall}
-```{r}
-v = list(1:3, c("a", "b"))
-```
-:::
-
-. . .
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{r}
-tibble(id = 1:2, vals = v)
-```
-:::
-
-::: {.column width='50%'}
-```{r}
-data.frame(id = 1:2, vals = I(v))
-```
-:::
-::::
-
-::: {.aside}
-Without `I()`, `data.frame()` treats a list argument as a set of columns to splice in and errors on the mismatched lengths.
 :::
 
 
@@ -964,7 +940,7 @@ flights |>
 
 ## Example
 
-Using `flights`,
+Using `nycflights13::flights`,
 
 ::: {.medium}
 1. How many flights to Los Angeles (LAX) did each of the legacy carriers (AA, UA, DL or US) have in May from JFK, and what was their average duration?

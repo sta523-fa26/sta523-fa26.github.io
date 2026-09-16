@@ -2076,8 +2076,8 @@ Dr. Colin Rundel
 </div>
 </div></div>
 </section>
-<section id="data-frames-are-s3-objects" class="slide level2">
-<h2>Data frames are S3 objects</h2>
+<section id="data-frames-as-s3-objects" class="slide level2">
+<h2>Data frames as S3 objects</h2>
 <p>Everything that makes a data frame behave like a table comes from S3 methods dispatched on the <code>data.frame</code> class.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
@@ -2123,7 +2123,7 @@ Dr. Colin Rundel
 </section>
 <section id="recycling" class="slide level2">
 <h2>Recycling</h2>
-<p><code>data.frame()</code> recycles shorter columns to the longest column’s length (as long as it is a whole multiple, anything else is an error).</p>
+<p><code>data.frame()</code> (and other construction methods) recycle shorter columns to the longest column’s length - as long as it is a whole multiple, anything else is an error.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2172,7 +2172,7 @@ Dr. Colin Rundel
 </div>
 <div class="fragment">
 <div class="msmall">
-<p>As with matrices, a single column is <em>simplified</em> to a vector, but a single row is <em>preserved</em> as a data frame since its values are heterogeneous - <code>drop</code> controls this.</p>
+<p>As with matrices, a single column is simplified to a vector, but a single row is preserved as a data frame since its values are heterogeneous - <code>drop</code> controls this.</p>
 </div>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
@@ -2219,7 +2219,7 @@ Dr. Colin Rundel
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_76226bd9" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_4365ed70" minutes="3" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -2234,7 +2234,7 @@ Dr. Colin Rundel
 </section>
 <section id="modern-data-frames" class="slide level2">
 <h2>Modern data frames</h2>
-<p>The tidyverse’s tibble package provides <code>tbl_df</code> (and other S3 classes and methods) as an extension to data frames.</p>
+<p>The tidyverse’s tibble package provides <code>tbl_df</code> (and other S3 classes and methods) as a modern extension of data frames.</p>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href aria-label="1"></a><span class="fu">library</span>(tibble)</span>
@@ -2269,7 +2269,7 @@ Dr. Colin Rundel
 </section>
 <section id="printing" class="slide level2 scrollable">
 <h2>Printing</h2>
-<p>Data frames print every row and column, tibbles print what fits along with the dimensions and column types.</p>
+<p>Data frames print every row and column, tibbles print what fits along with dimensions and column types.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -3312,7 +3312,7 @@ Dr. Colin Rundel
 344        3775 female 2009</code></pre>
 </div>
 </div>
-</div><div class="column fragment" style="width:50%;">
+</div><div class="column" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-label="1"></a>penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -3334,8 +3334,8 @@ Dr. Colin Rundel
 </div>
 </div></div>
 </section>
-<section id="tibbles-are-strict---subsetting" class="slide level2">
-<h2>Tibbles are strict - subsetting</h2>
+<section id="stricter-subsetting" class="slide level2">
+<h2>Stricter subsetting</h2>
 <p>Tibbles never simplify with <code>[</code> (there is no <code>drop</code> surprise), and <code>$</code> does not partially match column names.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
@@ -3392,8 +3392,8 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div></div>
 </div>
 </section>
-<section id="tibbles-are-strict---construction" class="slide level2">
-<h2>Tibbles are strict - construction</h2>
+<section id="stricter-construction" class="slide level2">
+<h2>Stricter construction</h2>
 <p><code>tibble()</code> only recycles length one values, never coerces strings to factors, leaves column names alone, and lets later columns refer to earlier ones.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
@@ -3438,23 +3438,53 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div>
 </div></div>
 </section>
-<section id="constructing-tibbles" class="slide level2">
-<h2>Constructing tibbles</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<p><code>tribble()</code> builds a tibble row by row, which is convenient for small hand-entered tables,</p>
-</div><div class="column" style="width:50%;">
-<p><code>as_tibble()</code> converts data frames, matrices, and lists of columns,</p>
+<section id="alternative-construction" class="slide level2">
+<h2>Alternative construction</h2>
+<p><code>tibble()</code> is a drop in replacement for <code>data.frame()</code></p>
+<div class="xsmall">
+<div class="cell columns column-output-location">
+<div class="column">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href aria-label="1"></a><span class="fu">tibble</span>(</span>
+<span id="cb92-2"><a href aria-label="2"></a>  <span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>)</span>
+<span id="cb92-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div><div class="column">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+      x y    
+  &lt;int&gt; &lt;chr&gt;
+1     1 a    
+2     2 b    </code></pre>
+</div>
 </div></div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href aria-label="1"></a><span class="fu">tribble</span>(</span>
-<span id="cb92-2"><a href aria-label="2"></a>  <span class="sc">~</span>species,    <span class="sc">~</span>n,</span>
-<span id="cb92-3"><a href aria-label="3"></a>  <span class="st">&quot;Adelie&quot;</span>,    <span class="dv">152</span>,</span>
-<span id="cb92-4"><a href aria-label="4"></a>  <span class="st">&quot;Gentoo&quot;</span>,    <span class="dv">124</span>,</span>
-<span id="cb92-5"><a href aria-label="5"></a>  <span class="st">&quot;Chinstrap&quot;</span>,  <span class="dv">68</span></span>
-<span id="cb92-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>as_tibble()</code> converts data frames, matrices, and lists of columns,</p>
+<div class="xsmall">
+<div class="cell columns column-output-location">
+<div class="column">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-label="1"></a><span class="fu">as_tibble</span>(</span>
+<span id="cb94-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>))</span>
+<span id="cb94-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div><div class="column">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+      x y    
+  &lt;int&gt; &lt;chr&gt;
+1     1 a    
+2     2 b    </code></pre>
+</div>
+</div></div>
+</div>
+<p><code>tribble()</code> builds a tibble row by row, which is convenient for small hand-entered tables,</p>
+<div class="xsmall">
+<div class="cell columns column-output-location">
+<div class="column">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-label="1"></a><span class="fu">tribble</span>(</span>
+<span id="cb96-2"><a href aria-label="2"></a>  <span class="sc">~</span>species,    <span class="sc">~</span>n,</span>
+<span id="cb96-3"><a href aria-label="3"></a>  <span class="st">&quot;Adelie&quot;</span>,    <span class="dv">152</span>,</span>
+<span id="cb96-4"><a href aria-label="4"></a>  <span class="st">&quot;Gentoo&quot;</span>,    <span class="dv">124</span>,</span>
+<span id="cb96-5"><a href aria-label="5"></a>  <span class="st">&quot;Chinstrap&quot;</span>,  <span class="dv">68</span></span>
+<span id="cb96-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div><div class="column">
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   species       n
@@ -3463,58 +3493,9 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 2 Gentoo      124
 3 Chinstrap    68</code></pre>
 </div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-label="1"></a><span class="fu">as_tibble</span>(</span>
-<span id="cb94-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>))</span>
-<span id="cb94-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 2
-      x y    
-  &lt;int&gt; &lt;chr&gt;
-1     1 a    
-2     2 b    </code></pre>
-</div>
-</div>
 </div></div>
-</section>
-<section id="list-columns" class="slide level2">
-<h2>List columns</h2>
-<p>A column only needs to be a vector of the right length, and lists are also vectors - a <em>list column</em> holds an arbitrary object in each cell. <code>tibble()</code> supports them directly, <code>data.frame()</code> needs <code>I()</code>.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-label="1"></a>v <span class="ot">=</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div>
-<div class="fragment">
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href aria-label="1"></a><span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">vals =</span> v)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 2
-     id vals     
-  &lt;int&gt; &lt;list&gt;   
-1     1 &lt;int [3]&gt;
-2     2 &lt;chr [2]&gt;</code></pre>
-</div>
-</div>
-</div><div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href aria-label="1"></a><span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">vals =</span> <span class="fu">I</span>(v))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  id    vals
-1  1 1, 2, 3
-2  2    a, b</code></pre>
-</div>
-</div>
-</div></div>
-
-</div>
-<aside><div>
-<p>Without <code>I()</code>, <code>data.frame()</code> treats a list argument as a set of columns to splice in and errors on the mismatched lengths.</p>
-</div></aside></section></section>
+</section></section>
 <section>
 <section id="column-oriented-data" class="title-slide slide level1 center">
 <h1>Column-oriented data</h1>
@@ -3532,18 +3513,18 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href aria-label="1"></a>recs <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb101-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="st">&quot;a&quot;</span>),</span>
-<span id="cb101-3"><a href aria-label="3"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="st">&quot;b&quot;</span>),</span>
-<span id="cb101-4"><a href aria-label="4"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> <span class="st">&quot;c&quot;</span>)</span>
-<span id="cb101-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a>recs <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb98-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="st">&quot;a&quot;</span>),</span>
+<span id="cb98-3"><a href aria-label="3"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">2</span>, <span class="at">y =</span> <span class="st">&quot;b&quot;</span>),</span>
+<span id="cb98-4"><a href aria-label="4"></a>  <span class="fu">list</span>(<span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> <span class="st">&quot;c&quot;</span>)</span>
+<span id="cb98-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href aria-label="1"></a>cols <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb102-2"><a href aria-label="2"></a>  <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
-<span id="cb102-3"><a href aria-label="3"></a>  <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>)</span>
-<span id="cb102-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href aria-label="1"></a>cols <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb99-2"><a href aria-label="2"></a>  <span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>),</span>
+<span id="cb99-3"><a href aria-label="3"></a>  <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>)</span>
+<span id="cb99-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <div class="columns small">
@@ -3571,8 +3552,8 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <p>The <code>nycflights13</code> package contains every flight that departed from a New York City airport in 2013 - large enough for performance to matter.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href aria-label="1"></a><span class="fu">library</span>(nycflights13)</span>
-<span id="cb103-2"><a href aria-label="2"></a>flights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">library</span>(nycflights13)</span>
+<span id="cb100-2"><a href aria-label="2"></a>flights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 336,776 × 19
    year month   day dep_time sched_dep_time dep_delay arr_time sched_arr_time
@@ -3594,44 +3575,44 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <h2>Row iteration in R</h2>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">as.data.frame</span>(flights)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">as.data.frame</span>(flights)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href aria-label="1"></a>by_row <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
-<span id="cb106-2"><a href aria-label="2"></a>  out <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(d))</span>
-<span id="cb106-3"><a href aria-label="3"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(d)))</span>
-<span id="cb106-4"><a href aria-label="4"></a>    out[i] <span class="ot">=</span> d[i, <span class="st">&quot;distance&quot;</span>] <span class="sc">*</span> <span class="fl">1.6</span></span>
-<span id="cb106-5"><a href aria-label="5"></a>  out</span>
-<span id="cb106-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href aria-label="1"></a>by_row <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
+<span id="cb103-2"><a href aria-label="2"></a>  out <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(d))</span>
+<span id="cb103-3"><a href aria-label="3"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(d)))</span>
+<span id="cb103-4"><a href aria-label="4"></a>    out[i] <span class="ot">=</span> d[i, <span class="st">&quot;distance&quot;</span>] <span class="sc">*</span> <span class="fl">1.6</span></span>
+<span id="cb103-5"><a href aria-label="5"></a>  out</span>
+<span id="cb103-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href aria-label="1"></a>by_element <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
-<span id="cb107-2"><a href aria-label="2"></a>  out <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(d))</span>
-<span id="cb107-3"><a href aria-label="3"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(d)))</span>
-<span id="cb107-4"><a href aria-label="4"></a>    out[i] <span class="ot">=</span> d<span class="sc">$</span>distance[i] <span class="sc">*</span> <span class="fl">1.6</span></span>
-<span id="cb107-5"><a href aria-label="5"></a>  out</span>
-<span id="cb107-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href aria-label="1"></a>by_element <span class="ot">=</span> <span class="cf">function</span>(d) {</span>
+<span id="cb104-2"><a href aria-label="2"></a>  out <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">nrow</span>(d))</span>
+<span id="cb104-3"><a href aria-label="3"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(d)))</span>
+<span id="cb104-4"><a href aria-label="4"></a>    out[i] <span class="ot">=</span> d<span class="sc">$</span>distance[i] <span class="sc">*</span> <span class="fl">1.6</span></span>
+<span id="cb104-5"><a href aria-label="5"></a>  out</span>
+<span id="cb104-6"><a href aria-label="6"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
-<span id="cb108-2"><a href aria-label="2"></a>  <span class="at">rows       =</span> <span class="fu">by_row</span>(d),</span>
-<span id="cb108-3"><a href aria-label="3"></a>  <span class="at">elements   =</span> <span class="fu">by_element</span>(d),</span>
-<span id="cb108-4"><a href aria-label="4"></a>  <span class="at">vectorized =</span> d<span class="sc">$</span>distance <span class="sc">*</span> <span class="fl">1.6</span></span>
-<span id="cb108-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href aria-label="1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
+<span id="cb105-2"><a href aria-label="2"></a>  <span class="at">rows       =</span> <span class="fu">by_row</span>(d),</span>
+<span id="cb105-3"><a href aria-label="3"></a>  <span class="at">elements   =</span> <span class="fu">by_element</span>(d),</span>
+<span id="cb105-4"><a href aria-label="4"></a>  <span class="at">vectorized =</span> d<span class="sc">$</span>distance <span class="sc">*</span> <span class="fl">1.6</span></span>
+<span id="cb105-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 6
   expression      min   median `itr/sec` mem_alloc `gc/sec`
   &lt;bch:expr&gt; &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-1 rows          1.24s    1.24s     0.804   66.83MB    12.9 
-2 elements   112.31ms 113.39ms     7.58     2.59MB     9.48
-3 vectorized  28.37µs  41.86µs 15434.       2.57MB   308.  </code></pre>
+1 rows          1.38s    1.38s     0.724   66.83MB     11.6
+2 elements   110.77ms 111.38ms     8.97     2.59MB     10.8
+3 vectorized  39.56µs  44.53µs 14998.       2.57MB    306. </code></pre>
 </div>
 </div>
 </div>
@@ -3705,18 +3686,18 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <p><code>flights</code> written to disk in both formats,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href aria-label="1"></a>csv <span class="ot">=</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;flights.csv&quot;</span>)</span>
-<span id="cb110-2"><a href aria-label="2"></a>pq <span class="ot">=</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;flights.parquet&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href aria-label="1"></a>csv <span class="ot">=</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;flights.csv&quot;</span>)</span>
+<span id="cb107-2"><a href aria-label="2"></a>pq <span class="ot">=</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;flights.parquet&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href aria-label="1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(flights, csv)</span>
-<span id="cb111-2"><a href aria-label="2"></a>nanoparquet<span class="sc">::</span><span class="fu">write_parquet</span>(flights, pq)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a>readr<span class="sc">::</span><span class="fu">write_csv</span>(flights, csv)</span>
+<span id="cb108-2"><a href aria-label="2"></a>nanoparquet<span class="sc">::</span><span class="fu">write_parquet</span>(flights, pq)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href aria-label="1"></a>fs<span class="sc">::</span><span class="fu">file_size</span>( <span class="fu">c</span>(csv, pq) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href aria-label="1"></a>fs<span class="sc">::</span><span class="fu">file_size</span>( <span class="fu">c</span>(csv, pq) )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>29.62M  5.42M</code></pre>
 </div>
@@ -3728,23 +3709,23 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <h2>Read speed</h2>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
-<span id="cb114-2"><a href aria-label="2"></a>  <span class="at">csv_base        =</span> <span class="fu">read.csv</span>(csv),</span>
-<span id="cb114-3"><a href aria-label="3"></a>  <span class="at">csv_readr       =</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(csv, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>),</span>
-<span id="cb114-4"><a href aria-label="4"></a>  <span class="at">csv_fread       =</span> data.table<span class="sc">::</span><span class="fu">fread</span>(csv),</span>
-<span id="cb114-5"><a href aria-label="5"></a>  <span class="at">par_nanoparquet =</span> nanoparquet<span class="sc">::</span><span class="fu">read_parquet</span>(pq),</span>
-<span id="cb114-6"><a href aria-label="6"></a>  <span class="at">par_arrow       =</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(pq),</span>
-<span id="cb114-7"><a href aria-label="7"></a>  <span class="at">check =</span> <span class="cn">FALSE</span></span>
-<span id="cb114-8"><a href aria-label="8"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href aria-label="1"></a>bench<span class="sc">::</span><span class="fu">mark</span>(</span>
+<span id="cb111-2"><a href aria-label="2"></a>  <span class="at">csv_base        =</span> <span class="fu">read.csv</span>(csv),</span>
+<span id="cb111-3"><a href aria-label="3"></a>  <span class="at">csv_readr       =</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(csv, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb111-4"><a href aria-label="4"></a>  <span class="at">csv_fread       =</span> data.table<span class="sc">::</span><span class="fu">fread</span>(csv),</span>
+<span id="cb111-5"><a href aria-label="5"></a>  <span class="at">par_nanoparquet =</span> nanoparquet<span class="sc">::</span><span class="fu">read_parquet</span>(pq),</span>
+<span id="cb111-6"><a href aria-label="6"></a>  <span class="at">par_arrow       =</span> arrow<span class="sc">::</span><span class="fu">read_parquet</span>(pq),</span>
+<span id="cb111-7"><a href aria-label="7"></a>  <span class="at">check =</span> <span class="cn">FALSE</span></span>
+<span id="cb111-8"><a href aria-label="8"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 6
   expression           min   median `itr/sec` mem_alloc `gc/sec`
   &lt;bch:expr&gt;      &lt;bch:tm&gt; &lt;bch:tm&gt;     &lt;dbl&gt; &lt;bch:byt&gt;    &lt;dbl&gt;
-1 csv_base        682.91ms 682.91ms      1.46     228MB     7.32
-2 csv_readr       578.02ms 578.02ms      1.73    49.8MB     0   
-3 csv_fread        40.84ms  43.52ms     23.2     35.6MB    15.5 
-4 par_nanoparquet  81.26ms  89.29ms     10.2     52.3MB     8.47
-5 par_arrow         4.88ms   5.78ms    168.      21.5MB     3.96</code></pre>
+1 csv_base        618.21ms 618.21ms      1.62     228MB     3.24
+2 csv_readr       574.39ms 574.39ms      1.74    49.8MB     1.74
+3 csv_fread        40.74ms  42.35ms     23.6     35.6MB     7.86
+4 par_nanoparquet   79.1ms  82.02ms     11.4     52.3MB    11.4 
+5 par_arrow         4.97ms   5.85ms    163.      21.5MB     1.99</code></pre>
 </div>
 </div>
 </div>
@@ -3782,7 +3763,7 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <h2>dplyr rules</h2>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href aria-label="1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="medium">
@@ -3805,24 +3786,24 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href aria-label="1"></a><span class="fu">h</span>( <span class="fu">g</span>( <span class="fu">f</span>(x), <span class="at">n =</span> <span class="dv">1</span> ), <span class="at">m =</span> <span class="dv">2</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a><span class="fu">h</span>( <span class="fu">g</span>( <span class="fu">f</span>(x), <span class="at">n =</span> <span class="dv">1</span> ), <span class="at">m =</span> <span class="dv">2</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href aria-label="1"></a>x <span class="sc">|&gt;</span></span>
-<span id="cb118-2"><a href aria-label="2"></a>  <span class="fu">f</span>() <span class="sc">|&gt;</span></span>
-<span id="cb118-3"><a href aria-label="3"></a>  <span class="fu">g</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb118-4"><a href aria-label="4"></a>  <span class="fu">h</span>(<span class="at">m =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href aria-label="1"></a>x <span class="sc">|&gt;</span></span>
+<span id="cb115-2"><a href aria-label="2"></a>  <span class="fu">f</span>() <span class="sc">|&gt;</span></span>
+<span id="cb115-3"><a href aria-label="3"></a>  <span class="fu">g</span>(<span class="at">n =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb115-4"><a href aria-label="4"></a>  <span class="fu">h</span>(<span class="at">m =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <div class="fragment">
 <p>Since every dplyr verb takes and returns a data frame, the pipe is the natural way to chain them,</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb119-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb119-3"><a href aria-label="3"></a>  <span class="fu">count</span>(carrier) <span class="sc">|&gt;</span></span>
-<span id="cb119-4"><a href aria-label="4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb116-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb116-3"><a href aria-label="3"></a>  <span class="fu">count</span>(carrier) <span class="sc">|&gt;</span></span>
+<span id="cb116-4"><a href aria-label="4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
@@ -3841,16 +3822,16 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href aria-label="1"></a>dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href aria-label="1"></a>dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error:
 ! object &#39;dest&#39; not found</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb122-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span>, month <span class="sc">==</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
-<span id="cb122-3"><a href aria-label="3"></a>  <span class="fu">select</span>(month, day, carrier)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb119-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span>, month <span class="sc">==</span> <span class="dv">5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb119-3"><a href aria-label="3"></a>  <span class="fu">select</span>(month, day, carrier)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,453 × 3
   month   day carrier
@@ -3865,9 +3846,9 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href aria-label="1"></a>flights[flights<span class="sc">$</span>dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span> <span class="sc">&amp;</span></span>
-<span id="cb124-2"><a href aria-label="2"></a>        flights<span class="sc">$</span>month <span class="sc">==</span> <span class="dv">5</span>,</span>
-<span id="cb124-3"><a href aria-label="3"></a>        <span class="fu">c</span>(<span class="st">&quot;month&quot;</span>, <span class="st">&quot;day&quot;</span>, <span class="st">&quot;carrier&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href aria-label="1"></a>flights[flights<span class="sc">$</span>dest <span class="sc">==</span> <span class="st">&quot;LAX&quot;</span> <span class="sc">&amp;</span></span>
+<span id="cb121-2"><a href aria-label="2"></a>        flights<span class="sc">$</span>month <span class="sc">==</span> <span class="dv">5</span>,</span>
+<span id="cb121-3"><a href aria-label="3"></a>        <span class="fu">c</span>(<span class="st">&quot;month&quot;</span>, <span class="st">&quot;day&quot;</span>, <span class="st">&quot;carrier&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1,453 × 3
   month   day carrier
@@ -3891,10 +3872,10 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href aria-label="1"></a>long <span class="ot">=</span> <span class="dv">60</span></span>
-<span id="cb126-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb126-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;</span> long) <span class="sc">|&gt;</span></span>
-<span id="cb126-4"><a href aria-label="4"></a>  <span class="fu">select</span>(carrier, dep_delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href aria-label="1"></a>long <span class="ot">=</span> <span class="dv">60</span></span>
+<span id="cb123-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb123-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(dep_delay <span class="sc">&gt;</span> long) <span class="sc">|&gt;</span></span>
+<span id="cb123-4"><a href aria-label="4"></a>  <span class="fu">select</span>(carrier, dep_delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 26,581 × 2
   carrier dep_delay
@@ -3909,18 +3890,18 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href aria-label="1"></a>month <span class="ot">=</span> <span class="dv">5</span></span>
-<span id="cb128-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb128-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> month) <span class="sc">|&gt;</span></span>
-<span id="cb128-4"><a href aria-label="4"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href aria-label="1"></a>month <span class="ot">=</span> <span class="dv">5</span></span>
+<span id="cb125-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb125-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> month) <span class="sc">|&gt;</span></span>
+<span id="cb125-4"><a href aria-label="4"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 336776</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb130-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> .env<span class="sc">$</span>month) <span class="sc">|&gt;</span></span>
-<span id="cb130-3"><a href aria-label="3"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb127-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(month <span class="sc">==</span> .env<span class="sc">$</span>month) <span class="sc">|&gt;</span></span>
+<span id="cb127-3"><a href aria-label="3"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 28796</code></pre>
 </div>
@@ -3952,25 +3933,25 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <p><code>select()</code>, <code>rename()</code>, <code>across()</code>, and <code>.by</code> use a second flavor of NSE - <em>tidy selection</em> where expressions describe <em>which</em> columns, not values.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(year<span class="sc">:</span>day, dep_delay) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(year<span class="sc">:</span>day, dep_delay) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;year&quot;      &quot;month&quot;     &quot;day&quot;       &quot;dep_delay&quot;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">&quot;dep&quot;</span>), <span class="fu">ends_with</span>(<span class="st">&quot;delay&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">&quot;dep&quot;</span>), <span class="fu">ends_with</span>(<span class="st">&quot;delay&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;dep_time&quot;  &quot;dep_delay&quot; &quot;arr_delay&quot;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">where</span>(is.character) <span class="sc">|</span> year) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">where</span>(is.character) <span class="sc">|</span> year) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;carrier&quot; &quot;tailnum&quot; &quot;origin&quot;  &quot;dest&quot;    &quot;year&quot;   </code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">!</span><span class="fu">where</span>(is.numeric)) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">!</span><span class="fu">where</span>(is.numeric)) <span class="sc">|&gt;</span> <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;carrier&quot;   &quot;tailnum&quot;   &quot;origin&quot;    &quot;dest&quot;      &quot;time_hour&quot;</code></pre>
 </div>
@@ -4027,19 +4008,19 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href aria-label="1"></a>cols <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;month&quot;</span>, <span class="st">&quot;day&quot;</span>)</span>
-<span id="cb140-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb140-3"><a href aria-label="3"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(cols)) <span class="sc">|&gt;</span></span>
-<span id="cb140-4"><a href aria-label="4"></a>  <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href aria-label="1"></a>cols <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;year&quot;</span>, <span class="st">&quot;month&quot;</span>, <span class="st">&quot;day&quot;</span>)</span>
+<span id="cb137-2"><a href aria-label="2"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb137-3"><a href aria-label="3"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(cols)) <span class="sc">|&gt;</span></span>
+<span id="cb137-4"><a href aria-label="4"></a>  <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;year&quot;  &quot;month&quot; &quot;day&quot;  </code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb142-2"><a href aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(cols, <span class="st">&quot;weight&quot;</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb142-3"><a href aria-label="3"></a>  <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb139-2"><a href aria-label="2"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(cols, <span class="st">&quot;weight&quot;</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb139-3"><a href aria-label="3"></a>  <span class="fu">names</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;year&quot;  &quot;month&quot; &quot;day&quot;  </code></pre>
 </div>
@@ -4055,8 +4036,8 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <p><code>across()</code> brings tidy selection into the data masking verbs - it applies a function to every selected column inside <code>mutate()</code> or <code>summarize()</code>.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href aria-label="1"></a>penguins <span class="sc">|&gt;</span></span>
-<span id="cb144-2"><a href aria-label="2"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), \(x) <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href aria-label="1"></a>penguins <span class="sc">|&gt;</span></span>
+<span id="cb141-2"><a href aria-label="2"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), \(x) <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 5
   bill_length_mm bill_depth_mm flipper_length_mm body_mass_g  year
@@ -4068,11 +4049,11 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href aria-label="1"></a>penguins <span class="sc">|&gt;</span></span>
-<span id="cb146-2"><a href aria-label="2"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(</span>
-<span id="cb146-3"><a href aria-label="3"></a>    <span class="fu">ends_with</span>(<span class="st">&quot;_g&quot;</span>),</span>
-<span id="cb146-4"><a href aria-label="4"></a>    <span class="fu">list</span>(<span class="at">mean =</span> \(x) <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">sd =</span> \(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb146-5"><a href aria-label="5"></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href aria-label="1"></a>penguins <span class="sc">|&gt;</span></span>
+<span id="cb143-2"><a href aria-label="2"></a>  <span class="fu">summarize</span>(<span class="fu">across</span>(</span>
+<span id="cb143-3"><a href aria-label="3"></a>    <span class="fu">ends_with</span>(<span class="st">&quot;_g&quot;</span>),</span>
+<span id="cb143-4"><a href aria-label="4"></a>    <span class="fu">list</span>(<span class="at">mean =</span> \(x) <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">sd =</span> \(x) <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb143-5"><a href aria-label="5"></a>  ))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 2
   body_mass_g_mean body_mass_g_sd
@@ -4093,8 +4074,8 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <p>Most summaries follow the same pattern: <em>split</em> the rows into groups, <em>apply</em> a computation to each group, <em>combine</em> the results. <code>group_by()</code> records the grouping on the data frame and the verbs that follows respect the groups.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href aria-label="1"></a>g <span class="ot">=</span> <span class="fu">group_by</span>(flights, origin, carrier)</span>
-<span id="cb148-2"><a href aria-label="2"></a><span class="fu">class</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a>g <span class="ot">=</span> <span class="fu">group_by</span>(flights, origin, carrier)</span>
+<span id="cb145-2"><a href aria-label="2"></a><span class="fu">class</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;grouped_df&quot; &quot;tbl_df&quot;     &quot;tbl&quot;        &quot;data.frame&quot;</code></pre>
 </div>
@@ -4103,7 +4084,7 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb150"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a href aria-label="1"></a>g <span class="sc">|&gt;</span> <span class="fu">select</span>(origin, carrier, dep_delay) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href aria-label="1"></a>g <span class="sc">|&gt;</span> <span class="fu">select</span>(origin, carrier, dep_delay) <span class="sc">|&gt;</span> <span class="fu">head</span>(<span class="at">n =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
 # Groups:   origin, carrier [3]
@@ -4123,13 +4104,13 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb152"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb152-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dep_delay)) <span class="sc">|&gt;</span></span>
-<span id="cb152-3"><a href aria-label="3"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb152-4"><a href aria-label="4"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
-<span id="cb152-5"><a href aria-label="5"></a>    <span class="at">delay =</span> <span class="fu">mean</span>(dep_delay),</span>
-<span id="cb152-6"><a href aria-label="6"></a>    <span class="at">.by =</span> origin</span>
-<span id="cb152-7"><a href aria-label="7"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb149-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dep_delay)) <span class="sc">|&gt;</span></span>
+<span id="cb149-3"><a href aria-label="3"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb149-4"><a href aria-label="4"></a>    <span class="at">n =</span> <span class="fu">n</span>(),</span>
+<span id="cb149-5"><a href aria-label="5"></a>    <span class="at">delay =</span> <span class="fu">mean</span>(dep_delay),</span>
+<span id="cb149-6"><a href aria-label="6"></a>    <span class="at">.by =</span> origin</span>
+<span id="cb149-7"><a href aria-label="7"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   origin      n delay
@@ -4141,10 +4122,10 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb154-2"><a href aria-label="2"></a>  <span class="fu">group_by</span>(origin, carrier) <span class="sc">|&gt;</span></span>
-<span id="cb154-3"><a href aria-label="3"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb154-4"><a href aria-label="4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb151-2"><a href aria-label="2"></a>  <span class="fu">group_by</span>(origin, carrier) <span class="sc">|&gt;</span></span>
+<span id="cb151-3"><a href aria-label="3"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb151-4"><a href aria-label="4"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 35 × 3
 # Groups:   origin [3]
@@ -4169,9 +4150,9 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb156-2"><a href aria-label="2"></a>  <span class="fu">count</span>(origin, carrier) <span class="sc">|&gt;</span></span>
-<span id="cb156-3"><a href aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">share =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n), <span class="at">.by =</span> origin)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb153-2"><a href aria-label="2"></a>  <span class="fu">count</span>(origin, carrier) <span class="sc">|&gt;</span></span>
+<span id="cb153-3"><a href aria-label="3"></a>  <span class="fu">mutate</span>(<span class="at">share =</span> n <span class="sc">/</span> <span class="fu">sum</span>(n), <span class="at">.by =</span> origin)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 35 × 4
   origin carrier     n   share
@@ -4186,13 +4167,13 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
-<span id="cb158-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dep_delay)) <span class="sc">|&gt;</span></span>
-<span id="cb158-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(</span>
-<span id="cb158-4"><a href aria-label="4"></a>    dep_delay <span class="sc">==</span> <span class="fu">max</span>(dep_delay),</span>
-<span id="cb158-5"><a href aria-label="5"></a>    <span class="at">.by =</span> origin</span>
-<span id="cb158-6"><a href aria-label="6"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb158-7"><a href aria-label="7"></a>  <span class="fu">select</span>(origin, carrier, dep_delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href aria-label="1"></a>flights <span class="sc">|&gt;</span></span>
+<span id="cb155-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(dep_delay)) <span class="sc">|&gt;</span></span>
+<span id="cb155-3"><a href aria-label="3"></a>  <span class="fu">filter</span>(</span>
+<span id="cb155-4"><a href aria-label="4"></a>    dep_delay <span class="sc">==</span> <span class="fu">max</span>(dep_delay),</span>
+<span id="cb155-5"><a href aria-label="5"></a>    <span class="at">.by =</span> origin</span>
+<span id="cb155-6"><a href aria-label="6"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb155-7"><a href aria-label="7"></a>  <span class="fu">select</span>(origin, carrier, dep_delay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
   origin carrier dep_delay
@@ -4206,7 +4187,7 @@ Levels: Adelie Chinstrap Gentoo</code></pre>
 </section>
 <section id="example" class="slide level2">
 <h2>Example</h2>
-<p>Using <code>flights</code>,</p>
+<p>Using <code>nycflights13::flights</code>,</p>
 <div class="medium">
 <ol type="1">
 <li><p>How many flights to Los Angeles (LAX) did each of the legacy carriers (AA, UA, DL or US) have in May from JFK, and what was their average duration?</p></li>
