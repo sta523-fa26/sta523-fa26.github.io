@@ -131,9 +131,17 @@ flights = pl.read_parquet("../data/flights.parquet")
 
    ```{python}
    (flights
-     .filter(pl.col("arr_delay").is_not_null(), pl.col("air_time") > 0)
-     .with_columns(arr_delay_pct = 100 * pl.col("arr_delay") / pl.col("air_time"))
-     .filter(pl.col("arr_delay_pct") == pl.col("arr_delay_pct").max())
-     .select("month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct")
+     .filter(
+      pl.col("arr_delay").is_not_null(), pl.col("air_time") > 0
+    )
+     .with_columns(
+      arr_delay_pct = 100 * pl.col("arr_delay") / pl.col("air_time")
+    )
+     .filter(
+      pl.col("arr_delay_pct") == pl.col("arr_delay_pct").max()
+    )
+     .select(
+      "month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct"
+    )
    )
    ```

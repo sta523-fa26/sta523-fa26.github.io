@@ -1050,870 +1050,6 @@ display: block;
 margin-left: auto;
 margin-right: 0; }
 </style>
-  <style type="text/css">
-.countdown {
---_margin: 0.6em;
---_running-color: var(--countdown-color-running-text, rgba(0, 0, 0, 0.8));
---_running-background: var(--countdown-color-running-background, #43AC6A);
---_running-border-color: var(--countdown-color-running-border, rgba(0, 0, 0, 0.1));
---_finished-color: var(--countdown-color-finished-text, rgba(0, 0, 0, 0.7));
---_finished-background: var(--countdown-color-finished-background, #F04124);
---_finished-border-color: var(--countdown-color-finished-border, rgba(0, 0, 0, 0.1));
-position: absolute;
-display: flex;
-align-items: center;
-justify-content: center;
-cursor: pointer;
-background: var(--countdown-color-background, inherit);
-font-size: var(--countdown-font-size, 3rem);
-line-height: var(--countdown-line-height, 1);
-border-color: var(--countdown-color-border, #ddd);
-border-width: var(--countdown-border-width, 0.1875rem);
-border-style: solid;
-border-radius: var(--countdown-border-radius, 0.9rem);
-box-shadow: var(--countdown-box-shadow, 0px 4px 10px 0px rgba(50, 50, 50, 0.4));
-margin: var(--countdown-margin, var(--_margin, 0.6em));
-padding: var(--countdown-padding, 0.625rem 0.9rem);
-text-align: center;
-z-index: 10;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-countdown-timer[position="static"],
-countdown-timer[position="relative"] {
-position: relative;
-}
-.countdown.inline {
-position: relative;
-width: max-content;
-max-width: 100%;
-}
-.countdown .countdown-time {
-background: none;
-font-size: 100%;
-padding: 0;
-color: currentColor;
-}
-.countdown-digits {
-color: var(--countdown-color-text);
-}
-.countdown.running {
-border-color: var(--_running-border-color);
-background-color: var(--_running-background);
-}
-.countdown.running .countdown-digits {
-color: var(--_running-color);
-}
-.countdown.finished {
-border-color: var(--_finished-border-color);
-background-color: var(--_finished-background);
-}
-.countdown.finished .countdown-digits {
-color: var(--_finished-color);
-}
-.countdown.running.warning {
-border-color: var(--countdown-color-warning-border, rgba(0, 0, 0, 0.1));
-background-color: var(--countdown-color-warning-background, #E6C229);
-}
-.countdown.running.warning .countdown-digits {
-color: var(--countdown-color-warning-text, rgba(0, 0, 0, 0.7));
-}
-.countdown.running.blink-colon .countdown-digits.colon {
-opacity: 0.1;
-}
-
-.countdown:not(.running) .countdown-controls,
-.countdown.no-controls .countdown-controls {
-display: none;
-}
-.countdown-controls {
-position: absolute;
-top: -0.5rem;
-right: -0.5rem;
-left: -0.5rem;
-display: flex;
-justify-content: space-between;
-margin: 0;
-padding: 0;
-}
-.countdown-controls>button {
-position: relative;
-font-size: 1.5rem;
-width: 1rem;
-height: 1rem;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-font-family: monospace;
-padding: 10px;
-margin: 0;
-background: inherit;
-border: 2px solid;
-border-radius: 100%;
-transition: 50ms transform ease-in-out, 150ms opacity ease-in;
-box-shadow: 0px 2px 5px 0px rgba(50, 50, 50, 0.4);
--webkit-box-shadow: 0px 2px 5px 0px rgba(50, 50, 50, 0.4);
---_button-bump: 0;
-opacity: var(--_opacity, 0);
-transform: translate(0, var(--_button-bump));
-}
-
-.countdown .countdown-controls > button::after {
-content: "";
-height: 200%;
-width: 200%;
-position: absolute;
-border-radius: 50%;
-}
-.countdown .countdown-controls>button:last-child {
-color: var(--_running-color);
-background-color: var(--_running-background);
-border-color: var(--_running-border-color);
-}
-.countdown .countdown-controls>button:first-child {
-color: var(--_finished-color);
-background-color: var(--_finished-background);
-border-color: var(--_finished-border-color);
-}
-.countdown.running:hover, .countdown.running:focus-within {
---_opacity: 1;
-}
-.countdown.running:hover .countdown-controls>button,
-.countdown.running:focus-within .countdown-controls>button {
---_button-bump: -3px;
-}
-.countdown.running:hover .countdown-controls>button:active,
-.countdown.running:focus-within .countdown-controls>button:active {
---_button-bump: 0;
-}
-
-.reveal .countdown {
---_margin: 0;
-}
-
-.countdown.countdown-fullscreen {
-z-index: 0;
-}
-.countdown-fullscreen.running .countdown-controls {
-top: 1rem;
-left: 0;
-right: 0;
-justify-content: center;
-}
-.countdown-fullscreen.running .countdown-controls>button+button {
-margin-left: 1rem;
-}
-</style>
-  <script>/* countdown
- * countdown timer for slides and HTML docs in Quarto, R Markdown, and Shiny
- *
- * https://pkg.garrickadenbuie.com/countdown
- *
- * Copyright (c) 2025 countdown authors
- *
- * This software is released under the MIT License.
- * https://opensource.org/licenses/MIT
- */
-
-/* globals Shiny,Audio */
-class CountdownTimer extends window.HTMLElement {
-  constructor () {
-    super()
-
-    // Initialize properties without DOM access
-    this._end = null
-    this._isRunning = false
-    this._timeout = null
-    this._remaining = null
-    this._display = { minutes: 0, seconds: 0 }
-    this._srcLocation = null
-    this._lastTouchTime = null
-
-    // Element references (will be set when DOM is created)
-    this._elements = {
-      controls: null,
-      bumpDown: null,
-      bumpUp: null,
-      timeCode: null,
-      minutes: null,
-      colon: null,
-      seconds: null
-    }
-
-    // For backward compatibility
-    this.countdown = this
-  }
-
-  static get observedAttributes () {
-    return [
-      'warn-when',
-      'update-every',
-      'play-sound',
-      'blink-colon',
-      'start-immediately',
-      'minutes',
-      'seconds'
-    ]
-  }
-
-  connectedCallback () {
-    // Ensure countdown class is present for backward compatibility
-    if (!this.classList.contains('countdown')) {
-      this.classList.add('countdown')
-    }
-
-    // Make the element focusable
-    if (!this.hasAttribute('tabindex')) {
-      this.setAttribute('tabindex', '0')
-    }
-
-    this.initializeFromDOM()
-    this.addEventListeners()
-
-    if (this.start_immediately) {
-      document.addEventListener('DOMContentLoaded', () => this.handleStartImmediately())
-    }
-  }
-
-  disconnectedCallback () {
-    this.cleanup()
-  }
-
-  attributeChangedCallback (name, oldValue, newValue) {
-    if (oldValue === newValue) return
-
-    switch (name) {
-      case 'warn-when':
-        this.warn_when = parseInt(newValue) || -1
-        break
-      case 'update-every':
-        this.update_every = parseInt(newValue) || 1
-        break
-      case 'play-sound':
-        this.play_sound = this.attrIsTrue(newValue) || newValue
-        break
-      case 'blink-colon':
-        this.blink_colon = this.attrIsTrue(newValue)
-        if (!this.blink_colon) {
-          this.classList.remove('blink-colon')
-        }
-        break
-      case 'start-immediately':
-        this.start_immediately = this.attrIsTrue(newValue)
-        break
-      case 'minutes':
-      case 'seconds':
-        // Re-initialize when minutes or seconds change
-        /* eslint-disable-next-line no-case-declarations */
-        const minutes = parseInt(this.getAttribute('minutes') || '0')
-        /* eslint-disable-next-line no-case-declarations */
-        const seconds = parseInt(this.getAttribute('seconds') || '0')
-        this._duration = minutes * 60 + seconds
-        this._display = { minutes, seconds }
-
-        // Update the display if DOM exists
-        if (this._elements.minutes && this._elements.seconds) {
-          this.update(true)
-        }
-        break
-    }
-  }
-
-  createInnerDOM () {
-    // Clear existing content
-    this.innerHTML = ''
-
-    // Controls ----
-    this._elements.controls = document.createElement('div')
-    this._elements.controls.className = 'countdown-controls'
-
-    this._elements.bumpDown = document.createElement('button')
-    this._elements.bumpDown.className = 'countdown-bump-down'
-    this._elements.bumpDown.innerHTML = '&minus;'
-
-    this._elements.bumpUp = document.createElement('button')
-    this._elements.bumpUp.className = 'countdown-bump-up'
-    this._elements.bumpUp.innerHTML = '&plus;'
-
-    this._elements.controls.appendChild(this._elements.bumpDown)
-    this._elements.controls.appendChild(this._elements.bumpUp)
-
-    // Time ----
-    this._elements.timeCode = document.createElement('code')
-    this._elements.timeCode.className = 'countdown-time'
-
-    this._elements.minutes = document.createElement('span')
-    this._elements.minutes.className = 'countdown-digits minutes'
-    this._elements.minutes.innerText = String(this._display.minutes).padStart(2, '0')
-
-    this._elements.colon = document.createElement('span')
-    this._elements.colon.className = 'countdown-digits colon'
-    this._elements.colon.innerText = ':'
-
-    this._elements.seconds = document.createElement('span')
-    this._elements.seconds.className = 'countdown-digits seconds'
-    this._elements.seconds.innerText = String(this._display.seconds).padStart(2, '0')
-
-    this._elements.timeCode.appendChild(this._elements.minutes)
-    this._elements.timeCode.appendChild(this._elements.colon)
-    this._elements.timeCode.appendChild(this._elements.seconds)
-
-    // Assemble ----
-    this.appendChild(this._elements.controls)
-    this.appendChild(this._elements.timeCode)
-  }
-
-  #normalizeTime (minutes, seconds) {
-    minutes = Math.floor(Number(minutes) || 0)
-    seconds = Math.floor(Number(seconds) || 0)
-
-    const totalSeconds = minutes * 60 + seconds
-
-    return {
-      minutes: Math.floor(totalSeconds / 60),
-      seconds: totalSeconds % 60,
-      totalSeconds
-    }
-  }
-
-  initializeFromDOM () {
-    // Get minutes and seconds from attributes, defaulting to 0
-    const { minutes, seconds, totalSeconds } = this.#normalizeTime(
-      this.getAttribute('minutes'),
-      this.getAttribute('seconds')
-    )
-
-    this._duration = totalSeconds
-    this._display = { minutes, seconds }
-
-    // Create the inner DOM structure
-    this.createInnerDOM()
-
-    // Initialize properties from attributes
-    this.warn_when = parseInt(this.getAttribute('warn-when')) || -1
-    this.update_every = parseInt(this.getAttribute('update-every')) || 1
-    this.play_sound =
-      this.attrIsTrue(this.getAttribute('play-sound')) ||
-      this.getAttribute('play-sound')
-    this.blink_colon = this.attrIsTrue(this.getAttribute('blink-colon'))
-    this.start_immediately = this.attrIsTrue(
-      this.getAttribute('start-immediately')
-    )
-
-    // Get source location from script tag if available
-    const currentScript = document.currentScript ||
-      (document.querySelector('script[src*="countdown"]') ?? '')
-    if (currentScript) {
-      this._srcLocation = currentScript.getAttribute('src')
-    }
-  }
-
-  cleanup () {
-    if (this._timeout) {
-      clearTimeout(this._timeout)
-      this._timeout = null
-    }
-    this._isRunning = false
-  }
-
-  attrIsTrue (x) {
-    if (typeof x === 'undefined') return false
-    if (x === true) return true
-    return !!(x === 'true' || x === '' || x === '1')
-  }
-
-  addEventListeners () {
-    const self = this
-
-    function haltEvent (ev) {
-      ev.preventDefault()
-      ev.stopPropagation()
-    }
-    function isSpaceOrEnter (ev) {
-      return ev.code === 'Space' || ev.code === 'Enter'
-    }
-    function isArrowUpOrDown (ev) {
-      return ev.code === 'ArrowUp' || ev.code === 'ArrowDown'
-    }
-
-    // Handle click events (desktop)
-    self.addEventListener('click', function (ev) {
-      haltEvent(ev)
-      self._isRunning ? self.stop({ manual: true }) : self.start()
-    })
-
-    // Handle touch events (mobile) with double-tap detection
-    self.addEventListener('touchend', function (ev) {
-      haltEvent(ev)
-
-      const now = Date.now()
-      const DOUBLE_TAP_THRESHOLD = 300 // milliseconds
-
-      // Check for double-tap
-      if (self._lastTouchTime && (now - self._lastTouchTime) < DOUBLE_TAP_THRESHOLD) {
-        // Double-tap detected
-        self._lastTouchTime = null
-        if (!self._isRunning) {
-          // Double tap while *running* resets the timer, but the first tap
-          // stops the timer and the second tap resets it
-          self.reset()
-        }
-      } else {
-        // Single tap - update timestamp and toggle start/stop
-        self._lastTouchTime = now
-        self._isRunning ? self.stop({ manual: true }) : self.start()
-      }
-    })
-
-    this.addEventListener('keydown', function (ev) {
-      if (ev.code === 'Escape') {
-        self.reset()
-        haltEvent(ev)
-      }
-      if (!isSpaceOrEnter(ev) && !isArrowUpOrDown(ev)) return
-      haltEvent(ev)
-      if (isSpaceOrEnter(ev)) {
-        self._isRunning ? self.stop({ manual: true }) : self.start()
-        return
-      }
-
-      if (!self._isRunning) return
-
-      if (ev.code === 'ArrowUp') {
-        self.bumpUp()
-      } else if (ev.code === 'ArrowDown') {
-        self.bumpDown()
-      }
-    })
-
-    this.addEventListener('dblclick', function (ev) {
-      haltEvent(ev)
-      if (self._isRunning) self.reset()
-    })
-
-    this.addEventListener('touchmove', haltEvent)
-
-    if (this._elements.bumpDown) {
-      ['click', 'touchend'].forEach(function (eventType) {
-        self._elements.bumpDown.addEventListener(eventType, function (ev) {
-          haltEvent(ev)
-          if (self._isRunning) self.bumpDown()
-        })
-      })
-      this._elements.bumpDown.addEventListener('keydown', function (ev) {
-        if (!isSpaceOrEnter(ev) || !self._isRunning) return
-        haltEvent(ev)
-        self.bumpDown()
-      })
-    }
-
-    if (this._elements.bumpUp) {
-      ['click', 'touchend'].forEach(function (eventType) {
-        self._elements.bumpUp.addEventListener(eventType, function (ev) {
-          haltEvent(ev)
-          if (self._isRunning) self.bumpUp()
-        })
-      })
-      this._elements.bumpUp.addEventListener('keydown', function (ev) {
-        if (!isSpaceOrEnter(ev) || !self._isRunning) return
-        haltEvent(ev)
-        self.bumpUp()
-      })
-    }
-
-    if (this._elements.controls) {
-      this._elements.controls.addEventListener('dblclick', function (ev) {
-        haltEvent(ev)
-      })
-    }
-  }
-
-  handleStartImmediately () {
-    const self = this
-
-    if (window.remark && window.slideshow) {
-      // Remark (xaringan) support
-      const isOnVisibleSlide = () => {
-        return document.querySelector('.remark-visible').contains(self)
-      }
-      if (isOnVisibleSlide()) {
-        self.start()
-      } else {
-        let startedOnce = 0
-        window.slideshow.on('afterShowSlide', function () {
-          if (startedOnce > 0) return
-          if (isOnVisibleSlide()) {
-            self.start()
-            startedOnce = 1
-          }
-        })
-      }
-    } else if (window.Reveal) {
-      // Revealjs (quarto) support
-      const isOnVisibleSlide = () => {
-        const currentSlide = document.querySelector('.reveal .slide.present')
-        return currentSlide ? currentSlide.contains(self) : false
-      }
-      if (isOnVisibleSlide()) {
-        self.start()
-      } else {
-        const revealStartTimer = () => {
-          if (isOnVisibleSlide()) {
-            self.start()
-            window.Reveal.off('slidechanged', revealStartTimer)
-          }
-        }
-        window.Reveal.on('slidechanged', revealStartTimer)
-      }
-    } else if (window.IntersectionObserver) {
-      // All other situations use IntersectionObserver
-      const onVisible = (element, callback) => {
-        new window.IntersectionObserver((entries, observer) => {
-          entries.forEach((entry) => {
-            if (entry.intersectionRatio > 0) {
-              callback(element)
-              observer.disconnect()
-            }
-          })
-        }).observe(element)
-      }
-      onVisible(this, (el) => el.countdown.start())
-    } else {
-      // or just start the timer as soon as it's initialized
-      this.start()
-    }
-  }
-
-  remainingTime () {
-    const remaining = this._isRunning
-      ? (this._end - Date.now()) / 1000
-      : this._remaining || this._duration
-
-    let minutes = Math.floor(remaining / 60)
-    let seconds = Math.ceil(remaining - minutes * 60)
-
-    if (seconds > 59) {
-      minutes = minutes + 1
-      seconds = seconds - 60
-    }
-
-    return { remaining, minutes, seconds }
-  }
-
-  start () {
-    if (this._isRunning) return
-
-    this._isRunning = true
-
-    if (this._remaining) {
-      // Having a static remaining time indicates timer was paused
-      this._end = Date.now() + this._remaining * 1000
-      this._remaining = null
-    } else {
-      this._end = Date.now() + this._duration * 1000
-    }
-
-    this.emitStateEvent('start')
-
-    this.classList.remove('finished')
-    this.classList.add('running')
-    this.update(true)
-    this.tick()
-  }
-
-  tick (runAgain) {
-    if (typeof runAgain === 'undefined') {
-      runAgain = true
-    }
-
-    if (!this._isRunning) return
-
-    const { seconds: secondsWas } = this._display
-    this.update()
-
-    if (runAgain) {
-      const delay = this._end - Date.now() > 10000 ? 1000 : 250
-      this.blinkColon(secondsWas)
-      this._timeout = setTimeout(this.tick.bind(this), delay)
-    }
-  }
-
-  blinkColon (secondsWas) {
-    // don't blink unless option is set
-    if (!this.blink_colon) return
-    // warn_when always updates the seconds
-    if (this.warn_when > 0 && Date.now() + this.warn_when > this._end) {
-      this.classList.remove('blink-colon')
-      return
-    }
-    const { seconds: secondsIs } = this._display
-    if (secondsIs > 10 || secondsWas !== secondsIs) {
-      this.classList.toggle('blink-colon')
-    }
-  }
-
-  update (force) {
-    if (typeof force === 'undefined') {
-      force = false
-    }
-
-    const { remaining, minutes, seconds } = this.remainingTime()
-
-    const setRemainingTime = (element, time) => {
-      if (!element) return
-      time = Math.max(time, 0)
-      element.innerText = String(time).padStart(2, 0)
-    }
-
-    if (this._isRunning && remaining < 0.25) {
-      this.stop()
-      setRemainingTime(this._elements.minutes, 0)
-      setRemainingTime(this._elements.seconds, 0)
-      this.playSound()
-      return
-    }
-
-    const shouldUpdate =
-      force ||
-      Math.round(remaining) < this.warn_when ||
-      Math.round(remaining) % this.update_every === 0
-
-    if (shouldUpdate) {
-      const isWarning = remaining <= this.warn_when
-      if (isWarning && !this.classList.contains('warning')) {
-        this.emitStateEvent('warning')
-      }
-      this.classList.toggle('warning', isWarning)
-      this._display = { minutes, seconds }
-      setRemainingTime(this._elements.minutes, minutes)
-      setRemainingTime(this._elements.seconds, seconds)
-    }
-  }
-
-  stop ({ manual = false } = {}) {
-    const { remaining } = this.remainingTime()
-    if (remaining > 1) {
-      this._remaining = remaining
-    }
-    this.classList.remove('running')
-    this.classList.remove('warning')
-    this.classList.remove('blink-colon')
-    this.classList.add('finished')
-    this._isRunning = false
-    this._end = null
-    this.emitStateEvent(manual ? 'stop' : 'finished')
-    this._timeout = clearTimeout(this._timeout)
-  }
-
-  reset () {
-    this.stop({ manual: true })
-    this._remaining = null
-    this.update(true)
-
-    this.classList.remove('finished')
-    this.classList.remove('warning')
-    this._emitEvents = true
-    this.emitStateEvent('reset')
-  }
-
-  setValues (opts) {
-    if (typeof opts.warn_when !== 'undefined') {
-      this.warn_when = opts.warn_when
-    }
-    if (typeof opts.update_every !== 'undefined') {
-      this.update_every = opts.update_every
-    }
-    if (typeof opts.blink_colon !== 'undefined') {
-      this.blink_colon = opts.blink_colon
-      if (!opts.blink_colon) {
-        this.classList.remove('blink-colon')
-      }
-    }
-    if (typeof opts.play_sound !== 'undefined') {
-      this.play_sound = opts.play_sound
-    }
-    if (typeof opts.duration !== 'undefined') {
-      this._duration = opts.duration
-      if (this._isRunning) {
-        this.reset()
-        this.start()
-      }
-    }
-    this.emitStateEvent('update')
-    this.update(true)
-  }
-
-  bumpTimer (val, round) {
-    round = typeof round === 'boolean' ? round : true
-    const { remaining } = this.remainingTime()
-    let newRemaining = remaining + val
-    if (newRemaining <= 0) {
-      this.setRemaining(0)
-      this.stop()
-      return
-    }
-    if (round && newRemaining > 10) {
-      newRemaining = Math.round(newRemaining / 5) * 5
-    }
-    this.setRemaining(newRemaining)
-    this.emitStateEvent(val > 0 ? 'bumpUp' : 'bumpDown')
-    this.update(true)
-  }
-
-  bumpUp (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this.bumpTimer(
-      val || this.bumpIncrementValue(),
-      typeof val === 'undefined'
-    )
-  }
-
-  bumpDown (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this.bumpTimer(
-      val || -1 * this.bumpIncrementValue(),
-      typeof val === 'undefined'
-    )
-  }
-
-  setRemaining (val) {
-    if (!this._isRunning) {
-      console.error('timer is not running')
-      return
-    }
-    this._end = Date.now() + val * 1000
-    this.update(true)
-  }
-
-  playSound () {
-    let url = this.play_sound
-    if (!url || url === 'false') return
-    if (typeof url === 'boolean') {
-      const src = this._srcLocation
-        ? this._srcLocation.replace('/countdown.js', '')
-        : 'libs/countdown'
-      url = src + '/smb_stage_clear.mp3'
-    }
-    const sound = new Audio(url)
-    sound.play()
-  }
-
-  bumpIncrementValue (val) {
-    val = val || this.remainingTime().remaining
-    if (val <= 30) {
-      return 5
-    } else if (val <= 300) {
-      return 15
-    } else if (val <= 3000) {
-      return 30
-    } else {
-      return 60
-    }
-  }
-
-  emitStateEvent (action) {
-    const data = {
-      action,
-      time: new Date().toISOString(),
-      timer: {
-        is_running: this._isRunning,
-        end: this._end ? new Date(this._end).toISOString() : null,
-        remaining: this.remainingTime()
-      }
-    }
-
-    this.reportStateToShiny(data)
-    this.dispatchEvent(
-      new CustomEvent('countdown', { detail: data, bubbles: true })
-    )
-  }
-
-  reportStateToShiny (data) {
-    if (!window.Shiny) return
-
-    if (!window.Shiny.setInputValue) {
-      // We're in Shiny but it isn't ready for input updates yet
-      setTimeout(() => this.reportStateToShiny(data), 100)
-      return
-    }
-
-    const { action, time, timer } = data
-
-    const shinyData = { event: { action, time }, timer }
-
-    window.Shiny.setInputValue(this.id, shinyData)
-  }
-}
-
-if (!window.customElements.get('countdown-timer')) {
-  window.customElements.define('countdown-timer', CountdownTimer)
-}
-
-(function () {
-  if (!window.Shiny) {
-    return
-  }
-  Shiny.addCustomMessageHandler('countdown:update', function (x) {
-    if (!x.id) {
-      console.error('No `id` provided, cannot update countdown')
-      return
-    }
-    const el = document.getElementById(x.id)
-    if (el && el.setValues) {
-      el.setValues(x)
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:start', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.start) {
-      el.start()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:stop', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.stop) {
-      el.stop({ manual: true })
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:reset', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.reset) {
-      el.reset()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:bumpUp', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.bumpUp) {
-      el.bumpUp()
-    }
-  })
-
-  Shiny.addCustomMessageHandler('countdown:bumpDown', function (id) {
-    const el = document.getElementById(id)
-    if (!el) return
-    if (el.bumpDown) {
-      el.bumpDown()
-    }
-  })
-})()
-</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -2033,7 +1169,7 @@ Dr. Colin Rundel
 </section>
 <section id="pandas-1" class="slide level2">
 <h2>pandas</h2>
-<p>Python has no built-in tabular data structure. pandas (2008) is an established choice - it grew out of NumPy and borrows heavily from R. Today we will focus on some of the key differences between the two implementations.</p>
+<p>Python has no built-in tabular data structure. pandas (2008) is an established choice - it grew out of NumPy and borrows heavily from R.</p>
 <div class="small">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href aria-label="1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -2043,6 +1179,7 @@ Dr. Colin Rundel
 </div>
 </div>
 </div>
+<div class="fragment">
 <p>Three classes do the heavy lifting:</p>
 <ul>
 <li><p><code>Series</code> - a 1d typed array with an index (a column)</p></li>
@@ -2050,6 +1187,7 @@ Dr. Colin Rundel
 <li><p><code>DataFrame</code> - a collection of <code>Series</code> sharing an index (a table)</p></li>
 </ul>
 
+</div>
 <aside><div>
 <p>pandas 3.0 (released early 2026) changed some long standing defaults - strings have their own dtype and copy-on-write is always on. Older tutorials and answers will show different behavior.</p>
 </div></aside></section>
@@ -2090,11 +1228,9 @@ dtype: int64</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href aria-label="1"></a>pd.Series({<span class="st">&quot;a&quot;</span>: <span class="dv">4</span>, <span class="st">&quot;b&quot;</span>: <span class="dv">2</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href aria-label="1"></a>pd.Series({<span class="st">&quot;a&quot;</span>: <span class="dv">4</span>, <span class="st">&quot;b&quot;</span>: <span class="dv">2</span>}).index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>a    4
-b    2
-dtype: int64</code></pre>
+<pre><code>Index([&#39;a&#39;, &#39;b&#39;], dtype=&#39;str&#39;)</code></pre>
 </div>
 </div>
 </div></div>
@@ -2102,7 +1238,7 @@ dtype: int64</code></pre>
 <section id="dtypes" class="slide level2">
 <h2>dtypes</h2>
 <p>pandas dtypes come from NumPy (<code>int64</code>, <code>float64</code>, <code>bool</code>, <code>datetime64</code>) plus extension dtypes (<code>str</code>, <code>category</code>, <code>Int64</code>, …).</p>
-<p>For mixtures such as numbers and strings, pandas falls back to <code>object</code> rather than coercing everything to strings as R does. An object Series still supports elementwise operations, but storing arbitrary Python objects usually costs more memory and computation.</p>
+<p>For mixtures such as numbers and strings, pandas falls back to <code>object</code> rather than coercing everything as R does. An object Series still supports elementwise operations, but storing arbitrary Python objects usually costs more memory and computation.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -2125,16 +1261,16 @@ dtype: int64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>dtype(&#39;O&#39;)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0       1
 1       a
 2    True
 dtype: object</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;O&#39;)</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>]).astype(<span class="st">&quot;int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -2234,8 +1370,7 @@ dtype: int64</code></pre>
 <div class="xsmall">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-label="1"></a>m <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span>
-<span id="cb73-2"><a href aria-label="2"></a>n <span class="op">=</span> pd.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>], index<span class="op">=</span>[<span class="st">&quot;c&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;a&quot;</span>])</span>
-<span id="cb73-3"><a href aria-label="3"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}, index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb73-2"><a href aria-label="2"></a>n <span class="op">=</span> pd.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>], index<span class="op">=</span>[<span class="st">&quot;c&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;a&quot;</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
@@ -2258,8 +1393,12 @@ dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href aria-label="1"></a>d[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span>
-<span id="cb78-2"><a href aria-label="2"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href aria-label="1"></a>d <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb78-2"><a href aria-label="2"></a>  {<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}, </span>
+<span id="cb78-3"><a href aria-label="3"></a>  index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>]</span>
+<span id="cb78-4"><a href aria-label="4"></a>)</span>
+<span id="cb78-5"><a href aria-label="5"></a>d[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span>
+<span id="cb78-6"><a href aria-label="6"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   x     y
 a  1  30.0
@@ -2302,64 +1441,22 @@ c  3  10.0</code></pre>
 </div>
 </div>
 </div>
-
 </div>
-<aside><div>
-<p>The primary difference with R data frames is automatic alignment on the row index. R’s <code>row.names</code> support printing and character row subsetting, but do not align arithmetic in the same way.</p>
-</div></aside></section>
-<section id="column-types---csv" class="slide level2">
-<h2>Column types - csv</h2>
-<p>Types are guessed from the file - there is no factor type by default (<code>category</code> is opt in) and the two integer columns with missing values were upcast to <code>float64</code>. Using the <code>numpy_nullable</code> backend uses pandas’ extension dtypes instead, which keep integers as integers (more on these shortly).</p>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href aria-label="1"></a>penguins.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>species                  str
-island                   str
-bill_length_mm       float64
-bill_depth_mm        float64
-flipper_length_mm    float64
-body_mass_g          float64
-sex                      str
-year                   int64
-dtype: object</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-label="1"></a>pd.read_csv(</span>
-<span id="cb88-2"><a href aria-label="2"></a>  <span class="st">&quot;data/penguins.csv&quot;</span>,</span>
-<span id="cb88-3"><a href aria-label="3"></a>  dtype_backend<span class="op">=</span><span class="st">&quot;numpy_nullable&quot;</span></span>
-<span id="cb88-4"><a href aria-label="4"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>species               string
-island                string
-bill_length_mm       Float64
-bill_depth_mm        Float64
-flipper_length_mm      Int64
-body_mass_g            Int64
-sex                   string
-year                   Int64
-dtype: object</code></pre>
-</div>
-</div>
-</div></div>
 </section>
 <section id="missing-values" class="slide level2">
 <h2>Missing values</h2>
-<p>R has typed <code>NA</code> values for logical, integer, double, complex, and character vectors. NumPy has no universal missing-value sentinel across dtypes: floating point arrays can use <code>NaN</code> and datetimes can use <code>NaT</code>, but integers and booleans have no equivalent. With pandas’ default inference, missing integers become <code>float64</code>, while the boolean example below becomes <code>object</code> holding <code>None</code>.</p>
+<p>R has typed <code>NA</code> values each atomic vector type. NumPy has no universal missing-value sentinel across dtypes: floating point arrays can use <code>NaN</code> and datetimes can use <code>NaT</code>, but integers and booleans have no equivalent. With pandas’ default interface, missing integers become <code>float64</code>, while the boolean example below becomes <code>object</code> holding <code>None</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
 2    NaN
 dtype: float64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0     True
 1    False
@@ -2369,15 +1466,15 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0      a
 1    NaN
 dtype: str</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href aria-label="1"></a>pd.Series(</span>
-<span id="cb96-2"><a href aria-label="2"></a>  [pd.Timestamp(<span class="st">&quot;2026-09-15&quot;</span>), <span class="va">None</span>]</span>
-<span id="cb96-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href aria-label="1"></a>pd.Series(</span>
+<span id="cb92-2"><a href aria-label="2"></a>  [pd.Timestamp(<span class="st">&quot;2026-09-15&quot;</span>), <span class="va">None</span>]</span>
+<span id="cb92-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0   2026-09-15
 1          NaT
@@ -2391,19 +1488,19 @@ dtype: datetime64[us]</code></pre>
 </div></aside></section>
 <section id="detecting-missing-values" class="slide level2">
 <h2>Detecting missing values</h2>
-<p><code>NaN</code> is not equal to anything, including itself, so <code>==</code> cannot find missing values - <code>isna()</code> (and <code>notna()</code>) recognize <code>NaN</code>, <code>None</code>, <code>NaT</code>, and <code>pd.NA</code> alike. <code>dropna()</code> and <code>fillna()</code> are the usual next steps.</p>
+<p>As we’ve seen previously, <code>NaN</code> is not equal to anything, including itself. So <code>==</code> cannot find missing values - <code>isna()</code> (and <code>notna()</code>) recognize <code>NaN</code>, <code>None</code>, <code>NaT</code>, and <code>pd.NA</code> alike. <code>dropna()</code> and <code>fillna()</code> can be used to remove or replace.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span>
-<span id="cb98-2"><a href aria-label="2"></a>s <span class="op">==</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span>
+<span id="cb94-2"><a href aria-label="2"></a>s <span class="op">==</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1    False
 2    False
 dtype: bool</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href aria-label="1"></a>s.isna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href aria-label="1"></a>s.isna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1    False
@@ -2413,17 +1510,17 @@ dtype: bool</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href aria-label="1"></a>s.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href aria-label="1"></a>s.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(1)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href aria-label="1"></a>s.dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href aria-label="1"></a>s.dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
 dtype: float64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href aria-label="1"></a>s.fillna(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href aria-label="1"></a>s.fillna(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
@@ -2435,35 +1532,35 @@ dtype: float64</code></pre>
 </section>
 <section id="missing-values-in-aggregations" class="slide level2">
 <h2>Missing values in aggregations</h2>
-<p>Reductions skip missing values by default (<code>skipna=True</code>), the opposite of R’s <code>na.rm = FALSE</code>.</p>
+<p>Reductions skip missing values by default (<code>skipna=True</code>), the opposite of R’s <code>na.rm = FALSE</code> default..</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href aria-label="1"></a>mass <span class="op">=</span> penguins[<span class="st">&quot;body_mass_g&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href aria-label="1"></a>mass <span class="op">=</span> penguins[<span class="st">&quot;body_mass_g&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href aria-label="1"></a>mass.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href aria-label="1"></a>mass.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(4201.754385964912)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href aria-label="1"></a>mass.mean(skipna<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href aria-label="1"></a>mass.mean(skipna<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(nan)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href aria-label="1"></a>mass.count()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href aria-label="1"></a>mass.count()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(342)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href aria-label="1"></a>penguins.dropna().shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href aria-label="1"></a>penguins.dropna().shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(333, 8)</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href aria-label="1"></a>penguins.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href aria-label="1"></a>penguins.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species               0
 island                0
@@ -2485,20 +1582,20 @@ dtype: int64</code></pre>
 </div>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>], dtype<span class="op">=</span><span class="st">&quot;Int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>], dtype<span class="op">=</span><span class="st">&quot;Int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href aria-label="1"></a>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href aria-label="1"></a>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0       1
 1       2
 2    &lt;NA&gt;
 dtype: Int64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href aria-label="1"></a>t <span class="op">&gt;</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href aria-label="1"></a>t <span class="op">&gt;</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1     True
@@ -2508,21 +1605,21 @@ dtype: boolean</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href aria-label="1"></a>pd.NA <span class="op">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href aria-label="1"></a>pd.NA <span class="op">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;NA&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href aria-label="1"></a>pd.NA <span class="op">|</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href aria-label="1"></a>pd.NA <span class="op">|</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href aria-label="1"></a>pd.NA <span class="op">&amp;</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href aria-label="1"></a>pd.NA <span class="op">&amp;</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;NA&gt;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a><span class="bu">bool</span>(pd.NA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href aria-label="1"></a><span class="bu">bool</span>(pd.NA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TypeError: boolean value of NA is ambiguous</code></pre>
 </div>
@@ -2538,7 +1635,7 @@ dtype: boolean</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0         Adelie
 1         Adelie
@@ -2550,7 +1647,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a>penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a>penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       species     island
 0       Adelie  Torgersen
@@ -2565,7 +1662,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div></div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a>penguins[penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>penguins[penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  bill_length_mm  ...  body_mass_g   sex  year
 169  Gentoo  Biscoe            49.2  ...       6300.0  male  2007
@@ -2585,7 +1682,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="st">&quot;species&quot;</span>:<span class="st">&quot;island&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="st">&quot;species&quot;</span>:<span class="st">&quot;island&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species     island
 0  Adelie  Torgersen
@@ -2595,7 +1692,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href aria-label="1"></a>penguins.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a>penguins.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species     island
 0  Adelie  Torgersen
@@ -2605,7 +1702,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div></div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href aria-label="1"></a>penguins.loc[penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a>penguins.loc[penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  body_mass_g
 152  Gentoo       4500.0
@@ -2624,11 +1721,11 @@ Name: species, Length: 344, dtype: str</code></pre>
 <p>Use <code>&amp;</code> for elementwise AND, <code>|</code> for OR, and <code>~</code> for NOT. Parenthesize comparisons; Python’s <code>and</code> / <code>or</code> do not combine Series. <code>.isin()</code> tests membership in a collection.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href aria-label="1"></a>mask <span class="op">=</span> (</span>
-<span id="cb144-2"><a href aria-label="2"></a>  penguins[<span class="st">&quot;species&quot;</span>].isin([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>])</span>
-<span id="cb144-3"><a href aria-label="3"></a>  <span class="op">&amp;</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
-<span id="cb144-4"><a href aria-label="4"></a>)</span>
-<span id="cb144-5"><a href aria-label="5"></a>penguins.loc[mask, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href aria-label="1"></a>mask <span class="op">=</span> (</span>
+<span id="cb140-2"><a href aria-label="2"></a>  penguins[<span class="st">&quot;species&quot;</span>].isin([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>])</span>
+<span id="cb140-3"><a href aria-label="3"></a>  <span class="op">&amp;</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
+<span id="cb140-4"><a href aria-label="4"></a>)</span>
+<span id="cb140-5"><a href aria-label="5"></a>penguins.loc[mask, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  body_mass_g
 153  Gentoo       5700.0
@@ -2639,11 +1736,11 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb146-1"><a href aria-label="1"></a>penguins.loc[</span>
-<span id="cb146-2"><a href aria-label="2"></a>  (penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
-<span id="cb146-3"><a href aria-label="3"></a>  <span class="op">|</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>),</span>
-<span id="cb146-4"><a href aria-label="4"></a>  [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]</span>
-<span id="cb146-5"><a href aria-label="5"></a>].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href aria-label="1"></a>penguins.loc[</span>
+<span id="cb142-2"><a href aria-label="2"></a>  (penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
+<span id="cb142-3"><a href aria-label="3"></a>  <span class="op">|</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>),</span>
+<span id="cb142-4"><a href aria-label="4"></a>  [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]</span>
+<span id="cb142-5"><a href aria-label="5"></a>].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  body_mass_g
 152  Gentoo       4500.0
@@ -2658,13 +1755,13 @@ Name: species, Length: 344, dtype: str</code></pre>
 <p>Selecting a single row returns a Series, and a Series has one dtype - so a heterogeneous row is upcast to <code>object</code>. R keeps a single row as a data frame for exactly this reason.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href aria-label="1"></a>cols <span class="op">=</span> [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;year&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href aria-label="1"></a>cols <span class="op">=</span> [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;year&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>, cols]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>, cols]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species    Adelie
 year         2007
@@ -2673,13 +1770,13 @@ Name: 0, dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a>r <span class="op">=</span> penguins.loc[[<span class="dv">0</span>], cols]</span>
-<span id="cb151-2"><a href aria-label="2"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb147-1"><a href aria-label="1"></a>r <span class="op">=</span> penguins.loc[[<span class="dv">0</span>], cols]</span>
+<span id="cb147-2"><a href aria-label="2"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species  year
 0  Adelie  2007</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a>r.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a>r.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species      str
 year       int64
@@ -2694,10 +1791,10 @@ dtype: object</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href aria-label="1"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
-<span id="cb155-2"><a href aria-label="2"></a>d2 <span class="op">=</span> d</span>
-<span id="cb155-3"><a href aria-label="3"></a>d2[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> d2[<span class="st">&quot;x&quot;</span>] <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb155-4"><a href aria-label="4"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb151-2"><a href aria-label="2"></a>d2 <span class="op">=</span> d</span>
+<span id="cb151-3"><a href aria-label="3"></a>d2[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> d2[<span class="st">&quot;x&quot;</span>] <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb151-4"><a href aria-label="4"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   x  y
 0  1  2
@@ -2707,9 +1804,9 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href aria-label="1"></a>d3 <span class="op">=</span> d.copy()</span>
-<span id="cb157-2"><a href aria-label="2"></a>d3[<span class="st">&quot;z&quot;</span>] <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb157-3"><a href aria-label="3"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a>d3 <span class="op">=</span> d.copy()</span>
+<span id="cb153-2"><a href aria-label="2"></a>d3[<span class="st">&quot;z&quot;</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb153-3"><a href aria-label="3"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   x  y
 0  1  2
@@ -2727,10 +1824,10 @@ dtype: object</code></pre>
 <p>Use a single <code>.loc[rows, column] = value</code> assignment on the frame you want to change. Chained assignment such as <code>df[&quot;x&quot;][mask] = value</code> cannot update the original frame under copy-on-write.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb159"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb159-1"><a href aria-label="1"></a>updated <span class="op">=</span> penguins.copy()</span>
-<span id="cb159-2"><a href aria-label="2"></a>updated[<span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;other&quot;</span></span>
-<span id="cb159-3"><a href aria-label="3"></a>updated.loc[updated[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>, <span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;large&quot;</span></span>
-<span id="cb159-4"><a href aria-label="4"></a>updated.loc[updated[<span class="st">&quot;size&quot;</span>] <span class="op">==</span> <span class="st">&quot;large&quot;</span>, [<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;size&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href aria-label="1"></a>updated <span class="op">=</span> penguins.copy()</span>
+<span id="cb155-2"><a href aria-label="2"></a>updated[<span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;other&quot;</span></span>
+<span id="cb155-3"><a href aria-label="3"></a>updated.loc[updated[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>, <span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;large&quot;</span></span>
+<span id="cb155-4"><a href aria-label="4"></a>updated.loc[updated[<span class="st">&quot;size&quot;</span>] <span class="op">==</span> <span class="st">&quot;large&quot;</span>, [<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;size&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     body_mass_g   size
 153       5700.0  large
@@ -2745,7 +1842,7 @@ dtype: object</code></pre>
 <p>dplyr’s <code>filter(df, x &gt; 1)</code> works because R captures the unevaluated expression. Python evaluates arguments eagerly and a bare <code>x</code> is a <code>NameError</code>, so pandas offers several workarounds, none of which are quite as convenient.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb161"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb161-1"><a href aria-label="1"></a>pg <span class="op">=</span> penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href aria-label="1"></a>pg <span class="op">=</span> penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns">
@@ -2753,7 +1850,7 @@ dtype: object</code></pre>
 <p>Explicit - reuse the object,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb162-1"><a href aria-label="1"></a>pg[pg[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb158-1"><a href aria-label="1"></a>pg[pg[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
@@ -2764,7 +1861,7 @@ dtype: object</code></pre>
 <p>Callable - a function / lambda</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href aria-label="1"></a>pg[<span class="kw">lambda</span> d: d[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb160-1"><a href aria-label="1"></a>pg[<span class="kw">lambda</span> d: d[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
@@ -2776,7 +1873,7 @@ dtype: object</code></pre>
 <p>String - DSL parsed by pandas,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>pg.query(<span class="st">&quot;body_mass_g &gt; 6000&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb162-1"><a href aria-label="1"></a>pg.query(<span class="st">&quot;body_mass_g &gt; 6000&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
@@ -2787,7 +1884,7 @@ dtype: object</code></pre>
 <p>Expression - <code>pd.col()</code>,</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>pg[pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href aria-label="1"></a>pg[pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
@@ -2805,13 +1902,13 @@ dtype: object</code></pre>
 <p>There is no pipe operator, but since nearly every method returns a new DataFrame the equivalent is method chaining. Callables and <code>pd.col()</code> are what let a step refer to columns of the intermediate result. Subsetting with <code>[]</code> can be a step in the chain like any other.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb170-2"><a href aria-label="2"></a>  .query(<span class="st">&quot;species == &#39;Gentoo&#39;&quot;</span>)</span>
-<span id="cb170-3"><a href aria-label="3"></a>  .assign(kg <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb170-4"><a href aria-label="4"></a>  .sort_values(<span class="st">&quot;kg&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb170-5"><a href aria-label="5"></a>  [[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;kg&quot;</span>]]</span>
-<span id="cb170-6"><a href aria-label="6"></a>  .head(<span class="dv">3</span>)</span>
-<span id="cb170-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb166-2"><a href aria-label="2"></a>  .query(<span class="st">&quot;species == &#39;Gentoo&#39;&quot;</span>)</span>
+<span id="cb166-3"><a href aria-label="3"></a>  .assign(kg <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb166-4"><a href aria-label="4"></a>  .sort_values(<span class="st">&quot;kg&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb166-5"><a href aria-label="5"></a>  [[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;kg&quot;</span>]]</span>
+<span id="cb166-6"><a href aria-label="6"></a>  .head(<span class="dv">3</span>)</span>
+<span id="cb166-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island    kg
 169  Gentoo  Biscoe  6.30
@@ -2829,8 +1926,8 @@ dtype: object</code></pre>
 <p>Split-apply-combine works the same way - <code>groupby()</code> returns a <code>DataFrameGroupBy</code> which is then used by subsequent aggregation calls. By default the group keys become the <em>index</em> of the result (<code>as_index=False</code> keeps them as columns, like <code>.by</code>). Named aggregations use <code>(column, function)</code> pairs.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>g <span class="op">=</span> penguins.groupby(<span class="st">&quot;species&quot;</span>)</span>
-<span id="cb172-2"><a href aria-label="2"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>g <span class="op">=</span> penguins.groupby(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb168-2"><a href aria-label="2"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;pandas.api.typing.DataFrameGroupBy&#39;&gt;</code></pre>
 </div>
@@ -2839,7 +1936,7 @@ dtype: object</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a>g[<span class="st">&quot;body_mass_g&quot;</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>g[<span class="st">&quot;body_mass_g&quot;</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species
 Adelie       3700.662252
@@ -2850,13 +1947,13 @@ Name: body_mass_g, dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb176-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb176-3"><a href aria-label="3"></a>  .agg(</span>
-<span id="cb176-4"><a href aria-label="4"></a>    n <span class="op">=</span> (<span class="st">&quot;species&quot;</span>, <span class="st">&quot;size&quot;</span>),</span>
-<span id="cb176-5"><a href aria-label="5"></a>    mass <span class="op">=</span> (<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;mean&quot;</span>)</span>
-<span id="cb176-6"><a href aria-label="6"></a>  )</span>
-<span id="cb176-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb172-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb172-3"><a href aria-label="3"></a>  .agg(</span>
+<span id="cb172-4"><a href aria-label="4"></a>    n <span class="op">=</span> (<span class="st">&quot;species&quot;</span>, <span class="st">&quot;size&quot;</span>),</span>
+<span id="cb172-5"><a href aria-label="5"></a>    mass <span class="op">=</span> (<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb172-6"><a href aria-label="6"></a>  )</span>
+<span id="cb172-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     species    n         mass
 0     Adelie  152  3700.662252
@@ -2871,8 +1968,8 @@ Name: body_mass_g, dtype: float64</code></pre>
 <p><code>transform()</code> returns a result the same length as its input, broadcasting each group’s value back over that group’s rows - the equivalent of <code>mutate()</code> with <code>.by</code>. Since the result shares the frame’s index it can be used directly in arithmetic or assignment.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a>avg <span class="op">=</span> g[<span class="st">&quot;body_mass_g&quot;</span>].transform(<span class="st">&quot;mean&quot;</span>)</span>
-<span id="cb178-2"><a href aria-label="2"></a>avg.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a>avg <span class="op">=</span> g[<span class="st">&quot;body_mass_g&quot;</span>].transform(<span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb174-2"><a href aria-label="2"></a>avg.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    3700.662252
 1    3700.662252
@@ -2884,7 +1981,7 @@ Name: body_mass_g, dtype: float64</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href aria-label="1"></a>penguins.assign(rel <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> avg)[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href aria-label="1"></a>penguins.assign(rel <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> avg)[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species       rel
 0  Adelie  1.013332
@@ -2904,10 +2001,10 @@ Name: body_mass_g, dtype: float64</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb182-2"><a href aria-label="2"></a>  .groupby([<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>])</span>
-<span id="cb182-3"><a href aria-label="3"></a>  [<span class="st">&quot;body_mass_g&quot;</span>].mean()</span>
-<span id="cb182-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb178-2"><a href aria-label="2"></a>  .groupby([<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>])</span>
+<span id="cb178-3"><a href aria-label="3"></a>  [<span class="st">&quot;body_mass_g&quot;</span>].mean()</span>
+<span id="cb178-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species    island   
 Adelie     Biscoe       3709.659091
@@ -2920,12 +2017,12 @@ Name: body_mass_g, dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb184-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>)</span>
-<span id="cb184-3"><a href aria-label="3"></a>  .agg({</span>
-<span id="cb184-4"><a href aria-label="4"></a>    <span class="st">&quot;body_mass_g&quot;</span>: [<span class="st">&quot;mean&quot;</span>, <span class="st">&quot;max&quot;</span>]</span>
-<span id="cb184-5"><a href aria-label="5"></a>  })</span>
-<span id="cb184-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb180-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb180-3"><a href aria-label="3"></a>  .agg({</span>
+<span id="cb180-4"><a href aria-label="4"></a>    <span class="st">&quot;body_mass_g&quot;</span>: [<span class="st">&quot;mean&quot;</span>, <span class="st">&quot;max&quot;</span>]</span>
+<span id="cb180-5"><a href aria-label="5"></a>  })</span>
+<span id="cb180-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           body_mass_g        
                   mean     max
@@ -2943,19 +2040,12 @@ Gentoo     5076.016260  6300.0</code></pre>
 <section id="exercise-1" class="slide level2">
 <h2>Exercise 1</h2>
 <p>Using pandas and <code>data/flights.parquet</code>, answer the following. Questions 1 and 2 are the core; 3 and 4 are extensions if time allows.</p>
-<div class="small">
 <ol type="1">
 <li><p>How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time (<code>air_time</code>)? Report only carriers with matching records.</p></li>
 <li><p>Which plane (<code>tailnum</code>) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.</p></li>
 <li><p>Which five calendar dates (<code>year</code>, <code>month</code>, <code>day</code>) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.</p></li>
 <li><p>Which flight has the largest arrival delay as a percentage of its actual air time (<code>100 * arr_delay / air_time</code>)? Exclude missing values and nonpositive air times, and return all ties.</p></li>
 </ol>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_f67335a3" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
-</div>
-</div>
 </section></section>
 <section>
 <section id="polars-logo" class="title-slide slide level1 nostretch center" data-menu-title="polars">
@@ -2979,8 +2069,8 @@ Gentoo     5076.016260  6300.0</code></pre>
 </div>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href aria-label="1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb186-2"><a href aria-label="2"></a>pl.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href aria-label="1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb182-2"><a href aria-label="2"></a>pl.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;1.44.2&#39;</code></pre>
 </div>
@@ -2993,7 +2083,7 @@ Gentoo     5076.016260  6300.0</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb188-1"><a href aria-label="1"></a>pl.Series(<span class="st">&quot;x&quot;</span>, [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href aria-label="1"></a>pl.Series(<span class="st">&quot;x&quot;</span>, [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3032,9 +2122,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>a <span class="op">=</span> pl.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
-<span id="cb189-2"><a href aria-label="2"></a>b <span class="op">=</span> pl.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
-<span id="cb189-3"><a href aria-label="3"></a>a <span class="op">+</span> b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href aria-label="1"></a>a <span class="op">=</span> pl.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb185-2"><a href aria-label="2"></a>b <span class="op">=</span> pl.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
+<span id="cb185-3"><a href aria-label="3"></a>a <span class="op">+</span> b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3078,7 +2168,7 @@ white-space: pre-wrap;
 <p>The print shows the shape and every column’s dtype, much like a tibble. Note that the integer columns stayed integers despite the missing values, and that <code>&quot;NA&quot;</code> had to be declared as a missing value marker - polars does not guess.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb190"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb190-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pl.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>)<span class="op">;</span> penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pl.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>)<span class="op">;</span> penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3186,7 +2276,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3234,7 +2324,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb192"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb192-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>:<span class="dv">3</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb188-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>:<span class="dv">3</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3272,7 +2362,7 @@ white-space: pre-wrap;
 </table>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>, <span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>, <span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Adelie&#39;</code></pre>
 </div>
@@ -3284,13 +2374,13 @@ white-space: pre-wrap;
 <p>Missing data is <code>null</code> in every dtype (like R’s <code>NA</code>) and <code>NaN</code> is a floating point value, distinct from missing. <code>mean()</code> and <code>sum()</code> skip <code>null</code> by default and propagate <code>NaN</code>. Ordinary <code>min()</code> and <code>max()</code> ignore <code>NaN</code>; <code>nan_min()</code> and <code>nan_max()</code> propagate it.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href aria-label="1"></a>s <span class="op">=</span> pl.Series([<span class="fl">1.0</span>, <span class="va">None</span>, np.nan])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href aria-label="1"></a>s <span class="op">=</span> pl.Series([<span class="fl">1.0</span>, <span class="va">None</span>, np.nan])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href aria-label="1"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb192"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb192-1"><a href aria-label="1"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3323,7 +2413,7 @@ white-space: pre-wrap;
 </table>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href aria-label="1"></a>s<span class="op">+</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>s<span class="op">+</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3359,19 +2449,19 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href aria-label="1"></a>s.is_null().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb194"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb194-1"><a href aria-label="1"></a>s.is_null().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[False, True, False]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href aria-label="1"></a>s.is_nan().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href aria-label="1"></a>s.is_nan().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[False, None, True]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href aria-label="1"></a>s.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href aria-label="1"></a>s.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>nan</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb204-1"><a href aria-label="1"></a>s.fill_nan(<span class="va">None</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href aria-label="1"></a>s.fill_nan(<span class="va">None</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.0</code></pre>
 </div>
@@ -3383,12 +2473,12 @@ white-space: pre-wrap;
 <p><code>pl.col(&quot;x&quot;)</code> does not return a column, it returns an <em>expression</em> - a description of a computation that is not attached to any DataFrame and has not been evaluated. Expressions compose with operators and methods and are only evaluated when handed to a context. This is polars’ answer to data masking - build an object that represents the code rather than capturing it.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a>mass_kg <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span></span>
-<span id="cb206-2"><a href aria-label="2"></a>mass_kg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href aria-label="1"></a>mass_kg <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span></span>
+<span id="cb202-2"><a href aria-label="2"></a>mass_kg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 [(col(&quot;body_mass_g&quot;)) / (dyn int: 1000)]
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href aria-label="1"></a><span class="bu">type</span>(mass_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href aria-label="1"></a><span class="bu">type</span>(mass_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;polars.expr.expr.Expr&#39;&gt;</code></pre>
 </div>
@@ -3397,7 +2487,7 @@ white-space: pre-wrap;
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href aria-label="1"></a>pl.col(<span class="st">&quot;body_mass_g&quot;</span>).mean().alias(<span class="st">&quot;avg_mass&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb205-1"><a href aria-label="1"></a>pl.col(<span class="st">&quot;body_mass_g&quot;</span>).mean().alias(<span class="st">&quot;avg_mass&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 col(&quot;body_mass_g&quot;).mean().alias(&quot;avg_mass&quot;)
 </div>
@@ -3454,9 +2544,9 @@ col(&quot;body_mass_g&quot;).mean().alias(&quot;avg_mass&quot;)
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb210-1"><a href aria-label="1"></a>penguins.select(</span>
-<span id="cb210-2"><a href aria-label="2"></a>  <span class="st">&quot;species&quot;</span>, mass_kg.alias(<span class="st">&quot;mass_kg&quot;</span>)</span>
-<span id="cb210-3"><a href aria-label="3"></a>).head(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a>penguins.select(</span>
+<span id="cb206-2"><a href aria-label="2"></a>  <span class="st">&quot;species&quot;</span>, mass_kg.alias(<span class="st">&quot;mass_kg&quot;</span>)</span>
+<span id="cb206-3"><a href aria-label="3"></a>).head(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3493,9 +2583,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
-<span id="cb211-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span></span>
-<span id="cb211-3"><a href aria-label="3"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb207-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span></span>
+<span id="cb207-3"><a href aria-label="3"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3538,10 +2628,10 @@ white-space: pre-wrap;
 <p>Multiple predicates in <code>filter()</code> are combined with AND. Use <code>.is_in()</code> for membership and <code>|</code> for OR; parenthesize comparisons when combining them with operators.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
-<span id="cb212-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;species&quot;</span>).is_in([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>]),</span>
-<span id="cb212-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span></span>
-<span id="cb212-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb208"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb208-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb208-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;species&quot;</span>).is_in([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>]),</span>
+<span id="cb208-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span></span>
+<span id="cb208-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3583,10 +2673,10 @@ white-space: pre-wrap;
 </div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
-<span id="cb213-2"><a href aria-label="2"></a>  (pl.col(<span class="st">&quot;species&quot;</span>) <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
-<span id="cb213-3"><a href aria-label="3"></a>  <span class="op">|</span> (pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
-<span id="cb213-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb209-2"><a href aria-label="2"></a>  (pl.col(<span class="st">&quot;species&quot;</span>) <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
+<span id="cb209-3"><a href aria-label="3"></a>  <span class="op">|</span> (pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
+<span id="cb209-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3632,13 +2722,13 @@ white-space: pre-wrap;
 <p>One expression can expand to many columns - by listing names, by dtype, or with selectors from <code>polars.selectors</code>. This is <code>across()</code> with tidy selection, available in every context.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb210-1"><a href aria-label="1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href aria-label="1"></a>penguins.select(cs.ends_with(<span class="st">&quot;_mm&quot;</span>).mean().name.suffix(<span class="st">&quot;_mean&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href aria-label="1"></a>penguins.select(cs.ends_with(<span class="st">&quot;_mm&quot;</span>).mean().name.suffix(<span class="st">&quot;_mean&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3677,7 +2767,7 @@ white-space: pre-wrap;
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb216-1"><a href aria-label="1"></a>penguins.select(pl.col(pl.String).n_unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href aria-label="1"></a>penguins.select(pl.col(pl.String).n_unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3720,10 +2810,10 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href aria-label="1"></a>mass <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>)</span>
-<span id="cb217-2"><a href aria-label="2"></a>penguins.group_by(<span class="st">&quot;species&quot;</span>).agg(</span>
-<span id="cb217-3"><a href aria-label="3"></a>  n <span class="op">=</span> pl.<span class="bu">len</span>(), avg <span class="op">=</span> mass.mean()</span>
-<span id="cb217-4"><a href aria-label="4"></a>).sort(<span class="st">&quot;species&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>mass <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>)</span>
+<span id="cb213-2"><a href aria-label="2"></a>penguins.group_by(<span class="st">&quot;species&quot;</span>).agg(</span>
+<span id="cb213-3"><a href aria-label="3"></a>  n <span class="op">=</span> pl.<span class="bu">len</span>(), avg <span class="op">=</span> mass.mean()</span>
+<span id="cb213-4"><a href aria-label="4"></a>).sort(<span class="st">&quot;species&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3769,12 +2859,12 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href aria-label="1"></a>avg <span class="op">=</span> mass.mean().over(<span class="st">&quot;species&quot;</span>)</span>
-<span id="cb218-2"><a href aria-label="2"></a>(penguins</span>
-<span id="cb218-3"><a href aria-label="3"></a>  .with_columns(rel <span class="op">=</span> mass <span class="op">/</span> avg)</span>
-<span id="cb218-4"><a href aria-label="4"></a>  .select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>)</span>
-<span id="cb218-5"><a href aria-label="5"></a>  .head(<span class="dv">2</span>)</span>
-<span id="cb218-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a>avg <span class="op">=</span> mass.mean().over(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb214-2"><a href aria-label="2"></a>(penguins</span>
+<span id="cb214-3"><a href aria-label="3"></a>  .with_columns(rel <span class="op">=</span> mass <span class="op">/</span> avg)</span>
+<span id="cb214-4"><a href aria-label="4"></a>  .select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>)</span>
+<span id="cb214-5"><a href aria-label="5"></a>  .head(<span class="dv">2</span>)</span>
+<span id="cb214-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3816,14 +2906,14 @@ white-space: pre-wrap;
 <p>A <code>LazyFrame</code> shares the expression-based query API of a <code>DataFrame</code> but records transformations instead of running them. The <code>scan_*()</code> readers start lazy and <code>.lazy()</code> converts an existing frame. Planning may read metadata; <code>.collect()</code> executes the query and materializes its result.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href aria-label="1"></a>q <span class="op">=</span> (</span>
-<span id="cb219-2"><a href aria-label="2"></a>  pl.scan_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
-<span id="cb219-3"><a href aria-label="3"></a>  .<span class="bu">filter</span>(pl.col(<span class="st">&quot;dest&quot;</span>) <span class="op">==</span> <span class="st">&quot;LAX&quot;</span>)</span>
-<span id="cb219-4"><a href aria-label="4"></a>  .group_by(<span class="st">&quot;carrier&quot;</span>)</span>
-<span id="cb219-5"><a href aria-label="5"></a>  .agg(pl.<span class="bu">len</span>(), pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
-<span id="cb219-6"><a href aria-label="6"></a>  .sort(<span class="st">&quot;len&quot;</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb219-7"><a href aria-label="7"></a>)</span>
-<span id="cb219-8"><a href aria-label="8"></a><span class="bu">type</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href aria-label="1"></a>q <span class="op">=</span> (</span>
+<span id="cb215-2"><a href aria-label="2"></a>  pl.scan_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
+<span id="cb215-3"><a href aria-label="3"></a>  .<span class="bu">filter</span>(pl.col(<span class="st">&quot;dest&quot;</span>) <span class="op">==</span> <span class="st">&quot;LAX&quot;</span>)</span>
+<span id="cb215-4"><a href aria-label="4"></a>  .group_by(<span class="st">&quot;carrier&quot;</span>)</span>
+<span id="cb215-5"><a href aria-label="5"></a>  .agg(pl.<span class="bu">len</span>(), pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
+<span id="cb215-6"><a href aria-label="6"></a>  .sort(<span class="st">&quot;len&quot;</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb215-7"><a href aria-label="7"></a>)</span>
+<span id="cb215-8"><a href aria-label="8"></a><span class="bu">type</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;polars.lazyframe.frame.LazyFrame&#39;&gt;</code></pre>
 </div>
@@ -3840,7 +2930,7 @@ white-space: pre-wrap;
 <p>Before running, the plan is optimized - here only 3 of the 19 columns are read from the parquet file and the filter is applied during the scan (projection and predicate <em>pushdown</em>).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb221"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href aria-label="1"></a><span class="bu">print</span>( q.explain() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href aria-label="1"></a><span class="bu">print</span>( q.explain() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>SORT BY [descending: [true]] [col(&quot;len&quot;)]
   AGGREGATE[maintain_order: false]
@@ -3860,7 +2950,7 @@ white-space: pre-wrap;
 <p><code>collect()</code> runs the optimized plan and returns an ordinary DataFrame. Since the plan is known up front it can also be executed in a streaming fashion, in batches, for data larger than memory (<code>collect(engine=&quot;streaming&quot;)</code>).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb223"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb223-1"><a href aria-label="1"></a>q.collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href aria-label="1"></a>q.collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3916,86 +3006,6 @@ white-space: pre-wrap;
 </div>
 </div>
 </section>
-<section id="speed---reading-csv" class="slide level2">
-<h2>Speed - reading CSV</h2>
-<p>Both libraries use compiled code. Polars can use multiple threads and optimize lazy queries, but timings depend on the data and workload. Start by timing the same CSV read, including parsing and type inference.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb224-1"><a href aria-label="1"></a><span class="im">import</span> timeit</span>
-<span id="cb224-2"><a href aria-label="2"></a><span class="kw">def</span> time(f): <span class="cf">return</span> <span class="bu">round</span>( <span class="bu">min</span>(timeit.repeat(f, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">5</span>)), <span class="dv">4</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-<div class="fragment">
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pd.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.2089</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pl.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.0096</code></pre>
-</div>
-</div>
-</div>
-
-</div>
-<aside><div>
-<p>Timings are seconds: the minimum of five runs on this machine. Repeated reads may use the operating system’s file cache; the readers’ inferred dtypes can differ.</p>
-</div></aside></section>
-<section id="speed---data-already-in-memory" class="slide level2">
-<h2>Speed - data already in memory</h2>
-<p>Both frames are loaded before timing. Each computation groups all flights by carrier, calculates the mean departure delay, and sorts by carrier.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb229"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb229-1"><a href aria-label="1"></a>flights_pd <span class="op">=</span> pd.read_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
-<span id="cb229-2"><a href aria-label="2"></a>flights_pl <span class="op">=</span> pl.read_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
-<span id="cb229-3"><a href aria-label="3"></a></span>
-<span id="cb229-4"><a href aria-label="4"></a>time(<span class="kw">lambda</span>: (</span>
-<span id="cb229-5"><a href aria-label="5"></a>  flights_pd.groupby(<span class="st">&quot;carrier&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)[<span class="st">&quot;dep_delay&quot;</span>]</span>
-<span id="cb229-6"><a href aria-label="6"></a>  .mean().sort_values(<span class="st">&quot;carrier&quot;</span>)</span>
-<span id="cb229-7"><a href aria-label="7"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.0029</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: (</span>
-<span id="cb231-2"><a href aria-label="2"></a>  flights_pl.group_by(<span class="st">&quot;carrier&quot;</span>).agg(pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
-<span id="cb231-3"><a href aria-label="3"></a>  .sort(<span class="st">&quot;carrier&quot;</span>)</span>
-<span id="cb231-4"><a href aria-label="4"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.0018</code></pre>
-</div>
-</div>
-</div>
-</section>
-<section id="speed---from-file-to-result" class="slide level2">
-<h2>Speed - from file to result</h2>
-<p>Now include Parquet reading. Both queries filter to LAX, count flights and average departure delay by carrier, then sort by count. Polars uses the lazy query <code>q</code> and can push projection and filtering into its scan.</p>
-<div class="xsmall">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb233"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb233-1"><a href aria-label="1"></a><span class="kw">def</span> lax_pandas():</span>
-<span id="cb233-2"><a href aria-label="2"></a>  <span class="cf">return</span> (</span>
-<span id="cb233-3"><a href aria-label="3"></a>    pd.read_parquet(</span>
-<span id="cb233-4"><a href aria-label="4"></a>      <span class="st">&quot;data/flights.parquet&quot;</span>,</span>
-<span id="cb233-5"><a href aria-label="5"></a>      columns<span class="op">=</span>[<span class="st">&quot;dest&quot;</span>, <span class="st">&quot;carrier&quot;</span>, <span class="st">&quot;dep_delay&quot;</span>]</span>
-<span id="cb233-6"><a href aria-label="6"></a>    )</span>
-<span id="cb233-7"><a href aria-label="7"></a>    .query(<span class="st">&quot;dest == &#39;LAX&#39;&quot;</span>)</span>
-<span id="cb233-8"><a href aria-label="8"></a>    .groupby(<span class="st">&quot;carrier&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb233-9"><a href aria-label="9"></a>    .agg(<span class="bu">len</span><span class="op">=</span>(<span class="st">&quot;carrier&quot;</span>, <span class="st">&quot;size&quot;</span>), dep_delay<span class="op">=</span>(<span class="st">&quot;dep_delay&quot;</span>, <span class="st">&quot;mean&quot;</span>))</span>
-<span id="cb233-10"><a href aria-label="10"></a>    .sort_values(<span class="st">&quot;len&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb233-11"><a href aria-label="11"></a>  )</span>
-<span id="cb233-12"><a href aria-label="12"></a></span>
-<span id="cb233-13"><a href aria-label="13"></a>time(lax_pandas)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.0076</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb235"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: q.collect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>0.0016</code></pre>
-</div>
-</div>
-</div>
-</section>
 <section id="interop" class="slide level2">
 <h2>Interop</h2>
 <p>Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).</p>
@@ -4003,7 +3013,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb237"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href aria-label="1"></a>penguins.to_pandas().dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb220"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb220-1"><a href aria-label="1"></a>penguins.to_pandas().dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species                  str
 island                   str
@@ -4018,9 +3028,9 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb239"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb239-1"><a href aria-label="1"></a>penguins.to_pandas(</span>
-<span id="cb239-2"><a href aria-label="2"></a>  use_pyarrow_extension_array<span class="op">=</span><span class="va">True</span></span>
-<span id="cb239-3"><a href aria-label="3"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb222"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb222-1"><a href aria-label="1"></a>penguins.to_pandas(</span>
+<span id="cb222-2"><a href aria-label="2"></a>  use_pyarrow_extension_array<span class="op">=</span><span class="va">True</span></span>
+<span id="cb222-3"><a href aria-label="3"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species              large_string[pyarrow]
 island               large_string[pyarrow]
@@ -4045,11 +3055,6 @@ dtype: object</code></pre>
 <li><p>Which five calendar dates (<code>year</code>, <code>month</code>, <code>day</code>) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.</p></li>
 <li><p>Which flight has the largest arrival delay as a percentage of its actual air time (<code>100 * arr_delay / air_time</code>)? Exclude missing values and nonpositive air times, and return all ties.</p></li>
 </ol>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_6c567384" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
-</div>
 </div>
 </section></section>
 <section>

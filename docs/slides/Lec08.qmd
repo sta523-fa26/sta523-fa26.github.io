@@ -115,7 +115,7 @@ Note that integer arithmetic that exceeds the range of the type overflows withou
 
 ## pandas
 
-Python has no built-in tabular data structure. pandas (2008) is an established choice - it grew out of NumPy and borrows heavily from R. Today we will focus on some of the key differences between the two implementations.
+Python has no built-in tabular data structure. pandas (2008) is an established choice - it grew out of NumPy and borrows heavily from R.
 
 ::: {.small}
 ```{python}
@@ -123,6 +123,8 @@ import pandas as pd
 pd.__version__
 ```
 :::
+
+. . .
 
 Three classes do the heavy lifting:
 
@@ -163,7 +165,7 @@ pd.Series(
 )
 ```
 ```{python}
-pd.Series({"a": 4, "b": 2})
+pd.Series({"a": 4, "b": 2}).index
 ```
 :::
 ::::
@@ -174,7 +176,7 @@ pd.Series({"a": 4, "b": 2})
 
 pandas dtypes come from NumPy (`int64`, `float64`, `bool`, `datetime64`) plus extension dtypes (`str`, `category`, `Int64`, ...).
 
-For mixtures such as numbers and strings, pandas falls back to `object` rather than coercing everything to strings as R does. An object Series still supports elementwise operations, but storing arbitrary Python objects usually costs more memory and computation.
+For mixtures such as numbers and strings, pandas falls back to `object` rather than coercing everything as R does. An object Series still supports elementwise operations, but storing arbitrary Python objects usually costs more memory and computation.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -188,8 +190,8 @@ pd.Series(["a", "b"]).dtype
 
 ::: {.column width='50%' .fragment}
 ```{python}
-pd.Series([1, "a", True]).dtype
 pd.Series([1, "a", True])
+pd.Series([1, "a", True]).dtype
 pd.Series(["1", "2"]).astype("int64")
 ```
 :::
@@ -260,7 +262,7 @@ Arithmetic between Series aligns on index rather than position. The result spans
 ```{python}
 m = pd.Series([1, 2, 3], index=["a", "b", "c"])
 n = pd.Series([10, 20, 30], index=["c", "b", "a"])
-d = pd.DataFrame({"x": [1, 2, 3]}, index=["a", "b", "c"])
+
 ```
 :::
 
@@ -274,6 +276,10 @@ m + n[["a", "c"]]
 
 ::: {.column width='50%' .fragment}
 ```{python}
+d = pd.DataFrame(
+  {"x": [1, 2, 3]}, 
+  index=["a", "b", "c"]
+)
 d["y"] = n[["a", "c"]]
 d
 ```
@@ -300,35 +306,9 @@ penguins.columns
 ```
 :::
 
-::: {.aside}
-The primary difference with R data frames is automatic alignment on the row index. R's `row.names` support printing and character row subsetting, but do not align arithmetic in the same way.
-:::
-
-## Column types - csv
-
-Types are guessed from the file - there is no factor type by default (`category` is opt in) and the two integer columns with missing values were upcast to `float64`. Using the `numpy_nullable` backend uses pandas' extension dtypes instead, which keep integers as integers (more on these shortly).
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-penguins.dtypes
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-pd.read_csv(
-  "data/penguins.csv",
-  dtype_backend="numpy_nullable"
-).dtypes
-```
-:::
-::::
-
-
 ## Missing values
 
-R has typed `NA` values for logical, integer, double, complex, and character vectors. NumPy has no universal missing-value sentinel across dtypes: floating point arrays can use `NaN` and datetimes can use `NaT`, but integers and booleans have no equivalent. With pandas' default inference, missing integers become `float64`, while the boolean example below becomes `object` holding `None`.
+R has typed `NA` values each atomic vector type. NumPy has no universal missing-value sentinel across dtypes: floating point arrays can use `NaN` and datetimes can use `NaT`, but integers and booleans have no equivalent. With pandas' default interface, missing integers become `float64`, while the boolean example below becomes `object` holding `None`.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -355,7 +335,7 @@ The `str` dtype uses `NaN` for missing strings as well, which is why `None` came
 
 ## Detecting missing values
 
-`NaN` is not equal to anything, including itself, so `==` cannot find missing values - `isna()` (and `notna()`) recognize `NaN`, `None`, `NaT`, and `pd.NA` alike. `dropna()` and `fillna()` are the usual next steps.
+As we've seen previously, `NaN` is not equal to anything, including itself. So `==` cannot find missing values - `isna()` (and `notna()`) recognize `NaN`, `None`, `NaT`, and `pd.NA` alike. `dropna()` and `fillna()` can be used to remove or replace.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -378,7 +358,7 @@ s.fillna(0)
 
 ## Missing values in aggregations
 
-Reductions skip missing values by default (`skipna=True`), the opposite of R's `na.rm = FALSE`.
+Reductions skip missing values by default (`skipna=True`), the opposite of R's `na.rm = FALSE` default..
 
 ::: {.xsmall}
 ```{python}
@@ -754,7 +734,6 @@ Group by two keys and the result has a hierarchical row `MultiIndex`; aggregate 
 
 Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2 are the core; 3 and 4 are extensions if time allows.
 
-::: {.small}
 1. How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time (`air_time`)? Report only carriers with matching records.
 
 2. Which plane (`tailnum`) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.
@@ -762,12 +741,7 @@ Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2
 3. Which five calendar dates (`year`, `month`, `day`) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.
 
 4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
-:::
 
-```{r}
-#| echo: false
-countdown::countdown(minutes = 8)
-```
 
 
 # {#polars-logo data-menu-title="polars" .nostretch}
@@ -1065,76 +1039,6 @@ q.collect()
 :::
 
 
-## Speed - reading CSV
-
-Both libraries use compiled code. Polars can use multiple threads and optimize lazy queries, but timings depend on the data and workload. Start by timing the same CSV read, including parsing and type inference.
-
-::: {.xsmall}
-```{python}
-import timeit
-def time(f): return round( min(timeit.repeat(f, number=1, repeat=5)), 4 )
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-time(lambda: pd.read_csv("data/flights.csv"))
-time(lambda: pl.read_csv("data/flights.csv", null_values="NA"))
-```
-:::
-
-::: {.aside}
-Timings are seconds: the minimum of five runs on this machine. Repeated reads may use the operating system's file cache; the readers' inferred dtypes can differ.
-:::
-
-
-## Speed - data already in memory
-
-Both frames are loaded before timing. Each computation groups all flights by carrier, calculates the mean departure delay, and sorts by carrier.
-
-::: {.xsmall}
-```{python}
-flights_pd = pd.read_parquet("data/flights.parquet")
-flights_pl = pl.read_parquet("data/flights.parquet")
-
-time(lambda: (
-  flights_pd.groupby("carrier", as_index=False)["dep_delay"]
-  .mean().sort_values("carrier")
-))
-time(lambda: (
-  flights_pl.group_by("carrier").agg(pl.col("dep_delay").mean())
-  .sort("carrier")
-))
-```
-:::
-
-
-## Speed - from file to result
-
-Now include Parquet reading. Both queries filter to LAX, count flights and average departure delay by carrier, then sort by count. Polars uses the lazy query `q` and can push projection and filtering into its scan.
-
-::: {.xsmall}
-```{python}
-def lax_pandas():
-  return (
-    pd.read_parquet(
-      "data/flights.parquet",
-      columns=["dest", "carrier", "dep_delay"]
-    )
-    .query("dest == 'LAX'")
-    .groupby("carrier", as_index=False)
-    .agg(len=("carrier", "size"), dep_delay=("dep_delay", "mean"))
-    .sort_values("len", ascending=False)
-  )
-
-time(lax_pandas)
-time(lambda: q.collect())
-```
-:::
-
-
 ## Interop
 
 Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).
@@ -1171,11 +1075,6 @@ Using polars and `data/flights.parquet`, repeat the questions from Exercise 1. Q
 
 4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
 :::
-
-```{r}
-#| echo: false
-countdown::countdown(minutes = 8)
-```
 
 
 # Summary
