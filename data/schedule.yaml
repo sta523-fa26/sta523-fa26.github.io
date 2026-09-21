@@ -127,7 +127,7 @@ schedule:
   day: 1
   topic: "Tidy Data"
   lecture: "pandas & polars"
-  slides: ""
+  slides: "Lec08"
   r_readings: []
   py_readings:
     - text: "Python for Data Analysis - pandas basics"
