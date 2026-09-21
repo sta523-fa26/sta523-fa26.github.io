@@ -3,7 +3,13 @@
         "Hadley's"
     ],
     "quarto.cells.useReticulate": false,
-    "positron.reticulate.enabled": true,
+    "positron.reticulate.enabled": "always",
+    "[r]": {
+        "interpreters.startupBehavior": "always"
+    },
+    "[python]": {
+        "interpreters.startupBehavior": "manual"
+    },
     "files.exclude": {
         "docs/**": true
     },

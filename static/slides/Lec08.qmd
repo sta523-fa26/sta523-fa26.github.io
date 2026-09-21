@@ -1170,8 +1170,6 @@ Using polars and `data/flights.parquet`, repeat the questions from Exercise 1. Q
 3. Which five calendar dates (`year`, `month`, `day`) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.
 
 4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
-
-5. Rewrite question 1 to start from `pl.scan_parquet()` and look at `explain()` before collecting. How many of the 19 columns does polars read?
 :::
 
 ```{r}

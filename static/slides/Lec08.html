@@ -2953,7 +2953,7 @@ Gentoo     5076.016260  6300.0</code></pre>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_53d683a4" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_f67335a3" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3930,11 +3930,11 @@ white-space: pre-wrap;
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pd.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.2204</code></pre>
+<pre><code>0.2089</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pl.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.01</code></pre>
+<pre><code>0.0096</code></pre>
 </div>
 </div>
 </div>
@@ -3956,14 +3956,14 @@ white-space: pre-wrap;
 <span id="cb229-6"><a href aria-label="6"></a>  .mean().sort_values(<span class="st">&quot;carrier&quot;</span>)</span>
 <span id="cb229-7"><a href aria-label="7"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.003</code></pre>
+<pre><code>0.0029</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: (</span>
 <span id="cb231-2"><a href aria-label="2"></a>  flights_pl.group_by(<span class="st">&quot;carrier&quot;</span>).agg(pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
 <span id="cb231-3"><a href aria-label="3"></a>  .sort(<span class="st">&quot;carrier&quot;</span>)</span>
 <span id="cb231-4"><a href aria-label="4"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0015</code></pre>
+<pre><code>0.0018</code></pre>
 </div>
 </div>
 </div>
@@ -3987,11 +3987,11 @@ white-space: pre-wrap;
 <span id="cb233-12"><a href aria-label="12"></a></span>
 <span id="cb233-13"><a href aria-label="13"></a>time(lax_pandas)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0081</code></pre>
+<pre><code>0.0076</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb235"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: q.collect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0015</code></pre>
+<pre><code>0.0016</code></pre>
 </div>
 </div>
 </div>
@@ -4044,12 +4044,11 @@ dtype: object</code></pre>
 <li><p>Which plane (<code>tailnum</code>) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.</p></li>
 <li><p>Which five calendar dates (<code>year</code>, <code>month</code>, <code>day</code>) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.</p></li>
 <li><p>Which flight has the largest arrival delay as a percentage of its actual air time (<code>100 * arr_delay / air_time</code>)? Exclude missing values and nonpositive air times, and return all ties.</p></li>
-<li><p>Rewrite question 1 to start from <code>pl.scan_parquet()</code> and look at <code>explain()</code> before collecting. How many of the 19 columns does polars read?</p></li>
 </ol>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_f9940c9a" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_6c567384" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
