@@ -126,19 +126,38 @@ schedule:
 - week: 5
   day: 1
   topic: "Tidy Data"
-  lecture: "pandas & polars"
+  lecture: "pandas"
   slides: "Lec08"
   r_readings: []
   py_readings:
     - text: "Python for Data Analysis - pandas basics"
       link: https://wesmckinney.com/book/pandas-basics.html
+
+- week: 5
+  day: 3
+  topic: "Tidy Data"
+  lecture: "polars & tidy data"
+  slides: ""
+  r_readings:
+    - text: "R4DS - Data tidying"
+      link: https://r4ds.hadley.nz/data-tidy.html
+    - text: "tidyr pivoting"
+      link: https://tidyr.tidyverse.org/articles/pivot.html
+    - text: "R4DS - Joins"
+      link: https://r4ds.hadley.nz/joins.html
+  py_readings:
     - text: "Polars user guide"
       link: https://docs.pola.rs/
     - text: "Polars - Coming from Pandas"
       link: https://docs.pola.rs/user-guide/migration/pandas/
+    - text: "pandas - Reshaping and pivot tables"
+      link: https://pandas.pydata.org/docs/user_guide/reshaping.html
+    - text: "pandas - Merge, join, concatenate and compare"
+      link: https://pandas.pydata.org/docs/user_guide/merging.html
 
-- week: 5
-  day: 3
+
+- week: 6
+  day: 1
   topic: "Tidy Data"
   lecture: "Functional Programming"
   slides: ""
@@ -147,17 +166,14 @@ schedule:
       link: https://jennybc.github.io/purrr-tutorial/index.html
     - text: "tidyr rectangling"
       link: https://tidyr.tidyverse.org/articles/rectangle.html
-    - text: "tidyr pivoting"
-      link: https://tidyr.tidyverse.org/articles/pivot.html
     - text: "R4DS - Iteration"
       link: http://r4ds.had.co.nz/iteration.html
     - text: "purrr cheatsheet"
       link: https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf
   py_readings: []
 
-
 - week: 6
-  day: 1
+  day: 3
   topic: "Tidy Data"
   lecture: "Visualization"
   slides: ""
@@ -176,8 +192,9 @@ schedule:
     - text: "plotnine"
       link: https://plotnine.readthedocs.io/en/stable/
 
-- week: 6
-  day: 3
+
+- week: 7
+  day: 1
   topic: "Web Scraping"
   lecture: "Text data"
   slides: ""
@@ -194,9 +211,8 @@ schedule:
     - text: "re — Regular expression operations"
       link: https://docs.python.org/3/library/re.html
 
-
 - week: 7
-  day: 1
+  day: 3
   topic: "Web Scraping"
   lecture: "Scraping"
   slides: ""
@@ -206,18 +222,6 @@ schedule:
   py_readings:
     - text: "BeautifulSoup"
       link: https://www.crummy.com/software/BeautifulSoup/bs4/doc/
-
-- week: 7
-  day: 3
-  topic: "Web Scraping"
-  lecture: "http"
-  slides: ""
-  r_readings:
-    - text: "httr2"
-      link: https://httr2.r-lib.org/
-  py_readings:
-    - text: "Requests"
-      link: https://requests.readthedocs.io/en/latest/
 
 
 - week: 8
@@ -240,6 +244,18 @@ schedule:
 - week: 9
   day: 1
   topic: "Web Scraping"
+  lecture: "http"
+  slides: ""
+  r_readings:
+    - text: "httr2"
+      link: https://httr2.r-lib.org/
+  py_readings:
+    - text: "Requests"
+      link: https://requests.readthedocs.io/en/latest/
+
+- week: 9
+  day: 3
+  topic: "Web Scraping"
   lecture: "APIs"
   slides: ""
   r_readings:
@@ -251,8 +267,9 @@ schedule:
     - text: "FastAPI"
       link: https://fastapi.tiangolo.com/
 
-- week: 9
-  day: 3
+
+- week: 10
+  day: 1
   topic: "Databases"
   lecture: "SQL"
   slides: ""
@@ -267,17 +284,17 @@ schedule:
     - text: "Python sqlite3 — DB-API"
       link: https://docs.python.org/3/library/sqlite3.html
 
-
 - week: 10
-  day: 1
+  day: 3
   topic: "Databases"
   lecture: "SQL (2)"
   slides: ""
   r_readings: []
   py_readings: []
 
-- week: 10
-  day: 3
+
+- week: 11
+  day: 1
   topic: "Databases"
   lecture: "DuckDB"
   slides: ""
@@ -290,17 +307,17 @@ schedule:
       link: https://www.youtube.com/watch?v=GELhdezYmP0
   py_readings: []
 
-
 - week: 11
-  day: 1
+  day: 3
   topic: "Databases"
   lecture: "DuckDB (2)"
   slides: ""
   r_readings: []
   py_readings: []
 
-- week: 11
-  day: 3
+
+- week: 12
+  day: 1
   topic: "Shiny"
   lecture: "Shiny for R"
   slides: ""
@@ -315,36 +332,27 @@ schedule:
       link: https://posit-conf-2025.github.io/shiny-r/
   py_readings: []
 
-
 - week: 12
-  day: 1
+  day: 3
   topic: "Shiny"
   lecture: "Shiny for Python"
   slides: ""
   r_readings: []
   py_readings: []
 
-- week: 12
-  day: 3
+
+- week: 13
+  day: 1
   topic: "Shiny"
   lecture: "Dynamic UIs"
   slides: ""
   r_readings: []
   py_readings: []
 
-
-- week: 13
-  day: 1
-  topic: "Shiny"
-  lecture: "Modules"
-  slides: ""
-  r_readings: []
-  py_readings: []
-
 - week: 13
   day: 3
-  topic: ""
-  lecture: "<i>TBD</i>"
+  topic: "Shiny"
+  lecture: "Modules"
   slides: ""
   r_readings: []
   py_readings: []

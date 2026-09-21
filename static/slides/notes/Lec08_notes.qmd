@@ -14,7 +14,6 @@ engine: knitr
 ```{python setup}
 #| include: false
 import pandas as pd
-import polars as pl
 
 pd.set_option("display.width", 80)
 ```
@@ -77,71 +76,5 @@ flights = pd.read_parquet("../data/flights.parquet")
      .assign(arr_delay_pct = 100 * pd.col("arr_delay") / pd.col("air_time"))
      .nlargest(1, "arr_delay_pct", keep="all")
      [["month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct"]]
-   )
-   ```
-
-
-# Exercise 2
-
-Using polars: repeat questions 1 to 4 from Exercise 1, then (5) rewrite question 1 to start from `pl.scan_parquet()` and look at `explain()` before collecting.
-
-```{python}
-flights = pl.read_parquet("../data/flights.parquet")
-```
-
-1. How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time?
-
-   ```{python}
-   flights.filter(
-     pl.col("dest") == "LAX",
-     pl.col("origin") == "JFK",
-     pl.col("month") == 5,
-     pl.col("carrier").is_in(["AA", "UA", "DL", "US"])
-   ).group_by("carrier").agg(
-     n = pl.len(),
-     avg_air_time = pl.col("air_time").mean()
-   ).sort("carrier")
-   ```
-
-2. Which plane has the most flight records from each New York airport (no missing tail numbers, all ties)?
-
-   ```{python}
-   (flights
-     .drop_nulls("tailnum")
-     .group_by("origin", "tailnum")
-     .len()
-     .filter(pl.col("len") == pl.col("len").max().over("origin"))
-     .sort("origin")
-   )
-   ```
-
-3. Which five calendar dates had the lowest mean departure delay (ties broken by earliest date)?
-
-   ```{python}
-   (flights
-     .group_by("year", "month", "day")
-     .agg(avg_dep_delay = pl.col("dep_delay").mean())
-     .drop_nulls("avg_dep_delay")
-     .sort("avg_dep_delay", "year", "month", "day")
-     .head(5)
-   )
-   ```
-
-4. Which flight has the largest arrival delay as a percentage of its actual air time (no missing values or nonpositive air times, all ties)?
-
-   ```{python}
-   (flights
-     .filter(
-      pl.col("arr_delay").is_not_null(), pl.col("air_time") > 0
-    )
-     .with_columns(
-      arr_delay_pct = 100 * pl.col("arr_delay") / pl.col("air_time")
-    )
-     .filter(
-      pl.col("arr_delay_pct") == pl.col("arr_delay_pct").max()
-    )
-     .select(
-      "month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct"
-    )
    )
    ```
