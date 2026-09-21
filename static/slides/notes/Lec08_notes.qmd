@@ -22,74 +22,126 @@ pd.set_option("display.width", 80)
 
 # Exercise 1
 
-Using pandas and `penguins.csv`: select the Gentoo penguins with body mass above 5000 g keeping `species`, `island`, and `body_mass_g`, add a `body_mass_kg` column, and calculate the mean bill length and count for each species and island as a flat table.
+Using pandas and `flights.parquet`:
+
+1. How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time?
+2. Which plane has the most flight records from each New York airport (no missing tail numbers, all ties)?
+3. Which five calendar dates had the lowest mean departure delay (ties broken by earliest date)?
+4. Which flight has the largest arrival delay as a percentage of its actual air time (no missing values or nonpositive air times, all ties)?
 
 ```{python}
-penguins = pd.read_csv("../data/penguins.csv")
+flights = pd.read_parquet("../data/flights.parquet")
 ```
 
 ```{python}
-gentoo = penguins.loc[
-  (penguins["species"] == "Gentoo") & (penguins["body_mass_g"] > 5000),
-  ["species", "island", "body_mass_g"]
-]
-gentoo.head()
-gentoo.shape
-```
-
-```{python}
-penguins = penguins.assign(body_mass_kg = pd.col("body_mass_g") / 1000)
-penguins.head()
-```
-
-```{python}
-(penguins
-  .groupby(["species", "island"], as_index=False)
+(flights
+  .query("dest == 'LAX' and origin == 'JFK' and month == 5 and carrier in ['AA', 'UA', 'DL', 'US']")
+  .groupby("carrier", as_index=False)
   .agg(
-    bill_length = ("bill_length_mm", "mean"),
-    n = ("species", "size")
+    n = ("flight", "size"),
+    avg_air_time = ("air_time", "mean")
   )
+)
+```
+
+```{python}
+n = (flights
+  .dropna(subset=["tailnum"])
+  .groupby(["origin", "tailnum"], as_index=False)
+  .size()
+)
+n[n["size"] == n.groupby("origin")["size"].transform("max")]
+```
+
+```{python}
+(flights
+  .groupby(["year", "month", "day"], as_index=False)
+  .agg(avg_dep_delay = ("dep_delay", "mean"))
+  .dropna(subset=["avg_dep_delay"])
+  .sort_values(["avg_dep_delay", "year", "month", "day"])
+  .head(5)
+)
+```
+
+```{python}
+pct = (flights
+  .dropna(subset=["arr_delay"])
+  .query("air_time > 0")
+  .assign(arr_delay_pct = 100 * pd.col("arr_delay") / pd.col("air_time"))
+)
+(pct
+  [pct["arr_delay_pct"] == pct["arr_delay_pct"].max()]
+  [["month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct"]]
 )
 ```
 
 
 # Exercise 2
 
-Using polars: repeat the three tasks from Exercise 1, then rewrite part 3 to start from `pl.scan_csv()` and look at `explain()` before collecting.
+Using polars: repeat questions 1 to 4 from Exercise 1, then (5) rewrite question 1 to start from `pl.scan_parquet()` and look at `explain()` before collecting.
 
 ```{python}
-penguins = pl.read_csv("../data/penguins.csv", null_values="NA")
+flights = pl.read_parquet("../data/flights.parquet")
+legacy = ["AA", "UA", "DL", "US"]
 ```
 
 ```{python}
-penguins.filter(
-  pl.col("species") == "Gentoo",
-  pl.col("body_mass_g") > 5000
-).select("species", "island", "body_mass_g")
+flights.filter(
+  pl.col("dest") == "LAX",
+  pl.col("origin") == "JFK",
+  pl.col("month") == 5,
+  pl.col("carrier").is_in(legacy)
+).group_by("carrier").agg(
+  n = pl.len(),
+  avg_air_time = pl.col("air_time").mean()
+).sort("carrier")
 ```
 
 ```{python}
-penguins = penguins.with_columns(body_mass_kg = pl.col("body_mass_g") / 1000)
-penguins.head()
+(flights
+  .drop_nulls("tailnum")
+  .group_by("origin", "tailnum")
+  .len()
+  .filter(pl.col("len") == pl.col("len").max().over("origin"))
+  .sort("origin")
+)
 ```
 
 ```{python}
-penguins.group_by("species", "island").agg(
-  bill_length = pl.col("bill_length_mm").mean(),
-  n = pl.len()
-).sort("species", "island")
+(flights
+  .group_by("year", "month", "day")
+  .agg(avg_dep_delay = pl.col("dep_delay").mean())
+  .drop_nulls("avg_dep_delay")
+  .sort("avg_dep_delay", "year", "month", "day")
+  .head(5)
+)
+```
+
+```{python}
+(flights
+  .filter(pl.col("arr_delay").is_not_null(), pl.col("air_time") > 0)
+  .with_columns(arr_delay_pct = 100 * pl.col("arr_delay") / pl.col("air_time"))
+  .filter(pl.col("arr_delay_pct") == pl.col("arr_delay_pct").max())
+  .select("month", "day", "carrier", "flight", "origin", "dest", "arr_delay", "air_time", "arr_delay_pct")
+)
 ```
 
 ```{python}
 q = (
-  pl.scan_csv("../data/penguins.csv", null_values="NA")
-  .group_by("species", "island")
-  .agg(
-    bill_length = pl.col("bill_length_mm").mean(),
-    n = pl.len()
+  pl.scan_parquet("../data/flights.parquet")
+  .filter(
+    pl.col("dest") == "LAX",
+    pl.col("origin") == "JFK",
+    pl.col("month") == 5,
+    pl.col("carrier").is_in(legacy)
   )
-  .sort("species", "island")
+  .group_by("carrier")
+  .agg(
+    n = pl.len(),
+    avg_air_time = pl.col("air_time").mean()
+  )
+  .sort("carrier")
 )
-print( q.explain() )  # PROJECT 3/8 COLUMNS
+print( q.explain() )  # PROJECT 5/19 COLUMNS
 q.collect()
 ```

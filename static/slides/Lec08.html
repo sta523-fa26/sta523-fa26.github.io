@@ -1933,42 +1933,136 @@ Dr. Colin Rundel
 
 </section>
 <section>
+<section id="numpy-dtypes" class="title-slide slide level1 center">
+<h1>NumPy dtypes</h1>
+
+</section>
+<section id="dtype" class="slide level2">
+<h2>dtype</h2>
+<p>Every NumPy array stores elements of a single type, its <code>dtype</code>. As with R’s atomic vectors the type is inferred at creation and mixed values are coerced, but NumPy has many more types and each has an explicit size - <code>int8</code> to <code>int64</code>, <code>uint8</code> to <code>uint64</code>, <code>float16</code> to <code>float64</code>, <code>bool</code>, <code>complex128</code>, etc.</p>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href aria-label="1"></a>np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;int64&#39;)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href aria-label="1"></a>np.array([<span class="fl">1.5</span>, <span class="dv">2</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;float64&#39;)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href aria-label="1"></a>np.array([<span class="va">True</span>, <span class="va">False</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;bool&#39;)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href aria-label="1"></a>np.array([<span class="st">&quot;a&quot;</span>, <span class="st">&quot;bcd&quot;</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;&lt;U3&#39;)</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href aria-label="1"></a>np.array([<span class="dv">1</span>, <span class="fl">2.5</span>, <span class="va">True</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;float64&#39;)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href aria-label="1"></a>np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], dtype<span class="op">=</span><span class="st">&quot;float32&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>array([1., 2., 3.], dtype=float32)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href aria-label="1"></a>np.array([<span class="fl">1.7</span>, <span class="fl">2.2</span>]).astype(<span class="st">&quot;int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>array([1, 2])</code></pre>
+</div>
+</div>
+</div></div>
+
+<aside><div>
+<p><code>&lt;U3</code> is a fixed-width unicode string of at most 3 characters - see the <a href="https://numpy.org/doc/stable/user/basics.types.html">docs</a> for the full list of dtypes.</p>
+</div></aside></section>
+<section id="dtypes-are-fixed" class="slide level2">
+<h2>dtypes are fixed</h2>
+<p>The dtype is set when the array is created and does not change. Where an R vector is promoted to fit what is assigned into it, a NumPy array converts the value to its own dtype.</p>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>L, <span class="dv">2</span>L, <span class="dv">3</span>L)</span>
+<span id="cb15-2"><a href aria-label="2"></a><span class="fu">typeof</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;integer&quot;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href aria-label="1"></a>x[<span class="dv">1</span>] <span class="ot">=</span> <span class="fl">2.9</span></span>
+<span id="cb17-2"><a href aria-label="2"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.9 2.0 3.0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href aria-label="1"></a><span class="fu">typeof</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;double&quot;</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href aria-label="1"></a>x <span class="op">=</span> np.array([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb21-2"><a href aria-label="2"></a>x.dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>dtype(&#39;int64&#39;)</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href aria-label="1"></a>x[<span class="dv">0</span>] <span class="op">=</span> <span class="fl">2.9</span></span>
+<span id="cb23-2"><a href aria-label="2"></a>x</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>array([2, 2, 3])</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href aria-label="1"></a>y <span class="op">=</span> np.array([<span class="dv">100</span>, <span class="dv">200</span>], dtype<span class="op">=</span><span class="st">&quot;uint8&quot;</span>)</span>
+<span id="cb25-2"><a href aria-label="2"></a>y <span class="op">+</span> y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>array([200, 144], dtype=uint8)</code></pre>
+</div>
+</div>
+</div></div>
+
+<aside><div>
+<p>Note that integer arithmetic that exceeds the range of the type overflows without a warning or error.</p>
+</div></aside></section></section>
+<section>
 <section id="pandas" class="title-slide slide level1 center">
 <h1>pandas</h1>
 
 </section>
 <section id="pandas-1" class="slide level2">
 <h2>pandas</h2>
-<p>Python has no built-in tabular structure, a data frame is something a library provides. pandas (2008) is the established choice - it is built on NumPy and borrows heavily from R, but differs from R’s data frames in a few important ways that are the subject of this lecture.</p>
-<div class="medium">
-<p>Three classes do all of the work,</p>
-<ul>
-<li><p><code>Series</code> - a 1d typed array with an index (a column)</p></li>
-<li><p><code>DataFrame</code> - a collection of <code>Series</code> sharing an index (a table)</p></li>
-<li><p><code>Index</code> - the labels attached to rows and columns</p></li>
-</ul>
-</div>
+<p>Python has no built-in tabular data structure. pandas (2008) is an established choice - it grew out of NumPy and borrows heavily from R. Today we will focus on some of the key differences between the two implementations.</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href aria-label="1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-2"><a href aria-label="2"></a>pd.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href aria-label="1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb27-2"><a href aria-label="2"></a>pd.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;3.0.5&#39;</code></pre>
 </div>
 </div>
 </div>
+<p>Three classes do the heavy lifting:</p>
+<ul>
+<li><p><code>Series</code> - a 1d typed array with an index (a column)</p></li>
+<li><p><code>Index</code> - the labels attached to rows and columns</p></li>
+<li><p><code>DataFrame</code> - a collection of <code>Series</code> sharing an index (a table)</p></li>
+</ul>
 
 <aside><div>
 <p>pandas 3.0 (released early 2026) changed some long standing defaults - strings have their own dtype and copy-on-write is always on. Older tutorials and answers will show different behavior.</p>
 </div></aside></section>
 <section id="series" class="slide level2">
 <h2>Series</h2>
-<p>A <code>Series</code> is a 1d array of one dtype together with an <em>index</em> of labels - the closest thing in R is a named vector. The difference is that a Series always has an index (integer positions by default) and the index participates in lookup, alignment, and joins rather than being decoration.</p>
+<p>A <code>Series</code> is a 1d array with a dtype together with an <em>index</em> of labels - the closest thing in R is a named vector. The difference is that a Series always has an index (integer positions by default) and the index participates in lookup, alignment, and joins rather than being decoration/annotation.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span>
-<span id="cb3-2"><a href aria-label="2"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href aria-label="1"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    4
 1    2
@@ -1976,18 +2070,17 @@ Dr. Colin Rundel
 3    3
 dtype: int64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href aria-label="1"></a>s.index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href aria-label="1"></a>s.index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>RangeIndex(start=0, stop=4, step=1)</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series(</span>
-<span id="cb7-2"><a href aria-label="2"></a>  [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>],</span>
-<span id="cb7-3"><a href aria-label="3"></a>  index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>]</span>
-<span id="cb7-4"><a href aria-label="4"></a>)</span>
-<span id="cb7-5"><a href aria-label="5"></a>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href aria-label="1"></a>pd.Series(</span>
+<span id="cb34-2"><a href aria-label="2"></a>  [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>],</span>
+<span id="cb34-3"><a href aria-label="3"></a>  index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>]</span>
+<span id="cb34-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>a    4
 b    2
@@ -1996,48 +2089,54 @@ d    3
 dtype: int64</code></pre>
 </div>
 </div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href aria-label="1"></a>pd.Series({<span class="st">&quot;a&quot;</span>: <span class="dv">4</span>, <span class="st">&quot;b&quot;</span>: <span class="dv">2</span>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a    4
+b    2
+dtype: int64</code></pre>
+</div>
+</div>
 </div></div>
-
-<aside><div>
-<p>A dict also works as input, its keys become the index - <code>pd.Series({&quot;a&quot;: 4, &quot;b&quot;: 2})</code>.</p>
-</div></aside></section>
+</section>
 <section id="dtypes" class="slide level2">
 <h2>dtypes</h2>
-<p>pandas dtypes come from NumPy (<code>int64</code>, <code>float64</code>, <code>bool</code>) plus its own extension dtypes (<code>str</code>, <code>category</code>, <code>datetime64</code>, …). Where R coerces mixed values to a common type, pandas falls back to <code>object</code> - a column of arbitrary Python objects that behaves like a list rather than a vector, and is slow.</p>
+<p>pandas dtypes come from NumPy (<code>int64</code>, <code>float64</code>, <code>bool</code>, <code>datetime64</code>) plus extension dtypes (<code>str</code>, <code>category</code>, <code>Int64</code>, …).</p>
+<p>For mixtures such as numbers and strings, pandas falls back to <code>object</code> rather than coercing everything to strings as R does. An object Series still supports elementwise operations, but storing arbitrary Python objects usually costs more memory and computation.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dtype(&#39;int64&#39;)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href aria-label="1"></a>pd.Series([<span class="fl">1.5</span>, <span class="dv">2</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href aria-label="1"></a>pd.Series([<span class="fl">1.5</span>, <span class="dv">2</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dtype(&#39;float64&#39;)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dtype(&#39;bool&#39;)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;StringDtype(na_value=nan)&gt;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>]).dtype</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dtype(&#39;O&#39;)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="st">&quot;a&quot;</span>, <span class="va">True</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0       1
 1       a
 2    True
 dtype: object</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>]).astype(<span class="st">&quot;int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;1&quot;</span>, <span class="st">&quot;2&quot;</span>]).astype(<span class="st">&quot;int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1
 1    2
@@ -2048,75 +2147,108 @@ dtype: int64</code></pre>
 </section>
 <section id="labels-vs-positions" class="slide level2">
 <h2>Labels vs positions</h2>
-<p>A pandas index can hold integers, so <code>[]</code> on a Series would be ambiguous - it uses labels (<code>t[1]</code> is a <code>KeyError</code>), positions go through <code>.iloc</code> and labels through <code>.loc</code>. Label slices include their endpoint, position slices do not.</p>
+<div class="msmall">
+<p>A pandas index can hold integers, strings, etc. A scalar <code>s[key]</code> looks up a label, even when the key is an integer. Use <code>.iloc</code> for positions and <code>.loc</code> for labels.</p>
+</div>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series({<span class="st">&quot;a&quot;</span>: <span class="dv">4</span>, <span class="st">&quot;b&quot;</span>: <span class="dv">2</span>, <span class="st">&quot;c&quot;</span>: <span class="dv">1</span>, <span class="st">&quot;d&quot;</span>: <span class="dv">3</span>})</span>
+<span id="cb52-2"><a href aria-label="2"></a>u <span class="op">=</span> pd.Series([<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>], index<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href aria-label="1"></a>t[<span class="st">&quot;b&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href aria-label="1"></a>t[<span class="st">&quot;b&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(2)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href aria-label="1"></a>t.loc[<span class="st">&quot;b&quot;</span>:<span class="st">&quot;c&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href aria-label="1"></a>t[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>b    2
-c    1
-dtype: int64</code></pre>
+<pre><code>KeyError: 1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href aria-label="1"></a>t[t <span class="op">&gt;</span> <span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href aria-label="1"></a>t.iloc[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>a    4
-d    3
-dtype: int64</code></pre>
+<pre><code>np.int64(2)</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href aria-label="1"></a>t.iloc[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href aria-label="1"></a>u[<span class="st">&quot;b&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>np.int64(2)</code></pre>
+<pre><code>KeyError: &#39;b&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href aria-label="1"></a>t.iloc[<span class="dv">1</span>:<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>b    2
-c    1
-dtype: int64</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href aria-label="1"></a>u <span class="op">=</span> pd.Series([<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>],</span>
-<span id="cb33-2"><a href aria-label="2"></a>              index<span class="op">=</span>[<span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>])</span>
-<span id="cb33-3"><a href aria-label="3"></a>u[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href aria-label="1"></a>u[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(1)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href aria-label="1"></a>u.iloc[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href aria-label="1"></a>u.iloc[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(2)</code></pre>
 </div>
 </div>
 </div></div>
 </section>
+<section id="slices-labels-vs-positions" class="slide level2">
+<h2>Slices: labels vs positions</h2>
+<p><code>.loc</code> label slices include both endpoints; <code>.iloc</code> position slices exclude the stop. Integer slices in <code>s[...]</code> are positional, unlike scalar integer lookups.</p>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href aria-label="1"></a>t.loc[<span class="st">&quot;b&quot;</span>:<span class="st">&quot;c&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>b    2
+c    1
+dtype: int64</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href aria-label="1"></a>t.iloc[<span class="dv">1</span>:<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>b    2
+c    1
+dtype: int64</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href aria-label="1"></a>u[<span class="dv">1</span>:<span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>2    2
+1    1
+dtype: int64</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href aria-label="1"></a>u.loc[<span class="dv">3</span>:<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>3    4
+2    2
+1    1
+dtype: int64</code></pre>
+</div>
+</div>
+</div></div>
+</section>
 <section id="index-alignment" class="slide level2">
 <h2>Index alignment</h2>
-<p>The index is not just for lookup, arithmetic between Series aligns on labels rather than positions. The result spans the union of both indexes with <code>NaN</code> for labels missing on one side, and assigning a Series to a column aligns the same way.</p>
+<p>Arithmetic between Series aligns on index rather than position. The result spans the union of both indexes with <code>NaN</code> for labels missing on one side. Assigning a Series to a column in a DataFrame aligns the same way.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href aria-label="1"></a>m <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span>
-<span id="cb37-2"><a href aria-label="2"></a>n <span class="op">=</span> pd.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>], index<span class="op">=</span>[<span class="st">&quot;c&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;a&quot;</span>])</span>
-<span id="cb37-3"><a href aria-label="3"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}, index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-label="1"></a>m <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span>
+<span id="cb73-2"><a href aria-label="2"></a>n <span class="op">=</span> pd.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>], index<span class="op">=</span>[<span class="st">&quot;c&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;a&quot;</span>])</span>
+<span id="cb73-3"><a href aria-label="3"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]}, index<span class="op">=</span>[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href aria-label="1"></a>m <span class="op">+</span> n</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href aria-label="1"></a>m <span class="op">+</span> n</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>a    31
 b    22
 c    13
 dtype: int64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href aria-label="1"></a>m <span class="op">+</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href aria-label="1"></a>m <span class="op">+</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>a    31.0
 b     NaN
@@ -2126,8 +2258,8 @@ dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href aria-label="1"></a>d[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span>
-<span id="cb42-2"><a href aria-label="2"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href aria-label="1"></a>d[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> n[[<span class="st">&quot;a&quot;</span>, <span class="st">&quot;c&quot;</span>]]</span>
+<span id="cb78-2"><a href aria-label="2"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   x     y
 a  1  30.0
@@ -2139,11 +2271,10 @@ c  3  10.0</code></pre>
 </section>
 <section id="dataframe" class="slide level2">
 <h2>DataFrame</h2>
-<p>A <code>DataFrame</code> is a dict-like collection of Series sharing a row index, plus an index of column names - R’s list of vectors with <code>names</code> and <code>row.names</code>. The difference is emphasis: R treats row names as an afterthought (tibbles drop them), the pandas index is central.</p>
+<p>A <code>DataFrame</code> is a dict-like collection of Series sharing a row index, (keys are the column indexes).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pd.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>)</span>
-<span id="cb44-2"><a href aria-label="2"></a>penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pd.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>)<span class="op">;</span> penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       species     island  bill_length_mm  ...  body_mass_g     sex  year
 0       Adelie  Torgersen            39.1  ...       3750.0    male  2007
@@ -2159,11 +2290,11 @@ c  3  10.0</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href aria-label="1"></a>penguins.index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href aria-label="1"></a>penguins.index</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>RangeIndex(start=0, stop=344, step=1)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href aria-label="1"></a>penguins.columns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href aria-label="1"></a>penguins.columns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Index([&#39;species&#39;, &#39;island&#39;, &#39;bill_length_mm&#39;, &#39;bill_depth_mm&#39;,
        &#39;flipper_length_mm&#39;, &#39;body_mass_g&#39;, &#39;sex&#39;, &#39;year&#39;],
@@ -2171,15 +2302,18 @@ c  3  10.0</code></pre>
 </div>
 </div>
 </div>
+
 </div>
-</section>
-<section id="column-types" class="slide level2">
-<h2>Column types</h2>
-<p>Types are guessed from the file - there is no factor by default (<code>category</code> is opt in) and the two integer columns with missing values were upcast to <code>float64</code>. Asking for the <code>numpy_nullable</code> backend gives pandas’ extension dtypes instead, which keep integers as integers (more on these shortly).</p>
+<aside><div>
+<p>The primary difference with R data frames is automatic alignment on the row index. R’s <code>row.names</code> support printing and character row subsetting, but do not align arithmetic in the same way.</p>
+</div></aside></section>
+<section id="column-types---csv" class="slide level2">
+<h2>Column types - csv</h2>
+<p>Types are guessed from the file - there is no factor type by default (<code>category</code> is opt in) and the two integer columns with missing values were upcast to <code>float64</code>. Using the <code>numpy_nullable</code> backend uses pandas’ extension dtypes instead, which keep integers as integers (more on these shortly).</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href aria-label="1"></a>penguins.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href aria-label="1"></a>penguins.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species                  str
 island                   str
@@ -2194,10 +2328,10 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href aria-label="1"></a>pd.read_csv(</span>
-<span id="cb52-2"><a href aria-label="2"></a>  <span class="st">&quot;data/penguins.csv&quot;</span>,</span>
-<span id="cb52-3"><a href aria-label="3"></a>  dtype_backend<span class="op">=</span><span class="st">&quot;numpy_nullable&quot;</span></span>
-<span id="cb52-4"><a href aria-label="4"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-label="1"></a>pd.read_csv(</span>
+<span id="cb88-2"><a href aria-label="2"></a>  <span class="st">&quot;data/penguins.csv&quot;</span>,</span>
+<span id="cb88-3"><a href aria-label="3"></a>  dtype_backend<span class="op">=</span><span class="st">&quot;numpy_nullable&quot;</span></span>
+<span id="cb88-4"><a href aria-label="4"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species               string
 island                string
@@ -2214,18 +2348,18 @@ dtype: object</code></pre>
 </section>
 <section id="missing-values" class="slide level2">
 <h2>Missing values</h2>
-<p>R has one <code>NA</code> that fits inside any vector type. NumPy has no missing value at all, so pandas adopted the floating point <code>NaN</code> as its sentinel - which means a missing value changes the dtype of a column: integers become <code>float64</code>, booleans become <code>object</code> holding <code>None</code>, and datetimes get their own <code>NaT</code>.</p>
+<p>R has typed <code>NA</code> values for logical, integer, double, complex, and character vectors. NumPy has no universal missing-value sentinel across dtypes: floating point arrays can use <code>NaN</code> and datetimes can use <code>NaT</code>, but integers and booleans have no equivalent. With pandas’ default inference, missing integers become <code>float64</code>, while the boolean example below becomes <code>object</code> holding <code>None</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href aria-label="1"></a>pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
 2    NaN
 dtype: float64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href aria-label="1"></a>pd.Series([<span class="va">True</span>, <span class="va">False</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0     True
 1    False
@@ -2235,15 +2369,15 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href aria-label="1"></a>pd.Series([<span class="st">&quot;a&quot;</span>, <span class="va">None</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0      a
 1    NaN
 dtype: str</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href aria-label="1"></a>pd.Series(</span>
-<span id="cb60-2"><a href aria-label="2"></a>  [pd.Timestamp(<span class="st">&quot;2026-09-15&quot;</span>), <span class="va">None</span>]</span>
-<span id="cb60-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href aria-label="1"></a>pd.Series(</span>
+<span id="cb96-2"><a href aria-label="2"></a>  [pd.Timestamp(<span class="st">&quot;2026-09-15&quot;</span>), <span class="va">None</span>]</span>
+<span id="cb96-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0   2026-09-15
 1          NaT
@@ -2261,15 +2395,15 @@ dtype: datetime64[us]</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span>
-<span id="cb62-2"><a href aria-label="2"></a>s <span class="op">==</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb98-1"><a href aria-label="1"></a>s <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>])</span>
+<span id="cb98-2"><a href aria-label="2"></a>s <span class="op">==</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1    False
 2    False
 dtype: bool</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href aria-label="1"></a>s.isna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb100-1"><a href aria-label="1"></a>s.isna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1    False
@@ -2279,17 +2413,17 @@ dtype: bool</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href aria-label="1"></a>s.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href aria-label="1"></a>s.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(1)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href aria-label="1"></a>s.dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href aria-label="1"></a>s.dropna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
 dtype: float64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href aria-label="1"></a>s.fillna(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb106-1"><a href aria-label="1"></a>s.fillna(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    1.0
 1    2.0
@@ -2301,35 +2435,35 @@ dtype: float64</code></pre>
 </section>
 <section id="missing-values-in-aggregations" class="slide level2">
 <h2>Missing values in aggregations</h2>
-<p>Reductions skip missing values by default (<code>skipna=True</code>), the opposite of R’s <code>na.rm = FALSE</code> - a mean silently ignores the gaps and the sum of an entirely missing column is 0. <code>count()</code> gives the number of non-missing values, <code>isna().sum()</code> the number missing.</p>
+<p>Reductions skip missing values by default (<code>skipna=True</code>), the opposite of R’s <code>na.rm = FALSE</code>.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href aria-label="1"></a>mass <span class="op">=</span> penguins[<span class="st">&quot;body_mass_g&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href aria-label="1"></a>mass <span class="op">=</span> penguins[<span class="st">&quot;body_mass_g&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-label="1"></a>mass.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href aria-label="1"></a>mass.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(4201.754385964912)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href aria-label="1"></a>mass.mean(skipna<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href aria-label="1"></a>mass.mean(skipna<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.float64(nan)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href aria-label="1"></a>mass.count()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href aria-label="1"></a>mass.count()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>np.int64(342)</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href aria-label="1"></a>penguins.dropna().shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href aria-label="1"></a>penguins.dropna().shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(333, 8)</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href aria-label="1"></a>penguins.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb117-1"><a href aria-label="1"></a>penguins.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species               0
 island                0
@@ -2346,21 +2480,25 @@ dtype: int64</code></pre>
 </section>
 <section id="nullable-dtypes" class="slide level2">
 <h2>Nullable dtypes</h2>
-<p>The extension dtypes <code>Int64</code>, <code>Float64</code>, <code>boolean</code>, and <code>string</code> (capitalized, unlike NumPy’s) have a proper missing value, <code>pd.NA</code>, which keeps the column’s dtype and propagates through arithmetic and comparisons with three valued logic - <code>pd.NA == 1</code> is <code>&lt;NA&gt;</code> rather than <code>False</code>. They are opt in, via <code>dtype=</code>, <code>dtype_backend=</code> when reading, or <code>convert_dtypes()</code>.</p>
+<div class="medium">
+<p>The extension dtypes <code>Int64</code>, <code>Float64</code>, <code>boolean</code>, and <code>string</code> use <code>pd.NA</code> to represent missing values without changing dtype. Only the numeric names here are capitalized. These types are opt in, via <code>dtype=</code>, <code>dtype_backend=</code> when reading, or <code>convert_dtypes()</code>. Arithmetic and comparisons use three valued logic - <code>pd.NA == 1</code> is <code>&lt;NA&gt;</code> rather than <code>False</code>.</p>
+</div>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>], dtype<span class="op">=</span><span class="st">&quot;Int64&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href aria-label="1"></a>t <span class="op">=</span> pd.Series(</span>
-<span id="cb83-2"><a href aria-label="2"></a>  [<span class="dv">1</span>, <span class="dv">2</span>, <span class="va">None</span>], dtype<span class="op">=</span><span class="st">&quot;Int64&quot;</span></span>
-<span id="cb83-3"><a href aria-label="3"></a>)</span>
-<span id="cb83-4"><a href aria-label="4"></a>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href aria-label="1"></a>t</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0       1
 1       2
 2    &lt;NA&gt;
 dtype: Int64</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href aria-label="1"></a>t <span class="op">&gt;</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href aria-label="1"></a>t <span class="op">&gt;</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    False
 1     True
@@ -2370,21 +2508,21 @@ dtype: boolean</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href aria-label="1"></a>pd.NA <span class="op">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href aria-label="1"></a>pd.NA <span class="op">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;NA&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href aria-label="1"></a>pd.NA <span class="op">|</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href aria-label="1"></a>pd.NA <span class="op">|</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb91-1"><a href aria-label="1"></a>pd.NA <span class="op">&amp;</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href aria-label="1"></a>pd.NA <span class="op">&amp;</span> <span class="va">True</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;NA&gt;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb93-1"><a href aria-label="1"></a><span class="bu">bool</span>(pd.NA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a><span class="bu">bool</span>(pd.NA)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TypeError: boolean value of NA is ambiguous</code></pre>
 </div>
@@ -2392,7 +2530,7 @@ dtype: boolean</code></pre>
 </div></div>
 
 <aside><div>
-<p>So a pandas column can hold <code>NaN</code>, <code>None</code>, <code>NaT</code>, or <code>pd.NA</code> depending on its dtype - <code>isna()</code> treats all of them as missing, which is why it, and not <code>==</code>, is the tool to use.</p>
+<p>So a pandas column can hold <code>NaN</code>, <code>None</code>, <code>NaT</code>, or <code>pd.NA</code> depending on its dtype - <code>isna()</code> treats all of them as missing, which is why it should be used over <code>==</code>.</p>
 </div></aside></section>
 <section id="subsetting-with" class="slide level2">
 <h2>Subsetting with <code>[]</code></h2>
@@ -2400,7 +2538,7 @@ dtype: boolean</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0         Adelie
 1         Adelie
@@ -2412,7 +2550,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href aria-label="1"></a>penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a>penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       species     island
 0       Adelie  Torgersen
@@ -2427,7 +2565,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div></div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href aria-label="1"></a>penguins[penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a>penguins[penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  bill_length_mm  ...  body_mass_g   sex  year
 169  Gentoo  Biscoe            49.2  ...       6300.0  male  2007
@@ -2443,11 +2581,11 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div></aside></section>
 <section id="loc-and-.iloc" class="slide level2">
 <h2><code>.loc</code> and <code>.iloc</code></h2>
-<p>Two dimensional subsetting like R’s <code>df[i, j]</code> goes through the <code>.loc</code> (labels) and <code>.iloc</code> (positions) accessors - each takes <code>[rows, cols]</code> where either can be a single value, a list, a slice, or a boolean mask. The same slice means different rows in the two.</p>
+<p>Two dimensional subsetting like R’s <code>df[i, j]</code> goes through <code>.loc</code> (labels) and <code>.iloc</code> (positions), each taking <code>[rows, cols]</code>. Label slices include the stop; position slices exclude it. Both accept boolean arrays, but an indexed boolean Series belongs with <code>.loc</code>, not <code>.iloc</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="st">&quot;species&quot;</span>:<span class="st">&quot;island&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="st">&quot;species&quot;</span>:<span class="st">&quot;island&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species     island
 0  Adelie  Torgersen
@@ -2457,7 +2595,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb103-1"><a href aria-label="1"></a>penguins.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href aria-label="1"></a>penguins.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">2</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species     island
 0  Adelie  Torgersen
@@ -2467,7 +2605,7 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div></div>
 <div class="fragment xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb105-1"><a href aria-label="1"></a>penguins.loc[penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href aria-label="1"></a>penguins.loc[penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  body_mass_g
 152  Gentoo       4500.0
@@ -2481,18 +2619,52 @@ Name: species, Length: 344, dtype: str</code></pre>
 </div>
 </div>
 </section>
-<section id="rows-are-series-too" class="slide level2">
-<h2>Rows are Series too</h2>
-<p>Selecting a single row returns a Series, and a Series has one dtype - so a heterogeneous row is upcast to <code>object</code>. R keeps a single row as a data frame for exactly this reason. Use a list to get a one row DataFrame instead.</p>
+<section id="combining-conditions" class="slide level2">
+<h2>Combining conditions</h2>
+<p>Use <code>&amp;</code> for elementwise AND, <code>|</code> for OR, and <code>~</code> for NOT. Parenthesize comparisons; Python’s <code>and</code> / <code>or</code> do not combine Series. <code>.isin()</code> tests membership in a collection.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href aria-label="1"></a>cols <span class="op">=</span> [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;year&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href aria-label="1"></a>mask <span class="op">=</span> (</span>
+<span id="cb144-2"><a href aria-label="2"></a>  penguins[<span class="st">&quot;species&quot;</span>].isin([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>])</span>
+<span id="cb144-3"><a href aria-label="3"></a>  <span class="op">&amp;</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
+<span id="cb144-4"><a href aria-label="4"></a>)</span>
+<span id="cb144-5"><a href aria-label="5"></a>penguins.loc[mask, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    species  body_mass_g
+153  Gentoo       5700.0
+155  Gentoo       5700.0
+156  Gentoo       5400.0</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb146-1"><a href aria-label="1"></a>penguins.loc[</span>
+<span id="cb146-2"><a href aria-label="2"></a>  (penguins[<span class="st">&quot;species&quot;</span>] <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
+<span id="cb146-3"><a href aria-label="3"></a>  <span class="op">|</span> (penguins[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>),</span>
+<span id="cb146-4"><a href aria-label="4"></a>  [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]</span>
+<span id="cb146-5"><a href aria-label="5"></a>].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    species  body_mass_g
+152  Gentoo       4500.0
+153  Gentoo       5700.0
+154  Gentoo       4450.0</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="rows-are-series-too" class="slide level2">
+<h2>Rows are Series too</h2>
+<p>Selecting a single row returns a Series, and a Series has one dtype - so a heterogeneous row is upcast to <code>object</code>. R keeps a single row as a data frame for exactly this reason.</p>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href aria-label="1"></a>cols <span class="op">=</span> [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;year&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>, cols]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a>penguins.loc[<span class="dv">0</span>, cols]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species    Adelie
 year         2007
@@ -2501,13 +2673,13 @@ Name: 0, dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href aria-label="1"></a>r <span class="op">=</span> penguins.loc[[<span class="dv">0</span>], cols]</span>
-<span id="cb110-2"><a href aria-label="2"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a>r <span class="op">=</span> penguins.loc[[<span class="dv">0</span>], cols]</span>
+<span id="cb151-2"><a href aria-label="2"></a>r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species  year
 0  Adelie  2007</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href aria-label="1"></a>r.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a>r.dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species      str
 year       int64
@@ -2518,14 +2690,14 @@ dtype: object</code></pre>
 </section>
 <section id="mutation" class="slide level2">
 <h2>Mutation</h2>
-<p>DataFrames are mutable Python objects - <code>df[&quot;z&quot;] = ...</code> changes the frame in place, and any other name bound to the same object sees the change (reference semantics, Lecture 06). This is unlike R’s copy-on-modify, where the same code would leave <code>d</code> untouched. <code>copy()</code> makes an independent frame, and methods such as <code>assign()</code> return a new one.</p>
+<p>DataFrames are mutable - <code>df[&quot;z&quot;] = ...</code> changes the object in place, and any other name bound to the same object sees the change (reference semantics). This is unlike R’s copy-on-modify, where the same code would leave <code>d</code> untouched. <code>copy()</code> makes an independent data frame, and methods such as <code>assign()</code> return a new one.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href aria-label="1"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
-<span id="cb114-2"><a href aria-label="2"></a>d2 <span class="op">=</span> d</span>
-<span id="cb114-3"><a href aria-label="3"></a>d2[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> d2[<span class="st">&quot;x&quot;</span>] <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb114-4"><a href aria-label="4"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href aria-label="1"></a>d <span class="op">=</span> pd.DataFrame({<span class="st">&quot;x&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]})</span>
+<span id="cb155-2"><a href aria-label="2"></a>d2 <span class="op">=</span> d</span>
+<span id="cb155-3"><a href aria-label="3"></a>d2[<span class="st">&quot;y&quot;</span>] <span class="op">=</span> d2[<span class="st">&quot;x&quot;</span>] <span class="op">*</span> <span class="dv">2</span></span>
+<span id="cb155-4"><a href aria-label="4"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   x  y
 0  1  2
@@ -2535,82 +2707,111 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href aria-label="1"></a>d3 <span class="op">=</span> d.copy()</span>
-<span id="cb116-2"><a href aria-label="2"></a>d3[<span class="st">&quot;z&quot;</span>] <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb116-3"><a href aria-label="3"></a>d.columns</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href aria-label="1"></a>d3 <span class="op">=</span> d.copy()</span>
+<span id="cb157-2"><a href aria-label="2"></a>d3[<span class="st">&quot;z&quot;</span>] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb157-3"><a href aria-label="3"></a>d</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Index([&#39;x&#39;, &#39;y&#39;], dtype=&#39;str&#39;)</code></pre>
+<pre><code>   x  y
+0  1  2
+1  2  4
+2  3  6</code></pre>
 </div>
 </div>
 </div></div>
 
 <aside><div>
-<p>pandas 3.0 turned on copy-on-write - subsets and <code>.copy()</code> are always independent of their source, so aliasing a name is the only remaining way to modify a frame by accident. <code>inplace=True</code> arguments still exist but are discouraged.</p>
+<p>pandas 3.0 enforces copy-on-write: assigning through a subset does not update its source. Binding two names to the same DataFrame still creates an alias. This protection does not recursively copy mutable Python objects stored inside object columns.</p>
 </div></aside></section>
+<section id="updating-selected-rows" class="slide level2">
+<h2>Updating selected rows</h2>
+<p>Use a single <code>.loc[rows, column] = value</code> assignment on the frame you want to change. Chained assignment such as <code>df[&quot;x&quot;][mask] = value</code> cannot update the original frame under copy-on-write.</p>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb159"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb159-1"><a href aria-label="1"></a>updated <span class="op">=</span> penguins.copy()</span>
+<span id="cb159-2"><a href aria-label="2"></a>updated[<span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;other&quot;</span></span>
+<span id="cb159-3"><a href aria-label="3"></a>updated.loc[updated[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">5000</span>, <span class="st">&quot;size&quot;</span>] <span class="op">=</span> <span class="st">&quot;large&quot;</span></span>
+<span id="cb159-4"><a href aria-label="4"></a>updated.loc[updated[<span class="st">&quot;size&quot;</span>] <span class="op">==</span> <span class="st">&quot;large&quot;</span>, [<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;size&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     body_mass_g   size
+153       5700.0  large
+155       5700.0  large
+156       5400.0  large</code></pre>
+</div>
+</div>
+</div>
+</section>
 <section id="referring-to-columns" class="slide level2">
 <h2>Referring to columns</h2>
 <p>dplyr’s <code>filter(df, x &gt; 1)</code> works because R captures the unevaluated expression. Python evaluates arguments eagerly and a bare <code>x</code> is a <code>NameError</code>, so pandas offers several workarounds, none of which are quite as convenient.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href aria-label="1"></a>pg <span class="op">=</span> penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb161"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb161-1"><a href aria-label="1"></a>pg <span class="op">=</span> penguins[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<div class="columns xsmall">
+<div class="columns">
 <div class="column" style="width:50%;">
-<p>Explicit - repeat the frame’s name,</p>
+<p>Explicit - reuse the object,</p>
+<div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb119-1"><a href aria-label="1"></a>pg[pg[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb162-1"><a href aria-label="1"></a>pg[pg[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
 185  Gentoo  Biscoe       6050.0</code></pre>
 </div>
 </div>
-<p>Callable - a function receiving the frame,</p>
+</div>
+<p>Callable - a function / lambda</p>
+<div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb121-1"><a href aria-label="1"></a>pg[<span class="kw">lambda</span> d: d[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href aria-label="1"></a>pg[<span class="kw">lambda</span> d: d[<span class="st">&quot;body_mass_g&quot;</span>] <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
 185  Gentoo  Biscoe       6050.0</code></pre>
+</div>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
-<p>String - a mini language parsed by pandas,</p>
+<p>String - DSL parsed by pandas,</p>
+<div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb123-1"><a href aria-label="1"></a>pg.query(<span class="st">&quot;body_mass_g &gt; 6000&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>pg.query(<span class="st">&quot;body_mass_g &gt; 6000&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
 185  Gentoo  Biscoe       6050.0</code></pre>
 </div>
 </div>
-<p>Expression - <code>pd.col()</code>, new in pandas 3.0,</p>
+</div>
+<p>Expression - <code>pd.col()</code>,</p>
+<div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb125-1"><a href aria-label="1"></a>pg[pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>pg[pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island  body_mass_g
 169  Gentoo  Biscoe       6300.0
 185  Gentoo  Biscoe       6050.0</code></pre>
+</div>
 </div>
 </div>
 </div></div>
 
 <aside><div>
-<p><code>pd.col()</code> is borrowed from polars (later in this lecture) and still has some rough edges.</p>
+<p><code>pd.col()</code> is borrowed from polars (later in this lecture) and is new in pd 3.0.</p>
 </div></aside></section>
 <section id="method-chaining" class="slide level2">
 <h2>Method chaining</h2>
-<p>There is no pipe, but since nearly every method returns a new DataFrame the equivalent is a chain of methods, wrapped in parentheses so it can span lines. Callables and <code>pd.col()</code> are what let a step refer to columns of the intermediate result.</p>
+<p>There is no pipe operator, but since nearly every method returns a new DataFrame the equivalent is method chaining. Callables and <code>pd.col()</code> are what let a step refer to columns of the intermediate result. Subsetting with <code>[]</code> can be a step in the chain like any other.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb127-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb127-2"><a href aria-label="2"></a>  .query(<span class="st">&quot;species == &#39;Gentoo&#39;&quot;</span>)</span>
-<span id="cb127-3"><a href aria-label="3"></a>  .assign(kg <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
-<span id="cb127-4"><a href aria-label="4"></a>  .sort_values(<span class="st">&quot;kg&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb127-5"><a href aria-label="5"></a>  [[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;kg&quot;</span>]]</span>
-<span id="cb127-6"><a href aria-label="6"></a>  .head(<span class="dv">3</span>)</span>
-<span id="cb127-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb170-2"><a href aria-label="2"></a>  .query(<span class="st">&quot;species == &#39;Gentoo&#39;&quot;</span>)</span>
+<span id="cb170-3"><a href aria-label="3"></a>  .assign(kg <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span>)</span>
+<span id="cb170-4"><a href aria-label="4"></a>  .sort_values(<span class="st">&quot;kg&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb170-5"><a href aria-label="5"></a>  [[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>, <span class="st">&quot;kg&quot;</span>]]</span>
+<span id="cb170-6"><a href aria-label="6"></a>  .head(<span class="dv">3</span>)</span>
+<span id="cb170-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    species  island    kg
 169  Gentoo  Biscoe  6.30
@@ -2625,20 +2826,20 @@ dtype: object</code></pre>
 </div></aside></section>
 <section id="groupby" class="slide level2">
 <h2>groupby</h2>
-<p>Split-apply-combine works the same way - <code>groupby()</code> returns a lazy <code>DataFrameGroupBy</code> and nothing is computed until an aggregation is applied. Unlike dplyr the group keys become the <em>index</em> of the result (<code>as_index=False</code> keeps them as columns, like <code>.by</code>), and aggregations are given as <code>(column, function)</code> pairs.</p>
+<p>Split-apply-combine works the same way - <code>groupby()</code> returns a <code>DataFrameGroupBy</code> which is then used by subsequent aggregation calls. By default the group keys become the <em>index</em> of the result (<code>as_index=False</code> keeps them as columns, like <code>.by</code>). Named aggregations use <code>(column, function)</code> pairs.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb129-1"><a href aria-label="1"></a>g <span class="op">=</span> penguins.groupby(<span class="st">&quot;species&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>g <span class="op">=</span> penguins.groupby(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb172-2"><a href aria-label="2"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class &#39;pandas.api.typing.DataFrameGroupBy&#39;&gt;</code></pre>
+</div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>&lt;class &#39;pandas.api.typing.DataFrameGroupBy&#39;&gt;</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>g[<span class="st">&quot;body_mass_g&quot;</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a>g[<span class="st">&quot;body_mass_g&quot;</span>].mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species
 Adelie       3700.662252
@@ -2649,13 +2850,13 @@ Name: body_mass_g, dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb134-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb134-3"><a href aria-label="3"></a>  .agg(</span>
-<span id="cb134-4"><a href aria-label="4"></a>    n <span class="op">=</span> (<span class="st">&quot;species&quot;</span>, <span class="st">&quot;size&quot;</span>),</span>
-<span id="cb134-5"><a href aria-label="5"></a>    mass <span class="op">=</span> (<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;mean&quot;</span>)</span>
-<span id="cb134-6"><a href aria-label="6"></a>  )</span>
-<span id="cb134-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb176-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb176-3"><a href aria-label="3"></a>  .agg(</span>
+<span id="cb176-4"><a href aria-label="4"></a>    n <span class="op">=</span> (<span class="st">&quot;species&quot;</span>, <span class="st">&quot;size&quot;</span>),</span>
+<span id="cb176-5"><a href aria-label="5"></a>    mass <span class="op">=</span> (<span class="st">&quot;body_mass_g&quot;</span>, <span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb176-6"><a href aria-label="6"></a>  )</span>
+<span id="cb176-7"><a href aria-label="7"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     species    n         mass
 0     Adelie  152  3700.662252
@@ -2670,8 +2871,8 @@ Name: body_mass_g, dtype: float64</code></pre>
 <p><code>transform()</code> returns a result the same length as its input, broadcasting each group’s value back over that group’s rows - the equivalent of <code>mutate()</code> with <code>.by</code>. Since the result shares the frame’s index it can be used directly in arithmetic or assignment.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a>avg <span class="op">=</span> g[<span class="st">&quot;body_mass_g&quot;</span>].transform(<span class="st">&quot;mean&quot;</span>)</span>
-<span id="cb136-2"><a href aria-label="2"></a>avg.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a>avg <span class="op">=</span> g[<span class="st">&quot;body_mass_g&quot;</span>].transform(<span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb178-2"><a href aria-label="2"></a>avg.head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0    3700.662252
 1    3700.662252
@@ -2683,7 +2884,7 @@ Name: body_mass_g, dtype: float64</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a>penguins.assign(rel <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> avg)[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href aria-label="1"></a>penguins.assign(rel <span class="op">=</span> pd.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> avg)[[<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>]].head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  species       rel
 0  Adelie  1.013332
@@ -2699,14 +2900,14 @@ Name: body_mass_g, dtype: float64</code></pre>
 </div></aside></section>
 <section id="multiindex" class="slide level2">
 <h2>MultiIndex</h2>
-<p>Group by two keys and the result has a hierarchical <code>MultiIndex</code>, aggregate a column two ways and the columns get one too. There is no R analog (the tidyverse keeps keys as ordinary columns) and most code is simpler after a <code>reset_index()</code> back to a flat table.</p>
+<p>Group by two keys and the result has a hierarchical row <code>MultiIndex</code>; aggregate a column two ways with the dictionary/list syntax and the columns get one too. The tidyverse usually keeps group keys and summaries as ordinary columns.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb140-2"><a href aria-label="2"></a>  .groupby([<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>])</span>
-<span id="cb140-3"><a href aria-label="3"></a>  [<span class="st">&quot;body_mass_g&quot;</span>].mean()</span>
-<span id="cb140-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb182-2"><a href aria-label="2"></a>  .groupby([<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>])</span>
+<span id="cb182-3"><a href aria-label="3"></a>  [<span class="st">&quot;body_mass_g&quot;</span>].mean()</span>
+<span id="cb182-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species    island   
 Adelie     Biscoe       3709.659091
@@ -2719,12 +2920,12 @@ Name: body_mass_g, dtype: float64</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href aria-label="1"></a>(penguins</span>
-<span id="cb142-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>)</span>
-<span id="cb142-3"><a href aria-label="3"></a>  .agg({</span>
-<span id="cb142-4"><a href aria-label="4"></a>    <span class="st">&quot;body_mass_g&quot;</span>: [<span class="st">&quot;mean&quot;</span>, <span class="st">&quot;max&quot;</span>]</span>
-<span id="cb142-5"><a href aria-label="5"></a>  })</span>
-<span id="cb142-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href aria-label="1"></a>(penguins</span>
+<span id="cb184-2"><a href aria-label="2"></a>  .groupby(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb184-3"><a href aria-label="3"></a>  .agg({</span>
+<span id="cb184-4"><a href aria-label="4"></a>    <span class="st">&quot;body_mass_g&quot;</span>: [<span class="st">&quot;mean&quot;</span>, <span class="st">&quot;max&quot;</span>]</span>
+<span id="cb184-5"><a href aria-label="5"></a>  })</span>
+<span id="cb184-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           body_mass_g        
                   mean     max
@@ -2737,21 +2938,22 @@ Gentoo     5076.016260  6300.0</code></pre>
 </div></div>
 
 <aside><div>
-<p><code>.index</code> on the left result and <code>.columns</code> on the right are both <code>MultiIndex</code> objects - indexing into them uses tuples, e.g. <code>res[(&quot;body_mass_g&quot;, &quot;max&quot;)]</code>.</p>
+<p><code>reset_index()</code> moves row index levels into columns, but does not flatten hierarchical columns. Use <code>as_index=False</code> plus named aggregations to avoid both. Hierarchical column lookup uses tuples, e.g. <code>res[(&quot;body_mass_g&quot;, &quot;max&quot;)]</code>.</p>
 </div></aside></section>
 <section id="exercise-1" class="slide level2">
 <h2>Exercise 1</h2>
-<p>Using pandas and <code>data/penguins.csv</code>,</p>
-<div class="medium">
+<p>Using pandas and <code>data/flights.parquet</code>, answer the following. Questions 1 and 2 are the core; 3 and 4 are extensions if time allows.</p>
+<div class="small">
 <ol type="1">
-<li><p>Select the rows for Gentoo penguins with a body mass above 5000 g, keeping only the <code>species</code>, <code>island</code>, and <code>body_mass_g</code> columns.</p></li>
-<li><p>Add a column <code>body_mass_kg</code> containing the body mass in kilograms.</p></li>
-<li><p>Calculate the mean bill length and the number of penguins for each combination of species and island - the result should be a flat table with <code>species</code> and <code>island</code> as columns, not an index.</p></li>
+<li><p>How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time (<code>air_time</code>)? Report only carriers with matching records.</p></li>
+<li><p>Which plane (<code>tailnum</code>) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.</p></li>
+<li><p>Which five calendar dates (<code>year</code>, <code>month</code>, <code>day</code>) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.</p></li>
+<li><p>Which flight has the largest arrival delay as a percentage of its actual air time (<code>100 * arr_delay / air_time</code>)? Exclude missing values and nonpositive air times, and return all ties.</p></li>
 </ol>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_84808b26" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_53d683a4" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -2770,15 +2972,15 @@ Gentoo     5076.016260  6300.0</code></pre>
 <div class="medium">
 <ul>
 <li><p>No index - rows are only ever positions</p></li>
-<li><p>A strict schema - every column’s dtype is known and never silently changes</p></li>
+<li><p>A strict schema - columns have explicit types and incompatible values are rejected by default; expressions can promote types or replace columns</p></li>
 <li><p>Expressions - computations on columns are objects, built up and then evaluated in a context</p></li>
 <li><p>Lazy evaluation - queries are planned and optimized before running, on all available cores</p></li>
 </ul>
 </div>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb144-1"><a href aria-label="1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb144-2"><a href aria-label="2"></a>pl.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href aria-label="1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
+<span id="cb186-2"><a href aria-label="2"></a>pl.__version__</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;1.44.2&#39;</code></pre>
 </div>
@@ -2791,7 +2993,7 @@ Gentoo     5076.016260  6300.0</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb146-1"><a href aria-label="1"></a>pl.Series(<span class="st">&quot;x&quot;</span>, [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb188-1"><a href aria-label="1"></a>pl.Series(<span class="st">&quot;x&quot;</span>, [<span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2830,9 +3032,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb147-1"><a href aria-label="1"></a>a <span class="op">=</span> pl.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
-<span id="cb147-2"><a href aria-label="2"></a>b <span class="op">=</span> pl.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
-<span id="cb147-3"><a href aria-label="3"></a>a <span class="op">+</span> b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>a <span class="op">=</span> pl.Series([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span>
+<span id="cb189-2"><a href aria-label="2"></a>b <span class="op">=</span> pl.Series([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>])</span>
+<span id="cb189-3"><a href aria-label="3"></a>a <span class="op">+</span> b</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2876,8 +3078,7 @@ white-space: pre-wrap;
 <p>The print shows the shape and every column’s dtype, much like a tibble. Note that the integer columns stayed integers despite the missing values, and that <code>&quot;NA&quot;</code> had to be declared as a missing value marker - polars does not guess.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb148-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pl.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>)</span>
-<span id="cb148-2"><a href aria-label="2"></a>penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb190"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb190-1"><a href aria-label="1"></a>penguins <span class="op">=</span> pl.read_csv(<span class="st">&quot;data/penguins.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>)<span class="op">;</span> penguins</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2985,7 +3186,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href aria-label="1"></a>penguins[<span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3033,7 +3234,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb150"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb150-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>:<span class="dv">3</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb192"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb192-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>:<span class="dv">3</span>, [<span class="st">&quot;species&quot;</span>, <span class="st">&quot;island&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3071,7 +3272,7 @@ white-space: pre-wrap;
 </table>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>, <span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>penguins[<span class="dv">0</span>, <span class="st">&quot;species&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Adelie&#39;</code></pre>
 </div>
@@ -3080,12 +3281,16 @@ white-space: pre-wrap;
 </section>
 <section id="missing-values-1" class="slide level2">
 <h2>Missing values</h2>
-<p>Missing data is <code>null</code> in every dtype (like R’s <code>NA</code>) and <code>NaN</code> is just a floating point value, distinct from missing. Aggregations skip <code>null</code> by default and propagate <code>NaN</code>.</p>
+<p>Missing data is <code>null</code> in every dtype (like R’s <code>NA</code>) and <code>NaN</code> is a floating point value, distinct from missing. <code>mean()</code> and <code>sum()</code> skip <code>null</code> by default and propagate <code>NaN</code>. Ordinary <code>min()</code> and <code>max()</code> ignore <code>NaN</code>; <code>nan_min()</code> and <code>nan_max()</code> propagate it.</p>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href aria-label="1"></a>s <span class="op">=</span> pl.Series([<span class="fl">1.0</span>, <span class="va">None</span>, np.nan])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a>s <span class="op">=</span> pl.Series([<span class="fl">1.0</span>, <span class="va">None</span>, np.nan])</span>
-<span id="cb153-2"><a href aria-label="2"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href aria-label="1"></a>s</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3118,42 +3323,72 @@ white-space: pre-wrap;
 </table>
 </div>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href aria-label="1"></a>s<span class="op">+</span><span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+text-align: right;
+white-space: pre-wrap;
+}
+</style>
+<small>shape: (3,)</small>
+<table class="dataframe caption-top" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+<tr class="even">
+<td>f64</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2.0</td>
+</tr>
+<tr class="even">
+<td>null</td>
+</tr>
+<tr class="odd">
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb154-1"><a href aria-label="1"></a>s.is_null().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb198-1"><a href aria-label="1"></a>s.is_null().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[False, True, False]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb156-1"><a href aria-label="1"></a>s.is_nan().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href aria-label="1"></a>s.is_nan().to_list()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[False, None, True]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb158-1"><a href aria-label="1"></a>s.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href aria-label="1"></a>s.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>nan</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb160-1"><a href aria-label="1"></a>s.fill_nan(<span class="va">None</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb204-1"><a href aria-label="1"></a>s.fill_nan(<span class="va">None</span>).mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.0</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p>R blurs this line - <code>is.na(NaN)</code> is <code>TRUE</code> and <code>mean(c(1, NaN))</code> is <code>NaN</code>, pandas treats <code>NaN</code> <em>as</em> the missing value.</p>
-</div></aside></section>
+</section>
 <section id="expressions" class="slide level2">
 <h2>Expressions</h2>
 <p><code>pl.col(&quot;x&quot;)</code> does not return a column, it returns an <em>expression</em> - a description of a computation that is not attached to any DataFrame and has not been evaluated. Expressions compose with operators and methods and are only evaluated when handed to a context. This is polars’ answer to data masking - build an object that represents the code rather than capturing it.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb162-1"><a href aria-label="1"></a>mass_kg <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span></span>
-<span id="cb162-2"><a href aria-label="2"></a>mass_kg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a>mass_kg <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">/</span> <span class="dv">1000</span></span>
+<span id="cb206-2"><a href aria-label="2"></a>mass_kg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 [(col(&quot;body_mass_g&quot;)) / (dyn int: 1000)]
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a><span class="bu">type</span>(mass_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb207-1"><a href aria-label="1"></a><span class="bu">type</span>(mass_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;polars.expr.expr.Expr&#39;&gt;</code></pre>
 </div>
@@ -3162,7 +3397,7 @@ white-space: pre-wrap;
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href aria-label="1"></a>pl.col(<span class="st">&quot;body_mass_g&quot;</span>).mean().alias(<span class="st">&quot;avg_mass&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href aria-label="1"></a>pl.col(<span class="st">&quot;body_mass_g&quot;</span>).mean().alias(<span class="st">&quot;avg_mass&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 col(&quot;body_mass_g&quot;).mean().alias(&quot;avg_mass&quot;)
 </div>
@@ -3215,12 +3450,13 @@ col(&quot;body_mass_g&quot;).mean().alias(&quot;avg_mass&quot;)
 </table>
 </div>
 <div class="fragment">
+<p><br></p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>penguins.select(</span>
-<span id="cb166-2"><a href aria-label="2"></a>  <span class="st">&quot;species&quot;</span>, mass_kg.alias(<span class="st">&quot;mass_kg&quot;</span>)</span>
-<span id="cb166-3"><a href aria-label="3"></a>).head(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb210-1"><a href aria-label="1"></a>penguins.select(</span>
+<span id="cb210-2"><a href aria-label="2"></a>  <span class="st">&quot;species&quot;</span>, mass_kg.alias(<span class="st">&quot;mass_kg&quot;</span>)</span>
+<span id="cb210-3"><a href aria-label="3"></a>).head(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3257,9 +3493,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb167"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
-<span id="cb167-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span></span>
-<span id="cb167-3"><a href aria-label="3"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb211-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">6000</span></span>
+<span id="cb211-3"><a href aria-label="3"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3297,18 +3533,112 @@ white-space: pre-wrap;
 </div></div>
 </div>
 </section>
+<section id="combining-predicates" class="slide level2">
+<h2>Combining predicates</h2>
+<p>Multiple predicates in <code>filter()</code> are combined with AND. Use <code>.is_in()</code> for membership and <code>|</code> for OR; parenthesize comparisons when combining them with operators.</p>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb212-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;species&quot;</span>).is_in([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>]),</span>
+<span id="cb212-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span></span>
+<span id="cb212-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+text-align: right;
+white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 2)</small>
+<table class="dataframe caption-top" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">species</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+</tr>
+<tr class="even">
+<td>str</td>
+<td>i64</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&quot;Gentoo&quot;</td>
+<td>5700</td>
+</tr>
+<tr class="even">
+<td>&quot;Gentoo&quot;</td>
+<td>5700</td>
+</tr>
+<tr class="odd">
+<td>&quot;Gentoo&quot;</td>
+<td>5400</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
+<span id="cb213-2"><a href aria-label="2"></a>  (pl.col(<span class="st">&quot;species&quot;</span>) <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
+<span id="cb213-3"><a href aria-label="3"></a>  <span class="op">|</span> (pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
+<span id="cb213-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+text-align: right;
+white-space: pre-wrap;
+}
+</style>
+<small>shape: (3, 2)</small>
+<table class="dataframe caption-top" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">species</th>
+<th data-quarto-table-cell-role="th">body_mass_g</th>
+</tr>
+<tr class="even">
+<td>str</td>
+<td>i64</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&quot;Gentoo&quot;</td>
+<td>4500</td>
+</tr>
+<tr class="even">
+<td>&quot;Gentoo&quot;</td>
+<td>5700</td>
+</tr>
+<tr class="odd">
+<td>&quot;Gentoo&quot;</td>
+<td>4450</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="expression-expansion" class="slide level2">
 <h2>Expression expansion</h2>
 <p>One expression can expand to many columns - by listing names, by dtype, or with selectors from <code>polars.selectors</code>. This is <code>across()</code> with tidy selection, available in every context.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a><span class="im">import</span> polars.selectors <span class="im">as</span> cs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb169"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb169-1"><a href aria-label="1"></a>penguins.select(cs.ends_with(<span class="st">&quot;_mm&quot;</span>).mean().name.suffix(<span class="st">&quot;_mean&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href aria-label="1"></a>penguins.select(cs.ends_with(<span class="st">&quot;_mm&quot;</span>).mean().name.suffix(<span class="st">&quot;_mean&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3347,7 +3677,7 @@ white-space: pre-wrap;
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>penguins.select(pl.col(pl.String).n_unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb216-1"><a href aria-label="1"></a>penguins.select(pl.col(pl.String).n_unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3390,10 +3720,10 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb171"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb171-1"><a href aria-label="1"></a>mass <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>)</span>
-<span id="cb171-2"><a href aria-label="2"></a>penguins.group_by(<span class="st">&quot;species&quot;</span>).agg(</span>
-<span id="cb171-3"><a href aria-label="3"></a>  n <span class="op">=</span> pl.<span class="bu">len</span>(), avg <span class="op">=</span> mass.mean()</span>
-<span id="cb171-4"><a href aria-label="4"></a>).sort(<span class="st">&quot;species&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href aria-label="1"></a>mass <span class="op">=</span> pl.col(<span class="st">&quot;body_mass_g&quot;</span>)</span>
+<span id="cb217-2"><a href aria-label="2"></a>penguins.group_by(<span class="st">&quot;species&quot;</span>).agg(</span>
+<span id="cb217-3"><a href aria-label="3"></a>  n <span class="op">=</span> pl.<span class="bu">len</span>(), avg <span class="op">=</span> mass.mean()</span>
+<span id="cb217-4"><a href aria-label="4"></a>).sort(<span class="st">&quot;species&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3439,12 +3769,12 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>avg <span class="op">=</span> mass.mean().over(<span class="st">&quot;species&quot;</span>)</span>
-<span id="cb172-2"><a href aria-label="2"></a>(penguins</span>
-<span id="cb172-3"><a href aria-label="3"></a>  .with_columns(rel <span class="op">=</span> mass <span class="op">/</span> avg)</span>
-<span id="cb172-4"><a href aria-label="4"></a>  .select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>)</span>
-<span id="cb172-5"><a href aria-label="5"></a>  .head(<span class="dv">2</span>)</span>
-<span id="cb172-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href aria-label="1"></a>avg <span class="op">=</span> mass.mean().over(<span class="st">&quot;species&quot;</span>)</span>
+<span id="cb218-2"><a href aria-label="2"></a>(penguins</span>
+<span id="cb218-3"><a href aria-label="3"></a>  .with_columns(rel <span class="op">=</span> mass <span class="op">/</span> avg)</span>
+<span id="cb218-4"><a href aria-label="4"></a>  .select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;rel&quot;</span>)</span>
+<span id="cb218-5"><a href aria-label="5"></a>  .head(<span class="dv">2</span>)</span>
+<span id="cb218-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3483,17 +3813,17 @@ white-space: pre-wrap;
 </section>
 <section id="lazy-evaluation" class="slide level2">
 <h2>Lazy evaluation</h2>
-<p>A <code>LazyFrame</code> has the same API as a <code>DataFrame</code> but records the query instead of running it. The <code>scan_*()</code> readers start lazy, <code>.lazy()</code> converts an existing frame, and nothing is computed until <code>.collect()</code> is called.</p>
+<p>A <code>LazyFrame</code> shares the expression-based query API of a <code>DataFrame</code> but records transformations instead of running them. The <code>scan_*()</code> readers start lazy and <code>.lazy()</code> converts an existing frame. Planning may read metadata; <code>.collect()</code> executes the query and materializes its result.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb173"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb173-1"><a href aria-label="1"></a>q <span class="op">=</span> (</span>
-<span id="cb173-2"><a href aria-label="2"></a>  pl.scan_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
-<span id="cb173-3"><a href aria-label="3"></a>  .<span class="bu">filter</span>(pl.col(<span class="st">&quot;dest&quot;</span>) <span class="op">==</span> <span class="st">&quot;LAX&quot;</span>)</span>
-<span id="cb173-4"><a href aria-label="4"></a>  .group_by(<span class="st">&quot;carrier&quot;</span>)</span>
-<span id="cb173-5"><a href aria-label="5"></a>  .agg(pl.<span class="bu">len</span>(), pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
-<span id="cb173-6"><a href aria-label="6"></a>  .sort(<span class="st">&quot;len&quot;</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb173-7"><a href aria-label="7"></a>)</span>
-<span id="cb173-8"><a href aria-label="8"></a><span class="bu">type</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href aria-label="1"></a>q <span class="op">=</span> (</span>
+<span id="cb219-2"><a href aria-label="2"></a>  pl.scan_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
+<span id="cb219-3"><a href aria-label="3"></a>  .<span class="bu">filter</span>(pl.col(<span class="st">&quot;dest&quot;</span>) <span class="op">==</span> <span class="st">&quot;LAX&quot;</span>)</span>
+<span id="cb219-4"><a href aria-label="4"></a>  .group_by(<span class="st">&quot;carrier&quot;</span>)</span>
+<span id="cb219-5"><a href aria-label="5"></a>  .agg(pl.<span class="bu">len</span>(), pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
+<span id="cb219-6"><a href aria-label="6"></a>  .sort(<span class="st">&quot;len&quot;</span>, descending<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb219-7"><a href aria-label="7"></a>)</span>
+<span id="cb219-8"><a href aria-label="8"></a><span class="bu">type</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;polars.lazyframe.frame.LazyFrame&#39;&gt;</code></pre>
 </div>
@@ -3510,7 +3840,7 @@ white-space: pre-wrap;
 <p>Before running, the plan is optimized - here only 3 of the 19 columns are read from the parquet file and the filter is applied during the scan (projection and predicate <em>pushdown</em>).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb175"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb175-1"><a href aria-label="1"></a><span class="bu">print</span>( q.explain() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb221"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href aria-label="1"></a><span class="bu">print</span>( q.explain() )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>SORT BY [descending: [true]] [col(&quot;len&quot;)]
   AGGREGATE[maintain_order: false]
@@ -3530,7 +3860,7 @@ white-space: pre-wrap;
 <p><code>collect()</code> runs the optimized plan and returns an ordinary DataFrame. Since the plan is known up front it can also be executed in a streaming fashion, in batches, for data larger than memory (<code>collect(engine=&quot;streaming&quot;)</code>).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb177"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb177-1"><a href aria-label="1"></a>q.collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb223"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb223-1"><a href aria-label="1"></a>q.collect()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3586,52 +3916,94 @@ white-space: pre-wrap;
 </div>
 </div>
 </section>
-<section id="speed" class="slide level2">
-<h2>Speed</h2>
-<p>Both libraries are compiled underneath, but polars is multithreaded and its optimizer can avoid work entirely. The gap is largest for parsing text and for pipelines where pushdown reduces the data read.</p>
+<section id="speed---reading-csv" class="slide level2">
+<h2>Speed - reading CSV</h2>
+<p>Both libraries use compiled code. Polars can use multiple threads and optimize lazy queries, but timings depend on the data and workload. Start by timing the same CSV read, including parsing and type inference.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a><span class="im">import</span> timeit</span>
-<span id="cb178-2"><a href aria-label="2"></a><span class="kw">def</span> time(f): <span class="cf">return</span> <span class="bu">round</span>( <span class="bu">min</span>(timeit.repeat(f, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">5</span>)), <span class="dv">4</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb224-1"><a href aria-label="1"></a><span class="im">import</span> timeit</span>
+<span id="cb224-2"><a href aria-label="2"></a><span class="kw">def</span> time(f): <span class="cf">return</span> <span class="bu">round</span>( <span class="bu">min</span>(timeit.repeat(f, number<span class="op">=</span><span class="dv">1</span>, repeat<span class="op">=</span><span class="dv">5</span>)), <span class="dv">4</span> )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb179-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pd.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pd.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.224</code></pre>
+<pre><code>0.2204</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb181"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pl.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: pl.read_csv(<span class="st">&quot;data/flights.csv&quot;</span>, null_values<span class="op">=</span><span class="st">&quot;NA&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0.01</code></pre>
 </div>
 </div>
 </div>
+
 </div>
-<div class="fragment">
+<aside><div>
+<p>Timings are seconds: the minimum of five runs on this machine. Repeated reads may use the operating system’s file cache; the readers’ inferred dtypes can differ.</p>
+</div></aside></section>
+<section id="speed---data-already-in-memory" class="slide level2">
+<h2>Speed - data already in memory</h2>
+<p>Both frames are loaded before timing. Each computation groups all flights by carrier, calculates the mean departure delay, and sorts by carrier.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb183"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb183-1"><a href aria-label="1"></a>flights_pd <span class="op">=</span> pd.read_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
-<span id="cb183-2"><a href aria-label="2"></a>time(<span class="kw">lambda</span>: flights_pd.groupby(<span class="st">&quot;carrier&quot;</span>)[<span class="st">&quot;dep_delay&quot;</span>].mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb229"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb229-1"><a href aria-label="1"></a>flights_pd <span class="op">=</span> pd.read_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
+<span id="cb229-2"><a href aria-label="2"></a>flights_pl <span class="op">=</span> pl.read_parquet(<span class="st">&quot;data/flights.parquet&quot;</span>)</span>
+<span id="cb229-3"><a href aria-label="3"></a></span>
+<span id="cb229-4"><a href aria-label="4"></a>time(<span class="kw">lambda</span>: (</span>
+<span id="cb229-5"><a href aria-label="5"></a>  flights_pd.groupby(<span class="st">&quot;carrier&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)[<span class="st">&quot;dep_delay&quot;</span>]</span>
+<span id="cb229-6"><a href aria-label="6"></a>  .mean().sort_values(<span class="st">&quot;carrier&quot;</span>)</span>
+<span id="cb229-7"><a href aria-label="7"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0033</code></pre>
+<pre><code>0.003</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: q.collect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: (</span>
+<span id="cb231-2"><a href aria-label="2"></a>  flights_pl.group_by(<span class="st">&quot;carrier&quot;</span>).agg(pl.col(<span class="st">&quot;dep_delay&quot;</span>).mean())</span>
+<span id="cb231-3"><a href aria-label="3"></a>  .sort(<span class="st">&quot;carrier&quot;</span>)</span>
+<span id="cb231-4"><a href aria-label="4"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>0.0017</code></pre>
+<pre><code>0.0015</code></pre>
 </div>
+</div>
+</div>
+</section>
+<section id="speed---from-file-to-result" class="slide level2">
+<h2>Speed - from file to result</h2>
+<p>Now include Parquet reading. Both queries filter to LAX, count flights and average departure delay by carrier, then sort by count. Polars uses the lazy query <code>q</code> and can push projection and filtering into its scan.</p>
+<div class="xsmall">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb233"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb233-1"><a href aria-label="1"></a><span class="kw">def</span> lax_pandas():</span>
+<span id="cb233-2"><a href aria-label="2"></a>  <span class="cf">return</span> (</span>
+<span id="cb233-3"><a href aria-label="3"></a>    pd.read_parquet(</span>
+<span id="cb233-4"><a href aria-label="4"></a>      <span class="st">&quot;data/flights.parquet&quot;</span>,</span>
+<span id="cb233-5"><a href aria-label="5"></a>      columns<span class="op">=</span>[<span class="st">&quot;dest&quot;</span>, <span class="st">&quot;carrier&quot;</span>, <span class="st">&quot;dep_delay&quot;</span>]</span>
+<span id="cb233-6"><a href aria-label="6"></a>    )</span>
+<span id="cb233-7"><a href aria-label="7"></a>    .query(<span class="st">&quot;dest == &#39;LAX&#39;&quot;</span>)</span>
+<span id="cb233-8"><a href aria-label="8"></a>    .groupby(<span class="st">&quot;carrier&quot;</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb233-9"><a href aria-label="9"></a>    .agg(<span class="bu">len</span><span class="op">=</span>(<span class="st">&quot;carrier&quot;</span>, <span class="st">&quot;size&quot;</span>), dep_delay<span class="op">=</span>(<span class="st">&quot;dep_delay&quot;</span>, <span class="st">&quot;mean&quot;</span>))</span>
+<span id="cb233-10"><a href aria-label="10"></a>    .sort_values(<span class="st">&quot;len&quot;</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb233-11"><a href aria-label="11"></a>  )</span>
+<span id="cb233-12"><a href aria-label="12"></a></span>
+<span id="cb233-13"><a href aria-label="13"></a>time(lax_pandas)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.0081</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb235"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb235-1"><a href aria-label="1"></a>time(<span class="kw">lambda</span>: q.collect())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.0015</code></pre>
 </div>
 </div>
 </div>
 </section>
 <section id="interop" class="slide level2">
 <h2>Interop</h2>
-<p>All three implementations can exchange data through Apache Arrow - polars and pandas convert directly, and R’s arrow and reticulate packages move tables in and out of Python. The dtype names differ but the underlying data does not. For anything on disk, parquet is the shared format (Lecture 07).</p>
+<p>Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).</p>
+<p>Default <code>to_pandas()</code> converts nullable integer columns here to floats. Arrow extension arrays preserve their integer types and nulls.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href aria-label="1"></a>penguins.to_pandas().dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb237"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb237-1"><a href aria-label="1"></a>penguins.to_pandas().dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>species                  str
 island                   str
@@ -3646,32 +4018,38 @@ dtype: object</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>penguins.to_arrow().schema</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb239"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb239-1"><a href aria-label="1"></a>penguins.to_pandas(</span>
+<span id="cb239-2"><a href aria-label="2"></a>  use_pyarrow_extension_array<span class="op">=</span><span class="va">True</span></span>
+<span id="cb239-3"><a href aria-label="3"></a>).dtypes</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>species: large_string
-island: large_string
-bill_length_mm: double
-bill_depth_mm: double
-flipper_length_mm: int64
-body_mass_g: int64
-sex: large_string
-year: int64</code></pre>
+<pre><code>species              large_string[pyarrow]
+island               large_string[pyarrow]
+bill_length_mm             double[pyarrow]
+bill_depth_mm              double[pyarrow]
+flipper_length_mm           int64[pyarrow]
+body_mass_g                 int64[pyarrow]
+sex                  large_string[pyarrow]
+year                        int64[pyarrow]
+dtype: object</code></pre>
 </div>
 </div>
 </div></div>
 </section>
 <section id="exercise-2" class="slide level2">
 <h2>Exercise 2</h2>
-<p>Using polars and <code>data/penguins.csv</code>,</p>
-<div class="medium">
+<p>Using polars and <code>data/flights.parquet</code>, repeat the questions from Exercise 1. Questions 1 and 2 are the core; 3 to 5 are extensions if time allows.</p>
+<div class="small">
 <ol type="1">
-<li><p>Repeat the three tasks from Exercise 1 - select the Gentoo penguins above 5000 g keeping <code>species</code>, <code>island</code>, and <code>body_mass_g</code>, add a <code>body_mass_kg</code> column, and calculate the mean bill length and count for each species and island.</p></li>
-<li><p>Rewrite part 3 to start from <code>pl.scan_csv()</code> and look at the output of <code>explain()</code> before collecting - how many of the 8 columns does polars read?</p></li>
+<li><p>How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time (<code>air_time</code>)? Report only carriers with matching records.</p></li>
+<li><p>Which plane (<code>tailnum</code>) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.</p></li>
+<li><p>Which five calendar dates (<code>year</code>, <code>month</code>, <code>day</code>) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.</p></li>
+<li><p>Which flight has the largest arrival delay as a percentage of its actual air time (<code>100 * arr_delay / air_time</code>)? Exclude missing values and nonpositive air times, and return all ties.</p></li>
+<li><p>Rewrite question 1 to start from <code>pl.scan_parquet()</code> and look at <code>explain()</code> before collecting. How many of the 19 columns does polars read?</p></li>
 </ol>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<countdown-timer class="countdown" id="timer_36d56cc3" minutes="5" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
+<countdown-timer class="countdown" id="timer_f9940c9a" minutes="8" seconds="0" update-every="1" tabindex="0" style="right:0;bottom:0;"></countdown-timer>
 </div>
 </div>
 </section></section>
@@ -3739,7 +4117,7 @@ year: int64</code></pre>
 <td style="text-align: left;">mutation</td>
 <td style="text-align: left;">copy-on-modify</td>
 <td style="text-align: left;">in place, copy-on-write for subsets</td>
-<td style="text-align: left;">immutable</td>
+<td style="text-align: left;">methods return new frames</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">grouped result</td>
