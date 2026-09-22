@@ -1,5 +1,5 @@
 ---
-title: "pandas & polars"
+title: "pandas"
 subtitle: "Lecture 08"
 author: "Dr. Colin Rundel"
 footer: "Sta 523 - Fall 2026"
@@ -35,16 +35,10 @@ if (!file.exists("data/flights.csv")) {
 #| include: false
 import numpy as np
 import pandas as pd
-import polars as pl
 
 pd.set_option("display.width", 80)
 pd.set_option("display.max_rows", 8)
 pd.set_option("display.min_rows", 4)
-
-pl.Config.set_tbl_rows(6)
-pl.Config.set_tbl_cols(6)
-pl.Config.set_tbl_width_chars(80)
-pl.Config.set_tbl_hide_dtype_separator(True)
 ```
 
 # NumPy dtypes
@@ -617,7 +611,7 @@ pg[pd.col("body_mass_g") > 6000]
 ::::
 
 ::: {.aside}
-`pd.col()` is borrowed from polars (later in this lecture) and is new in pd 3.0.
+`pd.col()` is borrowed from polars (next lecture) and is new in pd 3.0.
 :::
 
 
@@ -743,376 +737,38 @@ Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2
 4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
 
 
-
-# {#polars-logo data-menu-title="polars" .nostretch}
-
-![](imgs/polars_github_banner.svg){fig-align="center" width="80%"}
-
-
-## polars
-
-polars (2020) is a newer data frame library written in Rust on top of Apache Arrow's memory layout, with bindings for Python, R, and JavaScript. Rather than extend NumPy conventions it was designed from scratch around a few ideas,
-
-::: {.medium}
-* No index - rows are only ever positions
-
-* A strict schema - columns have explicit types and incompatible values are rejected by default; expressions can promote types or replace columns
-
-* Expressions - computations on columns are objects, built up and then evaluated in a context
-
-* Lazy evaluation - queries are planned and optimized before running, on all available cores
-:::
-
-::: {.small}
-```{python}
-import polars as pl
-pl.__version__
-```
-:::
-
-
-## Series
-
-A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or one side has length one). This is R's rule without recycling.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-pl.Series("x", [4, 2, 1, 3])
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-a = pl.Series([1, 2, 3])
-b = pl.Series([10, 20, 30])
-a + b
-```
-:::
-::::
-
-::: {.aside}
-Construction is strict as well - `pl.Series([1, "a", True])` is a `TypeError` rather than an `object` column.
-:::
-
-
-## DataFrame
-
-The print shows the shape and every column's dtype, much like a tibble. Note that the integer columns stayed integers despite the missing values, and that `"NA"` had to be declared as a missing value marker - polars does not guess.
-
-::: {.xsmall}
-```{python}
-penguins = pl.read_csv("data/penguins.csv", null_values="NA"); penguins
-```
-:::
-
-
-## Subsetting
-
-Without an index there is no `.loc` / `.iloc` distinction - `df[...]` takes column names or row positions and a slice is just a slice. This is fine for a quick look, but the idiomatic way to subset is with expressions in `filter()` and `select()`.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-penguins["species"]
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-penguins[0:3, ["species", "island"]]
-penguins[0, "species"]
-```
-:::
-::::
-
-
-## Missing values
-
-Missing data is `null` in every dtype (like R's `NA`) and `NaN` is a floating point value, distinct from missing. `mean()` and `sum()` skip `null` by default and propagate `NaN`. Ordinary `min()` and `max()` ignore `NaN`; `nan_min()` and `nan_max()` propagate it.
-
-::: {.xsmall}
-```{python}
-s = pl.Series([1.0, None, np.nan])
-```
-:::
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-s
-s+1
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-s.is_null().to_list()
-s.is_nan().to_list()
-s.mean()
-s.fill_nan(None).mean()
-```
-:::
-::::
-
-## Expressions
-
-`pl.col("x")` does not return a column, it returns an *expression* - a description of a computation that is not attached to any DataFrame and has not been evaluated. Expressions compose with operators and methods and are only evaluated when handed to a context. This is polars' answer to data masking - build an object that represents the code rather than capturing it.
-
-::: {.xsmall}
-```{python}
-mass_kg = pl.col("body_mass_g") / 1000
-mass_kg
-type(mass_kg)
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-pl.col("body_mass_g").mean().alias("avg_mass")
-```
-:::
-
-::: {.aside}
-The R analog is a formula or a quosure - code stored now to be evaluated against data later.
-:::
-
-
-## Contexts
-
-A context is a DataFrame method that evaluates expressions against its columns, each corresponding to a dplyr verb,
-
-::: {.small}
-| Context             | Result                                          | dplyr                        |
-|:--------------------|:------------------------------------------------|:-----------------------------|
-| `select()`          | a new frame containing only these expressions   | `select()`, `summarize()`    |
-| `with_columns()`    | the frame with these expressions added          | `mutate()`                   |
-| `filter()`          | the rows where these expressions are true       | `filter()`                   |
-| `group_by().agg()`  | one row per group of these expressions          | `group_by() |> summarize()`  |
-:::
-
-. . .
-
-<br/>
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-penguins.select(
-  "species", mass_kg.alias("mass_kg")
-).head(2)
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-penguins.filter(
-  pl.col("body_mass_g") > 6000
-).select("species", "body_mass_g")
-```
-:::
-::::
-
-
-## Combining predicates
-
-Multiple predicates in `filter()` are combined with AND. Use `.is_in()` for membership and `|` for OR; parenthesize comparisons when combining them with operators.
-
-::: {.xsmall}
-```{python}
-penguins.filter(
-  pl.col("species").is_in(["Adelie", "Gentoo"]),
-  pl.col("body_mass_g") > 5000
-).select("species", "body_mass_g").head(3)
-```
-:::
-
-::: {.fragment .xsmall}
-```{python}
-penguins.filter(
-  (pl.col("species") == "Gentoo")
-  | (pl.col("body_mass_g") > 5000)
-).select("species", "body_mass_g").head(3)
-```
-:::
-
-
-## Expression expansion
-
-One expression can expand to many columns - by listing names, by dtype, or with selectors from `polars.selectors`. This is `across()` with tidy selection, available in every context.
-
-::: {.xsmall}
-```{python}
-import polars.selectors as cs
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-penguins.select(cs.ends_with("_mm").mean().name.suffix("_mean"))
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-penguins.select(pl.col(pl.String).n_unique())
-```
-:::
-
-
-## group_by
-
-`group_by()` followed by `agg()` evaluates each expression once per group and the keys come back as ordinary columns (like `.by`), in no guaranteed order. Since expressions are values the same one can be reused across contexts, and `.over()` turns an aggregation into a window computation for a grouped mutate.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-mass = pl.col("body_mass_g")
-penguins.group_by("species").agg(
-  n = pl.len(), avg = mass.mean()
-).sort("species")
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-avg = mass.mean().over("species")
-(penguins
-  .with_columns(rel = mass / avg)
-  .select("species", "rel")
-  .head(2)
-)
-```
-:::
-::::
-
-
-## Lazy evaluation
-
-A `LazyFrame` shares the expression-based query API of a `DataFrame` but records transformations instead of running them. The `scan_*()` readers start lazy and `.lazy()` converts an existing frame. Planning may read metadata; `.collect()` executes the query and materializes its result.
-
-::: {.xsmall}
-```{python}
-q = (
-  pl.scan_parquet("data/flights.parquet")
-  .filter(pl.col("dest") == "LAX")
-  .group_by("carrier")
-  .agg(pl.len(), pl.col("dep_delay").mean())
-  .sort("len", descending=True)
-)
-type(q)
-```
-:::
-
-. . .
-
-::: {.medium}
-Recording the whole query before running it is what makes optimization possible - the same idea underlies SQL databases and dbplyr, which we will see later in the course.
-:::
-
-
-## Query plan
-
-Before running, the plan is optimized - here only 3 of the 19 columns are read from the parquet file and the filter is applied during the scan (projection and predicate *pushdown*).
-
-::: {.xsmall}
-```{python}
-print( q.explain() )
-```
-:::
-
-
-## Collecting
-
-`collect()` runs the optimized plan and returns an ordinary DataFrame. Since the plan is known up front it can also be executed in a streaming fashion, in batches, for data larger than memory (`collect(engine="streaming")`).
-
-::: {.xsmall}
-```{python}
-q.collect()
-```
-:::
-
-
-## Interop
-
-Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).
-
-Default `to_pandas()` converts nullable integer columns here to floats. Arrow extension arrays preserve their integer types and nulls.
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-penguins.to_pandas().dtypes
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-penguins.to_pandas(
-  use_pyarrow_extension_array=True
-).dtypes
-```
-:::
-::::
-
-
-## Exercise 2
-
-Using polars and `data/flights.parquet`, repeat the questions from Exercise 1. Questions 1 and 2 are the core; 3 to 5 are extensions if time allows.
-
-::: {.small}
-1. How many flights to LAX did each legacy carrier (AA, UA, DL, US) have in May from JFK, and what was their mean actual air time (`air_time`)? Report only carriers with matching records.
-
-2. Which plane (`tailnum`) has the most flight records from each New York airport? Exclude missing tail numbers and return all ties.
-
-3. Which five calendar dates (`year`, `month`, `day`) had the lowest mean departure delay? Skip missing delays and break ties by earliest date.
-
-4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
-:::
-
-
 # Summary
 
-## Three data frames
+## R vs pandas
 
 ::: {.small}
-| Concept            | R / tibble                     | pandas                                  | polars                           |
-|:-------------------|:-------------------------------|:----------------------------------------|:---------------------------------|
-| column             | atomic vector                  | `Series` (values + index)               | `Series` (values only)           |
-| row labels         | `row.names`, rarely used       | `Index`, central                        | none                             |
-| alignment          | by position, with recycling    | by index label                          | by position, lengths must match  |
-| mixed types        | coerced to a common type       | `object` dtype                          | error                            |
-| missing values     | `NA` in any type               | `NaN` / `None` / `NaT` / `pd.NA` by dtype | `null` in any type             |
-| column references  | data masking                   | strings, callables, `pd.col()`          | `pl.col()` expressions           |
-| mutation           | copy-on-modify                 | in place, copy-on-write for subsets     | methods return new frames        |
-| grouped result     | keys as columns                | keys as (Multi)Index                    | keys as columns                  |
-| laziness           | none (dbplyr, dtplyr)          | none                                    | `LazyFrame` + optimizer          |
-| engine             | C, single threaded             | NumPy, single threaded                  | Rust + Arrow, multithreaded      |
+| Concept            | R / tibble                     | pandas                                    |
+|:-------------------|:-------------------------------|:------------------------------------------|
+| column             | atomic vector                  | `Series` (values + index)                 |
+| row labels         | `row.names`, rarely used       | `Index`, central                          |
+| alignment          | by position, with recycling    | by index label                            |
+| mixed types        | coerced to a common type       | `object` dtype                            |
+| missing values     | `NA` in any type               | `NaN` / `None` / `NaT` / `pd.NA` by dtype |
+| column references  | data masking                   | strings, callables, `pd.col()`            |
+| mutation           | copy-on-modify                 | in place, copy-on-write for subsets       |
+| grouped result     | keys as columns                | keys as (Multi)Index                      |
 :::
 
 
 ## Verbs
 
-::: {.xsmall}
-| dplyr                              | pandas                                   | polars                                   |
-|:-----------------------------------|:-----------------------------------------|:-----------------------------------------|
-| `filter(x > 1)`                    | `query("x > 1")`, `[pd.col("x") > 1]`    | `filter(pl.col("x") > 1)`                |
-| `select(x, y)`                     | `[["x", "y"]]`, `filter(regex=)`         | `select("x", "y")`, `select(cs.…())`     |
-| `mutate(z = x * 2)`                | `assign(z = pd.col("x") * 2)`            | `with_columns(z = pl.col("x") * 2)`      |
-| `arrange(desc(x))`                 | `sort_values("x", ascending=False)`      | `sort("x", descending=True)`             |
-| `summarize(m = mean(x))`           | `agg(m = ("x", "mean"))`                 | `select(m = pl.col("x").mean())`         |
-| `group_by(g)`                      | `groupby("g", as_index=False)`           | `group_by("g")`                          |
-| `mutate(m = mean(x), .by = g)`     | `groupby("g")["x"].transform("mean")`    | `pl.col("x").mean().over("g")`           |
-| `across(where(is.numeric), f)`     | `select_dtypes("number").apply(f)`       | `cs.numeric().f()`                       |
-| `rename(new = old)`                | `rename(columns={"old": "new"})`         | `rename({"old": "new"})`                 |
-| `left_join(y, by = "k")`           | `merge(y, on="k", how="left")`           | `join(y, on="k", how="left")`            |
-| `pivot_longer()` / `pivot_wider()` | `melt()` / `pivot()`                     | `unpivot()` / `pivot()`                  |
+::: {.small}
+| dplyr                              | pandas                                   |
+|:-----------------------------------|:-----------------------------------------|
+| `filter(x > 1)`                    | `query("x > 1")`, `[pd.col("x") > 1]`    |
+| `select(x, y)`                     | `[["x", "y"]]`, `filter(regex=)`         |
+| `mutate(z = x * 2)`                | `assign(z = pd.col("x") * 2)`            |
+| `arrange(desc(x))`                 | `sort_values("x", ascending=False)`      |
+| `summarize(m = mean(x))`           | `agg(m = ("x", "mean"))`                 |
+| `group_by(g)`                      | `groupby("g", as_index=False)`           |
+| `mutate(m = mean(x), .by = g)`     | `groupby("g")["x"].transform("mean")`    |
+| `across(where(is.numeric), f)`     | `select_dtypes("number").apply(f)`       |
+| `rename(new = old)`                | `rename(columns={"old": "new"})`         |
 :::
 
 
@@ -1124,6 +780,4 @@ Using polars and `data/flights.parquet`, repeat the questions from Exercise 1. Q
 * pandas dtypes are messier than R's - mixed data becomes `object`, and missing values are `NaN`, `None`, `NaT`, or `pd.NA` depending on the dtype, with `NaN` silently turning integer columns into floats. Use `isna()`, never `==`, and remember that aggregations skip missing values by default.
 
 * Python has no data masking, so pandas refers to columns with strings, callables, or `pd.col()` and chains methods instead of piping. DataFrames are mutable, so aliases matter.
-
-* polars drops the index and adds a strict schema, `null` for every dtype, expressions evaluated inside contexts, and a lazy mode with a query optimizer - much of which will look familiar again when we get to SQL and DuckDB.
 :::

@@ -137,7 +137,7 @@ schedule:
   day: 3
   topic: "Tidy Data"
   lecture: "polars & tidy data"
-  slides: ""
+  slides: "Lec09"
   r_readings:
     - text: "R4DS - Data tidying"
       link: https://r4ds.hadley.nz/data-tidy.html
