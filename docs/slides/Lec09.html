@@ -1098,7 +1098,7 @@ Dr. Colin Rundel
 </section>
 <section id="series" class="slide level2">
 <h2>Series</h2>
-<p>A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or has length one).</p>
+<p>A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or be length one).</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -1657,7 +1657,9 @@ white-space: pre-wrap;
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
 <span id="cb27-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;species&quot;</span>).is_in([<span class="st">&quot;Adelie&quot;</span>, <span class="st">&quot;Gentoo&quot;</span>]),</span>
 <span id="cb27-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span></span>
-<span id="cb27-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb27-4"><a href aria-label="4"></a>).select(</span>
+<span id="cb27-5"><a href aria-label="5"></a>  <span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span></span>
+<span id="cb27-6"><a href aria-label="6"></a>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -1699,9 +1701,11 @@ white-space: pre-wrap;
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href aria-label="1"></a>penguins.<span class="bu">filter</span>(</span>
-<span id="cb28-2"><a href aria-label="2"></a>  (pl.col(<span class="st">&quot;species&quot;</span>) <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
+<span id="cb28-2"><a href aria-label="2"></a>    (pl.col(<span class="st">&quot;species&quot;</span>) <span class="op">==</span> <span class="st">&quot;Gentoo&quot;</span>)</span>
 <span id="cb28-3"><a href aria-label="3"></a>  <span class="op">|</span> (pl.col(<span class="st">&quot;body_mass_g&quot;</span>) <span class="op">&gt;</span> <span class="dv">5000</span>)</span>
-<span id="cb28-4"><a href aria-label="4"></a>).select(<span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb28-4"><a href aria-label="4"></a>).select(</span>
+<span id="cb28-5"><a href aria-label="5"></a>  <span class="st">&quot;species&quot;</span>, <span class="st">&quot;body_mass_g&quot;</span></span>
+<span id="cb28-6"><a href aria-label="6"></a>).head(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -1744,7 +1748,7 @@ white-space: pre-wrap;
 </section>
 <section id="expression-expansion" class="slide level2">
 <h2>Expression expansion</h2>
-<p>One expression can expand to many columns - by listing names, by dtype, or with selectors (from <code>polars.selectors</code>). This is <code>across()</code> with tidy selection, available in every context.</p>
+<p>One expression can expand to many columns - by listing names, by dtype, or with selectors (from <code>polars.selectors</code>). This is similar to dplyr’s <code>across()</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
@@ -1967,7 +1971,6 @@ white-space: pre-wrap;
 </section>
 <section id="interoperability" class="slide level2">
 <h2>Interoperability</h2>
-<p>Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).</p>
 <p>Default <code>to_pandas()</code> converts nullable integer columns to floats. Arrow extension arrays preserve their integer types and nulls.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
@@ -2515,8 +2518,11 @@ white-space: pre-wrap;
 <span id="cb61-5"><a href aria-label="5"></a>y_pl <span class="op">=</span> pl.DataFrame({</span>
 <span id="cb61-6"><a href aria-label="6"></a>  <span class="st">&quot;id&quot;</span>: [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>], </span>
 <span id="cb61-7"><a href aria-label="7"></a>  <span class="st">&quot;y&quot;</span>: [<span class="st">&quot;y1&quot;</span>, <span class="st">&quot;y2&quot;</span>, <span class="st">&quot;y4&quot;</span>]</span>
-<span id="cb61-8"><a href aria-label="8"></a>})</span>
-<span id="cb61-9"><a href aria-label="9"></a>x_pd, y_pd <span class="op">=</span> x_pl.to_pandas(), y_pl.to_pandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb61-8"><a href aria-label="8"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href aria-label="1"></a>x_pd <span class="op">=</span> x_pl.to_pandas()</span>
+<span id="cb62-2"><a href aria-label="2"></a>y_pd <span class="op">=</span> y_pl.to_pandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 </section>
@@ -2531,7 +2537,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
      id x     y    
@@ -2540,7 +2546,7 @@ white-space: pre-wrap;
 2     2 x2    y2   
 3     3 x3    &lt;NA&gt; </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href aria-label="1"></a><span class="fu">inner_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href aria-label="1"></a><span class="fu">inner_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 3
      id x     y    
@@ -2551,7 +2557,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href aria-label="1"></a><span class="fu">right_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-label="1"></a><span class="fu">right_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
      id x     y    
@@ -2560,7 +2566,7 @@ white-space: pre-wrap;
 2     2 x2    y2   
 3     4 &lt;NA&gt;  y4   </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href aria-label="1"></a><span class="fu">full_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href aria-label="1"></a><span class="fu">full_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
      id x     y    
@@ -2579,13 +2585,13 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href aria-label="1"></a>x_pd.merge(y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href aria-label="1"></a>x_pd.merge(y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   id   x   y
 0   1  x1  y1
 1   2  x2  y2</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href aria-label="1"></a>x_pd.merge(y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-label="1"></a>x_pd.merge(y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   id   x    y
 0   1  x1   y1
@@ -2595,10 +2601,10 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href aria-label="1"></a>x_pd.merge(</span>
-<span id="cb74-2"><a href aria-label="2"></a>  y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;outer&quot;</span>, </span>
-<span id="cb74-3"><a href aria-label="3"></a>  indicator<span class="op">=</span><span class="va">True</span></span>
-<span id="cb74-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href aria-label="1"></a>x_pd.merge(</span>
+<span id="cb75-2"><a href aria-label="2"></a>  y_pd, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;outer&quot;</span>, </span>
+<span id="cb75-3"><a href aria-label="3"></a>  indicator<span class="op">=</span><span class="va">True</span></span>
+<span id="cb75-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   id    x    y      _merge
 0   1   x1   y1        both
@@ -2610,15 +2616,15 @@ white-space: pre-wrap;
 </div></div>
 
 <aside><div>
-<p><code>DataFrame.join()</code> also exists, but it matches on the index rather than on columns - <code>merge()</code> is usually what you want.</p>
+<p><code>join()</code> method also exists, but it matches on the index rather than on columns - <code>merge()</code> is usually what you want.</p>
 </div></aside></section>
 <section id="polars-1" class="slide level2">
 <h2>polars</h2>
-<p><code>join()</code> also takes the type via <code>how</code> with the default of <code>&quot;inner&quot;</code>.</p>
+<p><code>join()</code> also takes the join method via <code>how</code> with a default of <code>&quot;inner&quot;</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href aria-label="1"></a>x_pl.join(y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href aria-label="1"></a>x_pl.join(y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2664,10 +2670,10 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href aria-label="1"></a>x_pl.join(</span>
-<span id="cb77-2"><a href aria-label="2"></a>  y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;full&quot;</span>, </span>
-<span id="cb77-3"><a href aria-label="3"></a>  coalesce<span class="op">=</span><span class="va">True</span></span>
-<span id="cb77-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href aria-label="1"></a>x_pl.join(</span>
+<span id="cb78-2"><a href aria-label="2"></a>  y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;full&quot;</span>, </span>
+<span id="cb78-3"><a href aria-label="3"></a>  coalesce<span class="op">=</span><span class="va">True</span></span>
+<span id="cb78-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2723,7 +2729,7 @@ white-space: pre-wrap;
 <p>Keys rarely share a name across tables. dplyr uses <code>join_by()</code>, pandas and polars use <code>left_on</code> and <code>right_on</code>. pandas keeps both key columns in the result, dplyr and polars keep only the left.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, y2, <span class="at">by =</span> <span class="fu">join_by</span>(id <span class="sc">==</span> key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, y2, <span class="at">by =</span> <span class="fu">join_by</span>(id <span class="sc">==</span> key))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 3
      id x     y    
@@ -2737,10 +2743,10 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href aria-label="1"></a>x_pd.merge(</span>
-<span id="cb80-2"><a href aria-label="2"></a>  y2_pd, how<span class="op">=</span><span class="st">&quot;left&quot;</span>,</span>
-<span id="cb80-3"><a href aria-label="3"></a>  left_on<span class="op">=</span><span class="st">&quot;id&quot;</span>, right_on<span class="op">=</span><span class="st">&quot;key&quot;</span></span>
-<span id="cb80-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href aria-label="1"></a>x_pd.merge(</span>
+<span id="cb81-2"><a href aria-label="2"></a>  y2_pd, how<span class="op">=</span><span class="st">&quot;left&quot;</span>,</span>
+<span id="cb81-3"><a href aria-label="3"></a>  left_on<span class="op">=</span><span class="st">&quot;id&quot;</span>, right_on<span class="op">=</span><span class="st">&quot;key&quot;</span></span>
+<span id="cb81-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   id   x  key    y
 0   1  x1  1.0   y1
@@ -2750,10 +2756,10 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href aria-label="1"></a>x_pl.join(</span>
-<span id="cb82-2"><a href aria-label="2"></a>  y2_pl, how<span class="op">=</span><span class="st">&quot;left&quot;</span>,</span>
-<span id="cb82-3"><a href aria-label="3"></a>  left_on<span class="op">=</span><span class="st">&quot;id&quot;</span>, right_on<span class="op">=</span><span class="st">&quot;key&quot;</span></span>
-<span id="cb82-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href aria-label="1"></a>x_pl.join(</span>
+<span id="cb83-2"><a href aria-label="2"></a>  y2_pl, how<span class="op">=</span><span class="st">&quot;left&quot;</span>,</span>
+<span id="cb83-3"><a href aria-label="3"></a>  left_on<span class="op">=</span><span class="st">&quot;id&quot;</span>, right_on<span class="op">=</span><span class="st">&quot;key&quot;</span></span>
+<span id="cb83-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2805,7 +2811,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, yd, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href aria-label="1"></a><span class="fu">left_join</span>(x, yd, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 × 3
      id x     y    
@@ -2815,10 +2821,10 @@ white-space: pre-wrap;
 3     2 x2    y3   
 4     3 x3    &lt;NA&gt; </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href aria-label="1"></a><span class="fu">left_join</span>(</span>
-<span id="cb85-2"><a href aria-label="2"></a>  x, yd, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>, </span>
-<span id="cb85-3"><a href aria-label="3"></a>  <span class="at">relationship =</span> <span class="st">&quot;one-to-one&quot;</span></span>
-<span id="cb85-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href aria-label="1"></a><span class="fu">left_join</span>(</span>
+<span id="cb86-2"><a href aria-label="2"></a>  x, yd, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>, </span>
+<span id="cb86-3"><a href aria-label="3"></a>  <span class="at">relationship =</span> <span class="st">&quot;one-to-one&quot;</span></span>
+<span id="cb86-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row in `x` must match at most 1 row in `y`.
@@ -2827,7 +2833,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href aria-label="1"></a>x_pl.join(yd_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-label="1"></a>x_pl.join(yd_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2875,10 +2881,10 @@ white-space: pre-wrap;
 </table>
 </div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-label="1"></a>x_pl.join(</span>
-<span id="cb88-2"><a href aria-label="2"></a>  yd_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>, </span>
-<span id="cb88-3"><a href aria-label="3"></a>  validate<span class="op">=</span><span class="st">&quot;1:1&quot;</span></span>
-<span id="cb88-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href aria-label="1"></a>x_pl.join(</span>
+<span id="cb89-2"><a href aria-label="2"></a>  yd_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;left&quot;</span>, </span>
+<span id="cb89-3"><a href aria-label="3"></a>  validate<span class="op">=</span><span class="st">&quot;1:1&quot;</span></span>
+<span id="cb89-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>polars.exceptions.ComputeError: join keys did not fulfill 1:1 validation</code></pre>
 </div>
@@ -2894,7 +2900,7 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href aria-label="1"></a><span class="fu">semi_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href aria-label="1"></a><span class="fu">semi_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 2
      id x    
@@ -2902,7 +2908,7 @@ white-space: pre-wrap;
 1     1 x1   
 2     2 x2   </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href aria-label="1"></a><span class="fu">anti_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href aria-label="1"></a><span class="fu">anti_join</span>(x, y, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 2
      id x    
@@ -2912,7 +2918,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb94-1"><a href aria-label="1"></a>x_pl.join(y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;anti&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href aria-label="1"></a>x_pl.join(y_pl, on<span class="op">=</span><span class="st">&quot;id&quot;</span>, how<span class="op">=</span><span class="st">&quot;anti&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2944,7 +2950,7 @@ white-space: pre-wrap;
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href aria-label="1"></a>x_pd[<span class="op">~</span>x_pd[<span class="st">&quot;id&quot;</span>].isin(y_pd[<span class="st">&quot;id&quot;</span>])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb96-1"><a href aria-label="1"></a>x_pd[<span class="op">~</span>x_pd[<span class="st">&quot;id&quot;</span>].isin(y_pd[<span class="st">&quot;id&quot;</span>])]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   id   x
 2   3  x3</code></pre>
@@ -2957,26 +2963,41 @@ white-space: pre-wrap;
 </div></aside></section>
 <section id="missing-keys" class="slide level2">
 <h2>Missing keys</h2>
-<p>dplyr and pandas treat missing keys as equal to each other, so <code>NA</code> matches <code>NA</code>. polars follows SQL and a <code>null</code> key matches nothing. Each can be switched - <code>na_matches = &quot;never&quot;</code> in dplyr and <code>nulls_equal=True</code> in polars.</p>
+<p>dplyr and pandas treat <code>NA</code> as equal to <code>NA</code>, so rows with missing keys are paired up even though nothing is known about either. polars follows SQL, where <code>null</code> is never equal to anything, so a row with a <code>null</code> key is unmatched.</p>
+<div class="columns xsmall">
+<div class="column">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a>a <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">k =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>), <span class="at">a =</span> <span class="fu">c</span>(<span class="st">&quot;a1&quot;</span>, <span class="st">&quot;a2&quot;</span>))</span>
+<span id="cb98-2"><a href aria-label="2"></a>b <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">k =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="cn">NA</span>), <span class="at">b =</span> <span class="fu">c</span>(<span class="st">&quot;b1&quot;</span>, <span class="st">&quot;b2&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div><div class="column">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href aria-label="1"></a>a_pl <span class="op">=</span> pl.DataFrame({<span class="st">&quot;k&quot;</span>: [<span class="dv">1</span>, <span class="va">None</span>], <span class="st">&quot;a&quot;</span>: [<span class="st">&quot;a1&quot;</span>, <span class="st">&quot;a2&quot;</span>]})</span>
+<span id="cb99-2"><a href aria-label="2"></a>b_pl <span class="op">=</span> pl.DataFrame({<span class="st">&quot;k&quot;</span>: [<span class="dv">1</span>, <span class="va">None</span>], <span class="st">&quot;b&quot;</span>: [<span class="st">&quot;b1&quot;</span>, <span class="st">&quot;b2&quot;</span>]})</span>
+<span id="cb99-3"><a href aria-label="3"></a>a_pd, b_pd <span class="op">=</span> a_pl.to_pandas(), b_pl.to_pandas()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div></div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb97-1"><a href aria-label="1"></a>a_pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">inner_join</span>(a, b, <span class="at">by =</span> <span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>     k   a
-0  1.0  a1
-1  NaN  a2</code></pre>
+<pre><code># A tibble: 2 × 3
+      k a     b    
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 a1    b1   
+2    NA a2    b2   </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb99-1"><a href aria-label="1"></a>a_pd.merge(b_pd, on<span class="op">=</span><span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb102-1"><a href aria-label="1"></a>a_pd.merge(b_pd, on<span class="op">=</span><span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     k   a   b
 0  1.0  a1  b1
 1  NaN  a2  b2</code></pre>
 </div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href aria-label="1"></a>a_pl.join(b_pl, on<span class="op">=</span><span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb104-1"><a href aria-label="1"></a>a_pl.join(b_pl, on<span class="op">=</span><span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -3012,6 +3033,74 @@ white-space: pre-wrap;
 </div>
 </div></div>
 </section>
+<section id="missing-keys---changing-the-default" class="slide level2">
+<h2>Missing keys - changing the default</h2>
+<p>dplyr switches to the SQL behavior with <code>na_matches = &quot;never&quot;</code> and polars to the dplyr behavior with <code>nulls_equal=True</code>. pandas has no equivalent, so the rows with missing keys must be dropped before merging.</p>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href aria-label="1"></a><span class="fu">inner_join</span>(</span>
+<span id="cb105-2"><a href aria-label="2"></a>  a, b, <span class="at">by =</span> <span class="st">&quot;k&quot;</span>, </span>
+<span id="cb105-3"><a href aria-label="3"></a>  <span class="at">na_matches =</span> <span class="st">&quot;never&quot;</span></span>
+<span id="cb105-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+      k a     b    
+  &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;
+1     1 a1    b1   </code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb107-1"><a href aria-label="1"></a>a_pl.join(b_pl, on<span class="op">=</span><span class="st">&quot;k&quot;</span>, nulls_equal<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+text-align: right;
+white-space: pre-wrap;
+}
+</style>
+<small>shape: (2, 3)</small>
+<table class="dataframe caption-top" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">k</th>
+<th data-quarto-table-cell-role="th">a</th>
+<th data-quarto-table-cell-role="th">b</th>
+</tr>
+<tr class="even">
+<td>i64</td>
+<td>str</td>
+<td>str</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>&quot;a1&quot;</td>
+<td>&quot;b1&quot;</td>
+</tr>
+<tr class="even">
+<td>null</td>
+<td>&quot;a2&quot;</td>
+<td>&quot;b2&quot;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb108-1"><a href aria-label="1"></a>a_pd.dropna(subset<span class="op">=</span><span class="st">&quot;k&quot;</span>).merge(b_pd, on<span class="op">=</span><span class="st">&quot;k&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     k   a   b
+0  1.0  a1  b1</code></pre>
+</div>
+</div>
+</div></div>
+
+<aside><div>
+<p>The same choice applies to filtering joins - <code>anti_join()</code> with the default <code>na_matches</code> will not report a missing key as unmatched if <code>y</code> also has one.</p>
+</div></aside></section>
 <section id="exercise-3" class="slide level2">
 <h2>Exercise 3</h2>
 <p><code>data/planes.parquet</code> contains a record for each plane (<code>tailnum</code>) known to the FAA, including its <code>manufacturer</code>, <code>model</code>, and number of <code>seats</code>. Using dplyr and then polars, together with <code>data/flights.parquet</code>, answer the following.</p>

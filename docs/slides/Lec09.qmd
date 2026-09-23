@@ -81,7 +81,7 @@ pl.__version__
 
 ## Series
 
-A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or has length one).
+A polars Series is a name, a dtype, and values - nothing else. With no index there is nothing to align on, so arithmetic is positional and lengths must match (or be length one).
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -242,16 +242,20 @@ Predicates work like pandas boolean masks: `&` and `|` with each comparison pare
 penguins.filter(
   pl.col("species").is_in(["Adelie", "Gentoo"]),
   pl.col("body_mass_g") > 5000
-).select("species", "body_mass_g").head(3)
+).select(
+  "species", "body_mass_g"
+).head(3)
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{python}
 penguins.filter(
-  (pl.col("species") == "Gentoo")
+    (pl.col("species") == "Gentoo")
   | (pl.col("body_mass_g") > 5000)
-).select("species", "body_mass_g").head(3)
+).select(
+  "species", "body_mass_g"
+).head(3)
 ```
 :::
 ::::
@@ -259,7 +263,7 @@ penguins.filter(
 
 ## Expression expansion
 
-One expression can expand to many columns - by listing names, by dtype, or with selectors (from `polars.selectors`). This is `across()` with tidy selection, available in every context.
+One expression can expand to many columns - by listing names, by dtype, or with selectors (from `polars.selectors`). This is similar to dplyr's `across()`.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -325,8 +329,6 @@ avg = mass.mean().over("species")
 
 
 ## Interoperability
-
-Arrow supports exchange between R, pandas, and polars; reticulate also converts between R and Python objects. Conversion can change dtypes and missing-value representation. For files, parquet is a shared format (Lecture 07).
 
 Default `to_pandas()` converts nullable integer columns to floats. Arrow extension arrays preserve their integer types and nulls.
 
@@ -642,7 +644,10 @@ y_pl = pl.DataFrame({
   "id": [1, 2, 4], 
   "y": ["y1", "y2", "y4"]
 })
-x_pd, y_pd = x_pl.to_pandas(), y_pl.to_pandas()
+```
+```{python}
+x_pd = x_pl.to_pandas()
+y_pd = y_pl.to_pandas()
 ```
 :::
 ::::
@@ -699,13 +704,13 @@ x_pd.merge(
 ::::
 
 ::: {.aside}
-`DataFrame.join()` also exists, but it matches on the index rather than on columns - `merge()` is usually what you want.
+`join()` method also exists, but it matches on the index rather than on columns - `merge()` is usually what you want.
 :::
 
 
 ## polars
 
-`join()` also takes the type via `how` with the default of `"inner"`.
+`join()` also takes the join method via `how` with a default of `"inner"`.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -837,29 +842,68 @@ An anti join is the quickest way to find keys that fail to match, e.g. flights w
 
 ## Missing keys
 
-dplyr and pandas treat missing keys as equal to each other, so `NA` matches `NA`. polars follows SQL and a `null` key matches nothing. Each can be switched - `na_matches = "never"` in dplyr and `nulls_equal=True` in polars.
+dplyr and pandas treat `NA` as equal to `NA`, so rows with missing keys are paired up even though nothing is known about either. polars follows SQL, where `null` is never equal to anything, so a row with a `null` key is unmatched.
 
+
+::: {.columns .xsmall}
+::: {.column}
+```{r}
+a = tibble(k = c(1, NA), a = c("a1", "a2"))
+b = tibble(k = c(1, NA), b = c("b1", "b2"))
+```
+:::
+
+::: {.column}
 ```{python}
-#| include: false
 a_pl = pl.DataFrame({"k": [1, None], "a": ["a1", "a2"]})
 b_pl = pl.DataFrame({"k": [1, None], "b": ["b1", "b2"]})
 a_pd, b_pd = a_pl.to_pandas(), b_pl.to_pandas()
 ```
+:::
+:::
+
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
-```{python}
-a_pd
-a_pd.merge(b_pd, on="k")
+```{r}
+inner_join(a, b, by = "k")
 ```
 :::
 
 ::: {.column width='50%' .fragment}
 ```{python}
+a_pd.merge(b_pd, on="k")
 a_pl.join(b_pl, on="k")
 ```
 :::
 ::::
+
+
+## Missing keys - changing the default
+
+dplyr switches to the SQL behavior with `na_matches = "never"` and polars to the dplyr behavior with `nulls_equal=True`. pandas has no equivalent, so the rows with missing keys must be dropped before merging.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+inner_join(
+  a, b, by = "k", 
+  na_matches = "never"
+)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+a_pl.join(b_pl, on="k", nulls_equal=True)
+a_pd.dropna(subset="k").merge(b_pd, on="k")
+```
+:::
+::::
+
+::: {.aside}
+The same choice applies to filtering joins - `anti_join()` with the default `na_matches` will not report a missing key as unmatched if `y` also has one.
+:::
 
 
 ## Exercise 3
