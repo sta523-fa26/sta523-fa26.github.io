@@ -159,18 +159,24 @@ schedule:
 - week: 6
   day: 1
   topic: "Tidy Data"
-  lecture: "Functional Programming"
-  slides: ""
+  lecture: "Functional programming & rectangling"
+  slides: "Lec10"
   r_readings:
     - text: "Purrr tutorial"
       link: https://jennybc.github.io/purrr-tutorial/index.html
     - text: "tidyr rectangling"
       link: https://tidyr.tidyverse.org/articles/rectangle.html
     - text: "R4DS - Iteration"
-      link: http://r4ds.had.co.nz/iteration.html
+      link: https://r4ds.hadley.nz/iteration.html
     - text: "purrr cheatsheet"
       link: https://github.com/rstudio/cheatsheets/raw/master/purrr.pdf
-  py_readings: []
+  py_readings:
+    - text: "Python - Functional Programming HOWTO"
+      link: https://docs.python.org/3/howto/functional.html
+    - text: "pandas - json_normalize"
+      link: https://pandas.pydata.org/docs/reference/api/pandas.json_normalize.html
+    - text: "Polars - Lists and arrays"
+      link: https://docs.pola.rs/user-guide/expressions/lists-and-arrays/
 
 - week: 6
   day: 3
