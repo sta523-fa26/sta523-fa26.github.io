@@ -1126,10 +1126,7 @@ Dr. Colin Rundel
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p><code>l[2](3)</code> is an error (attempt to apply non-function) since <code>[</code> returns a list; use <code>[[</code> or <code>$</code> to get the function itself.</p>
-</div></aside></section>
+</section>
 <section id="functions-as-arguments" class="slide level2">
 <h2>Functions as arguments</h2>
 <p>A function that takes a function as an argument is a higher-order function. Note that the function object is passed (<code>sum</code>), not a call to it (<code>sum()</code>).</p>
@@ -1138,44 +1135,47 @@ Dr. Colin Rundel
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href aria-label="1"></a>do_calc <span class="ot">=</span> <span class="cf">function</span>(v, func) {</span>
 <span id="cb15-2"><a href aria-label="2"></a>  <span class="fu">func</span>(v)</span>
-<span id="cb15-3"><a href aria-label="3"></a>}</span>
-<span id="cb15-4"><a href aria-label="4"></a><span class="fu">do_calc</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, sum)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-3"><a href aria-label="3"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href aria-label="1"></a><span class="fu">do_calc</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, sum)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href aria-label="1"></a><span class="fu">do_calc</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href aria-label="1"></a><span class="fu">do_calc</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href aria-label="1"></a><span class="kw">def</span> do_calc(v, func):</span>
-<span id="cb19-2"><a href aria-label="2"></a>    <span class="cf">return</span> func(v)</span>
-<span id="cb19-3"><a href aria-label="3"></a></span>
-<span id="cb19-4"><a href aria-label="4"></a>do_calc([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="bu">sum</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href aria-label="1"></a><span class="kw">def</span> do_calc(v, func):</span>
+<span id="cb20-2"><a href aria-label="2"></a>    <span class="cf">return</span> func(v)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href aria-label="1"></a>do_calc([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="bu">sum</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>6</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href aria-label="1"></a>do_calc([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="bu">max</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href aria-label="1"></a>do_calc([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], <span class="bu">max</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>3</code></pre>
 </div>
 </div>
 </div></div>
 <div class="fragment">
-<p>Many built-in functions work this way,</p>
+<p>Many built-in functions work this way:</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href aria-label="1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href aria-label="1"></a><span class="fu">integrate</span>(dnorm, <span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0.9500042 with absolute error &lt; 1e-11</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href aria-label="1"></a><span class="bu">sorted</span>([<span class="st">&quot;bb&quot;</span>, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;ccc&quot;</span>], key<span class="op">=</span><span class="bu">len</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href aria-label="1"></a><span class="bu">sorted</span>([<span class="st">&quot;bb&quot;</span>, <span class="st">&quot;a&quot;</span>, <span class="st">&quot;ccc&quot;</span>], key<span class="op">=</span><span class="bu">len</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;a&#39;, &#39;bb&#39;, &#39;ccc&#39;]</code></pre>
 </div>
@@ -1185,33 +1185,33 @@ Dr. Colin Rundel
 </section>
 <section id="anonymous-functions" class="slide level2">
 <h2>Anonymous functions</h2>
-<p>Short single-use functions can be written inline without a name: <code>function(x)</code> or <code>\(x)</code> (v4.1+) in R, <code>lambda</code> in Python - a single expression, whose value is returned.</p>
+<p>Short single-use functions without a name: <code>function(x)</code> or <code>\(x)</code> in R (4.1+), <code>lambda</code> in Python - a single expression, whose value is returned.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href aria-label="1"></a>(\(x) x<span class="sc">^</span><span class="dv">2</span>)(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href aria-label="1"></a>(\(x) x<span class="sc">^</span><span class="dv">2</span>)(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href aria-label="1"></a><span class="fu">integrate</span>(\(x) <span class="fu">sin</span>(x)<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>, pi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href aria-label="1"></a><span class="fu">integrate</span>(\(x) <span class="fu">sin</span>(x)<span class="sc">^</span><span class="dv">2</span>, <span class="dv">0</span>, pi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1.570796 with absolute error &lt; 1.7e-14</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href aria-label="1"></a>(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>)(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href aria-label="1"></a>(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>)(<span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>16</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href aria-label="1"></a><span class="bu">sorted</span>(</span>
-<span id="cb33-2"><a href aria-label="2"></a>  [<span class="st">&quot;Bob&quot;</span>, <span class="st">&quot;alice&quot;</span>, <span class="st">&quot;Carol&quot;</span>],</span>
-<span id="cb33-3"><a href aria-label="3"></a>  key<span class="op">=</span><span class="kw">lambda</span> s: s.lower()</span>
-<span id="cb33-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href aria-label="1"></a><span class="bu">sorted</span>(</span>
+<span id="cb35-2"><a href aria-label="2"></a>  [<span class="st">&quot;Bob&quot;</span>, <span class="st">&quot;alice&quot;</span>, <span class="st">&quot;Carol&quot;</span>],</span>
+<span id="cb35-3"><a href aria-label="3"></a>  key<span class="op">=</span><span class="kw">lambda</span> s: s.lower()</span>
+<span id="cb35-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;alice&#39;, &#39;Bob&#39;, &#39;Carol&#39;]</code></pre>
 </div>
@@ -1219,7 +1219,7 @@ Dr. Colin Rundel
 </div></div>
 
 <aside><div>
-<p>PEP 8 says not to assign a <code>lambda</code> to a name (<code>sq = lambda x: ...</code>); write a <code>def</code> instead. Both shorthands are meant for functions short enough to read inline.</p>
+<p>PEP 8 says to not assign a <code>lambda</code> to a name (<code>sq = lambda x: ...</code>); write a <code>def</code> instead.</p>
 </div></aside></section>
 <section id="partial-application" class="slide level2">
 <h2>Partial application</h2>
@@ -1227,51 +1227,48 @@ Dr. Colin Rundel
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href aria-label="1"></a>pow <span class="ot">=</span> <span class="cf">function</span>(base, exp) base<span class="sc">^</span>exp</span>
-<span id="cb35-2"><a href aria-label="2"></a>cube <span class="ot">=</span> <span class="fu">partial</span>(pow, <span class="at">exp =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href aria-label="1"></a>pow <span class="ot">=</span> <span class="cf">function</span>(base, exp) base<span class="sc">^</span>exp</span>
+<span id="cb37-2"><a href aria-label="2"></a>cube <span class="ot">=</span> <span class="fu">partial</span>(pow, <span class="at">exp =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href aria-label="1"></a><span class="fu">cube</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href aria-label="1"></a><span class="fu">cube</span>(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href aria-label="1"></a><span class="fu">partial</span>(pow, <span class="dv">2</span>)(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href aria-label="1"></a><span class="fu">partial</span>(pow, <span class="dv">2</span>)(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 32</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href aria-label="1"></a><span class="fu">partial</span>(pow, <span class="at">... =</span> , <span class="dv">3</span>)(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href aria-label="1"></a><span class="fu">partial</span>(pow, <span class="at">... =</span> , <span class="dv">3</span>)(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href aria-label="1"></a><span class="im">from</span> functools <span class="im">import</span> partial,  Placeholder</span>
-<span id="cb42-2"><a href aria-label="2"></a>cube <span class="op">=</span> partial(<span class="bu">pow</span>, exp<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href aria-label="1"></a><span class="im">from</span> functools <span class="im">import</span> partial,  Placeholder</span>
+<span id="cb44-2"><a href aria-label="2"></a>cube <span class="op">=</span> partial(<span class="bu">pow</span>, exp<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href aria-label="1"></a>cube(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href aria-label="1"></a>cube(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>8</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href aria-label="1"></a>partial(<span class="bu">pow</span>, <span class="dv">2</span>)(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href aria-label="1"></a>partial(<span class="bu">pow</span>, <span class="dv">2</span>)(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>32</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href aria-label="1"></a>partial(<span class="bu">pow</span>, Placeholder, <span class="dv">3</span>)(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href aria-label="1"></a>partial(<span class="bu">pow</span>, Placeholder, <span class="dv">3</span>)(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>8</code></pre>
 </div>
 </div>
 </div></div>
-
-<aside><div>
-<p>Python’s <code>pow(base, exp)</code> is built in, so it is defined here only in R. Unnamed arguments fill from the left; <code>... =</code> in purrr and <code>Placeholder</code> in Python 3.14 mark where the rest go.</p>
-</div></aside></section>
+</section>
 <section id="loops-vs-maps" class="slide level2">
 <h2>Loops vs maps</h2>
 <div class="medium">
@@ -1279,49 +1276,50 @@ Dr. Colin Rundel
 <p>Of course, someone has to write loops. It doesn’t have to be you.</p>
 <p>— Jenny Bryan</p>
 </blockquote>
-<p>Most loops compute something per element and collect the results. A map does the looping and collecting, leaving only the computation - generally not faster, just clearer.</p>
+<p>Most loops compute something per element and collect the results. A map does the looping and collecting, leaving only the computation. Generally not faster, just clearer than an explicit loop.</p>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>)</span>
-<span id="cb49-2"><a href aria-label="2"></a>res <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">length</span>(x))</span>
-<span id="cb49-3"><a href aria-label="3"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(x)) res[i] <span class="ot">=</span> <span class="fu">sqrt</span>(x[i])</span>
-<span id="cb49-4"><a href aria-label="4"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>)</span>
+<span id="cb51-2"><a href aria-label="2"></a>res <span class="ot">=</span> <span class="fu">numeric</span>(<span class="fu">length</span>(x))</span>
+<span id="cb51-3"><a href aria-label="3"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(x)) </span>
+<span id="cb51-4"><a href aria-label="4"></a>  res[i] <span class="ot">=</span> <span class="fu">sqrt</span>(x[i])</span>
+<span id="cb51-5"><a href aria-label="5"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 2 3</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href aria-label="1"></a><span class="fu">lapply</span>(x, sqrt) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href aria-label="1"></a><span class="fu">lapply</span>(x, sqrt) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ : num 1
  $ : num 2
  $ : num 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href aria-label="1"></a><span class="fu">sapply</span>(x, sqrt) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href aria-label="1"></a><span class="fu">sapply</span>(x, sqrt) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> num [1:3] 1 2 3</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href aria-label="1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>]</span>
-<span id="cb55-2"><a href aria-label="2"></a>res <span class="op">=</span> []</span>
-<span id="cb55-3"><a href aria-label="3"></a><span class="cf">for</span> v <span class="kw">in</span> x:</span>
-<span id="cb55-4"><a href aria-label="4"></a>    res.append(v<span class="op">**</span><span class="fl">0.5</span>)</span>
-<span id="cb55-5"><a href aria-label="5"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href aria-label="1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">9</span>]</span>
+<span id="cb57-2"><a href aria-label="2"></a>res <span class="op">=</span> []</span>
+<span id="cb57-3"><a href aria-label="3"></a><span class="cf">for</span> v <span class="kw">in</span> x:</span>
+<span id="cb57-4"><a href aria-label="4"></a>  res.append(v<span class="op">**</span><span class="fl">0.5</span>)</span>
+<span id="cb57-5"><a href aria-label="5"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1.0, 2.0, 3.0]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href aria-label="1"></a>[v<span class="op">**</span><span class="fl">0.5</span> <span class="cf">for</span> v <span class="kw">in</span> x]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href aria-label="1"></a>[v<span class="op">**</span><span class="fl">0.5</span> <span class="cf">for</span> v <span class="kw">in</span> x]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1.0, 2.0, 3.0]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="kw">lambda</span> v: v<span class="op">**</span><span class="fl">0.5</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="kw">lambda</span> v: v<span class="op">**</span><span class="fl">0.5</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1.0, 2.0, 3.0]</code></pre>
 </div>
@@ -1335,7 +1333,7 @@ Dr. Colin Rundel
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href aria-label="1"></a><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href aria-label="1"></a><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ : num 1
@@ -1344,7 +1342,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href aria-label="1"></a><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x, p) x<span class="sc">^</span>p, <span class="at">p =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href aria-label="1"></a><span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x, p) x<span class="sc">^</span>p, <span class="at">p =</span> <span class="dv">3</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ : num 1
@@ -1354,11 +1352,11 @@ Dr. Colin Rundel
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 4 9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) <span class="fu">c</span>(x, x<span class="sc">^</span><span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) <span class="fu">c</span>(x, x<span class="sc">^</span><span class="dv">2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1] [,2] [,3]
 [1,]    1    2    3
@@ -1366,7 +1364,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, seq) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href aria-label="1"></a><span class="fu">sapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, seq) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ : int 1
@@ -1390,11 +1388,11 @@ Dr. Colin Rundel
 </section>
 <section id="map" class="slide level2">
 <h2><code>map()</code></h2>
-<p><code>map(.x, .f, ...)</code> is <code>lapply()</code> with a consistent interface. The typed variants <code>map_lgl()</code>, <code>map_int()</code>, <code>map_dbl()</code>, and <code>map_chr()</code> return a vector of that type or fail. <code>walk()</code> exists for side effects.</p>
+<p><code>map(.x, .f, ...)</code> is <code>lapply()</code> with a consistent interface. Includes typed variants: <code>map_lgl()</code>, <code>map_int()</code>, <code>map_dbl()</code>, and <code>map_chr()</code> that return an atomic vector of or fail.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href aria-label="1"></a><span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href aria-label="1"></a><span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
  $ : num 1
@@ -1403,18 +1401,18 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href aria-label="1"></a><span class="fu">map_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href aria-label="1"></a><span class="fu">map_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1 4 9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) <span class="fu">paste0</span>(<span class="st">&quot;n&quot;</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) <span class="fu">paste0</span>(<span class="st">&quot;n&quot;</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;n1&quot; &quot;n2&quot; &quot;n3&quot;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `map_chr()`:
 ℹ In index: 1.
@@ -1423,7 +1421,7 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href aria-label="1"></a><span class="fu">map_int</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x <span class="sc">/</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href aria-label="1"></a><span class="fu">map_int</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, \(x) x <span class="sc">/</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `map_int()`:
 ℹ In index: 1.
@@ -1434,77 +1432,80 @@ Caused by error:
 </div></div>
 
 <aside><div>
-<p>Older code uses purrr’s formula shorthand, <code>~ .x^2</code>, but modern <code>\(x) x^2</code> is recommended.</p>
+<p>Older code uses purrr’s formula shorthand, <code>~ .x^2</code>, but <code>\(x) x^2</code> is now recommended.</p>
 </div></aside></section>
 <section id="map2-pmap-and-imap" class="slide level2">
 <h2><code>map2()</code>, <code>pmap()</code>, and <code>imap()</code></h2>
-<p><code>map2()</code> iterates over two inputs in parallel, <code>pmap()</code> over any number (including the columns of a data frame, row by row), and <code>imap()</code> over elements and their names or positions. All have the same typed variants as <code>map()</code>.</p>
+<p><code>map2()</code> iterates over two inputs in parallel, <code>pmap()</code> over any number (including the columns of a data frame), and <code>imap()</code> over elements and their names or positions. All have the same typed variants as <code>map()</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href aria-label="1"></a><span class="fu">map2_chr</span>(letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, paste0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href aria-label="1"></a><span class="fu">map2_chr</span>(letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, paste0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;a1&quot; &quot;b2&quot; &quot;c3&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href aria-label="1"></a><span class="fu">map2_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, \(x, y) x <span class="sc">*</span> y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href aria-label="1"></a><span class="fu">map2_dbl</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, \(x, y) x <span class="sc">*</span> y)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  4 10 18</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href aria-label="1"></a><span class="fu">pmap_dbl</span>(</span>
-<span id="cb85-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>),</span>
-<span id="cb85-3"><a href aria-label="3"></a>  \(x, y, z) x <span class="sc">+</span> y <span class="sc">+</span> z</span>
-<span id="cb85-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href aria-label="1"></a><span class="fu">pmap_dbl</span>(</span>
+<span id="cb87-2"><a href aria-label="2"></a>  <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, <span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>),</span>
+<span id="cb87-3"><a href aria-label="3"></a>  \(x, y, z) x <span class="sc">+</span> y <span class="sc">+</span> z</span>
+<span id="cb87-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12 15 18</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>))</span>
-<span id="cb87-2"><a href aria-label="2"></a><span class="fu">pmap_chr</span>(d, \(x, y) <span class="fu">paste</span>(x, y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>))</span>
+<span id="cb89-2"><a href aria-label="2"></a><span class="fu">pmap_chr</span>(d, \(x, y) <span class="fu">paste</span>(x, y))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;1 a&quot; &quot;2 b&quot;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href aria-label="1"></a><span class="fu">imap_chr</span>(</span>
-<span id="cb89-2"><a href aria-label="2"></a>  <span class="fu">c</span>(<span class="at">a =</span> <span class="dv">1</span>, <span class="at">b =</span> <span class="dv">2</span>),</span>
-<span id="cb89-3"><a href aria-label="3"></a>  \(x, i) <span class="fu">paste</span>(i, x)</span>
-<span id="cb89-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href aria-label="1"></a><span class="fu">imap_chr</span>(</span>
+<span id="cb91-2"><a href aria-label="2"></a>  <span class="fu">c</span>(<span class="at">a =</span> <span class="dv">1</span>, <span class="at">b =</span> <span class="dv">2</span>),</span>
+<span id="cb91-3"><a href aria-label="3"></a>  \(x, i) <span class="fu">paste</span>(i, x)</span>
+<span id="cb91-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    a     b 
 &quot;a 1&quot; &quot;b 2&quot; </code></pre>
 </div>
 </div>
 </div></div>
-</section>
-<section id="extracting-elements" class="slide level2">
-<h2>Extracting elements</h2>
-<p>Often <code>.f</code> just extracts a piece of each element, so purrr lets a name or position be used directly. <code>.default</code> is used when the path does not exist (the result would otherwise be <code>NULL</code>).</p>
+
+<aside><div>
+<p><code>imap()</code> is equivalent to Python’s <code>enumerate()</code>.</p>
+</div></aside></section>
+<section id="extracting-elements---lookups" class="slide level2">
+<h2>Extracting elements - lookups</h2>
+<p>Often <code>.f</code> just extracts a piece of each loop element, purrr lets a name or position be used directly.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;a&quot;</span>, <span class="at">tags =</span> <span class="fu">list</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)),</span>
-<span id="cb91-2"><a href aria-label="2"></a>         <span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;b&quot;</span>),</span>
-<span id="cb91-3"><a href aria-label="3"></a>         <span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;c&quot;</span>, <span class="at">tags =</span> <span class="fu">list</span>(<span class="st">&quot;z&quot;</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;a&quot;</span>, <span class="at">tags =</span> <span class="fu">list</span>(<span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)),</span>
+<span id="cb93-2"><a href aria-label="2"></a>         <span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;b&quot;</span>),</span>
+<span id="cb93-3"><a href aria-label="3"></a>         <span class="fu">list</span>(<span class="at">name =</span> <span class="st">&quot;c&quot;</span>, <span class="at">tags =</span> <span class="fu">list</span>(<span class="st">&quot;z&quot;</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(x, <span class="st">&quot;name&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(x, <span class="st">&quot;name&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;a&quot; &quot;b&quot; &quot;c&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-label="1"></a><span class="fu">map</span>(x, <span class="st">&quot;tags&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">lengths</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-label="1"></a><span class="fu">map</span>(x, <span class="st">&quot;tags&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">lengths</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2 0 1</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(x, <span class="fu">list</span>(<span class="st">&quot;tags&quot;</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(x, <span class="fu">list</span>(<span class="st">&quot;tags&quot;</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `map_chr()`:
 ℹ In index: 2.
@@ -1513,9 +1514,9 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(</span>
-<span id="cb98-2"><a href aria-label="2"></a>  x, <span class="fu">list</span>(<span class="st">&quot;tags&quot;</span>, <span class="dv">1</span>), <span class="at">.default =</span> <span class="cn">NA</span></span>
-<span id="cb98-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(</span>
+<span id="cb100-2"><a href aria-label="2"></a>  x, <span class="fu">list</span>(<span class="st">&quot;tags&quot;</span>, <span class="dv">1</span>), <span class="at">.default =</span> <span class="cn">NA</span></span>
+<span id="cb100-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;x&quot; NA  &quot;z&quot;</code></pre>
 </div>
@@ -1523,64 +1524,73 @@ Caused by error:
 </div></div>
 
 <aside><div>
-<p>Use <code>list()</code> rather than <code>c()</code> for a path that mixes names and positions, since <code>c(&quot;tags&quot;, 1)</code> coerces the <code>1</code> to <code>&quot;1&quot;</code>.</p>
+<p>Use <code>list()</code> rather than <code>c()</code> for a lookup that mixes names and positions, since <code>c(&quot;tags&quot;, 1)</code> coerces the <code>1</code> to <code>&quot;1&quot;</code>.</p>
 </div></aside></section>
 <section id="keep-and-discard" class="slide level2">
 <h2><code>keep()</code> and <code>discard()</code></h2>
-<p><code>keep()</code> and <code>discard()</code> filter a vector or list by a predicate function, returning the elements where it is <code>TRUE</code> or <code>FALSE</code> respectively. The predicate takes the same forms as <code>.f</code> in <code>map()</code>, including the name shorthand.</p>
+<p><code>keep()</code> and <code>discard()</code> filter a vector or list by a predicate function, returning the elements where it is <code>TRUE</code> or <code>FALSE</code> respectively. The predicate takes the same forms as <code>.f</code> in <code>map()</code>.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">keep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, \(x) x <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href aria-label="1"></a><span class="fu">keep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, \(x) x <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3 6 9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href aria-label="1"></a><span class="fu">discard</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, \(x) x <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href aria-label="1"></a><span class="fu">discard</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, \(x) x <span class="sc">%%</span> <span class="dv">3</span> <span class="sc">==</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1  2  4  5  7  8 10</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href aria-label="1"></a>x <span class="sc">|&gt;</span></span>
-<span id="cb104-2"><a href aria-label="2"></a>  <span class="fu">keep</span>(\(e) <span class="st">&quot;tags&quot;</span> <span class="sc">%in%</span> <span class="fu">names</span>(e)) <span class="sc">|&gt;</span></span>
-<span id="cb104-3"><a href aria-label="3"></a>  <span class="fu">map_chr</span>(<span class="st">&quot;name&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="at">a =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, </span>
+<span id="cb106-2"><a href aria-label="2"></a>         <span class="at">b =</span> letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>],</span>
+<span id="cb106-3"><a href aria-label="3"></a>         <span class="at">c =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb106-4"><a href aria-label="4"></a><span class="fu">keep</span>(x, is.numeric) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;a&quot; &quot;c&quot;</code></pre>
+<pre><code>List of 2
+ $ a: int [1:3] 1 2 3
+ $ c: int [1:3] 4 5 6</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a><span class="fu">discard</span>(x, is.numeric) <span class="sc">|&gt;</span> <span class="fu">str</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 1
+ $ b: chr [1:2] &quot;a&quot; &quot;b&quot;</code></pre>
 </div>
 </div>
 </div></div>
 </section>
 <section id="reduce-and-accumulate" class="slide level2">
 <h2><code>reduce()</code> and <code>accumulate()</code></h2>
-<p><code>reduce()</code> collapses a list to one value by applying a two-argument function cumulatively, <code>f(f(f(x1, x2), x3), x4)</code>; <code>accumulate()</code> does the same but keeps the intermediate results.</p>
+<p><code>reduce()</code> collapses a list to one value by applying a two-argument function cumulatively, <code>f(f(f(x1, x2), x3), x4)</code>.</p>
+<p><code>accumulate()</code> does the same but keeps the intermediate results.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href aria-label="1"></a><span class="fu">reduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href aria-label="1"></a><span class="fu">reduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 15</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a><span class="fu">accumulate</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href aria-label="1"></a><span class="fu">accumulate</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1  3  6 10 15</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>)</span>
-<span id="cb110-2"><a href aria-label="2"></a><span class="fu">reduce</span>(x, intersect)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">3</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb114-2"><a href aria-label="2"></a><span class="fu">reduce</span>(x, intersect)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href aria-label="1"></a>dfs <span class="ot">=</span> <span class="fu">list</span>(</span>
-<span id="cb112-2"><a href aria-label="2"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">a =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>),</span>
-<span id="cb112-3"><a href aria-label="3"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">b =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>),</span>
-<span id="cb112-4"><a href aria-label="4"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">c =</span> <span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>)</span>
-<span id="cb112-5"><a href aria-label="5"></a>)</span>
-<span id="cb112-6"><a href aria-label="6"></a><span class="fu">reduce</span>(dfs, left_join, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a>dfs <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb116-2"><a href aria-label="2"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">a =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>),</span>
+<span id="cb116-3"><a href aria-label="3"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">b =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>),</span>
+<span id="cb116-4"><a href aria-label="4"></a>  <span class="fu">tibble</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">c =</span> <span class="dv">5</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb116-5"><a href aria-label="5"></a>)</span>
+<span id="cb116-6"><a href aria-label="6"></a><span class="fu">reduce</span>(dfs, left_join, <span class="at">by =</span> <span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 4
      id     a     b     c
@@ -1605,31 +1615,31 @@ Caused by error:
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href aria-label="1"></a>m <span class="op">=</span> <span class="bu">map</span>(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>, <span class="bu">range</span>(<span class="dv">5</span>))</span>
-<span id="cb114-2"><a href aria-label="2"></a>m</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href aria-label="1"></a>m <span class="op">=</span> <span class="bu">map</span>(<span class="kw">lambda</span> x: x<span class="op">**</span><span class="dv">2</span>, <span class="bu">range</span>(<span class="dv">5</span>))</span>
+<span id="cb118-2"><a href aria-label="2"></a>m</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;map object at 0x11a3764c0&gt;</code></pre>
+<pre><code>&lt;map object at 0x11a914fc0&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb116-1"><a href aria-label="1"></a><span class="bu">list</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href aria-label="1"></a><span class="bu">list</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0, 1, 4, 9, 16]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb118-1"><a href aria-label="1"></a><span class="bu">list</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href aria-label="1"></a><span class="bu">list</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[]</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb120-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">filter</span>(</span>
-<span id="cb120-2"><a href aria-label="2"></a>  <span class="kw">lambda</span> x: x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>, <span class="bu">range</span>(<span class="dv">10</span>)</span>
-<span id="cb120-3"><a href aria-label="3"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">filter</span>(</span>
+<span id="cb124-2"><a href aria-label="2"></a>  <span class="kw">lambda</span> x: x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>, <span class="bu">range</span>(<span class="dv">10</span>)</span>
+<span id="cb124-3"><a href aria-label="3"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0, 2, 4, 6, 8]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb122-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">pow</span>, [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href aria-label="1"></a><span class="bu">list</span>(<span class="bu">map</span>(<span class="bu">pow</span>, [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 32, 729]</code></pre>
 </div>
@@ -1645,38 +1655,38 @@ Caused by error:
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb124-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0, 1, 4, 9, 16]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb126-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>) <span class="cf">if</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>) <span class="cf">if</span> x <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0, 4, 16, 36, 64]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb128-1"><a href aria-label="1"></a>[a <span class="op">+</span> b <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(<span class="st">&quot;ab&quot;</span>, <span class="st">&quot;cd&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>[a <span class="op">+</span> b <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(<span class="st">&quot;ab&quot;</span>, <span class="st">&quot;cd&quot;</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;ac&#39;, &#39;bd&#39;]</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb130"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb130-1"><a href aria-label="1"></a>{x: x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a>{x: x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{0: 0, 1: 1, 2: 4, 3: 9}</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb132-1"><a href aria-label="1"></a>{x <span class="op">%</span> <span class="dv">3</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a>{x <span class="op">%</span> <span class="dv">3</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10</span>)}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{0, 1, 2}</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb134-1"><a href aria-label="1"></a><span class="bu">sum</span>(x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a><span class="bu">sum</span>(x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>30</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb136-1"><a href aria-label="1"></a><span class="bu">any</span>(x <span class="op">&gt;</span> <span class="dv">3</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb140-1"><a href aria-label="1"></a><span class="bu">any</span>(x <span class="op">&gt;</span> <span class="dv">3</span> <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
@@ -1689,45 +1699,45 @@ Caused by error:
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb138-1"><a href aria-label="1"></a><span class="kw">def</span> countdown(n):</span>
-<span id="cb138-2"><a href aria-label="2"></a>    <span class="cf">while</span> n <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb138-3"><a href aria-label="3"></a>        <span class="cf">yield</span> n</span>
-<span id="cb138-4"><a href aria-label="4"></a>        n <span class="op">-=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb142-1"><a href aria-label="1"></a><span class="kw">def</span> countdown(n):</span>
+<span id="cb142-2"><a href aria-label="2"></a>    <span class="cf">while</span> n <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb142-3"><a href aria-label="3"></a>        <span class="cf">yield</span> n</span>
+<span id="cb142-4"><a href aria-label="4"></a>        n <span class="op">-=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb139-1"><a href aria-label="1"></a>g <span class="op">=</span> countdown(<span class="dv">3</span>)</span>
-<span id="cb139-2"><a href aria-label="2"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href aria-label="1"></a>g <span class="op">=</span> countdown(<span class="dv">3</span>)</span>
+<span id="cb143-2"><a href aria-label="2"></a><span class="bu">type</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;class &#39;generator&#39;&gt;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb141-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb143-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb147-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb145-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb147-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>StopIteration</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a><span class="bu">list</span>(countdown(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a><span class="bu">list</span>(countdown(<span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[3, 2, 1]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> countdown(<span class="dv">3</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb155-1"><a href aria-label="1"></a>[x<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> x <span class="kw">in</span> countdown(<span class="dv">3</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[9, 4, 1]</code></pre>
 </div>
@@ -1743,20 +1753,20 @@ Caused by error:
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a><span class="kw">def</span> loud(xs):</span>
-<span id="cb153-2"><a href aria-label="2"></a>    <span class="cf">for</span> x <span class="kw">in</span> xs:</span>
-<span id="cb153-3"><a href aria-label="3"></a>        <span class="bu">print</span>(<span class="st">&quot;yielding&quot;</span>, x)</span>
-<span id="cb153-4"><a href aria-label="4"></a>        <span class="cf">yield</span> x</span>
-<span id="cb153-5"><a href aria-label="5"></a></span>
-<span id="cb153-6"><a href aria-label="6"></a>g <span class="op">=</span> loud([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb157-1"><a href aria-label="1"></a><span class="kw">def</span> loud(xs):</span>
+<span id="cb157-2"><a href aria-label="2"></a>    <span class="cf">for</span> x <span class="kw">in</span> xs:</span>
+<span id="cb157-3"><a href aria-label="3"></a>        <span class="bu">print</span>(<span class="st">&quot;yielding&quot;</span>, x)</span>
+<span id="cb157-4"><a href aria-label="4"></a>        <span class="cf">yield</span> x</span>
+<span id="cb157-5"><a href aria-label="5"></a></span>
+<span id="cb157-6"><a href aria-label="6"></a>g <span class="op">=</span> loud([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb154-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb158-1"><a href aria-label="1"></a><span class="bu">next</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>yielding 1
 1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb156-1"><a href aria-label="1"></a><span class="bu">list</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb160-1"><a href aria-label="1"></a><span class="bu">list</span>(g)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>yielding 2
 yielding 3
@@ -1765,20 +1775,20 @@ yielding 3
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb158-1"><a href aria-label="1"></a><span class="kw">def</span> naturals():</span>
-<span id="cb158-2"><a href aria-label="2"></a>    n <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb158-3"><a href aria-label="3"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb158-4"><a href aria-label="4"></a>        <span class="cf">yield</span> n</span>
-<span id="cb158-5"><a href aria-label="5"></a>        n <span class="op">+=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb162-1"><a href aria-label="1"></a><span class="kw">def</span> naturals():</span>
+<span id="cb162-2"><a href aria-label="2"></a>    n <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb162-3"><a href aria-label="3"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb162-4"><a href aria-label="4"></a>        <span class="cf">yield</span> n</span>
+<span id="cb162-5"><a href aria-label="5"></a>        n <span class="op">+=</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb159"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb159-1"><a href aria-label="1"></a><span class="im">from</span> itertools <span class="im">import</span> islice</span>
-<span id="cb159-2"><a href aria-label="2"></a>squares <span class="op">=</span> (n<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> n <span class="kw">in</span> naturals())</span>
-<span id="cb159-3"><a href aria-label="3"></a><span class="bu">list</span>(islice(squares, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a><span class="im">from</span> itertools <span class="im">import</span> islice</span>
+<span id="cb163-2"><a href aria-label="2"></a>squares <span class="op">=</span> (n<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> n <span class="kw">in</span> naturals())</span>
+<span id="cb163-3"><a href aria-label="3"></a><span class="bu">list</span>(islice(squares, <span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 4, 9, 16, 25]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb161"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb161-1"><a href aria-label="1"></a><span class="bu">next</span>(s <span class="cf">for</span> s <span class="kw">in</span> squares <span class="cf">if</span> s <span class="op">&gt;</span> <span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href aria-label="1"></a><span class="bu">next</span>(s <span class="cf">for</span> s <span class="kw">in</span> squares <span class="cf">if</span> s <span class="op">&gt;</span> <span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1024</code></pre>
 </div>
@@ -1794,32 +1804,32 @@ yielding 3
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a><span class="im">from</span> functools <span class="im">import</span> <span class="bu">reduce</span></span>
-<span id="cb163-2"><a href aria-label="2"></a><span class="im">from</span> itertools <span class="im">import</span> accumulate</span>
-<span id="cb163-3"><a href aria-label="3"></a><span class="im">import</span> operator</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb167"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href aria-label="1"></a><span class="im">from</span> functools <span class="im">import</span> <span class="bu">reduce</span></span>
+<span id="cb167-2"><a href aria-label="2"></a><span class="im">from</span> itertools <span class="im">import</span> accumulate</span>
+<span id="cb167-3"><a href aria-label="3"></a><span class="im">import</span> operator</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb164-1"><a href aria-label="1"></a><span class="bu">reduce</span>(operator.add, <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a><span class="bu">reduce</span>(operator.add, <span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>15</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a><span class="bu">list</span>(accumulate(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a><span class="bu">list</span>(accumulate(<span class="bu">range</span>(<span class="dv">1</span>, <span class="dv">6</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 3, 6, 10, 15]</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a><span class="bu">reduce</span>(</span>
-<span id="cb168-2"><a href aria-label="2"></a>  <span class="kw">lambda</span> a, b: a <span class="op">+</span> b,</span>
-<span id="cb168-3"><a href aria-label="3"></a>  [[<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>]]</span>
-<span id="cb168-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a><span class="bu">reduce</span>(</span>
+<span id="cb172-2"><a href aria-label="2"></a>  <span class="kw">lambda</span> a, b: a <span class="op">+</span> b,</span>
+<span id="cb172-3"><a href aria-label="3"></a>  [[<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>]]</span>
+<span id="cb172-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 2, 3, 4, 5]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a><span class="bu">list</span>(accumulate([<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">4</span>], <span class="bu">max</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a><span class="bu">list</span>(accumulate([<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">4</span>], <span class="bu">max</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 3, 3, 5, 5]</code></pre>
 </div>
@@ -1838,26 +1848,26 @@ yielding 3
 <h2>GitHub repositories</h2>
 <p>The GitHub API’s <a href="https://docs.github.com/en/rest/repos/repos#list-organization-repositories"><code>/orgs/{org}/repos</code></a> endpoint lists an organization’s repositories as an array of objects, one per repository, each with the same 83 fields (abridged here):</p>
 <div class="xsmall">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb172"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb172-1"><a href aria-label="1"></a><span class="ot">[</span></span>
-<span id="cb172-2"><a href aria-label="2"></a>  <span class="fu">{</span></span>
-<span id="cb172-3"><a href aria-label="3"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">19438</span><span class="fu">,</span></span>
-<span id="cb172-4"><a href aria-label="4"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ggplot2&quot;</span><span class="fu">,</span></span>
-<span id="cb172-5"><a href aria-label="5"></a>    <span class="dt">&quot;owner&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;login&quot;</span><span class="fu">:</span> <span class="st">&quot;tidyverse&quot;</span><span class="fu">,</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Organization&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
-<span id="cb172-6"><a href aria-label="6"></a>    <span class="dt">&quot;stargazers_count&quot;</span><span class="fu">:</span> <span class="dv">7002</span><span class="fu">,</span></span>
-<span id="cb172-7"><a href aria-label="7"></a>    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;R&quot;</span><span class="fu">,</span></span>
-<span id="cb172-8"><a href aria-label="8"></a>    <span class="dt">&quot;license&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;other&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Other&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
-<span id="cb172-9"><a href aria-label="9"></a>    <span class="dt">&quot;topics&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;data-visualisation&quot;</span><span class="ot">,</span> <span class="st">&quot;r&quot;</span><span class="ot">,</span> <span class="st">&quot;visualisation&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb172-10"><a href aria-label="10"></a>    <span class="er">...</span></span>
-<span id="cb172-11"><a href aria-label="11"></a>  <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb172-12"><a href aria-label="12"></a>  <span class="er">...</span></span>
-<span id="cb172-13"><a href aria-label="13"></a>  <span class="fu">{</span></span>
-<span id="cb172-14"><a href aria-label="14"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;nycflights13&quot;</span><span class="fu">,</span></span>
-<span id="cb172-15"><a href aria-label="15"></a>    <span class="dt">&quot;license&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
-<span id="cb172-16"><a href aria-label="16"></a>    <span class="dt">&quot;topics&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></span>
-<span id="cb172-17"><a href aria-label="17"></a>    <span class="er">...</span></span>
-<span id="cb172-18"><a href aria-label="18"></a>  <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb172-19"><a href aria-label="19"></a>  <span class="er">...</span></span>
-<span id="cb172-20"><a href aria-label="20"></a><span class="ot">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb176"><pre class="sourceCode numberSource json number-lines code-with-copy"><code class="sourceCode json"><span id="cb176-1"><a href aria-label="1"></a><span class="ot">[</span></span>
+<span id="cb176-2"><a href aria-label="2"></a>  <span class="fu">{</span></span>
+<span id="cb176-3"><a href aria-label="3"></a>    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="dv">19438</span><span class="fu">,</span></span>
+<span id="cb176-4"><a href aria-label="4"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;ggplot2&quot;</span><span class="fu">,</span></span>
+<span id="cb176-5"><a href aria-label="5"></a>    <span class="dt">&quot;owner&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;login&quot;</span><span class="fu">:</span> <span class="st">&quot;tidyverse&quot;</span><span class="fu">,</span> <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Organization&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb176-6"><a href aria-label="6"></a>    <span class="dt">&quot;stargazers_count&quot;</span><span class="fu">:</span> <span class="dv">7002</span><span class="fu">,</span></span>
+<span id="cb176-7"><a href aria-label="7"></a>    <span class="dt">&quot;language&quot;</span><span class="fu">:</span> <span class="st">&quot;R&quot;</span><span class="fu">,</span></span>
+<span id="cb176-8"><a href aria-label="8"></a>    <span class="dt">&quot;license&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="st">&quot;other&quot;</span><span class="fu">,</span> <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Other&quot;</span><span class="fu">,</span> <span class="er">...</span> <span class="fu">},</span></span>
+<span id="cb176-9"><a href aria-label="9"></a>    <span class="dt">&quot;topics&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;data-visualisation&quot;</span><span class="ot">,</span> <span class="st">&quot;r&quot;</span><span class="ot">,</span> <span class="st">&quot;visualisation&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb176-10"><a href aria-label="10"></a>    <span class="er">...</span></span>
+<span id="cb176-11"><a href aria-label="11"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb176-12"><a href aria-label="12"></a>  <span class="er">...</span></span>
+<span id="cb176-13"><a href aria-label="13"></a>  <span class="fu">{</span></span>
+<span id="cb176-14"><a href aria-label="14"></a>    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;nycflights13&quot;</span><span class="fu">,</span></span>
+<span id="cb176-15"><a href aria-label="15"></a>    <span class="dt">&quot;license&quot;</span><span class="fu">:</span> <span class="kw">null</span><span class="fu">,</span></span>
+<span id="cb176-16"><a href aria-label="16"></a>    <span class="dt">&quot;topics&quot;</span><span class="fu">:</span> <span class="ot">[]</span><span class="fu">,</span></span>
+<span id="cb176-17"><a href aria-label="17"></a>    <span class="er">...</span></span>
+<span id="cb176-18"><a href aria-label="18"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb176-19"><a href aria-label="19"></a>  <span class="er">...</span></span>
+<span id="cb176-20"><a href aria-label="20"></a><span class="ot">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="reading-json" class="slide level2">
@@ -1866,45 +1876,45 @@ yielding 3
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb173"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb173-1"><a href aria-label="1"></a>repos <span class="ot">=</span> jsonlite<span class="sc">::</span><span class="fu">read_json</span>(</span>
-<span id="cb173-2"><a href aria-label="2"></a>  <span class="st">&quot;data/tidyverse_repos.json&quot;</span></span>
-<span id="cb173-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb177"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href aria-label="1"></a>repos <span class="ot">=</span> jsonlite<span class="sc">::</span><span class="fu">read_json</span>(</span>
+<span id="cb177-2"><a href aria-label="2"></a>  <span class="st">&quot;data/tidyverse_repos.json&quot;</span></span>
+<span id="cb177-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a><span class="im">import</span> json</span>
-<span id="cb174-2"><a href aria-label="2"></a>path <span class="op">=</span> <span class="st">&quot;data/tidyverse_repos.json&quot;</span></span>
-<span id="cb174-3"><a href aria-label="3"></a><span class="cf">with</span> <span class="bu">open</span>(path) <span class="im">as</span> f:</span>
-<span id="cb174-4"><a href aria-label="4"></a>    repos <span class="op">=</span> json.load(f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a><span class="im">import</span> json</span>
+<span id="cb178-2"><a href aria-label="2"></a>path <span class="op">=</span> <span class="st">&quot;data/tidyverse_repos.json&quot;</span></span>
+<span id="cb178-3"><a href aria-label="3"></a><span class="cf">with</span> <span class="bu">open</span>(path) <span class="im">as</span> f:</span>
+<span id="cb178-4"><a href aria-label="4"></a>    repos <span class="op">=</span> json.load(f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb175"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb175-1"><a href aria-label="1"></a><span class="fu">length</span>(repos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb179-1"><a href aria-label="1"></a><span class="fu">length</span>(repos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 46</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb177"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb177-1"><a href aria-label="1"></a>repos[[<span class="dv">1</span>]]<span class="sc">$</span>name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb181"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb181-1"><a href aria-label="1"></a>repos[[<span class="dv">1</span>]]<span class="sc">$</span>name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;ggplot2&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb179-1"><a href aria-label="1"></a>repos[[<span class="dv">1</span>]]<span class="sc">$</span>license<span class="sc">$</span>name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb183"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb183-1"><a href aria-label="1"></a>repos[[<span class="dv">1</span>]]<span class="sc">$</span>license<span class="sc">$</span>name</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Other&quot;</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb181"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href aria-label="1"></a><span class="bu">len</span>(repos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href aria-label="1"></a><span class="bu">len</span>(repos)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>46</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb183"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb183-1"><a href aria-label="1"></a>repos[<span class="dv">0</span>][<span class="st">&quot;name&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href aria-label="1"></a>repos[<span class="dv">0</span>][<span class="st">&quot;name&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;ggplot2&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href aria-label="1"></a>repos[<span class="dv">0</span>][<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>repos[<span class="dv">0</span>][<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Other&#39;</code></pre>
 </div>
@@ -1916,11 +1926,11 @@ yielding 3
 <p>A tidy version has one row per repository and one column per variable. The direct approach builds each column with a <code>map_*()</code>.</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb187-1"><a href aria-label="1"></a><span class="fu">tibble</span>(</span>
-<span id="cb187-2"><a href aria-label="2"></a>  <span class="at">name     =</span> <span class="fu">map_chr</span>(repos, <span class="st">&quot;name&quot;</span>),</span>
-<span id="cb187-3"><a href aria-label="3"></a>  <span class="at">stars    =</span> <span class="fu">map_int</span>(repos, <span class="st">&quot;stargazers_count&quot;</span>),</span>
-<span id="cb187-4"><a href aria-label="4"></a>  <span class="at">n_topics =</span> <span class="fu">map_int</span>(repos, \(r) <span class="fu">length</span>(r<span class="sc">$</span>topics))</span>
-<span id="cb187-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href aria-label="1"></a><span class="fu">tibble</span>(</span>
+<span id="cb191-2"><a href aria-label="2"></a>  <span class="at">name     =</span> <span class="fu">map_chr</span>(repos, <span class="st">&quot;name&quot;</span>),</span>
+<span id="cb191-3"><a href aria-label="3"></a>  <span class="at">stars    =</span> <span class="fu">map_int</span>(repos, <span class="st">&quot;stargazers_count&quot;</span>),</span>
+<span id="cb191-4"><a href aria-label="4"></a>  <span class="at">n_topics =</span> <span class="fu">map_int</span>(repos, \(r) <span class="fu">length</span>(r<span class="sc">$</span>topics))</span>
+<span id="cb191-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 46 × 3
   name      stars n_topics
@@ -1937,23 +1947,70 @@ yielding 3
 </section>
 <section id="extracting-columns---python" class="slide level2">
 <h2>Extracting columns - Python</h2>
-<p>The same idea with one comprehension per column. <code>pd.DataFrame()</code> and <code>pl.DataFrame()</code> accept a dict of lists like this, or a list of dicts, one per row.</p>
+<p>The same idea with one comprehension per column works with <code>pd.DataFrame()</code> and <code>pl.DataFrame()</code>.</p>
 <div class="small">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>pd.DataFrame({</span>
-<span id="cb189-2"><a href aria-label="2"></a>  <span class="st">&quot;name&quot;</span>:     [r[<span class="st">&quot;name&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos],</span>
-<span id="cb189-3"><a href aria-label="3"></a>  <span class="st">&quot;stars&quot;</span>:    [r[<span class="st">&quot;stargazers_count&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos],</span>
-<span id="cb189-4"><a href aria-label="4"></a>  <span class="st">&quot;n_topics&quot;</span>: [<span class="bu">len</span>(r[<span class="st">&quot;topics&quot;</span>]) <span class="cf">for</span> r <span class="kw">in</span> repos]</span>
-<span id="cb189-5"><a href aria-label="5"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         name  stars  n_topics
-0     ggplot2   7002         3
-1   lubridate    805         3
-..        ...    ...       ...
-44     ggbot2     38         0
-45  data-dict    107         0
-
-[46 rows x 3 columns]</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>pl.DataFrame({</span>
+<span id="cb193-2"><a href aria-label="2"></a>  <span class="st">&quot;name&quot;</span>:     [r[<span class="st">&quot;name&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos],</span>
+<span id="cb193-3"><a href aria-label="3"></a>  <span class="st">&quot;stars&quot;</span>:    [r[<span class="st">&quot;stargazers_count&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos],</span>
+<span id="cb193-4"><a href aria-label="4"></a>  <span class="st">&quot;n_topics&quot;</span>: [<span class="bu">len</span>(r[<span class="st">&quot;topics&quot;</span>]) <span class="cf">for</span> r <span class="kw">in</span> repos]</span>
+<span id="cb193-5"><a href aria-label="5"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div><style>
+.dataframe > thead > tr,
+.dataframe > tbody > tr {
+text-align: right;
+white-space: pre-wrap;
+}
+</style>
+<small>shape: (46, 3)</small>
+<table class="dataframe caption-top" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">name</th>
+<th data-quarto-table-cell-role="th">stars</th>
+<th data-quarto-table-cell-role="th">n_topics</th>
+</tr>
+<tr class="even">
+<td>str</td>
+<td>i64</td>
+<td>i64</td>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>&quot;ggplot2&quot;</td>
+<td>7002</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>&quot;lubridate&quot;</td>
+<td>805</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>&quot;stringr&quot;</td>
+<td>672</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+<tr class="odd">
+<td>&quot;ggbot2&quot;</td>
+<td>38</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>&quot;data-dict&quot;</td>
+<td>107</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -1961,10 +2018,10 @@ yielding 3
 <section id="missing-values" class="slide level2">
 <h2>Missing values</h2>
 <p>Some repositories have no license, so <code>license</code> is <code>NULL</code> in R and <code>None</code> in Python.</p>
-<p><code>NULL</code> cannot fill a vector slot, so <code>map_chr()</code> fails without <code>.default</code>. <code>None</code> is an okay list element, but indexing into it fails. A conditional expression gives the name when there is a license and <code>None</code> otherwise.</p>
+<p><code>NULL</code> cannot fill a vector slot, so <code>map_chr()</code> fails without <code>.default</code>. <code>None</code> is an okay list element, but indexing into it fails.</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb191-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(repos, <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb194"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb194-1"><a href aria-label="1"></a><span class="fu">map_chr</span>(repos, <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `map_chr()`:
 ℹ In index: 8.
@@ -1973,7 +2030,7 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>[r[<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb196"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb196-1"><a href aria-label="1"></a>[r[<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>] <span class="cf">for</span> r <span class="kw">in</span> repos]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>TypeError: &#39;NoneType&#39; object is not subscriptable</code></pre>
 </div>
@@ -1982,28 +2039,31 @@ Caused by error:
 <div class="columns xsmall">
 <div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb195-1"><a href aria-label="1"></a>license <span class="ot">=</span> <span class="fu">map_chr</span>(</span>
-<span id="cb195-2"><a href aria-label="2"></a>  repos, <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>),</span>
-<span id="cb195-3"><a href aria-label="3"></a>  <span class="at">.default =</span> <span class="cn">NA</span></span>
-<span id="cb195-4"><a href aria-label="4"></a>)</span>
-<span id="cb195-5"><a href aria-label="5"></a>license[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb198"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb198-1"><a href aria-label="1"></a>license <span class="ot">=</span> <span class="fu">map_chr</span>(</span>
+<span id="cb198-2"><a href aria-label="2"></a>  repos, <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>),</span>
+<span id="cb198-3"><a href aria-label="3"></a>  <span class="at">.default =</span> <span class="cn">NA</span></span>
+<span id="cb198-4"><a href aria-label="4"></a>)</span>
+<span id="cb198-5"><a href aria-label="5"></a>license[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Other&quot; NA      &quot;Other&quot;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href aria-label="1"></a>license <span class="op">=</span> [</span>
-<span id="cb197-2"><a href aria-label="2"></a>  r[<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>] <span class="cf">if</span> r[<span class="st">&quot;license&quot;</span>] <span class="cf">else</span> <span class="va">None</span></span>
-<span id="cb197-3"><a href aria-label="3"></a>  <span class="cf">for</span> r <span class="kw">in</span> repos</span>
-<span id="cb197-4"><a href aria-label="4"></a>]</span>
-<span id="cb197-5"><a href aria-label="5"></a>license[<span class="dv">6</span>:<span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href aria-label="1"></a>license <span class="op">=</span> [</span>
+<span id="cb200-2"><a href aria-label="2"></a>  r[<span class="st">&quot;license&quot;</span>][<span class="st">&quot;name&quot;</span>] <span class="cf">if</span> r[<span class="st">&quot;license&quot;</span>] <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb200-3"><a href aria-label="3"></a>  <span class="cf">for</span> r <span class="kw">in</span> repos</span>
+<span id="cb200-4"><a href aria-label="4"></a>]</span>
+<span id="cb200-5"><a href aria-label="5"></a>license[<span class="dv">6</span>:<span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;Other&#39;, None, &#39;Other&#39;]</code></pre>
 </div>
 </div>
 </div></div>
-</section>
+
+<aside><div>
+<p><code>r[&quot;license&quot;] and r[&quot;license&quot;][&quot;name&quot;]</code> would also work here for the Python solution.</p>
+</div></aside></section>
 <section id="exercise-1" class="slide level2">
 <h2>Exercise 1</h2>
 <p>Using <code>repos</code> (the tidyverse GitHub repositories) with purrr in R and comprehensions in Python,</p>
@@ -2014,12 +2074,12 @@ Caused by error:
 </ol>
 </section>
 <section id="list-columns" class="slide level2">
-<h2>List columns</h2>
-<p>The other approach puts the whole list into a data frame first and takes it apart from there. A list column holds an arbitrary object per cell; polars infers a <code>Struct</code> (named fields) for dicts and a <code>List</code> for lists, pandas stores either as <code>object</code>.</p>
+<h2>“List” columns</h2>
+<p>The other approach puts the whole list into the data frame and then unnests the hierarchy. A list column holds an arbitrary object per cell; polars infers a <code>Struct</code> (named fields) for dicts and a <code>List</code> for lists, pandas stores either as <code>object</code>.</p>
 <div class="columns xxsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb199-1"><a href aria-label="1"></a>(<span class="at">d =</span> <span class="fu">tibble</span>(<span class="at">repo =</span> repos))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb202-1"><a href aria-label="1"></a>(<span class="at">d =</span> <span class="fu">tibble</span>(<span class="at">repo =</span> repos))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 46 × 1
   repo             
@@ -2033,7 +2093,7 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb201"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb201-1"><a href aria-label="1"></a><span class="bu">print</span>(pd.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb204-1"><a href aria-label="1"></a><span class="bu">print</span>(pd.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                       repo
 0   {&#39;id&#39;: 19438, &#39;node_...
@@ -2047,7 +2107,7 @@ Caused by error:
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href aria-label="1"></a><span class="bu">print</span>(pl.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a><span class="bu">print</span>(pl.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>shape: (46, 1)
 ┌─────────────────────────────────┐
@@ -2070,7 +2130,7 @@ Caused by error:
 <p><code>unnest_wider()</code> makes each element of the named lists its own column - for list columns where every element has the same names. Types are inferred from the values, <code>NULL</code> becomes <code>NA</code>, and a nested object stays as a list column.</p>
 <div class="mxsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb205-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span> <span class="fu">unnest_wider</span>(repo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb208"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb208-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span> <span class="fu">unnest_wider</span>(repo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 46 × 83
       id node_id name  full_name private owner        html_url description fork 
@@ -2092,14 +2152,14 @@ Caused by error:
 </div>
 
 <aside><div>
-<p>Most of the 83 columns are API URLs that will never be used - <code>select()</code> the ones that matter, or see <code>hoist()</code> below.</p>
+<p>Most of the 83 columns are API URLs that will never be used - <code>select()</code> the ones that matter, or see <code>hoist()</code> shortly.</p>
 </div></aside></section>
 <section id="nested-objects" class="slide level2">
 <h2>Nested objects</h2>
 <p><code>license</code> is a list column of named lists (or <code>NULL</code>), so a second <code>unnest_wider()</code> spreads it. <code>names_sep</code> adds a prefix, since the license’s <code>name</code> and <code>url</code> would collide with the repository’s; the <code>NULL</code>s become rows of <code>NA</code>.</p>
 <div class="mxsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb207"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb207-1"><a href aria-label="1"></a>(<span class="at">lic =</span> d <span class="sc">|&gt;</span> <span class="fu">unnest_wider</span>(repo) <span class="sc">|&gt;</span> <span class="fu">select</span>(name, license) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb210-1"><a href aria-label="1"></a>(<span class="at">lic =</span> d <span class="sc">|&gt;</span> <span class="fu">unnest_wider</span>(repo) <span class="sc">|&gt;</span> <span class="fu">select</span>(name, license) <span class="sc">|&gt;</span> <span class="fu">slice</span>(<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   name         license         
@@ -2110,8 +2170,8 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb209-1"><a href aria-label="1"></a>lic <span class="sc">|&gt;</span></span>
-<span id="cb209-2"><a href aria-label="2"></a>  <span class="fu">unnest_wider</span>(license, <span class="at">names_sep =</span> <span class="st">&quot;_&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb212-1"><a href aria-label="1"></a>lic <span class="sc">|&gt;</span></span>
+<span id="cb212-2"><a href aria-label="2"></a>  <span class="fu">unnest_wider</span>(license, <span class="at">names_sep =</span> <span class="st">&quot;_&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 6
   name      license_key license_name license_spdx_id license_url license_node_id
@@ -2130,13 +2190,13 @@ Caused by error:
 </div>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href aria-label="1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">&quot;repo&quot;</span>: repos})</span>
-<span id="cb211-2"><a href aria-label="2"></a>wide <span class="op">=</span> (</span>
-<span id="cb211-3"><a href aria-label="3"></a>  df</span>
-<span id="cb211-4"><a href aria-label="4"></a>  .join(pd.json_normalize(df[<span class="st">&quot;repo&quot;</span>], max_level<span class="op">=</span><span class="dv">0</span>))</span>
-<span id="cb211-5"><a href aria-label="5"></a>  .drop(columns<span class="op">=</span><span class="st">&quot;repo&quot;</span>)</span>
-<span id="cb211-6"><a href aria-label="6"></a>)</span>
-<span id="cb211-7"><a href aria-label="7"></a>wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;license&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a>df <span class="op">=</span> pd.DataFrame({<span class="st">&quot;repo&quot;</span>: repos})</span>
+<span id="cb214-2"><a href aria-label="2"></a>wide <span class="op">=</span> (</span>
+<span id="cb214-3"><a href aria-label="3"></a>  df</span>
+<span id="cb214-4"><a href aria-label="4"></a>  .join(pd.json_normalize(df[<span class="st">&quot;repo&quot;</span>], max_level<span class="op">=</span><span class="dv">0</span>))</span>
+<span id="cb214-5"><a href aria-label="5"></a>  .drop(columns<span class="op">=</span><span class="st">&quot;repo&quot;</span>)</span>
+<span id="cb214-6"><a href aria-label="6"></a>)</span>
+<span id="cb214-7"><a href aria-label="7"></a>wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;license&quot;</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         name language                  license
 0     ggplot2        R  {&#39;key&#39;: &#39;other&#39;, &#39;na...
@@ -2158,8 +2218,8 @@ Caused by error:
 <p><code>license</code> is a column of dicts (or <code>None</code>), so the same three steps spread it: <code>json_normalize()</code> the column, <code>add_prefix()</code> in place of <code>names_sep</code> so the license’s <code>name</code> and <code>url</code> do not collide with the repository’s, then <code>join()</code> and <code>drop()</code>. The <code>None</code>s become rows of <code>NaN</code>.</p>
 <div class="mxsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>lic <span class="op">=</span> wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;license&quot;</span>]]</span>
-<span id="cb213-2"><a href aria-label="2"></a>lic.iloc[<span class="dv">6</span>:<span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb216"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb216-1"><a href aria-label="1"></a>lic <span class="op">=</span> wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;license&quot;</span>]]</span>
+<span id="cb216-2"><a href aria-label="2"></a>lic.iloc[<span class="dv">6</span>:<span class="dv">9</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           name                  license
 6         tidyr  {&#39;key&#39;: &#39;other&#39;, &#39;na...
@@ -2168,11 +2228,11 @@ Caused by error:
 </div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href aria-label="1"></a>lic_wide <span class="op">=</span> (lic</span>
-<span id="cb215-2"><a href aria-label="2"></a>  .join(pd.json_normalize(lic[<span class="st">&quot;license&quot;</span>]).add_prefix(<span class="st">&quot;license_&quot;</span>))</span>
-<span id="cb215-3"><a href aria-label="3"></a>  .drop(columns<span class="op">=</span><span class="st">&quot;license&quot;</span>)</span>
-<span id="cb215-4"><a href aria-label="4"></a>)</span>
-<span id="cb215-5"><a href aria-label="5"></a><span class="bu">print</span>(lic_wide.iloc[<span class="dv">6</span>:<span class="dv">9</span>].to_string())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href aria-label="1"></a>lic_wide <span class="op">=</span> (lic</span>
+<span id="cb218-2"><a href aria-label="2"></a>  .join(pd.json_normalize(lic[<span class="st">&quot;license&quot;</span>]).add_prefix(<span class="st">&quot;license_&quot;</span>))</span>
+<span id="cb218-3"><a href aria-label="3"></a>  .drop(columns<span class="op">=</span><span class="st">&quot;license&quot;</span>)</span>
+<span id="cb218-4"><a href aria-label="4"></a>)</span>
+<span id="cb218-5"><a href aria-label="5"></a><span class="bu">print</span>(lic_wide.iloc[<span class="dv">6</span>:<span class="dv">9</span>].to_string())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           name license_key license_name license_spdx_id license_url   license_node_id
 6         tidyr       other        Other     NOASSERTION         NaN  MDc6TGljZW5zZTA=
@@ -2187,8 +2247,8 @@ Caused by error:
 <p>polars’ <code>unnest()</code> is <code>unnest_wider()</code> for a <code>Struct</code> column: one call spreads the fields of <code>repo</code> into the 83 columns, and the nested <code>license</code> is itself a struct (or <code>null</code>).</p>
 <div class="xsmall">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href aria-label="1"></a>repos_pl <span class="op">=</span> pl.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}).unnest(<span class="st">&quot;repo&quot;</span>)</span>
-<span id="cb217-2"><a href aria-label="2"></a>repos_pl.select(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;license&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb220"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb220-1"><a href aria-label="1"></a>repos_pl <span class="op">=</span> pl.DataFrame({<span class="st">&quot;repo&quot;</span>: repos}).unnest(<span class="st">&quot;repo&quot;</span>)</span>
+<span id="cb220-2"><a href aria-label="2"></a>repos_pl.select(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;license&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2255,14 +2315,14 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb218"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb218-1"><a href aria-label="1"></a>repos_pl.with_columns(</span>
-<span id="cb218-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;license&quot;</span>)</span>
-<span id="cb218-3"><a href aria-label="3"></a>    .name.prefix_fields(<span class="st">&quot;license_&quot;</span>)</span>
-<span id="cb218-4"><a href aria-label="4"></a>).unnest(</span>
-<span id="cb218-5"><a href aria-label="5"></a>  <span class="st">&quot;license&quot;</span></span>
-<span id="cb218-6"><a href aria-label="6"></a>).select(</span>
-<span id="cb218-7"><a href aria-label="7"></a>  <span class="st">&quot;name&quot;</span>, <span class="st">&quot;license_name&quot;</span></span>
-<span id="cb218-8"><a href aria-label="8"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb221"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href aria-label="1"></a>repos_pl.with_columns(</span>
+<span id="cb221-2"><a href aria-label="2"></a>  pl.col(<span class="st">&quot;license&quot;</span>)</span>
+<span id="cb221-3"><a href aria-label="3"></a>    .name.prefix_fields(<span class="st">&quot;license_&quot;</span>)</span>
+<span id="cb221-4"><a href aria-label="4"></a>).unnest(</span>
+<span id="cb221-5"><a href aria-label="5"></a>  <span class="st">&quot;license&quot;</span></span>
+<span id="cb221-6"><a href aria-label="6"></a>).select(</span>
+<span id="cb221-7"><a href aria-label="7"></a>  <span class="st">&quot;name&quot;</span>, <span class="st">&quot;license_name&quot;</span></span>
+<span id="cb221-8"><a href aria-label="8"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2315,12 +2375,12 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href aria-label="1"></a>repos_pl.select(</span>
-<span id="cb219-2"><a href aria-label="2"></a>  <span class="st">&quot;name&quot;</span>,</span>
-<span id="cb219-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;license&quot;</span>)</span>
-<span id="cb219-4"><a href aria-label="4"></a>    .struct.field(<span class="st">&quot;name&quot;</span>)</span>
-<span id="cb219-5"><a href aria-label="5"></a>    .alias(<span class="st">&quot;license&quot;</span>)</span>
-<span id="cb219-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb222"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb222-1"><a href aria-label="1"></a>repos_pl.select(</span>
+<span id="cb222-2"><a href aria-label="2"></a>  <span class="st">&quot;name&quot;</span>,</span>
+<span id="cb222-3"><a href aria-label="3"></a>  pl.col(<span class="st">&quot;license&quot;</span>)</span>
+<span id="cb222-4"><a href aria-label="4"></a>    .struct.field(<span class="st">&quot;name&quot;</span>)</span>
+<span id="cb222-5"><a href aria-label="5"></a>    .alias(<span class="st">&quot;license&quot;</span>)</span>
+<span id="cb222-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2379,10 +2439,10 @@ white-space: pre-wrap;
 <div class="columns xxsmall">
 <div class="column" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb220"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb220-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
-<span id="cb220-2"><a href aria-label="2"></a>  <span class="fu">unnest_wider</span>(repo) <span class="sc">|&gt;</span></span>
-<span id="cb220-3"><a href aria-label="3"></a>  <span class="fu">select</span>(name, topics) <span class="sc">|&gt;</span></span>
-<span id="cb220-4"><a href aria-label="4"></a>  <span class="fu">unnest_longer</span>(topics)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb223"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb223-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb223-2"><a href aria-label="2"></a>  <span class="fu">unnest_wider</span>(repo) <span class="sc">|&gt;</span></span>
+<span id="cb223-3"><a href aria-label="3"></a>  <span class="fu">select</span>(name, topics) <span class="sc">|&gt;</span></span>
+<span id="cb223-4"><a href aria-label="4"></a>  <span class="fu">unnest_longer</span>(topics)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 96 × 2
   name      topics            
@@ -2397,9 +2457,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb222"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb222-1"><a href aria-label="1"></a>(wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;topics&quot;</span>]]</span>
-<span id="cb222-2"><a href aria-label="2"></a>  .explode(<span class="st">&quot;topics&quot;</span>)</span>
-<span id="cb222-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href aria-label="1"></a>(wide[[<span class="st">&quot;name&quot;</span>, <span class="st">&quot;topics&quot;</span>]]</span>
+<span id="cb225-2"><a href aria-label="2"></a>  .explode(<span class="st">&quot;topics&quot;</span>)</span>
+<span id="cb225-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         name              topics
 0     ggplot2  data-visualisation
@@ -2413,10 +2473,10 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:33%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb224"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb224-1"><a href aria-label="1"></a>(repos_pl</span>
-<span id="cb224-2"><a href aria-label="2"></a>  .select(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;topics&quot;</span>)</span>
-<span id="cb224-3"><a href aria-label="3"></a>  .explode(<span class="st">&quot;topics&quot;</span>)</span>
-<span id="cb224-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href aria-label="1"></a>(repos_pl</span>
+<span id="cb227-2"><a href aria-label="2"></a>  .select(<span class="st">&quot;name&quot;</span>, <span class="st">&quot;topics&quot;</span>)</span>
+<span id="cb227-3"><a href aria-label="3"></a>  .explode(<span class="st">&quot;topics&quot;</span>)</span>
+<span id="cb227-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2478,12 +2538,12 @@ white-space: pre-wrap;
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb225-1"><a href aria-label="1"></a><span class="fu">tibble</span>(<span class="at">repo =</span> repos) <span class="sc">|&gt;</span></span>
-<span id="cb225-2"><a href aria-label="2"></a>  <span class="fu">hoist</span>(</span>
-<span id="cb225-3"><a href aria-label="3"></a>    repo, <span class="at">name =</span> <span class="st">&quot;name&quot;</span>,</span>
-<span id="cb225-4"><a href aria-label="4"></a>    <span class="at">license =</span> <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>),</span>
-<span id="cb225-5"><a href aria-label="5"></a>    <span class="at">first_topic =</span> <span class="fu">list</span>(<span class="st">&quot;topics&quot;</span>, <span class="dv">1</span>)</span>
-<span id="cb225-6"><a href aria-label="6"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb228"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb228-1"><a href aria-label="1"></a><span class="fu">tibble</span>(<span class="at">repo =</span> repos) <span class="sc">|&gt;</span></span>
+<span id="cb228-2"><a href aria-label="2"></a>  <span class="fu">hoist</span>(</span>
+<span id="cb228-3"><a href aria-label="3"></a>    repo, <span class="at">name =</span> <span class="st">&quot;name&quot;</span>,</span>
+<span id="cb228-4"><a href aria-label="4"></a>    <span class="at">license =</span> <span class="fu">c</span>(<span class="st">&quot;license&quot;</span>, <span class="st">&quot;name&quot;</span>),</span>
+<span id="cb228-5"><a href aria-label="5"></a>    <span class="at">first_topic =</span> <span class="fu">list</span>(<span class="st">&quot;topics&quot;</span>, <span class="dv">1</span>)</span>
+<span id="cb228-6"><a href aria-label="6"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 46 × 4
   name      license first_topic        repo             
@@ -2498,13 +2558,13 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb227"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb227-1"><a href aria-label="1"></a><span class="kw">def</span> at(x, i):</span>
-<span id="cb227-2"><a href aria-label="2"></a>    <span class="cf">return</span> x[i] <span class="cf">if</span> x <span class="cf">else</span> <span class="va">None</span></span>
-<span id="cb227-3"><a href aria-label="3"></a>pd.DataFrame([{</span>
-<span id="cb227-4"><a href aria-label="4"></a>  <span class="st">&quot;name&quot;</span>: r[<span class="st">&quot;name&quot;</span>],</span>
-<span id="cb227-5"><a href aria-label="5"></a>  <span class="st">&quot;license&quot;</span>: at(r[<span class="st">&quot;license&quot;</span>], <span class="st">&quot;name&quot;</span>),</span>
-<span id="cb227-6"><a href aria-label="6"></a>  <span class="st">&quot;first_topic&quot;</span>: at(r[<span class="st">&quot;topics&quot;</span>], <span class="dv">0</span>)</span>
-<span id="cb227-7"><a href aria-label="7"></a>} <span class="cf">for</span> r <span class="kw">in</span> repos])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb230"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb230-1"><a href aria-label="1"></a><span class="kw">def</span> at(x, i):</span>
+<span id="cb230-2"><a href aria-label="2"></a>    <span class="cf">return</span> x[i] <span class="cf">if</span> x <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb230-3"><a href aria-label="3"></a>pd.DataFrame([{</span>
+<span id="cb230-4"><a href aria-label="4"></a>  <span class="st">&quot;name&quot;</span>: r[<span class="st">&quot;name&quot;</span>],</span>
+<span id="cb230-5"><a href aria-label="5"></a>  <span class="st">&quot;license&quot;</span>: at(r[<span class="st">&quot;license&quot;</span>], <span class="st">&quot;name&quot;</span>),</span>
+<span id="cb230-6"><a href aria-label="6"></a>  <span class="st">&quot;first_topic&quot;</span>: at(r[<span class="st">&quot;topics&quot;</span>], <span class="dv">0</span>)</span>
+<span id="cb230-7"><a href aria-label="7"></a>} <span class="cf">for</span> r <span class="kw">in</span> repos])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         name license         first_topic
 0     ggplot2   Other  data-visualisation

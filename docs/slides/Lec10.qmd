@@ -91,10 +91,6 @@ d["root"](9)
 :::
 ::::
 
-::: {.aside}
-`l[2](3)` is an error (attempt to apply non-function) since `[` returns a list; use `[[` or `$` to get the function itself.
-:::
-
 
 ## Functions as arguments
 
@@ -106,6 +102,8 @@ A function that takes a function as an argument is a higher-order function. Note
 do_calc = function(v, func) {
   func(v)
 }
+```
+```{r}
 do_calc(1:3, sum)
 do_calc(1:3, mean)
 ```
@@ -115,7 +113,8 @@ do_calc(1:3, mean)
 ```{python}
 def do_calc(v, func):
     return func(v)
-
+```
+```{python}
 do_calc([1, 2, 3], sum)
 do_calc([1, 2, 3], max)
 ```
@@ -124,7 +123,7 @@ do_calc([1, 2, 3], max)
 
 . . .
 
-Many built-in functions work this way,
+Many built-in functions work this way:
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -143,7 +142,7 @@ sorted(["bb", "a", "ccc"], key=len)
 
 ## Anonymous functions
 
-Short single-use functions can be written inline without a name: `function(x)` or `\(x)` (v4.1+) in R, `lambda` in Python - a single expression, whose value is returned.
+Short single-use functions without a name: `function(x)` or `\(x)` in R (4.1+), `lambda` in Python - a single expression, whose value is returned.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -169,7 +168,7 @@ sorted(
 ::::
 
 ::: {.aside}
-PEP 8 says not to assign a `lambda` to a name (`sq = lambda x: ...`); write a `def` instead. Both shorthands are meant for functions short enough to read inline.
+PEP 8 says to not assign a `lambda` to a name (`sq = lambda x: ...`); write a `def` instead.
 :::
 
 
@@ -207,10 +206,6 @@ partial(pow, Placeholder, 3)(2)
 :::
 ::::
 
-::: {.aside}
-Python's `pow(base, exp)` is built in, so it is defined here only in R. Unnamed arguments fill from the left; `... =` in purrr and `Placeholder` in Python 3.14 mark where the rest go.
-:::
-
 
 ## Loops vs maps
 
@@ -219,7 +214,7 @@ Python's `pow(base, exp)` is built in, so it is defined here only in R. Unnamed 
 >
 > — Jenny Bryan
 
-Most loops compute something per element and collect the results. A map does the looping and collecting, leaving only the computation - generally not faster, just clearer.
+Most loops compute something per element and collect the results. A map does the looping and collecting, leaving only the computation. Generally not faster, just clearer than an explicit loop.
 :::
 
 :::: {.columns .xsmall}
@@ -227,7 +222,8 @@ Most loops compute something per element and collect the results. A map does the
 ```{r}
 x = c(1, 4, 9)
 res = numeric(length(x))
-for (i in seq_along(x)) res[i] = sqrt(x[i])
+for (i in seq_along(x)) 
+  res[i] = sqrt(x[i])
 res
 ```
 ```{r}
@@ -241,7 +237,7 @@ sapply(x, sqrt) |> str()
 x = [1, 4, 9]
 res = []
 for v in x:
-    res.append(v**0.5)
+  res.append(v**0.5)
 res
 ```
 ```{python}
@@ -290,7 +286,7 @@ Base R also has `vapply()`, `mapply()`, `Map()`, `Filter()`, and `Reduce()`.
 
 ## `map()`
 
-`map(.x, .f, ...)` is `lapply()` with a consistent interface. The typed variants `map_lgl()`, `map_int()`, `map_dbl()`, and `map_chr()` return a vector of that type or fail. `walk()` exists for side effects.
+`map(.x, .f, ...)` is `lapply()` with a consistent interface. Includes typed variants: `map_lgl()`, `map_int()`, `map_dbl()`, and `map_chr()` that return an atomic vector of or fail.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -316,13 +312,13 @@ map_int(1:3, \(x) x / 2)
 ::::
 
 ::: {.aside}
-Older code uses purrr's formula shorthand, `~ .x^2`, but modern `\(x) x^2` is recommended.
+Older code uses purrr's formula shorthand, `~ .x^2`, but `\(x) x^2` is now recommended.
 :::
 
 
 ## `map2()`, `pmap()`, and `imap()`
 
-`map2()` iterates over two inputs in parallel, `pmap()` over any number (including the columns of a data frame, row by row), and `imap()` over elements and their names or positions. All have the same typed variants as `map()`.
+`map2()` iterates over two inputs in parallel, `pmap()` over any number (including the columns of a data frame), and `imap()` over elements and their names or positions. All have the same typed variants as `map()`.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -352,10 +348,13 @@ imap_chr(
 :::
 ::::
 
+::: {.aside}
+`imap()` is equivalent to Python's `enumerate()`.
+:::
 
-## Extracting elements
+## Extracting elements - lookups
 
-Often `.f` just extracts a piece of each element, so purrr lets a name or position be used directly. `.default` is used when the path does not exist (the result would otherwise be `NULL`).
+Often `.f` just extracts a piece of each loop element, purrr lets a name or position be used directly.
 
 ::: {.xsmall}
 ```{r}
@@ -387,13 +386,13 @@ map_chr(
 ::::
 
 ::: {.aside}
-Use `list()` rather than `c()` for a path that mixes names and positions, since `c("tags", 1)` coerces the `1` to `"1"`.
+Use `list()` rather than `c()` for a lookup that mixes names and positions, since `c("tags", 1)` coerces the `1` to `"1"`.
 :::
 
 
 ## `keep()` and `discard()`
 
-`keep()` and `discard()` filter a vector or list by a predicate function, returning the elements where it is `TRUE` or `FALSE` respectively. The predicate takes the same forms as `.f` in `map()`, including the name shorthand.
+`keep()` and `discard()` filter a vector or list by a predicate function, returning the elements where it is `TRUE` or `FALSE` respectively. The predicate takes the same forms as `.f` in `map()`.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -405,9 +404,11 @@ discard(1:10, \(x) x %% 3 == 0)
 
 ::: {.column width='50%' .fragment}
 ```{r}
-x |>
-  keep(\(e) "tags" %in% names(e)) |>
-  map_chr("name")
+x = list(a = 1:3, 
+         b = letters[1:2],
+         c = 4:6)
+keep(x, is.numeric) |> str()
+discard(x, is.numeric) |> str()
 ```
 :::
 ::::
@@ -415,7 +416,9 @@ x |>
 
 ## `reduce()` and `accumulate()`
 
-`reduce()` collapses a list to one value by applying a two-argument function cumulatively, `f(f(f(x1, x2), x3), x4)`; `accumulate()` does the same but keeps the intermediate results.
+`reduce()` collapses a list to one value by applying a two-argument function cumulatively, `f(f(f(x1, x2), x3), x4)`.
+
+ `accumulate()` does the same but keeps the intermediate results.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -724,11 +727,11 @@ tibble(
 
 ## Extracting columns - Python
 
-The same idea with one comprehension per column. `pd.DataFrame()` and `pl.DataFrame()` accept a dict of lists like this, or a list of dicts, one per row.
+The same idea with one comprehension per column works with `pd.DataFrame()` and `pl.DataFrame()`.
 
 ::: {.small}
 ```{python}
-pd.DataFrame({
+pl.DataFrame({
   "name":     [r["name"] for r in repos],
   "stars":    [r["stargazers_count"] for r in repos],
   "n_topics": [len(r["topics"]) for r in repos]
@@ -741,7 +744,7 @@ pd.DataFrame({
 
 Some repositories have no license, so `license` is `NULL` in R and `None` in Python. 
 
-`NULL` cannot fill a vector slot, so `map_chr()` fails without `.default`. `None` is an okay list element, but indexing into it fails. A conditional expression gives the name when there is a license and `None` otherwise.
+`NULL` cannot fill a vector slot, so `map_chr()` fails without `.default`. `None` is an okay list element, but indexing into it fails.
 
 ::: {.xsmall}
 ```{r}
@@ -776,6 +779,9 @@ license[6:9]
 :::
 ::::
 
+::: {.aside}
+`r["license"] and r["license"]["name"]` would also work here for the Python solution.
+:::
 
 ## Exercise 1
 
@@ -788,9 +794,9 @@ Using `repos` (the tidyverse GitHub repositories) with purrr in R and comprehens
 3. Find the names of the repositories with `"r"` among their `topics`.
 
 
-## List columns
+## "List" columns
 
-The other approach puts the whole list into a data frame first and takes it apart from there. A list column holds an arbitrary object per cell; polars infers a `Struct` (named fields) for dicts and a `List` for lists, pandas stores either as `object`.
+The other approach puts the whole list into the data frame and then unnests the hierarchy. A list column holds an arbitrary object per cell; polars infers a `Struct` (named fields) for dicts and a `List` for lists, pandas stores either as `object`.
 
 :::: {.columns .xxsmall}
 ::: {.column width='50%'}
@@ -821,7 +827,7 @@ d |> unnest_wider(repo)
 :::
 
 ::: {.aside}
-Most of the 83 columns are API URLs that will never be used - `select()` the ones that matter, or see `hoist()` below.
+Most of the 83 columns are API URLs that will never be used - `select()` the ones that matter, or see `hoist()` shortly.
 :::
 
 
