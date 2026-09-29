@@ -1314,9 +1314,9 @@ countdown::countdown(minutes = 5)
 ```
 
 
-# Comparing R & Python
+# Comparing R & Python {visibility="uncounted"}
 
-## Control flow summary
+## Control flow summary {visibility="uncounted"}
 
 ::: {.small}
 | Construct              | R                                | Python                          |
@@ -1338,7 +1338,7 @@ countdown::countdown(minutes = 5)
 :::
 
 
-## Error handling summary
+## Error handling summary {visibility="uncounted"}
 
 ::: {.medium}
 | Concept        | R                                   | Python                              |
@@ -1354,7 +1354,7 @@ countdown::countdown(minutes = 5)
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 * R's comparison and logical operators (`==`, `&`, <code>&#124;</code>) are vectorized; `&&` / <code>&#124;&#124;</code> in R and `and` / `or` in Python are scalar and short-circuit.
 

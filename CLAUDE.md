@@ -48,6 +48,10 @@ Note: When reviewing slides, do not review or comment on the content of exercise
 
 Note: Avoid ending a slide with a text statement revealed as a fragment (`. . .` followed by prose); this usually reads as a fact tacked on after the fact. Fold the point into the slide's intro text or an `::: {.aside}`, or drop it. Reserve end-of-slide text fragments for genuinely important punchlines, used sparingly.
 
+Note: Slides from the closing summary section onward (the `# Summary` section header, its slides such as Takeaways and Learning more, and any Reference section after it) are marked `{visibility="uncounted"}` so slide numbers and the progress bar stop at the last content slide. Put the attribute on every header from that point to the end of the deck (reveal.js only supports uncounted slides at the end), merging it into any existing attribute braces.
+
+Note: Use colons and semicolons sparingly in slide prose, only where they are truly needed. Prefer two short sentences, or a plain comma, over joining clauses with `;` or introducing a list or explanation with `:`.
+
 Note: Use italics (`*text*`) and bold (`**text**`) very, very sparingly in slide prose. Emphasis should be rare enough that it stands out; most sentences and terms need none.
 
 Note: Use `::: {.aside}` blocks judiciously. There is no point in having an aside on every slide; most slides should have none. An aside is for a genuinely useful footnote (a caveat, a pointer to docs, a gotcha), not a place to park every extra detail or a second explanation of the slide. If a point matters, put it in the slide text; if it does not, drop it.

@@ -953,9 +953,9 @@ Using `nycflights13::flights`,
 :::
 
 
-# Summary
+# Summary {visibility="uncounted"}
 
-## Base R vs dplyr
+## Base R vs dplyr {visibility="uncounted"}
 
 ::: {.small}
 | Task                   | Base R                                     | dplyr                                        |
@@ -973,7 +973,7 @@ Using `nycflights13::flights`,
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
 * An R data frame is a list of equal length vectors with a `class` attribute - every table-like behavior is an S3 method

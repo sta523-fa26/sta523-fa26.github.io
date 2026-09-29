@@ -1327,9 +1327,9 @@ countdown::countdown(minutes = 5)
 ```
 
 
-# Comparing R & Python
+# Comparing R & Python {visibility="uncounted"}
 
-## Vectorization summary
+## Vectorization summary {visibility="uncounted"}
 
 ::: {.small}
 | Concept                  | R                                  | Python / NumPy                        |
@@ -1345,7 +1345,7 @@ countdown::countdown(minutes = 5)
 :::
 
 
-## Subsetting summary
+## Subsetting summary {visibility="uncounted"}
 
 ::: {.small}
 | Goal                    | R                                | Python / NumPy                         |
@@ -1361,7 +1361,7 @@ countdown::countdown(minutes = 5)
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 * R atomic vectors and NumPy arrays support element-wise operations; Python lists require explicit iteration or comprehensions.
 

@@ -1021,9 +1021,9 @@ Not in Python so we're stuck with the comprehension approach.
 Most of the 83 fields are API URLs that you will never use. Using tidyr / purrr in R and pandas or polars in Python, tidy `repos` into a data frame with one row per repository and just the useful fields: `name`, `description`, `language`, `stargazers_count`, `forks_count`, the license name (missing where there is no license), and the number of topics. Check the column types when you are done.
 
 
-# Summary
+# Summary {visibility="uncounted"}
 
-## Functional tools
+## Functional tools {visibility="uncounted"}
 
 ::: {.small}
 | Concept              | R                                    | Python                                             |
@@ -1043,7 +1043,7 @@ Most of the 83 fields are API URLs that you will never use. Using tidyr / purrr 
 :::
 
 
-## Rectangling
+## Rectangling {visibility="uncounted"}
 
 ::: {.small}
 | Task                 | tidyr / purrr                        | pandas                              | polars                            |
@@ -1057,7 +1057,7 @@ Most of the 83 fields are API URLs that you will never use. Using tidyr / purrr 
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
 * Functions are values in both languages - pass them to other functions, store them, fix some of their arguments with `partial()`, and write short ones inline with `\(x)` or `lambda`.
@@ -1070,7 +1070,7 @@ Most of the 83 fields are API URLs that you will never use. Using tidyr / purrr 
 :::
 
 
-# Example
+# Example {visibility="uncounted"}
 
 <br/>
 

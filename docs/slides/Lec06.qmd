@@ -1130,9 +1130,9 @@ g +
 :::
 
 
-# Comparing R & Python
+# Comparing R & Python {visibility="uncounted"}
 
-## Container summary
+## Container summary {visibility="uncounted"}
 
 ::: {.small}
 | Python                     | Properties                              | R                                           |
@@ -1147,7 +1147,7 @@ g +
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 * **Tuples** are immutable sequences—use them for fixed groups of values and unpacking.
 
