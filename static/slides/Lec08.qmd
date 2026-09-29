@@ -737,9 +737,9 @@ Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2
 4. Which flight has the largest arrival delay as a percentage of its actual air time (`100 * arr_delay / air_time`)? Exclude missing values and nonpositive air times, and return all ties.
 
 
-# Summary
+# Summary {visibility="uncounted"}
 
-## R vs pandas
+## R vs pandas {visibility="uncounted"}
 
 ::: {.small}
 | Concept            | R / tibble                     | pandas                                    |
@@ -755,7 +755,7 @@ Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2
 :::
 
 
-## Verbs
+## Verbs {visibility="uncounted"}
 
 ::: {.small}
 | dplyr                              | pandas                                   |
@@ -772,7 +772,7 @@ Using pandas and `data/flights.parquet`, answer the following. Questions 1 and 2
 :::
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
 * A pandas Series is a typed array plus an index, and the index is what makes pandas different from R - lookup is by label, arithmetic and assignment align on labels, and group keys end up in the index. `.loc` and `.iloc` exist because `[]` cannot tell labels from positions.

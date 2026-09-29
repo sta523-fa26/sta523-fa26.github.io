@@ -917,9 +917,9 @@ The same choice applies to filtering joins - `anti_join()` with the default `na_
 3. Both tables have a `year` column. What happens to these columns in a join, and do they mean the same thing?
 
 
-# Summary
+# Summary {visibility="uncounted"}
 
-## Three data frames
+## Three data frames {visibility="uncounted"}
 
 ::: {.small}
 | Concept            | R / tibble                     | pandas                                  | polars                           |
@@ -937,7 +937,7 @@ The same choice applies to filtering joins - `anti_join()` with the default `na_
 :::
 
 
-## Verbs
+## Verbs {visibility="uncounted"}
 
 ::: {.xsmall}
 | dplyr                              | pandas                                   | polars                                   |
@@ -959,7 +959,7 @@ The same choice applies to filtering joins - `anti_join()` with the default `na_
 
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
 * polars drops the index and adds a strict schema, `null` for every dtype, expressions evaluated inside contexts, and a lazy mode with a query optimizer - much of which will look familiar again when we get to SQL and DuckDB.

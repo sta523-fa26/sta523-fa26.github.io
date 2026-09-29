@@ -1391,7 +1391,7 @@ countdown::countdown(minutes = 5)
 ```
 
 
-## Takeaways
+## Takeaways {visibility="uncounted"}
 
 * R's atomic vectors are homogeneous and vectorized; base Python uses individual objects and general-purpose containers.
 
