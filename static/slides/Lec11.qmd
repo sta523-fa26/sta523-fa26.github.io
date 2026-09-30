@@ -120,6 +120,10 @@ ggplot(
 ```
 :::
 
+::: {.aside}
+Components are combined with `+`, not a pipe (ggplot2 predates both `%>%` and `|>`). A pipe would pass the plot as the geom's first argument, `mapping`, which is an error. Piping data into `ggplot()` is fine.
+:::
+
 
 ## Data - Palmer penguins
 
@@ -202,7 +206,7 @@ ggplot(
   )
 ) +
   geom_point(aes(color = species)) +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", color="black")
 ```
 :::
 
@@ -243,9 +247,9 @@ ggplot(
 Moving the mapping into `ggplot()` makes it part of every layer. Each layer's stat is computed per group, so there is now one fit per species and the overall negative trend reverses within each (Simpson's paradox).
 
 
-## Scales, facets, and theme
+## Other details
 
-Scales, facets, labels, and the theme are not layers. They are also added with `+`, but each applies to the whole plot.
+Scales, facets, labels, and the theme are not layers. They are also added with `+` but apply to the whole plot.
 
 ::: {.xsmall}
 ```{r}
@@ -274,7 +278,7 @@ ggplot(
 :::
 
 
-## Mapping vs setting
+## Mappings vs settings
 
 ::: {.medium}
 Anything inside `aes()` is a mapping: the aesthetic varies with a variable in the data and gets a scale and a legend. 
@@ -319,10 +323,47 @@ The last plot is a common mistake: inside `aes()` the string is data, so it is m
 :::
 
 
+## Data masking in `aes()`
+
+::: {.medium}
+`aes()` captures its arguments and evaluates them in each layer's data, the same data masking used by dplyr's verbs. So a mapping can be any expression of the columns, and a column name stored in a variable needs the `.data` pronoun.
+:::
+
+::: {.xsmall}
+```{r}
+p = ggplot(penguins, aes(y = body_mass_g))
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+#| out-width: 75%
+p + geom_point(
+  aes(
+    x = bill_length_mm / bill_depth_mm
+  )
+)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+#| out-width: 75%
+v = "flipper_length_mm"
+
+p + geom_point(
+  aes(x = .data[[v]])
+)
+```
+:::
+::::
+
+
 ## ggplot objects
 
 ::: {.medium}
-`ggplot()` returns an object describing the plot; nothing is drawn until it is printed. So a plot can be assigned, extended with `+`, stored in a list, returned from a function, or written to a file with `ggsave()`.
+`ggplot()` returns an object describing the plot; nothing is drawn until it is printed. So a plot can be assigned, extended with `+`, stored in a list, returned from a function, or written to a file.
 :::
 
 :::: {.columns .mxsmall}
@@ -368,7 +409,7 @@ As of ggplot2 4.0, plots are S7 objects (S7 is R's newest OOP system, successor 
 ## The rest of ggplot2
 
 ::: {.medium}
-We will not tour the geoms. The [reference index](https://ggplot2.tidyverse.org/reference/) is organized by the components above (layers, scales, guides, facets, coordinates, themes) and is the place to find what exists and which aesthetics each one understands.
+We will not tour the geoms. The package [reference](https://ggplot2.tidyverse.org/reference/) page is organized by the components above (layers, scales, guides, facets, coordinates, themes) and is the place to find what exists and which aesthetics each one understands.
 :::
 
 <iframe data-src="https://ggplot2.tidyverse.org/reference/index.html" width="100%" height="400px" style="border:1px solid;border-radius: 5px;" data-external="1">
@@ -391,10 +432,11 @@ See also the [ggplot2 book](https://ggplot2-book.org/), [R4DS](https://r4ds.hadl
 ```{python}
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+mpl.__version__
 ```
 :::
 
-::: {.medium}
+::: {.aside}
 seaborn, plotnine, and pandas' default plotting backend draw with matplotlib, so its objects and vocabulary show up even when it is never called directly.
 :::
 
@@ -413,12 +455,12 @@ seaborn, plotnine, and pandas' default plotting backend draw with matplotlib, so
 
 - Axis: a single number line (`ax.xaxis`, `ax.yaxis`) with its limits, ticks, and tick labels
 
-- Artist: everything visible, including the three above and every line, marker, patch, and text they contain
+- Artist: the base class for every drawn object. Figure, Axes, and Axis are Artists, and so are the lines, markers, patches, and text that plotting methods add.
 :::
 ::::
 
 ::: {.aside}
-Axes (the panel) and axis (the number line) are different things, which is the most confusing naming in the library.
+Axes (the panel) and axis (the number line) are different things, which is a common source of confusion.
 :::
 
 
@@ -471,9 +513,9 @@ The OO approach is generally preferred.
 
 ## Subplots (OO)
 
-`plt.subplots(nrows, ncols)` returns a Figure and either a single `Axes` (one panel), a 1D array of Axes (one row or column), or a 2D array of Axes (multiple rows and columns). Each panel is drawn and labeled through its own object; the figure-wide title belongs to the Figure.
+`plt.subplots(nrows, ncols)` returns a Figure and its Axes. Each panel is drawn and labeled through its own object; the figure-wide title belongs to the Figure.
 
-::: {.xsmall}
+::: {.mxsmall}
 ```{python}
 #| output-location: column
 fig, axs = plt.subplots(
@@ -495,6 +537,10 @@ axs[1].set(
 )
 fig.suptitle("Palmer penguins")
 ```
+:::
+
+::: {.aside}
+`axs` is a NumPy array of `Axes` objects, 1D for a single row or column and 2D for a grid. With one panel a single `Axes` is returned instead, and `squeeze=False` always gives a 2D array.
 :::
 
 
@@ -532,6 +578,8 @@ plt.suptitle("Palmer penguins")
 matplotlib draws what it is told: `ax.scatter()` takes arrays and either a single color or numeric values run through a colormap (`c=`, `cmap=`). There is no notion of mapping a categorical variable to color, so coloring by species means splitting the data, drawing each subset with a `label`, and asking for a legend. Every additional variable (shape by sex, one panel per island) is another loop.
 :::
 
+<br/>
+
 ::: {.xsmall}
 ```{python}
 #| output-location: column
@@ -548,6 +596,47 @@ ax.legend(title="Species")
 :::
 
 
+## Format strings
+
+::: {.medium}
+`ax.plot()` accepts a format string, `"[marker][line][color]"`, as shorthand for the `marker`, `linestyle`, and `color` keywords. Each part is optional.
+:::
+
+:::: {.columns}
+::: {.column width='50%' .xsmall}
+```{python}
+#| out-width: 80%
+import numpy as np
+x = np.linspace(0, 2 * np.pi, 20)
+
+fig, ax = plt.subplots(figsize=(5, 2.75))
+ax.plot(x, np.sin(x), "o-r")
+ax.plot(x, np.cos(x), "^:b")
+ax.plot(x, np.sin(x) / 2, "--k")
+ax.plot(x, np.cos(x) / 2, "sg")
+```
+:::
+
+::: {.column width='50%' .xsmall .fragment}
+|       | marker        |       | line     |           | color   |
+|:-----:|:--------------|:-----:|:---------|:---------:|:--------|
+| `.`   | point         | `-`   | solid    | `r`       | red     |
+| `o`   | circle        | `--`  | dashed   | `g`       | green   |
+| `s`   | square        | `-.`  | dash-dot | `b`       | blue    |
+| `D`   | diamond       | `:`   | dotted   | `c`       | cyan    |
+| `^`   | triangle up   |       |          | `m`       | magenta |
+| `v`   | triangle down |       |          | `y`       | yellow  |
+| `+`   | plus          |       |          | `k`       | black   |
+| `x`   | cross         |       |          | `w`       | white   |
+| `*`   | star          |       |          | `C0`-`C9` | cycle   |
+:::
+::::
+
+::: {.aside}
+See the Notes section of the [`Axes.plot()`](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html) documentation for the full list of markers, line styles, and colors.
+:::
+
+
 # seaborn
 
 ## seaborn
@@ -557,6 +646,7 @@ ax.legend(title="Species")
 ::: {.small}
 ```{python}
 import seaborn as sns
+sns.__version__
 sns.set_theme()
 ```
 :::
@@ -570,12 +660,12 @@ sns.set_theme()
 ## Semantic mappings
 
 ::: {.medium}
-`hue` is seaborn's name for a color mapping, the equivalent of ggplot2's `color` aesthetic.
+`hue` is seaborn's name for a color mapping, the equivalent of ggplot2's `color` aesthetic. Python has no data masking, so variables are strings naming columns in `data`.
 :::
 
 ::: {.xsmall}
 ```{python}
-#| out-width: 50%
+#| out-width: 40%
 sns.scatterplot(
   data=penguins,
   x="bill_depth_mm",
@@ -585,13 +675,17 @@ sns.scatterplot(
 ```
 :::
 
+::: {.aside}
+`data` can be a pandas DataFrame, a dict of arrays or lists, or another DataFrame such as polars (converted to pandas). See [data structures accepted by seaborn](https://seaborn.pydata.org/tutorial/data_structure.html).
+:::
+
 
 ## Figure-level vs axes-level functions
 
 ::: {.medium}
 seaborn's plotting functions come in two flavors:
 
-- axes-level functions (`scatterplot()`, `histplot()`, `boxplot()`, ...) draw onto a single matplotlib `Axes` and return it, so they behave like `ax.scatter()` with mappings and stats added.
+- axes-level functions (`scatterplot()`, `histplot()`, `boxplot()`, ...) draw one plot on a matplotlib `Axes` (the current one, or one passed as `ax=`) and return that `Axes`, so they mix freely with matplotlib code.
 
 - figure-level functions (`relplot()`, `displot()`, `catplot()`) create their own `Figure`, axes-level function are choosen via `kind=`, faceting via `col=` and `row=`, with a legend placed outside, and return a `FacetGrid`.
 :::
@@ -599,41 +693,10 @@ seaborn's plotting functions come in two flavors:
 ![](imgs/seaborn_levels.png){fig-align="center" width="45%"}
 
 
-## Statistical estimation
-
-::: {.medium}
-Like ggplot2's stats, seaborn's functions summarize before drawing: `lineplot()`, `barplot()`, and `pointplot()` show a mean with a 95% bootstrap CI (`estimator=`, `errorbar=`), `histplot()` and `kdeplot()` bin or smooth, and `regplot()` fits and draws a regression (`order=`, `logistic=`, `lowess=`).
-:::
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-#| out-width: 75%
-g = sns.catplot(
-  data=penguins, x="sex",
-  y="body_mass_g", hue="species",
-  kind="point", height=5, aspect=1.2
-)
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-#| out-width: 75%
-g = sns.lmplot(
-  data=penguins, x="bill_depth_mm",
-  y="bill_length_mm", hue="species",
-  height=5, aspect=1.2
-)
-```
-:::
-::::
-
-
 ## `relplot()`
 
 ::: {.medium}
-`relplot()` shows the relationship between two numeric variables, with `kind="scatter"` (the default) or `kind="line"`.
+`relplot()` shows the relationship between two numeric variables, with `kind="scatter"` (the default) or `kind="line"`. A line plot aggregates rows that share an `x` value, drawing their mean and a 95% bootstrap CI.
 :::
 
 :::: {.columns .xsmall}
@@ -652,17 +715,14 @@ g = sns.relplot(
 ```{python}
 #| out-width: 75%
 g = sns.relplot(
-  data=penguins, x="bill_depth_mm",
-  y="bill_length_mm", hue="species",
+  data=penguins, x="year",
+  y="body_mass_g", hue="species",
   kind="line", height=5, aspect=1.2
 )
 ```
 :::
 ::::
 
-::: {.aside}
-Note that this line plot is nonsense and means nothing.
-:::
 
 ## `displot()`
 
@@ -733,8 +793,39 @@ g = sns.catplot(
 
 
 ::: {.aside}
-Bars can represent different quantities: `geom_bar()` and `catplot(kind="count")` count observations; `catplot(kind="bar")` estimates means by default; `geom_col()` draws values already computed.
+Bars can represent different quantities: `geom_bar()` and `catplot(kind="count")` count observations; `catplot(kind="bar")` estimates means by default, with a 95% bootstrap CI as the error bar; `geom_col()` draws values already computed.
 :::
+
+
+## `lmplot()`
+
+::: {.medium}
+`lmplot()` draws a scatterplot with a fitted regression line and its 95% confidence band, the equivalent of `geom_point() + geom_smooth(method = "lm")`. With `hue` there is one fit per group.
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+#| out-width: 75%
+g = sns.lmplot(
+  data=penguins, x="bill_depth_mm",
+  y="bill_length_mm",
+  height=5, aspect=1.2
+)
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| out-width: 75%
+g = sns.lmplot(
+  data=penguins, x="bill_depth_mm",
+  y="bill_length_mm", hue="species",
+  height=5, aspect=1.2
+)
+```
+:::
+::::
 
 
 ## Faceting
@@ -795,6 +886,7 @@ Because axes-level functions take an `ax=` argument, they can draw into any figu
 ::: {.xsmall}
 ```{python}
 #| output-location: column
+#| code-line-numbers: "|8,13"
 fig, axs = plt.subplots(
   1, 2, figsize=(7, 3),
   layout="constrained"
