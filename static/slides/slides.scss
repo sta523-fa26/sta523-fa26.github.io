@@ -124,6 +124,12 @@ blockquote > p {
   max-height: 520px !important;
 }
 
+.reveal .wrap-output .cell-output pre code {
+  text-wrap-mode: wrap !important;
+  white-space-collapse: preserve;
+  overflow-wrap: anywhere;
+}
+
 .reveal section.center-image img {
   width: 45% !important;
   height: auto !important;
@@ -197,3 +203,7 @@ $lang-sh-bg: #f1f1f1;
   background-color: $lang-sh-bg;
   &::before { content: "bash"; background: $lang-sh; color: white; }
 }
+
+
+// Bootstrap utility classes, see _bootstrap-utilities.scss
+@import "bootstrap-utilities";

@@ -203,7 +203,7 @@ schedule:
   day: 1
   topic: "Web Scraping"
   lecture: "Text data"
-  slides: ""
+  slides: "Lec12"
   r_readings:
     - text: "stringr Cheat Sheet"
       link: https://github.com/rstudio/cheatsheets/blob/master/strings.pdf

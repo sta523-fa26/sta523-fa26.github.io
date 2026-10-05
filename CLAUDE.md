@@ -40,9 +40,30 @@ Rscript -e "renderthis::to_pdf('static/slides/Lec01.html')"  # Convert HTML to P
 
 Slides live in `static/slides/*.qmd` using revealjs format with custom theme (`slides.scss`). Slides use the knitr engine; Python code is executed via reticulate in `{python}` chunks, so a single deck can mix R and Python.
 
+Note: Bootstrap 5 utility classes (`pt-2`, `mt-3`, `d-flex`, `text-center`, ...) are available in slides via `_bootstrap-utilities.scss`, which `slides.scss` imports. Spacing utilities are in `em` (not `rem`), there are no responsive variants, and `.visible` / `.invisible` are omitted. The rest of Bootstrap is not loaded.
+
 Note: Sections titled "Example" are live-coded demonstrations done in class and intentionally have no content in the slides.
 
 Note: Within a single slide, all code chunks should use the same size class (`.small`, `.xsmall`, etc.) whether applied via `.columns` or a standalone div. Mixing sizes on one slide is only acceptable for a specific, compelling design reason.
+
+Note: When a slide defines example data (e.g. `x = c(...)`, `text = "..."`, a small data frame), put the definition in its own code chunk, separate from the chunk(s) that use it, so the data stands out. With multiple columns of examples that share the data, define it ahead of the `.columns` block in a standalone div of the same size class. When each column has its own data (e.g. an R column and a Python column), give each column a definition chunk followed directly by its examples chunk.
+
+````
+::: {.xsmall}
+```{r}
+x = c("apple", "banana", NA)
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+str_length(x)
+```
+:::
+...
+::::
+````
 
 Note: When reviewing slides, do not review or comment on the content of exercises or examples (spelling and grammar checks are fine). These are meant to be external live-coded experiences for students, so the content will usually not be in the slides.
 
