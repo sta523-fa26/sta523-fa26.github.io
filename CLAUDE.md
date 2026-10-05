@@ -75,6 +75,8 @@ Note: Use colons and semicolons sparingly in slide prose, only where they are tr
 
 Note: Use italics (`*text*`) and bold (`**text**`) very, very sparingly in slide prose. Emphasis should be rare enough that it stands out; most sentences and terms need none.
 
+Note: Write package names in backticks in slide prose, for both R and Python packages (e.g. `stringr`, `dplyr`, `numpy`, `pandas`). This applies to slide titles, body text, asides, and lists. Do not use bold, italics, or plain text for package names.
+
 Note: Use `::: {.aside}` blocks judiciously. There is no point in having an aside on every slide; most slides should have none. An aside is for a genuinely useful footnote (a caveat, a pointer to docs, a gotcha), not a place to park every extra detail or a second explanation of the slide. If a point matters, put it in the slide text; if it does not, drop it.
 
 Note: When a `#` section header introduces a package that has a hex sticker in `static/slides/imgs/` (`hex-*.png` or `hex_*.png`), use the sticker as the section slide instead of a plain name, e.g.

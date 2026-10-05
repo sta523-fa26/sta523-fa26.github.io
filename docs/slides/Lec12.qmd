@@ -47,7 +47,9 @@ pd.set_option("display.width", 80)
 
 ## Strings in R and Python
 
-In R a string is a single element of a character vector, and string functions are vectorized over those elements. In Python a `str` is an immutable sequence of characters that can be indexed and sliced, and its methods act on one string at a time.
+In R a string is a single element of a character vector, and string functions are vectorized over those elements. 
+
+In Python a `str` is an immutable sequence of characters that can be indexed and sliced, and its methods act on one string at a time.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -83,17 +85,17 @@ x.upper()
 ![](imgs/hex-stringr.png){fig-align="center" width="32%"}
 
 
-## stringr
+## `stringr`
 
-stringr is the tidyverse's string package, built on stringi and the ICU C library. Base R has equivalents for most of its functions (`paste()`, `substr()`, `nchar()`, `gsub()`, ...), but their names and argument orders are inconsistent.
+`stringr` is the tidyverse's string package, built on `stringi` and the ICU C library. Base R has equivalents for most of its functions (`paste()`, `substr()`, `nchar()`, `gsub()`, ...), but their names and argument orders are inconsistent.
 
 * Most string-manipulation functions start with `str_`.
 
-* Most take the string first, making them convenient to use with pipes.
+* Most take the string as the first argument, making them convenient to use with pipes.
 
-* Functions operate on string vectors. Some, such as `str_detect()`, also accept a vector of patterns.
+* Functions are vectorized over the string inputs. Some, such as `str_detect()`, also accept a vector of patterns.
 
-* Missing strings generally produce missing results. Filtering functions such as `str_subset()` drop missing inputs.
+* Missing strings generally produce missing results.
 
 
 ## String operations
@@ -101,7 +103,7 @@ stringr is the tidyverse's string package, built on stringi and the ICU C librar
 Most everyday string tasks have a direct equivalent in each language.
 
 ::: {.small}
-| Task                 | R / stringr                          | Python                                      |
+| Task                 | R / `stringr`                          | Python                                      |
 |:---------------------|:-------------------------------------|:--------------------------------------------|
 | length               | `str_length()`                       | `len()`                                     |
 | substring            | `str_sub()`                          | `s[i:j]`                                    |
@@ -112,22 +114,19 @@ Most everyday string tasks have a direct equivalent in each language.
 | pad                  | `str_pad()`                          | `s.rjust()`, `s.ljust()`, `s.zfill()`       |
 | case                 | `str_to_upper()`, `str_to_title()`   | `s.upper()`, `s.title()`                    |
 | templates            | `str_glue()`                         | f-strings                                   |
-| number formatting    | `formatC()`, `format()`              | format spec, `f"{x:.3f}"`                   |
+| number formatting    | `formatC()`, `format()`              | [format spec](https://docs.python.org/3/library/string.html#formatspec), `f"{x:.3f}"` |
 | many strings         | vectorized                           | comprehension, `.str` accessor              |
 :::
 
-::: {.aside}
-`str_sub()` uses one-based positions and includes the endpoint. Python slices use zero-based positions and exclude the endpoint.
-:::
 
 
 ## Strings in data frames
 
-stringr functions are vectorized, so they work directly inside `mutate()`.
+`stringr` functions are vectorized, so they work directly inside `mutate()`.
 
-Python's string methods are not, so pandas and polars expose vectorized versions through a `.str` accessor.
+Python's string methods are not, so pandas and polars expose vectorized versions through the `.str` accessor.
 
-:::: {.columns .xsmall}
+:::: {.columns .mxsmall}
 ::: {.column width='50%'}
 ```{r}
 d = tibble(
@@ -139,7 +138,6 @@ d = tibble(
 ::: {.column width='50%' .fragment}
 ```{python}
 import polars as pl
-
 d = pl.DataFrame({
   "name": ["Bob Smith", "Alice Jones"]
 })
@@ -161,14 +159,16 @@ d |>
 ::: {.column width='50%' .fragment}
 ```{python}
 d.with_columns(
-  upper = (
-    pl.col("name").str.to_uppercase()
-  ),
+  upper = pl.col("name").str.to_uppercase(),
   n = pl.col("name").str.len_chars()
 )
 ```
 :::
 ::::
+
+::: {.aside}
+The two `.str` accessors are not the same. `pandas` mostly keeps Python's method names (`.str.upper()`, `.str.len()`) while `polars` uses its own (`.str.to_uppercase()`, `.str.len_chars()`).
+:::
 
 
 # Regular expressions
@@ -177,16 +177,18 @@ d.with_columns(
 
 A regular expression (regex) is a sequence of characters that describes a pattern to be matched in text. Regexes are used to detect, extract, replace, and split strings, and to validate input.
 
-* The idea dates to the 1950s, when Stephen Kleene formalized regular languages. Regular expressions came into common use through Unix text processing tools like `grep` and `sed`.
+* The idea dates to the 1950s, when Stephen Kleene formalized regular languages.
+
+* They came into common use in the late 1960s and early 1970s through Unix text processing tools like `ed`, `grep`, and `sed`.
 
 * Most modern languages use a syntax descended from Perl's. The core is shared, but each engine differs in its details.
 
-* In R, stringr uses the ICU engine and base R uses [TRE](https://en.wikipedia.org/wiki/TRE_%28computing%29) by default or [PCRE](https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions) when `perl = TRUE`.
+* In R, `stringr` uses the ICU engine and base R uses [TRE](https://en.wikipedia.org/wiki/TRE_%28computing%29) by default or [PCRE](https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions) when `perl = TRUE`.
 
-* We will work through the syntax using stringr, and then see how it translates to Python's `re` module.
+* We will work through the syntax using `stringr`, and then see how it translates to Python's `re` module.
 
 
-## stringr regular expression functions
+## `stringr` regular expression functions
 
 ::: {.medium}
 
@@ -212,7 +214,7 @@ Many of these functions have variants with an `_all` suffix (e.g. `str_replace_a
 
 ## Simple pattern detection
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 text = c("The quick brown", "fox jumps over", "the lazy dog")
 ```
@@ -224,7 +226,7 @@ str_subset(text, "o")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_detect(text, "the")
 str_detect(text, regex("the", ignore_case = TRUE))
@@ -256,7 +258,7 @@ An escape character changes the interpretation of the character(s) that follow i
 
 `print()` shows a string as it would be typed, escapes included. `cat()` shows the actual characters.
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{r}
 print("a\tb")
@@ -274,12 +276,30 @@ nchar("a\\b")
 :::
 ::::
 
+:::: {.columns .xsmall}
+::: {.column width='50%' .fragment}
+```{r}
+print("a\nb")
+cat("a\nb")
+nchar("a\nb")
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+print("a\"b")
+cat("a\"b")
+nchar("a\"b")
+```
+:::
+::::
+
 
 ## Raw strings
 
 A raw string turns off escape processing, so a backslash is just a backslash. As of R 4.0 these are written as `r"(...)"`.
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 cat("\\int_0^\\infty 1/e^x")
 cat(r"(\int_0^\infty 1/e^x)")
@@ -288,7 +308,7 @@ cat(r"(\int_0^\infty 1/e^x)")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 r"(\d+\.\d+)"
 "\\d+\\.\\d+" == r"(\d+\.\d+)"
@@ -335,7 +355,7 @@ str_detect("abc[def", "\[")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_detect("abc[def", "\\[")
 ```
@@ -343,7 +363,7 @@ str_detect("abc[def", "\\[")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 cat("abc\\def")
 str_detect("abc\\def", "\\\\")
@@ -357,7 +377,7 @@ str_detect("abc\\def", r"(\\)")
 When the pattern is plain text, `fixed()` treats it literally, so regex escaping is unnecessary. Normal R string-literal escaping still applies unless we use a raw string.
 :::
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_detect("abc[def", fixed("["))
 ```
@@ -378,23 +398,38 @@ knitr::include_graphics("imgs/xkcd_backslashes.png")
 
 Sometimes we want a pattern to match only at a particular location in a string. Anchors match a position rather than a character.
 
-::: {.small}
-| Regex | Meaning in stringr |
-|-------|:--------------------------------------------------------------------------|
-| `^`   | Start of string; also start of line with multiline enabled |
-| `\A`  | Absolute start of string |
-| `$`   | End of string or before a final newline; also line ends with multiline enabled |
-| `\z`  | Absolute end of string |
+::: {.columns .small}
+::: {.column}
+| Regex | Meaning in `stringr` |
+|-------|:---------------------------------------------|
+| `^`   | Start of string (or line, in multiline mode) |
+| `$`   | End of string (or line, in multiline mode) |
 | `\b`  | Word boundary |
 | `\B`  | Not word boundary |
 :::
 
+::: {.column}
+| Regex | Meaning in `stringr` |
+|-------|:---------------------------------------------|
+| `\A`  | Start of string, always |
+| `\Z`  | End of string or before a trailing newline |
+| `\z`  | End of string, always |
+:::
+:::
+
 . . .
 
-:::: {.columns .xsmall}
-::: {.column width='50%'}
+::: {.mt-3}
+
+::: {.mxsmall}
 ```{r}
 text = "the brown owl ate the egg"
+```
+:::
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
 str_replace(text, "^the", "---")
 str_replace(text, "the$", "---")
 str_replace(text, "egg$", "---")
@@ -409,9 +444,10 @@ str_replace_all(text, "e\\B", "*")
 ```
 :::
 ::::
+:::
 
 ::: {.aside}
-Python's `re` writes the absolute end of string as `\Z`. In ICU, `\Z` also allows a final newline.
+Python's `\Z` behaves like `stringr`'s `\z`.
 :::
 
 
@@ -419,7 +455,7 @@ Python's `re` writes the absolute end of string as `\Z`. In ICU, `\Z` also allow
 
 If there is more than one pattern we would like to match we can use the or (`|`) metacharacter. It has the lowest precedence of any operator, so use parentheses to limit its scope.
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_replace_all(text, "the|egg", "---")
 str_replace_all(text, "a|e|i|o|u", "*")
@@ -428,7 +464,7 @@ str_replace_all(text, "a|e|i|o|u", "*")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_replace_all(text, "\\ba|e|i|o|u", "*")
 str_replace_all(text, "\\b(a|e|i|o|u)", "*")
@@ -440,77 +476,13 @@ Parentheses group alternatives, so `\b(a|e|i|o|u)` applies the word boundary to 
 :::
 
 
-## Character classes
-
-When we want to match whole classes of characters at a time there are a number of convenience patterns built in.
-
-<p></p>
-
-::: {.medium}
-| Meta char | POSIX class | Description |
-|:----------:|:-------------------|:-----------------------------------------------------------|
-| `.`  |               | Any character except a line terminator, unless `dotall = TRUE` |
-| `\s` | `[[:space:]]` | White space |
-| `\S` |               | Not white space |
-| `\d` | `[[:digit:]]` | Unicode decimal digit; use `[0-9]` for ASCII digits |
-| `\D` |               | Not digit |
-| `\w` |               | Unicode word character, including letters, digits, combining marks, and `_` |
-| `\W` |               | Not word |
-|      | `[[:alpha:]]` | Letter |
-|      | `[[:punct:]]` | Punctuation |
-:::
-
-
-## Unicode character classes
-
-stringr's character classes follow Unicode categories, so they include characters beyond ASCII. Here `٣` is the Arabic-Indic digit three, `_` is both a word character and punctuation, and `+` is a symbol rather than punctuation.
-
-::: {.small}
-```{r}
-tibble(
-  char = c("A", "é", "٣", "_", "+"),
-  digit = str_detect(char, r"(\d)"),
-  word = str_detect(char, r"(\w)"),
-  punctuation = str_detect(char, "[[:punct:]]")
-)
-```
-:::
-
-
-## Example
-
-How would we write a regular expression to match a telephone number with the form `(###) ###-####`?
-
-::: {.small}
-```{r}
-text = c("apple", "(219) 733-8965", "(329) 293-8753")
-```
-:::
-
-. . .
-
-::: {.small}
-```{r}
-str_detect(text, "(\\d\\d\\d) \\d\\d\\d-\\d\\d\\d\\d")
-```
-:::
-
-. . .
-
-::: {.small}
-```{r}
-str_detect(text, "\\(\\d\\d\\d\\) \\d\\d\\d-\\d\\d\\d\\d")
-```
-:::
-
-
 ## Classes and ranges
 
-We can also define our own classes using square brackets. Ranges simplify classes made up of contiguous letters or digits.
+A character class matches any one character from a set, which is written inside square brackets. Ranges simplify classes made up of contiguous letters or digits.
 
 <p></p>
 
-::: {.medium}
+::: {.small}
 | Class    | Type        |
 |----------|:------------|
 | `[abc]`  | Class (a or b or c) |
@@ -547,6 +519,74 @@ str_replace_all(
 ::::
 
 
+## Character classes
+
+Some classes are common enough that they have built-in shorthands.
+
+<p></p>
+
+::: {.small}
+| Meta char | POSIX class | Description |
+|:----------:|:--------------|:-----------------------------------------------------------|
+| `.`  |               | Any character except a line terminator, unless `dotall = TRUE` |
+| `\s` | `[[:space:]]` | White space |
+| `\S` |               | Not white space |
+| `\d` | `[[:digit:]]` | Unicode decimal digit; use `[0-9]` for ASCII digits |
+| `\D` |               | Not digit |
+| `\w` |               | Unicode word character, including letters, digits, combining marks, and `_` |
+| `\W` |               | Not word |
+|      | `[[:alpha:]]` | Letter |
+|      | `[[:punct:]]` | Punctuation |
+:::
+
+::: {.aside}
+POSIX classes like `[:alpha:]` belong inside a bracket expression, e.g. `[[:alpha:]_]` or `[^[:space:]]`. `stringr` also accepts them on their own, but base R does not. Python's `re` does not support them at all.
+:::
+
+
+## Unicode character classes
+
+`stringr`'s character classes follow Unicode categories, so they include characters beyond ASCII. Here `٣` is the Arabic-Indic digit three, `_` is both a word character and punctuation, and `+` is a symbol rather than punctuation.
+
+::: {.xsmall}
+```{r}
+tibble(
+  char = c("A", "é", "٣", "_", "+"),
+  digit = str_detect(char, r"(\d)"),
+  word = str_detect(char, r"(\w)"),
+  punctuation = str_detect(char, "[[:punct:]]")
+)
+```
+:::
+
+
+## Example
+
+How would we write a regular expression to match a telephone number with the form `(###) ###-####`?
+
+::: {.xsmall}
+```{r}
+text = c("apple", "(219) 733-8965", "(329) 293-8753")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+str_detect(text, "(\\d\\d\\d) \\d\\d\\d-\\d\\d\\d\\d")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+str_detect(text, "\\(\\d\\d\\d\\) \\d\\d\\d-\\d\\d\\d\\d")
+```
+:::
+
+
 ## Quantifiers
 
 Attached to literals, character classes, or groups, these allow a match to repeat some number of times.
@@ -567,7 +607,7 @@ Attached to literals, character classes, or groups, these allow a match to repea
 
 How would we improve our previous regular expression for matching a telephone number with the form `(###) ###-####`?
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 text = c("apple", "(219) 733-8965", "(329) 293-8753")
 ```
@@ -578,7 +618,7 @@ str_detect(text, "\\(\\d\\d\\d\\) \\d\\d\\d-\\d\\d\\d\\d")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_detect(text, "\\(\\d{3}\\) \\d{3}-\\d{4}")
 str_extract(text, "\\(\\d{3}\\) \\d{3}-\\d{4}")
@@ -650,7 +690,7 @@ str_extract_all(x, date)
 
 At a given starting position, a greedy quantifier tries to consume as much text as possible while allowing the rest of the pattern to match. Adding `?` makes it non-greedy, so it consumes as little as possible while still allowing the rest to match.
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 text = "<div class='main'> <div> <a href='here.pdf'>Here!</a> </div> </div>"
 ```
@@ -658,7 +698,7 @@ text = "<div class='main'> <div> <a href='here.pdf'>Here!</a> </div> </div>"
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_extract(text, "<div>.*</div>")
 ```
@@ -666,7 +706,7 @@ str_extract(text, "<div>.*</div>")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_extract(text, "<div>.*?</div>")
 ```
@@ -691,7 +731,7 @@ Groups allow you to connect pieces of a regular expression for modification or c
 | `(?:abc)`       | match "abc", non-capturing group         |
 
 
-## Groups in stringr
+## Groups in `stringr`
 
 `str_extract()` returns the full match by default. Its `group` argument can select a capturing group. `str_match()` returns a matrix with the full match in the first column, followed by one column per capturing group.
 
@@ -723,7 +763,7 @@ str_match(text, "^(\\w+) (\\w+)")
 
 `str_match_all()` returns a list with one matrix per input string. Each row is a match. The first column contains the full match, followed by one column per capturing group.
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_match_all("A12 B34", "([A-Z])([0-9]+)")
 ```
@@ -736,7 +776,7 @@ Both matches are retained, with the letter and digits captured separately. An in
 
 Backreferences refer to previously captured groups using `\1`, `\2`, etc. They can be used in a replacement string, or within the pattern itself to match repeated text.
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 text = c("Bob Smith", "Alice Smith", "Apple")
 ```
@@ -747,7 +787,7 @@ str_replace(text, "^(\\w+) (\\w+)", "\\2, \\1")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{r}
 str_detect(c("abab", "cdcd", "abcd"), "^(..)\\1$")
 str_extract(c("hello", "banana", "apple"), "(.)\\1")
@@ -757,7 +797,7 @@ str_extract(c("hello", "banana", "apple"), "(.)\\1")
 
 ## Flags
 
-Flags change how a pattern is interpreted. In stringr they are set by wrapping the pattern in `regex()`.
+Flags change how a pattern is interpreted. In `stringr` they are set by wrapping the pattern in `regex()`.
 
 ::: {.small}
 | Argument              | Behavior                                     |
@@ -780,7 +820,7 @@ str_count("the cat\nthe hat", regex("^the", multiline = TRUE))
 
 ## Regex in data frames
 
-stringr's functions are vectorized, so they can be used directly on the columns of a data frame.
+`stringr`'s functions are vectorized, so they can be used directly on the columns of a data frame.
 
 ::: {.xsmall}
 ```{r}
@@ -808,33 +848,9 @@ d |>
 ::::
 
 
-## How not to use a regex
-
-To validate an email address, just use the following.
-
-<p></p>
-
-
-::: {.xsmall}
-```
-(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"
-(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")
-@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[
-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}
-(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:
-(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])
-```
-:::
-
-To confirm access to the mailbox, send a verification link. A regex cannot establish that.
-
-::: {.aside}
-For true horror, see this old-school Perl regex for email addresses [here](https://pdw.ex-parrot.com/Mail-RFC822-Address.html).
-:::
-
-
 ## Exercise 2
 
+::: {.xsmall}
 ```{r}
 text = c(
   "apple",
@@ -843,6 +859,7 @@ text = c(
   "Work: (579) 499-7527; Home: (543) 355 3679"
 )
 ```
+:::
 
 * Write a regular expression that will extract all of the phone numbers contained in the vector above. Expect 0, 1, 1, and 2 matches across the four inputs.
 
@@ -853,7 +870,7 @@ text = c(
 
 ## Python's `re` module
 
-::: {.medium}
+::: {.small}
 
 | Function             | Description                         |
 |:---------------------|:------------------------------------|
@@ -868,20 +885,19 @@ text = c(
 
 :::
 
-<p></p>
 
-Most patterns shown here translate directly, but regex engines differ in some details as well as their interfaces. The pattern comes first and the string second, the functions take a single string, and `re.sub()` replaces every match unless `count` is given.
+::: {.mt-3}
+Most patterns shown so far translate directly, but regex engines differ in some details as well as their interfaces. 
 
-::: {.aside}
-`re` does not support the POSIX classes like `[[:digit:]]`. Use `\d`, `\s`, `\w`, or an explicit class such as `[a-z]`.
+For example `re` does not support the POSIX classes like `[[:digit:]]`. Use `\d`, `\s`, `\w`, or an explicit class such as `[a-z]`.
 :::
 
 
 ## Raw strings in Python
 
-Python's raw strings are written `r"..."`, and the convention is to write every regex pattern as one. This is more than a convenience, since in a regular Python string `"\b"` is a backspace character and not a word boundary.
+Python's raw strings are written `r"..."`, and the convention is to write every regex pattern as one. 
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 print("\\int_0^\\infty 1/e^x")
 print(r"\int_0^\infty 1/e^x")
@@ -890,10 +906,9 @@ print(r"\int_0^\infty 1/e^x")
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 import re
-
 text = "the brown owl ate the egg"
 ```
 ```{python}
@@ -907,11 +922,12 @@ re.sub("\bow", "---", text)
 
 `re.search()` takes a single string, so the vectorized `str_detect()` and `str_subset()` become comprehensions.
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 text = ["The quick brown", "fox jumps over", "the lazy dog"]
 ```
 ```{python}
+[re.search("quick", s) for s in text]
 [bool(re.search("quick", s)) for s in text]
 [s for s in text if re.search("o", s)]
 ```
@@ -919,7 +935,7 @@ text = ["The quick brown", "fox jumps over", "the lazy dog"]
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 [bool(re.search("the", s)) for s in text]
 [bool(re.search("the", s, re.IGNORECASE)) for s in text]
@@ -940,8 +956,7 @@ x = "fox jumps over"
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
-m = re.search("o", x)
-m
+m = re.search("o", x); m
 m.group()
 m.start(), m.end()
 ```
@@ -962,9 +977,9 @@ re.findall("o", x)
 
 ## Replacing and splitting
 
-`re.sub()` plays the role of both `str_replace()` and `str_replace_all()`. Backreferences in the replacement work the same way as in stringr.
+`re.sub()` plays the role of both `str_replace()` and `str_replace_all()`. Backreferences in the replacement work the same way as in `stringr`.
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 text = "the brown owl ate the egg"
 ```
@@ -977,7 +992,7 @@ re.sub(r"\b(a|e|i|o|u)", "*", text)
 
 . . .
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 re.sub(r"^(\w+) (\w+)", r"\2, \1", "Bob Smith")
 re.split(r"\s+", text)
@@ -987,13 +1002,15 @@ re.split(r"\s+", text)
 
 ## Match groups in Python
 
-A `Match` object gives access to the groups, with `group(0)` being the full match.
+A `Match` object gives access to the capture groups, with `group(0)` being the full match.
 
 ::: {.xsmall}
 ```{python}
 m = re.search(
   r"^(\w+) (\w+)", "Bob Smith"
 )
+```
+```{python}
 m.group(0)
 m.group(1)
 m.group(2)
@@ -1002,56 +1019,13 @@ m.groups()
 :::
 
 
-## Finding and naming groups
-
-What `re.findall()` returns depends on the number of capturing groups. Groups can also be named with `(?P<name>...)`.
-
-::: {.small}
-| Capturing groups | `re.findall()` list contents |
-|:-----------------|:--------------------------------------------------|
-| None             | Full-match strings |
-| One              | Strings containing that group's match |
-| Multiple         | Tuples containing the groups' matches |
-
-Non-capturing groups `(?:...)` do not change the return shape.
-:::
-
-::: {.xsmall}
-```{python}
-text = [
-  "Bob Smith", "Alice Smith", "Apple"
-]
-```
-:::
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-[
-  re.findall(r"^(\w+) (\w+)", s)
-  for s in text
-]
-```
-:::
-
-::: {.column width='50%' .fragment}
-```{python}
-m = re.search(
-  r"^(?P<first>\w+) (?P<last>\w+)",
-  text[0]
-)
-m.groupdict()
-```
-:::
-::::
-
 
 ## Flags and compiled patterns
 
-Flags are passed as an additional argument. `re.compile()` stores a pattern and its flags in an object with the same methods as the `re` module.
+Flags are passed as an additional argument and combined with `|`. `re.compile()` stores a pattern and its flags in an object with the same methods as the `re` module.
 
 ::: {.small}
-| Behavior                    | stringr `regex()`     | Python `re`                  |
+| Behavior                    | `stringr::regex()`     | Python `re`                  |
 |:----------------------------|:----------------------|:-----------------------------|
 | ignore case                 | `ignore_case = TRUE`  | `re.IGNORECASE`, `re.I`      |
 | `^` and `$` match each line | `multiline = TRUE`    | `re.MULTILINE`, `re.M`       |
@@ -1059,18 +1033,34 @@ Flags are passed as an additional argument. `re.compile()` stores a pattern and 
 | whitespace and comments     | `comments = TRUE`     | `re.VERBOSE`, `re.X`         |
 :::
 
-::: {.small}
+::: {.xsmall .mt-3}
 ```{python}
-p = re.compile(r"^the", re.MULTILINE)
-p.findall("the cat\nthe hat")
-p.sub("a", "the cat\nthe hat")
+text = "The cat in\nthe hat"
 ```
 :::
 
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+re.findall(r"^the", text)
+re.findall(r"^the", text, re.M)
+re.findall(r"^the", text, re.M | re.I)
+```
+:::
 
-## Regex in pandas and polars
+::: {.column width='50%' .fragment}
+```{python}
+p = re.compile(r"^the", re.M | re.I)
+p.findall(text)
+p.sub("a", text)
+```
+:::
+::::
 
-The `.str` accessors in pandas and polars accept regular expressions. polars uses Rust's regex engine, which does not support backreferences in patterns.
+
+## Regex in `pandas` and `polars`
+
+Many `.str` methods in `pandas` and `polars` accept regular expressions. `polars` uses Rust's regex engine, which does not support backreferences in patterns.
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -1095,9 +1085,7 @@ d = pl.DataFrame({
 ```
 ```{python}
 d.with_columns(
-  first = (
-    pl.col("x").str.extract(r"^(\w+)")
-  ),
+  first = pl.col("x").str.extract(r"^(\w+)"),
   s = pl.col("x").str.contains(r"S")
 )
 ```
@@ -1110,7 +1098,7 @@ d.with_columns(
 ## Regex in R and Python {visibility="uncounted"}
 
 ::: {.small}
-| Task                 | stringr                              | Python                                      |
+| Task                 | `stringr`                              | Python                                      |
 |:---------------------|:-------------------------------------|:--------------------------------------------|
 | pattern string       | `"\\d+"`, `r"(\d+)"`                 | `r"\d+"`                                    |
 | detect               | `str_detect()`                       | `re.search()`                               |
@@ -1133,9 +1121,9 @@ d.with_columns(
 ## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
-* stringr gives R a consistent, vectorized set of string functions. Python's equivalents are methods on a single `str`, applied to many strings with a comprehension or the `.str` accessor of pandas and polars.
+* `stringr` gives R a consistent, vectorized set of string functions. Python's equivalents are methods on a single `str`, applied to many strings with a comprehension or the `.str` accessor of pandas and polars.
 
-* Regular expression syntax is largely shared between the languages. stringr generally takes the string first and works over vectors. Python's `re` takes the pattern first and works on one string. Return values depend on the operation.
+* Regular expression syntax is largely shared between the languages. `stringr` generally takes the string first and works over vectors. Python's `re` takes the pattern first and works on one string. Return values depend on the operation.
 
 * Regex escapes sit on top of string escapes. Use raw strings, `r"(...)"` in R and `r"..."` in Python, to avoid doubling every backslash.
 

@@ -1075,7 +1075,8 @@ Dr. Colin Rundel
 </section>
 <section id="strings-in-r-and-python" class="slide level2">
 <h2>Strings in R and Python</h2>
-<p>In R a string is a single element of a character vector, and string functions are vectorized over those elements. In Python a <code>str</code> is an immutable sequence of characters that can be indexed and sliced, and its methods act on one string at a time.</p>
+<p>In R a string is a single element of a character vector, and string functions are vectorized over those elements.</p>
+<p>In Python a <code>str</code> is an immutable sequence of characters that can be indexed and sliced, and its methods act on one string at a time.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
@@ -1132,13 +1133,13 @@ Dr. Colin Rundel
 </div>
 </section>
 <section id="stringr" class="slide level2">
-<h2>stringr</h2>
-<p>stringr is the tidyverse’s string package, built on stringi and the ICU C library. Base R has equivalents for most of its functions (<code>paste()</code>, <code>substr()</code>, <code>nchar()</code>, <code>gsub()</code>, …), but their names and argument orders are inconsistent.</p>
+<h2><code>stringr</code></h2>
+<p><code>stringr</code> is the tidyverse’s string package, built on <code>stringi</code> and the ICU C library. Base R has equivalents for most of its functions (<code>paste()</code>, <code>substr()</code>, <code>nchar()</code>, <code>gsub()</code>, …), but their names and argument orders are inconsistent.</p>
 <ul>
 <li><p>Most string-manipulation functions start with <code>str_</code>.</p></li>
-<li><p>Most take the string first, making them convenient to use with pipes.</p></li>
-<li><p>Functions operate on string vectors. Some, such as <code>str_detect()</code>, also accept a vector of patterns.</p></li>
-<li><p>Missing strings generally produce missing results. Filtering functions such as <code>str_subset()</code> drop missing inputs.</p></li>
+<li><p>Most take the string as the first argument, making them convenient to use with pipes.</p></li>
+<li><p>Functions are vectorized over the string inputs. Some, such as <code>str_detect()</code>, also accept a vector of patterns.</p></li>
+<li><p>Missing strings generally produce missing results.</p></li>
 </ul>
 </section>
 <section id="string-operations" class="slide level2">
@@ -1146,15 +1147,10 @@ Dr. Colin Rundel
 <p>Most everyday string tasks have a direct equivalent in each language.</p>
 <div class="small">
 <table class="caption-top">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 36%">
-<col style="width: 42%">
-</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Task</th>
-<th style="text-align: left;">R / stringr</th>
+<th style="text-align: left;">R / <code>stringr</code></th>
 <th style="text-align: left;">Python</th>
 </tr>
 </thead>
@@ -1207,7 +1203,7 @@ Dr. Colin Rundel
 <tr class="even">
 <td style="text-align: left;">number formatting</td>
 <td style="text-align: left;"><code>formatC()</code>, <code>format()</code></td>
-<td style="text-align: left;">format spec, <code>f&quot;{x:.3f}&quot;</code></td>
+<td style="text-align: left;"><a href="https://docs.python.org/3/library/string.html#formatspec">format spec</a>, <code>f&quot;{x:.3f}&quot;</code></td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">many strings</td>
@@ -1217,15 +1213,12 @@ Dr. Colin Rundel
 </tbody>
 </table>
 </div>
-
-<aside><div>
-<p><code>str_sub()</code> uses one-based positions and includes the endpoint. Python slices use zero-based positions and exclude the endpoint.</p>
-</div></aside></section>
+</section>
 <section id="strings-in-data-frames" class="slide level2">
 <h2>Strings in data frames</h2>
-<p>stringr functions are vectorized, so they work directly inside <code>mutate()</code>.</p>
-<p>Python’s string methods are not, so pandas and polars expose vectorized versions through a <code>.str</code> accessor.</p>
-<div class="columns xsmall">
+<p><code>stringr</code> functions are vectorized, so they work directly inside <code>mutate()</code>.</p>
+<p>Python’s string methods are not, so pandas and polars expose vectorized versions through the <code>.str</code> accessor.</p>
+<div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">tibble</span>(</span>
@@ -1235,10 +1228,9 @@ Dr. Colin Rundel
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href aria-label="1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
-<span id="cb18-2"><a href aria-label="2"></a></span>
-<span id="cb18-3"><a href aria-label="3"></a>d <span class="op">=</span> pl.DataFrame({</span>
-<span id="cb18-4"><a href aria-label="4"></a>  <span class="st">&quot;name&quot;</span>: [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
-<span id="cb18-5"><a href aria-label="5"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-2"><a href aria-label="2"></a>d <span class="op">=</span> pl.DataFrame({</span>
+<span id="cb18-3"><a href aria-label="3"></a>  <span class="st">&quot;name&quot;</span>: [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
+<span id="cb18-4"><a href aria-label="4"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <div class="columns xsmall">
@@ -1260,11 +1252,9 @@ Dr. Colin Rundel
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href aria-label="1"></a>d.with_columns(</span>
-<span id="cb21-2"><a href aria-label="2"></a>  upper <span class="op">=</span> (</span>
-<span id="cb21-3"><a href aria-label="3"></a>    pl.col(<span class="st">&quot;name&quot;</span>).<span class="bu">str</span>.to_uppercase()</span>
-<span id="cb21-4"><a href aria-label="4"></a>  ),</span>
-<span id="cb21-5"><a href aria-label="5"></a>  n <span class="op">=</span> pl.col(<span class="st">&quot;name&quot;</span>).<span class="bu">str</span>.len_chars()</span>
-<span id="cb21-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-2"><a href aria-label="2"></a>  upper <span class="op">=</span> pl.col(<span class="st">&quot;name&quot;</span>).<span class="bu">str</span>.to_uppercase(),</span>
+<span id="cb21-3"><a href aria-label="3"></a>  n <span class="op">=</span> pl.col(<span class="st">&quot;name&quot;</span>).<span class="bu">str</span>.len_chars()</span>
+<span id="cb21-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -1304,7 +1294,10 @@ white-space: pre-wrap;
 </div>
 </div>
 </div></div>
-</section></section>
+
+<aside><div>
+<p>The two <code>.str</code> accessors are not the same. <code>pandas</code> mostly keeps Python’s method names (<code>.str.upper()</code>, <code>.str.len()</code>) while <code>polars</code> uses its own (<code>.str.to_uppercase()</code>, <code>.str.len_chars()</code>).</p>
+</div></aside></section></section>
 <section>
 <section id="regular-expressions" class="title-slide slide level1 center">
 <h1>Regular expressions</h1>
@@ -1314,14 +1307,15 @@ white-space: pre-wrap;
 <h2>Regular expressions</h2>
 <p>A regular expression (regex) is a sequence of characters that describes a pattern to be matched in text. Regexes are used to detect, extract, replace, and split strings, and to validate input.</p>
 <ul>
-<li><p>The idea dates to the 1950s, when Stephen Kleene formalized regular languages. Regular expressions came into common use through Unix text processing tools like <code>grep</code> and <code>sed</code>.</p></li>
+<li><p>The idea dates to the 1950s, when Stephen Kleene formalized regular languages.</p></li>
+<li><p>They came into common use in the late 1960s and early 1970s through Unix text processing tools like <code>ed</code>, <code>grep</code>, and <code>sed</code>.</p></li>
 <li><p>Most modern languages use a syntax descended from Perl’s. The core is shared, but each engine differs in its details.</p></li>
-<li><p>In R, stringr uses the ICU engine and base R uses <a href="https://en.wikipedia.org/wiki/TRE_%28computing%29">TRE</a> by default or <a href="https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions">PCRE</a> when <code>perl = TRUE</code>.</p></li>
-<li><p>We will work through the syntax using stringr, and then see how it translates to Python’s <code>re</code> module.</p></li>
+<li><p>In R, <code>stringr</code> uses the ICU engine and base R uses <a href="https://en.wikipedia.org/wiki/TRE_%28computing%29">TRE</a> by default or <a href="https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions">PCRE</a> when <code>perl = TRUE</code>.</p></li>
+<li><p>We will work through the syntax using <code>stringr</code>, and then see how it translates to Python’s <code>re</code> module.</p></li>
 </ul>
 </section>
 <section id="stringr-regular-expression-functions" class="slide level2">
-<h2>stringr regular expression functions</h2>
+<h2><code>stringr</code> regular expression functions</h2>
 <div class="medium">
 <table class="caption-top">
 <colgroup>
@@ -1384,7 +1378,7 @@ white-space: pre-wrap;
 </section>
 <section id="simple-pattern-detection" class="slide level2">
 <h2>Simple pattern detection</h2>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;The quick brown&quot;</span>, <span class="st">&quot;fox jumps over&quot;</span>, <span class="st">&quot;the lazy dog&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -1400,7 +1394,7 @@ white-space: pre-wrap;
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;the&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1465,7 +1459,7 @@ white-space: pre-wrap;
 <section id="escapes-in-practice" class="slide level2">
 <h2>Escapes in practice</h2>
 <p><code>print()</code> shows a string as it would be typed, escapes included. <code>cat()</code> shows the actual characters.</p>
-<div class="columns small">
+<div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href aria-label="1"></a><span class="fu">print</span>(<span class="st">&quot;a</span><span class="sc">\t</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1497,30 +1491,63 @@ white-space: pre-wrap;
 </div>
 </div>
 </div></div>
+<div class="columns xsmall">
+<div class="column fragment" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href aria-label="1"></a><span class="fu">print</span>(<span class="st">&quot;a</span><span class="sc">\n</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;a\nb&quot;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;a</span><span class="sc">\n</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a
+b</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href aria-label="1"></a><span class="fu">nchar</span>(<span class="st">&quot;a</span><span class="sc">\n</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href aria-label="1"></a><span class="fu">print</span>(<span class="st">&quot;a</span><span class="sc">\&quot;</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;a\&quot;b&quot;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;a</span><span class="sc">\&quot;</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a&quot;b</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href aria-label="1"></a><span class="fu">nchar</span>(<span class="st">&quot;a</span><span class="sc">\&quot;</span><span class="st">b&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+</div>
+</div></div>
 </section>
 <section id="raw-strings" class="slide level2">
 <h2>Raw strings</h2>
 <p>A raw string turns off escape processing, so a backslash is just a backslash. As of R 4.0 these are written as <code>r&quot;(...)&quot;</code>.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">int_0^</span><span class="sc">\\</span><span class="st">infty 1/e^x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">int_0^</span><span class="sc">\\</span><span class="st">infty 1/e^x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>\int_0^\infty 1/e^x</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href aria-label="1"></a><span class="fu">cat</span>(r<span class="st">&quot;(\int_0^\infty 1/e^x)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href aria-label="1"></a><span class="fu">cat</span>(r<span class="st">&quot;(\int_0^\infty 1/e^x)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>\int_0^\infty 1/e^x</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href aria-label="1"></a>r<span class="st">&quot;(\d+\.\d+)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href aria-label="1"></a>r<span class="st">&quot;(\d+\.\d+)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;\\d+\\.\\d+&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href aria-label="1"></a><span class="st">&quot;</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+&quot;</span> <span class="sc">==</span> r<span class="st">&quot;(\d+\.\d+)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href aria-label="1"></a><span class="st">&quot;</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">d+&quot;</span> <span class="sc">==</span> r<span class="st">&quot;(\d+\.\d+)&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1534,7 +1561,7 @@ white-space: pre-wrap;
 <section id="regex-metacharacters" class="slide level2">
 <h2>Regex metacharacters</h2>
 <p>The power of regular expressions comes from metacharacters, which modify how the pattern is matched.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb51"><pre class="sourceCode numberSource regex number-lines code-with-copy"><code class="sourceCode"><span id="cb51-1"><a href aria-label="1"></a>. ^ $ * + ? { } [ ] \ | ( )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb63"><pre class="sourceCode numberSource regex number-lines code-with-copy"><code class="sourceCode"><span id="cb63-1"><a href aria-label="1"></a>. ^ $ * + ? { } [ ] \ | ( )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p>To match one of these literally it needs to be escaped with a <code>\</code>. Regex escapes sit on top of string escapes, so without raw strings we need two levels of escaping.</p>
 <p>
@@ -1580,13 +1607,13 @@ white-space: pre-wrap;
 <section id="matching-metacharacters" class="slide level2">
 <h2>Matching metacharacters</h2>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="st">&quot;\[&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="st">&quot;\[&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>## Error: &#39;\[&#39; is an unrecognized escape</code></pre>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">[&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">[&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1594,17 +1621,17 @@ white-space: pre-wrap;
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href aria-label="1"></a><span class="fu">cat</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>abc\def</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>, <span class="st">&quot;</span><span class="sc">\\\\</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>, <span class="st">&quot;</span><span class="sc">\\\\</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>, r<span class="st">&quot;(</span><span class="sc">\\</span><span class="st">)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc</span><span class="sc">\\</span><span class="st">def&quot;</span>, r<span class="st">&quot;(</span><span class="sc">\\</span><span class="st">)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1615,9 +1642,9 @@ white-space: pre-wrap;
 <div class="medium">
 <p>When the pattern is plain text, <code>fixed()</code> treats it literally, so regex escaping is unnecessary. Normal R string-literal escaping still applies unless we use a raw string.</p>
 </div>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="fu">fixed</span>(<span class="st">&quot;[&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="st">&quot;abc[def&quot;</span>, <span class="fu">fixed</span>(<span class="st">&quot;[&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1636,34 +1663,23 @@ white-space: pre-wrap;
 <section id="anchors" class="slide level2">
 <h2>Anchors</h2>
 <p>Sometimes we want a pattern to match only at a particular location in a string. Anchors match a position rather than a character.</p>
-<div class="small">
+<div class="columns small">
+<div class="column">
 <table class="caption-top">
-<colgroup>
-<col style="width: 8%">
-<col style="width: 91%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Regex</th>
-<th style="text-align: left;">Meaning in stringr</th>
+<th style="text-align: left;">Meaning in <code>stringr</code></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>^</code></td>
-<td style="text-align: left;">Start of string; also start of line with multiline enabled</td>
+<td style="text-align: left;">Start of string (or line, in multiline mode)</td>
 </tr>
 <tr class="even">
-<td><code>\A</code></td>
-<td style="text-align: left;">Absolute start of string</td>
-</tr>
-<tr class="odd">
 <td><code>$</code></td>
-<td style="text-align: left;">End of string or before a final newline; also line ends with multiline enabled</td>
-</tr>
-<tr class="even">
-<td><code>\z</code></td>
-<td style="text-align: left;">Absolute end of string</td>
+<td style="text-align: left;">End of string (or line, in multiline mode)</td>
 </tr>
 <tr class="odd">
 <td><code>\b</code></td>
@@ -1675,69 +1691,98 @@ white-space: pre-wrap;
 </tr>
 </tbody>
 </table>
-</div>
+</div><div class="column">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Regex</th>
+<th style="text-align: left;">Meaning in <code>stringr</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>\A</code></td>
+<td style="text-align: left;">Start of string, always</td>
+</tr>
+<tr class="even">
+<td><code>\Z</code></td>
+<td style="text-align: left;">End of string or before a trailing newline</td>
+</tr>
+<tr class="odd">
+<td><code>\z</code></td>
+<td style="text-align: left;">End of string, always</td>
+</tr>
+</tbody>
+</table>
+</div></div>
 <div class="fragment">
-<div class="columns xsmall">
+<div class="mt-3">
+<div class="mxsmall">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span>
-<span id="cb64-2"><a href aria-label="2"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;^the&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;^the&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;--- brown owl ate the egg&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;the$&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;the$&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;the brown owl ate the egg&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;egg$&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;egg$&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;the brown owl ate the ---&quot;</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;th* brown owl at* th* *gg&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e</span><span class="sc">\\</span><span class="st">b&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;th* brown owl at* th* egg&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e</span><span class="sc">\\</span><span class="st">B&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;e</span><span class="sc">\\</span><span class="st">B&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;the brown owl ate the *gg&quot;</code></pre>
 </div>
 </div>
 </div></div>
+</div>
 
 </div>
 <aside><div>
-<p>Python’s <code>re</code> writes the absolute end of string as <code>\Z</code>. In ICU, <code>\Z</code> also allows a final newline.</p>
+<p>Python’s <code>\Z</code> behaves like <code>stringr</code>’s <code>\z</code>.</p>
 </div></aside></section>
 <section id="alternation" class="slide level2">
 <h2>Alternation</h2>
 <p>If there is more than one pattern we would like to match we can use the or (<code>|</code>) metacharacter. It has the lowest precedence of any operator, so use parentheses to limit its scope.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;the|egg&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;the|egg&quot;</span>, <span class="st">&quot;---&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;--- brown owl ate --- ---&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;a|e|i|o|u&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;a|e|i|o|u&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;th* br*wn *wl *t* th* *gg&quot;</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">ba|e|i|o|u&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">ba|e|i|o|u&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;th* br*wn *wl *t* th* *gg&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">b(a|e|i|o|u)&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">b(a|e|i|o|u)&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;the brown *wl *te the *gg&quot;</code></pre>
 </div>
@@ -1748,17 +1793,88 @@ white-space: pre-wrap;
 <aside><div>
 <p>Parentheses group alternatives, so <code>\b(a|e|i|o|u)</code> applies the word boundary to every vowel. These parentheses also capture the matched text, which we’ll use later.</p>
 </div></aside></section>
-<section id="character-classes" class="slide level2">
-<h2>Character classes</h2>
-<p>When we want to match whole classes of characters at a time there are a number of convenience patterns built in.</p>
+<section id="classes-and-ranges" class="slide level2">
+<h2>Classes and ranges</h2>
+<p>A character class matches any one character from a set, which is written inside square brackets. Ranges simplify classes made up of contiguous letters or digits.</p>
 <p>
 </p>
-<div class="medium">
+<div class="small">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Class</th>
+<th style="text-align: left;">Type</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>[abc]</code></td>
+<td style="text-align: left;">Class (a or b or c)</td>
+</tr>
+<tr class="even">
+<td><code>[^abc]</code></td>
+<td style="text-align: left;">Negated class (not a or b or c)</td>
+</tr>
+<tr class="odd">
+<td><code>[a-c]</code></td>
+<td style="text-align: left;">Range (lower case letter from a to c)</td>
+</tr>
+<tr class="even">
+<td><code>[A-C]</code></td>
+<td style="text-align: left;">Range (upper case letter from A to C)</td>
+</tr>
+<tr class="odd">
+<td><code>[0-7]</code></td>
+<td style="text-align: left;">Range (digit from 0 to 7)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<div class="xsmall mt-3">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[aeiou]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;*ppl*&quot;          &quot;(219) 733-8965&quot;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[13579]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;apple&quot;          &quot;(2**) ***-8*6*&quot;</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[1-5a-f]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;*ppl*&quot;          &quot;(**9) 7**-896*&quot;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(</span>
+<span id="cb104-2"><a href aria-label="2"></a>  text, <span class="st">&quot;[^1-5a-f]&quot;</span>, <span class="st">&quot;*&quot;</span></span>
+<span id="cb104-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] &quot;a***e&quot;          &quot;*21****33****5&quot;</code></pre>
+</div>
+</div>
+</div></div>
+</div>
+</section>
+<section id="character-classes" class="slide level2">
+<h2>Character classes</h2>
+<p>Some classes are common enough that they have built-in shorthands.</p>
+<p>
+</p>
+<div class="small">
 <table class="caption-top">
 <colgroup>
 <col style="width: 13%">
-<col style="width: 21%">
-<col style="width: 65%">
+<col style="width: 17%">
+<col style="width: 68%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -1816,18 +1932,21 @@ white-space: pre-wrap;
 </tbody>
 </table>
 </div>
-</section>
+
+<aside><div>
+<p>POSIX classes like <code>[:alpha:]</code> belong inside a bracket expression, e.g. <code>[[:alpha:]_]</code> or <code>[^[:space:]]</code>. <code>stringr</code> also accepts them on their own, but base R does not. Python’s <code>re</code> does not support them at all.</p>
+</div></aside></section>
 <section id="unicode-character-classes" class="slide level2">
 <h2>Unicode character classes</h2>
-<p>stringr’s character classes follow Unicode categories, so they include characters beyond ASCII. Here <code>٣</code> is the Arabic-Indic digit three, <code>_</code> is both a word character and punctuation, and <code>+</code> is a symbol rather than punctuation.</p>
-<div class="small">
+<p><code>stringr</code>’s character classes follow Unicode categories, so they include characters beyond ASCII. Here <code>٣</code> is the Arabic-Indic digit three, <code>_</code> is both a word character and punctuation, and <code>+</code> is a symbol rather than punctuation.</p>
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href aria-label="1"></a><span class="fu">tibble</span>(</span>
-<span id="cb84-2"><a href aria-label="2"></a>  <span class="at">char =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;é&quot;</span>, <span class="st">&quot;٣&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="st">&quot;+&quot;</span>),</span>
-<span id="cb84-3"><a href aria-label="3"></a>  <span class="at">digit =</span> <span class="fu">str_detect</span>(char, r<span class="st">&quot;(\d)&quot;</span>),</span>
-<span id="cb84-4"><a href aria-label="4"></a>  <span class="at">word =</span> <span class="fu">str_detect</span>(char, r<span class="st">&quot;(\w)&quot;</span>),</span>
-<span id="cb84-5"><a href aria-label="5"></a>  <span class="at">punctuation =</span> <span class="fu">str_detect</span>(char, <span class="st">&quot;[[:punct:]]&quot;</span>)</span>
-<span id="cb84-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href aria-label="1"></a><span class="fu">tibble</span>(</span>
+<span id="cb106-2"><a href aria-label="2"></a>  <span class="at">char =</span> <span class="fu">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;é&quot;</span>, <span class="st">&quot;٣&quot;</span>, <span class="st">&quot;_&quot;</span>, <span class="st">&quot;+&quot;</span>),</span>
+<span id="cb106-3"><a href aria-label="3"></a>  <span class="at">digit =</span> <span class="fu">str_detect</span>(char, r<span class="st">&quot;(\d)&quot;</span>),</span>
+<span id="cb106-4"><a href aria-label="4"></a>  <span class="at">word =</span> <span class="fu">str_detect</span>(char, r<span class="st">&quot;(\w)&quot;</span>),</span>
+<span id="cb106-5"><a href aria-label="5"></a>  <span class="at">punctuation =</span> <span class="fu">str_detect</span>(char, <span class="st">&quot;[[:punct:]]&quot;</span>)</span>
+<span id="cb106-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 5 × 4
   char  digit word  punctuation
@@ -1844,15 +1963,15 @@ white-space: pre-wrap;
 <section id="example" class="slide level2">
 <h2>Example</h2>
 <p>How would we write a regular expression to match a telephone number with the form <code>(###) ###-####</code>?</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>, <span class="st">&quot;(329) 293-8753&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>, <span class="st">&quot;(329) 293-8753&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE FALSE FALSE</code></pre>
 </div>
@@ -1860,85 +1979,14 @@ white-space: pre-wrap;
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE  TRUE  TRUE</code></pre>
 </div>
 </div>
 </div>
-</div>
-</section>
-<section id="classes-and-ranges" class="slide level2">
-<h2>Classes and ranges</h2>
-<p>We can also define our own classes using square brackets. Ranges simplify classes made up of contiguous letters or digits.</p>
-<p>
-</p>
-<div class="medium">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Class</th>
-<th style="text-align: left;">Type</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>[abc]</code></td>
-<td style="text-align: left;">Class (a or b or c)</td>
-</tr>
-<tr class="even">
-<td><code>[^abc]</code></td>
-<td style="text-align: left;">Negated class (not a or b or c)</td>
-</tr>
-<tr class="odd">
-<td><code>[a-c]</code></td>
-<td style="text-align: left;">Range (lower case letter from a to c)</td>
-</tr>
-<tr class="even">
-<td><code>[A-C]</code></td>
-<td style="text-align: left;">Range (upper case letter from A to C)</td>
-</tr>
-<tr class="odd">
-<td><code>[0-7]</code></td>
-<td style="text-align: left;">Range (digit from 0 to 7)</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<div class="xsmall mt-3">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[aeiou]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;*ppl*&quot;          &quot;(219) 733-8965&quot;</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[13579]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;apple&quot;          &quot;(2**) ***-8*6*&quot;</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(text, <span class="st">&quot;[1-5a-f]&quot;</span>, <span class="st">&quot;*&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;*ppl*&quot;          &quot;(**9) 7**-896*&quot;</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href aria-label="1"></a><span class="fu">str_replace_all</span>(</span>
-<span id="cb98-2"><a href aria-label="2"></a>  text, <span class="st">&quot;[^1-5a-f]&quot;</span>, <span class="st">&quot;*&quot;</span></span>
-<span id="cb98-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;a***e&quot;          &quot;*21****33****5&quot;</code></pre>
-</div>
-</div>
-</div></div>
 </div>
 </section>
 <section id="quantifiers" class="slide level2">
@@ -1984,25 +2032,25 @@ white-space: pre-wrap;
 <section id="example-1" class="slide level2">
 <h2>Example</h2>
 <p>How would we improve our previous regular expression for matching a telephone number with the form <code>(###) ###-####</code>?</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>, <span class="st">&quot;(329) 293-8753&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;apple&quot;</span>, <span class="st">&quot;(219) 733-8965&quot;</span>, <span class="st">&quot;(329) 293-8753&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d-</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d</span><span class="sc">\\</span><span class="st">d&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE  TRUE  TRUE</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d{3}</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d{3}-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d{3}</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d{3}-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE  TRUE  TRUE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d{3}</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d{3}-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\\</span><span class="st">d{3}</span><span class="sc">\\</span><span class="st">) </span><span class="sc">\\</span><span class="st">d{3}-</span><span class="sc">\\</span><span class="st">d{4}&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA               &quot;(219) 733-8965&quot; &quot;(329) 293-8753&quot;</code></pre>
 </div>
@@ -2024,12 +2072,12 @@ white-space: pre-wrap;
 </ul>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Jeremy Cruz&quot;</span>, <span class="st">&quot;Nathaniel Le&quot;</span>, <span class="st">&quot;Jasmine Chu&quot;</span>, <span class="st">&quot;Bradley Calderon Raygoza&quot;</span>,</span>
-<span id="cb107-2"><a href aria-label="2"></a>      <span class="st">&quot;Quinten Weller&quot;</span>, <span class="st">&quot;Katelien Kanamu-Hauanio&quot;</span>, <span class="st">&quot;Zuhriyaa al-Amen&quot;</span>,</span>
-<span id="cb107-3"><a href aria-label="3"></a>      <span class="st">&quot;Travale York&quot;</span>, <span class="st">&quot;Alexis Ahmed&quot;</span>, <span class="st">&quot;David Alcocer&quot;</span>, <span class="st">&quot;Jairo Martinez&quot;</span>,</span>
-<span id="cb107-4"><a href aria-label="4"></a>      <span class="st">&quot;Dwone Gallegos&quot;</span>, <span class="st">&quot;Amanda Sherwood&quot;</span>, <span class="st">&quot;Hadiyya el-Eid&quot;</span>, <span class="st">&quot;Shaimaaa al-Can&quot;</span>,</span>
-<span id="cb107-5"><a href aria-label="5"></a>      <span class="st">&quot;Sarah Love&quot;</span>, <span class="st">&quot;Shelby Villano&quot;</span>, <span class="st">&quot;Sundus al-Hashmi&quot;</span>, <span class="st">&quot;Dyani Loving&quot;</span>,</span>
-<span id="cb107-6"><a href aria-label="6"></a>      <span class="st">&quot;Shanelle Douglas&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Jeremy Cruz&quot;</span>, <span class="st">&quot;Nathaniel Le&quot;</span>, <span class="st">&quot;Jasmine Chu&quot;</span>, <span class="st">&quot;Bradley Calderon Raygoza&quot;</span>,</span>
+<span id="cb120-2"><a href aria-label="2"></a>      <span class="st">&quot;Quinten Weller&quot;</span>, <span class="st">&quot;Katelien Kanamu-Hauanio&quot;</span>, <span class="st">&quot;Zuhriyaa al-Amen&quot;</span>,</span>
+<span id="cb120-3"><a href aria-label="3"></a>      <span class="st">&quot;Travale York&quot;</span>, <span class="st">&quot;Alexis Ahmed&quot;</span>, <span class="st">&quot;David Alcocer&quot;</span>, <span class="st">&quot;Jairo Martinez&quot;</span>,</span>
+<span id="cb120-4"><a href aria-label="4"></a>      <span class="st">&quot;Dwone Gallegos&quot;</span>, <span class="st">&quot;Amanda Sherwood&quot;</span>, <span class="st">&quot;Hadiyya el-Eid&quot;</span>, <span class="st">&quot;Shaimaaa al-Can&quot;</span>,</span>
+<span id="cb120-5"><a href aria-label="5"></a>      <span class="st">&quot;Sarah Love&quot;</span>, <span class="st">&quot;Shelby Villano&quot;</span>, <span class="st">&quot;Sundus al-Hashmi&quot;</span>, <span class="st">&quot;Dyani Loving&quot;</span>,</span>
+<span id="cb120-6"><a href aria-label="6"></a>      <span class="st">&quot;Shanelle Douglas&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </section>
@@ -2038,18 +2086,18 @@ white-space: pre-wrap;
 <p><code>str_extract()</code> returns the first match in each string, or <code>NA</code> when there is none. <code>str_extract_all()</code> returns every match, as a list with one element for each string.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb108-2"><a href aria-label="2"></a>  <span class="st">&quot;Midterms on 2026-10-14 and 2026-11-18&quot;</span>,</span>
-<span id="cb108-3"><a href aria-label="3"></a>  <span class="st">&quot;Final on 2026-12-12&quot;</span>,</span>
-<span id="cb108-4"><a href aria-label="4"></a>  <span class="st">&quot;No project&quot;</span></span>
-<span id="cb108-5"><a href aria-label="5"></a>)</span>
-<span id="cb108-6"><a href aria-label="6"></a>date <span class="ot">=</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">d{4}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href aria-label="1"></a>x <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb121-2"><a href aria-label="2"></a>  <span class="st">&quot;Midterms on 2026-10-14 and 2026-11-18&quot;</span>,</span>
+<span id="cb121-3"><a href aria-label="3"></a>  <span class="st">&quot;Final on 2026-12-12&quot;</span>,</span>
+<span id="cb121-4"><a href aria-label="4"></a>  <span class="st">&quot;No project&quot;</span></span>
+<span id="cb121-5"><a href aria-label="5"></a>)</span>
+<span id="cb121-6"><a href aria-label="6"></a>date <span class="ot">=</span> <span class="st">&quot;</span><span class="sc">\\</span><span class="st">d{4}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(x, date)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(x, date)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;2026-10-14&quot; &quot;2026-12-12&quot; NA          </code></pre>
 </div>
@@ -2059,7 +2107,7 @@ white-space: pre-wrap;
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href aria-label="1"></a><span class="fu">str_extract_all</span>(x, date)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href aria-label="1"></a><span class="fu">str_extract_all</span>(x, date)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [1] &quot;2026-10-14&quot; &quot;2026-11-18&quot;
@@ -2077,15 +2125,15 @@ character(0)</code></pre>
 <section id="greedy-vs-non-greedy-matching" class="slide level2">
 <h2>Greedy vs non-greedy matching</h2>
 <p>At a given starting position, a greedy quantifier tries to consume as much text as possible while allowing the rest of the pattern to match. Adding <code>?</code> makes it non-greedy, so it consumes as little as possible while still allowing the rest to match.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="st">&quot;&lt;div class=&#39;main&#39;&gt; &lt;div&gt; &lt;a href=&#39;here.pdf&#39;&gt;Here!&lt;/a&gt; &lt;/div&gt; &lt;/div&gt;&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="st">&quot;&lt;div class=&#39;main&#39;&gt; &lt;div&gt; &lt;a href=&#39;here.pdf&#39;&gt;Here!&lt;/a&gt; &lt;/div&gt; &lt;/div&gt;&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;&lt;div&gt;.*&lt;/div&gt;&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;&lt;div&gt;.*&lt;/div&gt;&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;&lt;div&gt; &lt;a href=&#39;here.pdf&#39;&gt;Here!&lt;/a&gt; &lt;/div&gt; &lt;/div&gt;&quot;</code></pre>
 </div>
@@ -2093,9 +2141,9 @@ character(0)</code></pre>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;&lt;div&gt;.*?&lt;/div&gt;&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;&lt;div&gt;.*?&lt;/div&gt;&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;&lt;div&gt; &lt;a href=&#39;here.pdf&#39;&gt;Here!&lt;/a&gt; &lt;/div&gt;&quot;</code></pre>
 </div>
@@ -2139,25 +2187,25 @@ character(0)</code></pre>
 </table>
 </section>
 <section id="groups-in-stringr" class="slide level2">
-<h2>Groups in stringr</h2>
+<h2>Groups in <code>stringr</code></h2>
 <p><code>str_extract()</code> returns the full match by default. Its <code>group</code> argument can select a capturing group. <code>str_match()</code> returns a matrix with the full match in the first column, followed by one column per capturing group.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Smith&quot;</span>, <span class="st">&quot;Apple&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Smith&quot;</span>, <span class="st">&quot;Apple&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Bob Smith&quot;   &quot;Alice Smith&quot; NA           </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>, <span class="at">group =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>, <span class="at">group =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Bob&quot;   &quot;Alice&quot; NA     </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href aria-label="1"></a><span class="fu">str_match</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href aria-label="1"></a><span class="fu">str_match</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) </span><span class="sc">\\</span><span class="st">w+&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]          [,2]   
 [1,] &quot;Bob Smith&quot;   &quot;Bob&quot;  
@@ -2167,11 +2215,11 @@ character(0)</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Bob Smith&quot;   &quot;Alice Smith&quot; NA           </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href aria-label="1"></a><span class="fu">str_match</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href aria-label="1"></a><span class="fu">str_match</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     [,1]          [,2]    [,3]   
 [1,] &quot;Bob Smith&quot;   &quot;Bob&quot;   &quot;Smith&quot;
@@ -2184,9 +2232,9 @@ character(0)</code></pre>
 <section id="multiple-matches-and-groups" class="slide level2">
 <h2>Multiple matches and groups</h2>
 <p><code>str_match_all()</code> returns a list with one matrix per input string. Each row is a match. The first column contains the full match, followed by one column per capturing group.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href aria-label="1"></a><span class="fu">str_match_all</span>(<span class="st">&quot;A12 B34&quot;</span>, <span class="st">&quot;([A-Z])([0-9]+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href aria-label="1"></a><span class="fu">str_match_all</span>(<span class="st">&quot;A12 B34&quot;</span>, <span class="st">&quot;([A-Z])([0-9]+)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
      [,1]  [,2] [,3]
@@ -2200,25 +2248,25 @@ character(0)</code></pre>
 <section id="backreferences" class="slide level2">
 <h2>Backreferences</h2>
 <p>Backreferences refer to previously captured groups using <code>\1</code>, <code>\2</code>, etc. They can be used in a replacement string, or within the pattern itself to match repeated text.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Smith&quot;</span>, <span class="st">&quot;Apple&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Smith&quot;</span>, <span class="st">&quot;Apple&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">2, </span><span class="sc">\\</span><span class="st">1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a><span class="fu">str_replace</span>(text, <span class="st">&quot;^(</span><span class="sc">\\</span><span class="st">w+) (</span><span class="sc">\\</span><span class="st">w+)&quot;</span>, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">2, </span><span class="sc">\\</span><span class="st">1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Smith, Bob&quot;   &quot;Smith, Alice&quot; &quot;Apple&quot;       </code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb134"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="fu">c</span>(<span class="st">&quot;abab&quot;</span>, <span class="st">&quot;cdcd&quot;</span>, <span class="st">&quot;abcd&quot;</span>), <span class="st">&quot;^(..)</span><span class="sc">\\</span><span class="st">1$&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href aria-label="1"></a><span class="fu">str_detect</span>(<span class="fu">c</span>(<span class="st">&quot;abab&quot;</span>, <span class="st">&quot;cdcd&quot;</span>, <span class="st">&quot;abcd&quot;</span>), <span class="st">&quot;^(..)</span><span class="sc">\\</span><span class="st">1$&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE  TRUE FALSE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb136"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(<span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;banana&quot;</span>, <span class="st">&quot;apple&quot;</span>), <span class="st">&quot;(.)</span><span class="sc">\\</span><span class="st">1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href aria-label="1"></a><span class="fu">str_extract</span>(<span class="fu">c</span>(<span class="st">&quot;hello&quot;</span>, <span class="st">&quot;banana&quot;</span>, <span class="st">&quot;apple&quot;</span>), <span class="st">&quot;(.)</span><span class="sc">\\</span><span class="st">1&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;ll&quot; NA   &quot;pp&quot;</code></pre>
 </div>
@@ -2228,7 +2276,7 @@ character(0)</code></pre>
 </section>
 <section id="flags" class="slide level2">
 <h2>Flags</h2>
-<p>Flags change how a pattern is interpreted. In stringr they are set by wrapping the pattern in <code>regex()</code>.</p>
+<p>Flags change how a pattern is interpreted. In <code>stringr</code> they are set by wrapping the pattern in <code>regex()</code>.</p>
 <div class="small">
 <table class="caption-top">
 <colgroup>
@@ -2263,11 +2311,11 @@ character(0)</code></pre>
 </div>
 <div class="xsmall mt-3">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb138"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href aria-label="1"></a><span class="fu">str_count</span>(<span class="st">&quot;the cat</span><span class="sc">\n</span><span class="st">the hat&quot;</span>, <span class="st">&quot;^the&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href aria-label="1"></a><span class="fu">str_count</span>(<span class="st">&quot;the cat</span><span class="sc">\n</span><span class="st">the hat&quot;</span>, <span class="st">&quot;^the&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href aria-label="1"></a><span class="fu">str_count</span>(<span class="st">&quot;the cat</span><span class="sc">\n</span><span class="st">the hat&quot;</span>, <span class="fu">regex</span>(<span class="st">&quot;^the&quot;</span>, <span class="at">multiline =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href aria-label="1"></a><span class="fu">str_count</span>(<span class="st">&quot;the cat</span><span class="sc">\n</span><span class="st">the hat&quot;</span>, <span class="fu">regex</span>(<span class="st">&quot;^the&quot;</span>, <span class="at">multiline =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2</code></pre>
 </div>
@@ -2276,20 +2324,20 @@ character(0)</code></pre>
 </section>
 <section id="regex-in-data-frames" class="slide level2">
 <h2>Regex in data frames</h2>
-<p>stringr’s functions are vectorized, so they can be used directly on the columns of a data frame.</p>
+<p><code>stringr</code>’s functions are vectorized, so they can be used directly on the columns of a data frame.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb142"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href aria-label="1"></a>d <span class="ot">=</span> <span class="fu">tibble</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
-<span id="cb143-2"><a href aria-label="2"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb143-3"><a href aria-label="3"></a>    <span class="at">first =</span> <span class="fu">str_extract</span>(x, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">w+&quot;</span>),</span>
-<span id="cb143-4"><a href aria-label="4"></a>    <span class="at">s =</span> <span class="fu">str_detect</span>(x, <span class="st">&quot;S&quot;</span>)</span>
-<span id="cb143-5"><a href aria-label="5"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb156-2"><a href aria-label="2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb156-3"><a href aria-label="3"></a>    <span class="at">first =</span> <span class="fu">str_extract</span>(x, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">w+&quot;</span>),</span>
+<span id="cb156-4"><a href aria-label="4"></a>    <span class="at">s =</span> <span class="fu">str_detect</span>(x, <span class="st">&quot;S&quot;</span>)</span>
+<span id="cb156-5"><a href aria-label="5"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 3
   x           first s    
@@ -2300,8 +2348,8 @@ character(0)</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
-<span id="cb145-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(x, <span class="st">&quot;^A&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a>d <span class="sc">|&gt;</span></span>
+<span id="cb158-2"><a href aria-label="2"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(x, <span class="st">&quot;^A&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 × 1
   x          
@@ -2311,33 +2359,17 @@ character(0)</code></pre>
 </div>
 </div></div>
 </section>
-<section id="how-not-to-use-a-regex" class="slide level2">
-<h2>How not to use a regex</h2>
-<p>To validate an email address, just use the following.</p>
-<p>
-</p>
-<div class="xsmall">
-<pre><code>(?:[a-z0-9!#$%&amp;&#39;*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&amp;&#39;*+/=?^_`{|}~-]+)*|&quot;
-(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*&quot;)
-@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[
-(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}
-(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:
-(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])</code></pre>
-</div>
-<p>To confirm access to the mailbox, send a verification link. A regex cannot establish that.</p>
-
-<aside><div>
-<p>For true horror, see this old-school Perl regex for email addresses <a href="https://pdw.ex-parrot.com/Mail-RFC822-Address.html">here</a>.</p>
-</div></aside></section>
 <section id="exercise-2" class="slide level2">
 <h2>Exercise 2</h2>
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(</span>
-<span id="cb148-2"><a href aria-label="2"></a>  <span class="st">&quot;apple&quot;</span>,</span>
-<span id="cb148-3"><a href aria-label="3"></a>  <span class="st">&quot;219 733 8965&quot;</span>,</span>
-<span id="cb148-4"><a href aria-label="4"></a>  <span class="st">&quot;329-293-8753&quot;</span>,</span>
-<span id="cb148-5"><a href aria-label="5"></a>  <span class="st">&quot;Work: (579) 499-7527; Home: (543) 355 3679&quot;</span></span>
-<span id="cb148-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href aria-label="1"></a>text <span class="ot">=</span> <span class="fu">c</span>(</span>
+<span id="cb160-2"><a href aria-label="2"></a>  <span class="st">&quot;apple&quot;</span>,</span>
+<span id="cb160-3"><a href aria-label="3"></a>  <span class="st">&quot;219 733 8965&quot;</span>,</span>
+<span id="cb160-4"><a href aria-label="4"></a>  <span class="st">&quot;329-293-8753&quot;</span>,</span>
+<span id="cb160-5"><a href aria-label="5"></a>  <span class="st">&quot;Work: (579) 499-7527; Home: (543) 355 3679&quot;</span></span>
+<span id="cb160-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </div>
 <ul>
 <li><p>Write a regular expression that will extract all of the phone numbers contained in the vector above. Expect 0, 1, 1, and 2 matches across the four inputs.</p></li>
@@ -2351,7 +2383,7 @@ character(0)</code></pre>
 </section>
 <section id="pythons-re-module" class="slide level2">
 <h2>Python’s <code>re</code> module</h2>
-<div class="medium">
+<div class="small">
 <table class="caption-top">
 <colgroup>
 <col style="width: 37%">
@@ -2399,41 +2431,38 @@ character(0)</code></pre>
 </tbody>
 </table>
 </div>
-<p>
-</p>
-<p>Most patterns shown here translate directly, but regex engines differ in some details as well as their interfaces. The pattern comes first and the string second, the functions take a single string, and <code>re.sub()</code> replaces every match unless <code>count</code> is given.</p>
-
-<aside><div>
-<p><code>re</code> does not support the POSIX classes like <code>[[:digit:]]</code>. Use <code>\d</code>, <code>\s</code>, <code>\w</code>, or an explicit class such as <code>[a-z]</code>.</p>
-</div></aside></section>
+<div class="mt-3">
+<p>Most patterns shown so far translate directly, but regex engines differ in some details as well as their interfaces.</p>
+<p>For example <code>re</code> does not support the POSIX classes like <code>[[:digit:]]</code>. Use <code>\d</code>, <code>\s</code>, <code>\w</code>, or an explicit class such as <code>[a-z]</code>.</p>
+</div>
+</section>
 <section id="raw-strings-in-python" class="slide level2">
 <h2>Raw strings in Python</h2>
-<p>Python’s raw strings are written <code>r&quot;...&quot;</code>, and the convention is to write every regex pattern as one. This is more than a convenience, since in a regular Python string <code>&quot;\b&quot;</code> is a backspace character and not a word boundary.</p>
-<div class="small">
+<p>Python’s raw strings are written <code>r&quot;...&quot;</code>, and the convention is to write every regex pattern as one.</p>
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb149-1"><a href aria-label="1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">int_0^</span><span class="ch">\\</span><span class="st">infty 1/e^x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb161"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb161-1"><a href aria-label="1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">int_0^</span><span class="ch">\\</span><span class="st">infty 1/e^x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>\int_0^\infty 1/e^x</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb151-1"><a href aria-label="1"></a><span class="bu">print</span>(<span class="vs">r&quot;</span><span class="er">\</span><span class="vs">int_0</span><span class="dv">^</span><span class="er">\</span><span class="vs">infty 1/e</span><span class="dv">^</span><span class="vs">x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a><span class="bu">print</span>(<span class="vs">r&quot;</span><span class="er">\</span><span class="vs">int_0</span><span class="dv">^</span><span class="er">\</span><span class="vs">infty 1/e</span><span class="dv">^</span><span class="vs">x&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>\int_0^\infty 1/e^x</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb153-1"><a href aria-label="1"></a><span class="im">import</span> re</span>
-<span id="cb153-2"><a href aria-label="2"></a></span>
-<span id="cb153-3"><a href aria-label="3"></a>text <span class="op">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href aria-label="1"></a><span class="im">import</span> re</span>
+<span id="cb165-2"><a href aria-label="2"></a>text <span class="op">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb154-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">\b</span><span class="vs">ow&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb166-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">\b</span><span class="vs">ow&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;the brown ---l ate the egg&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb156-1"><a href aria-label="1"></a>re.sub(<span class="st">&quot;</span><span class="ch">\b</span><span class="st">ow&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>re.sub(<span class="st">&quot;</span><span class="ch">\b</span><span class="st">ow&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;the brown owl ate the egg&#39;</code></pre>
 </div>
@@ -2444,29 +2473,33 @@ character(0)</code></pre>
 <section id="detecting-patterns" class="slide level2">
 <h2>Detecting patterns</h2>
 <p><code>re.search()</code> takes a single string, so the vectorized <code>str_detect()</code> and <code>str_subset()</code> become comprehensions.</p>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb158-1"><a href aria-label="1"></a>text <span class="op">=</span> [<span class="st">&quot;The quick brown&quot;</span>, <span class="st">&quot;fox jumps over&quot;</span>, <span class="st">&quot;the lazy dog&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>text <span class="op">=</span> [<span class="st">&quot;The quick brown&quot;</span>, <span class="st">&quot;fox jumps over&quot;</span>, <span class="st">&quot;the lazy dog&quot;</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb159"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb159-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;quick&quot;</span>, s)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb171"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb171-1"><a href aria-label="1"></a>[re.search(<span class="st">&quot;quick&quot;</span>, s) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[&lt;re.Match object; span=(4, 9), match=&#39;quick&#39;&gt;, None, None]</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb173"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb173-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;quick&quot;</span>, s)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[True, False, False]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb161"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb161-1"><a href aria-label="1"></a>[s <span class="cf">for</span> s <span class="kw">in</span> text <span class="cf">if</span> re.search(<span class="st">&quot;o&quot;</span>, s)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb175"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb175-1"><a href aria-label="1"></a>[s <span class="cf">for</span> s <span class="kw">in</span> text <span class="cf">if</span> re.search(<span class="st">&quot;o&quot;</span>, s)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;The quick brown&#39;, &#39;fox jumps over&#39;, &#39;the lazy dog&#39;]</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb163-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;the&quot;</span>, s)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb177"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb177-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;the&quot;</span>, s)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[False, False, True]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb165-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;the&quot;</span>, s, re.IGNORECASE)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb179"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb179-1"><a href aria-label="1"></a>[<span class="bu">bool</span>(re.search(<span class="st">&quot;the&quot;</span>, s, re.IGNORECASE)) <span class="cf">for</span> s <span class="kw">in</span> text]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[True, False, True]</code></pre>
 </div>
@@ -2479,40 +2512,39 @@ character(0)</code></pre>
 <p><code>re.search()</code> returns a <code>Match</code> object, or <code>None</code> when there is no match. <code>None</code> is falsy, so <code>if m:</code> is the usual test. Positions are 0-based and the end is exclusive.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb167"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb167-1"><a href aria-label="1"></a>x <span class="op">=</span> <span class="st">&quot;fox jumps over&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb181"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href aria-label="1"></a>x <span class="op">=</span> <span class="st">&quot;fox jumps over&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb168"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb168-1"><a href aria-label="1"></a>m <span class="op">=</span> re.search(<span class="st">&quot;o&quot;</span>, x)</span>
-<span id="cb168-2"><a href aria-label="2"></a>m</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb182"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb182-1"><a href aria-label="1"></a>m <span class="op">=</span> re.search(<span class="st">&quot;o&quot;</span>, x)<span class="op">;</span> m</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&lt;re.Match object; span=(1, 2), match=&#39;o&#39;&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb170"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb170-1"><a href aria-label="1"></a>m.group()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb184"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb184-1"><a href aria-label="1"></a>m.group()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;o&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb172"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb172-1"><a href aria-label="1"></a>m.start(), m.end()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb186"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb186-1"><a href aria-label="1"></a>m.start(), m.end()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(1, 2)</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb174"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb174-1"><a href aria-label="1"></a><span class="bu">print</span>(re.search(<span class="st">&quot;z&quot;</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb188"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb188-1"><a href aria-label="1"></a><span class="bu">print</span>(re.search(<span class="st">&quot;z&quot;</span>, x))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>None</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb176"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb176-1"><a href aria-label="1"></a>re.findall(<span class="st">&quot;o&quot;</span>, x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb190"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb190-1"><a href aria-label="1"></a>re.findall(<span class="st">&quot;o&quot;</span>, x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;o&#39;, &#39;o&#39;]</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb178"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb178-1"><a href aria-label="1"></a>[</span>
-<span id="cb178-2"><a href aria-label="2"></a>  m.start()</span>
-<span id="cb178-3"><a href aria-label="3"></a>  <span class="cf">for</span> m <span class="kw">in</span> re.finditer(<span class="st">&quot;o&quot;</span>, x)</span>
-<span id="cb178-4"><a href aria-label="4"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb192"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb192-1"><a href aria-label="1"></a>[</span>
+<span id="cb192-2"><a href aria-label="2"></a>  m.start()</span>
+<span id="cb192-3"><a href aria-label="3"></a>  <span class="cf">for</span> m <span class="kw">in</span> re.finditer(<span class="st">&quot;o&quot;</span>, x)</span>
+<span id="cb192-4"><a href aria-label="4"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1, 10]</code></pre>
 </div>
@@ -2521,34 +2553,34 @@ character(0)</code></pre>
 </section>
 <section id="replacing-and-splitting" class="slide level2">
 <h2>Replacing and splitting</h2>
-<p><code>re.sub()</code> plays the role of both <code>str_replace()</code> and <code>str_replace_all()</code>. Backreferences in the replacement work the same way as in stringr.</p>
-<div class="small">
+<p><code>re.sub()</code> plays the role of both <code>str_replace()</code> and <code>str_replace_all()</code>. Backreferences in the replacement work the same way as in <code>stringr</code>.</p>
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb180"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb180-1"><a href aria-label="1"></a>text <span class="op">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb194"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb194-1"><a href aria-label="1"></a>text <span class="op">=</span> <span class="st">&quot;the brown owl ate the egg&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb181"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb181-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;the&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;the&quot;</span>, <span class="st">&quot;---&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;--- brown owl ate --- egg&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb183"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb183-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;the&quot;</span>, <span class="st">&quot;---&quot;</span>, text, count<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;the&quot;</span>, <span class="st">&quot;---&quot;</span>, text, count<span class="op">=</span><span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;--- brown owl ate the egg&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb185"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb185-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">\b</span><span class="kw">(</span><span class="vs">a</span><span class="cf">|</span><span class="vs">e</span><span class="cf">|</span><span class="vs">i</span><span class="cf">|</span><span class="vs">o</span><span class="cf">|</span><span class="vs">u</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="st">&quot;*&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb199-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">\b</span><span class="kw">(</span><span class="vs">a</span><span class="cf">|</span><span class="vs">e</span><span class="cf">|</span><span class="vs">i</span><span class="cf">|</span><span class="vs">o</span><span class="cf">|</span><span class="vs">u</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="st">&quot;*&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;the brown *wl *te the *gg&#39;</code></pre>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb187"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb187-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="vs">r&quot;</span><span class="ch">\2</span><span class="vs">, </span><span class="ch">\1</span><span class="vs">&quot;</span>, <span class="st">&quot;Bob Smith&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb201"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb201-1"><a href aria-label="1"></a>re.sub(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="vs">r&quot;</span><span class="ch">\2</span><span class="vs">, </span><span class="ch">\1</span><span class="vs">&quot;</span>, <span class="st">&quot;Bob Smith&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Smith, Bob&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb189"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb189-1"><a href aria-label="1"></a>re.split(<span class="vs">r&quot;</span><span class="dv">\s</span><span class="op">+</span><span class="vs">&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb203"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb203-1"><a href aria-label="1"></a>re.split(<span class="vs">r&quot;</span><span class="dv">\s</span><span class="op">+</span><span class="vs">&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[&#39;the&#39;, &#39;brown&#39;, &#39;owl&#39;, &#39;ate&#39;, &#39;the&#39;, &#39;egg&#39;]</code></pre>
 </div>
@@ -2558,93 +2590,36 @@ character(0)</code></pre>
 </section>
 <section id="match-groups-in-python" class="slide level2">
 <h2>Match groups in Python</h2>
-<p>A <code>Match</code> object gives access to the groups, with <code>group(0)</code> being the full match.</p>
+<p>A <code>Match</code> object gives access to the capture groups, with <code>group(0)</code> being the full match.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb191"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb191-1"><a href aria-label="1"></a>m <span class="op">=</span> re.search(</span>
-<span id="cb191-2"><a href aria-label="2"></a>  <span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="st">&quot;Bob Smith&quot;</span></span>
-<span id="cb191-3"><a href aria-label="3"></a>)</span>
-<span id="cb191-4"><a href aria-label="4"></a>m.group(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb205"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb205-1"><a href aria-label="1"></a>m <span class="op">=</span> re.search(</span>
+<span id="cb205-2"><a href aria-label="2"></a>  <span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, <span class="st">&quot;Bob Smith&quot;</span></span>
+<span id="cb205-3"><a href aria-label="3"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a>m.group(<span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Bob Smith&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb193"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb193-1"><a href aria-label="1"></a>m.group(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb208"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb208-1"><a href aria-label="1"></a>m.group(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Bob&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb195"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb195-1"><a href aria-label="1"></a>m.group(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb210"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb210-1"><a href aria-label="1"></a>m.group(<span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>&#39;Smith&#39;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb197"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb197-1"><a href aria-label="1"></a>m.groups()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb212"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb212-1"><a href aria-label="1"></a>m.groups()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(&#39;Bob&#39;, &#39;Smith&#39;)</code></pre>
 </div>
 </div>
 </div>
 </section>
-<section id="finding-and-naming-groups" class="slide level2">
-<h2>Finding and naming groups</h2>
-<p>What <code>re.findall()</code> returns depends on the number of capturing groups. Groups can also be named with <code>(?P&lt;name&gt;...)</code>.</p>
-<div class="small">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th style="text-align: left;">Capturing groups</th>
-<th style="text-align: left;"><code>re.findall()</code> list contents</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">None</td>
-<td style="text-align: left;">Full-match strings</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">One</td>
-<td style="text-align: left;">Strings containing that group’s match</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Multiple</td>
-<td style="text-align: left;">Tuples containing the groups’ matches</td>
-</tr>
-</tbody>
-</table>
-<p>Non-capturing groups <code>(?:...)</code> do not change the return shape.</p>
-</div>
-<div class="xsmall">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb199"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb199-1"><a href aria-label="1"></a>text <span class="op">=</span> [</span>
-<span id="cb199-2"><a href aria-label="2"></a>  <span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Smith&quot;</span>, <span class="st">&quot;Apple&quot;</span></span>
-<span id="cb199-3"><a href aria-label="3"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-<div class="columns xsmall">
-<div class="column" style="width:50%;">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb200"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb200-1"><a href aria-label="1"></a>[</span>
-<span id="cb200-2"><a href aria-label="2"></a>  re.findall(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>, s)</span>
-<span id="cb200-3"><a href aria-label="3"></a>  <span class="cf">for</span> s <span class="kw">in</span> text</span>
-<span id="cb200-4"><a href aria-label="4"></a>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[[(&#39;Bob&#39;, &#39;Smith&#39;)], [(&#39;Alice&#39;, &#39;Smith&#39;)], []]</code></pre>
-</div>
-</div>
-</div><div class="column fragment" style="width:50%;">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb202"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb202-1"><a href aria-label="1"></a>m <span class="op">=</span> re.search(</span>
-<span id="cb202-2"><a href aria-label="2"></a>  <span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="fu">?P&lt;first&gt;</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="fu">?P&lt;last&gt;</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>,</span>
-<span id="cb202-3"><a href aria-label="3"></a>  text[<span class="dv">0</span>]</span>
-<span id="cb202-4"><a href aria-label="4"></a>)</span>
-<span id="cb202-5"><a href aria-label="5"></a>m.groupdict()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>{&#39;first&#39;: &#39;Bob&#39;, &#39;last&#39;: &#39;Smith&#39;}</code></pre>
-</div>
-</div>
-</div></div>
-</section>
 <section id="flags-and-compiled-patterns" class="slide level2">
 <h2>Flags and compiled patterns</h2>
-<p>Flags are passed as an additional argument. <code>re.compile()</code> stores a pattern and its flags in an object with the same methods as the <code>re</code> module.</p>
+<p>Flags are passed as an additional argument and combined with <code>|</code>. <code>re.compile()</code> stores a pattern and its flags in an object with the same methods as the <code>re</code> module.</p>
 <div class="small">
 <table class="caption-top">
 <colgroup>
@@ -2655,7 +2630,7 @@ character(0)</code></pre>
 <thead>
 <tr class="header">
 <th style="text-align: left;">Behavior</th>
-<th style="text-align: left;">stringr <code>regex()</code></th>
+<th style="text-align: left;"><code>stringr::regex()</code></th>
 <th style="text-align: left;">Python <code>re</code></th>
 </tr>
 </thead>
@@ -2683,40 +2658,61 @@ character(0)</code></pre>
 </tbody>
 </table>
 </div>
-<div class="small">
+<div class="xsmall mt-3">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb204"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb204-1"><a href aria-label="1"></a>p <span class="op">=</span> re.<span class="bu">compile</span>(<span class="vs">r&quot;</span><span class="dv">^</span><span class="vs">the&quot;</span>, re.MULTILINE)</span>
-<span id="cb204-2"><a href aria-label="2"></a>p.findall(<span class="st">&quot;the cat</span><span class="ch">\n</span><span class="st">the hat&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[&#39;the&#39;, &#39;the&#39;]</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb206"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb206-1"><a href aria-label="1"></a>p.sub(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;the cat</span><span class="ch">\n</span><span class="st">the hat&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>&#39;a cat\na hat&#39;</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a>text <span class="op">=</span> <span class="st">&quot;The cat in</span><span class="ch">\n</span><span class="st">the hat&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-</div>
-</section>
-<section id="regex-in-pandas-and-polars" class="slide level2">
-<h2>Regex in pandas and polars</h2>
-<p>The <code>.str</code> accessors in pandas and polars accept regular expressions. polars uses Rust’s regex engine, which does not support backreferences in patterns.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb208"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb208-1"><a href aria-label="1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb208-2"><a href aria-label="2"></a></span>
-<span id="cb208-3"><a href aria-label="3"></a>s <span class="op">=</span> pd.Series(</span>
-<span id="cb208-4"><a href aria-label="4"></a>  [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
-<span id="cb208-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb215"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb215-1"><a href aria-label="1"></a>re.findall(<span class="vs">r&quot;</span><span class="dv">^</span><span class="vs">the&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[]</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb217"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb217-1"><a href aria-label="1"></a>re.findall(<span class="vs">r&quot;</span><span class="dv">^</span><span class="vs">the&quot;</span>, text, re.M)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[&#39;the&#39;]</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb219"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb219-1"><a href aria-label="1"></a>re.findall(<span class="vs">r&quot;</span><span class="dv">^</span><span class="vs">the&quot;</span>, text, re.M <span class="op">|</span> re.I)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[&#39;The&#39;, &#39;the&#39;]</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb221"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb221-1"><a href aria-label="1"></a>p <span class="op">=</span> re.<span class="bu">compile</span>(<span class="vs">r&quot;</span><span class="dv">^</span><span class="vs">the&quot;</span>, re.M <span class="op">|</span> re.I)</span>
+<span id="cb221-2"><a href aria-label="2"></a>p.findall(text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[&#39;The&#39;, &#39;the&#39;]</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb223"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb223-1"><a href aria-label="1"></a>p.sub(<span class="st">&quot;a&quot;</span>, text)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&#39;a cat in\na hat&#39;</code></pre>
+</div>
+</div>
+</div></div>
+</section>
+<section id="regex-in-pandas-and-polars" class="slide level2">
+<h2>Regex in <code>pandas</code> and <code>polars</code></h2>
+<p>Many <code>.str</code> methods in <code>pandas</code> and <code>polars</code> accept regular expressions. <code>polars</code> uses Rust’s regex engine, which does not support backreferences in patterns.</p>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb225"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb225-1"><a href aria-label="1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb225-2"><a href aria-label="2"></a></span>
+<span id="cb225-3"><a href aria-label="3"></a>s <span class="op">=</span> pd.Series(</span>
+<span id="cb225-4"><a href aria-label="4"></a>  [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
+<span id="cb225-5"><a href aria-label="5"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb209"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb209-1"><a href aria-label="1"></a>s.<span class="bu">str</span>.extract(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb226"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb226-1"><a href aria-label="1"></a>s.<span class="bu">str</span>.extract(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs"> </span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       0      1
 0    Bob  Smith
 1  Alice  Jones</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb211"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb211-1"><a href aria-label="1"></a>s.<span class="bu">str</span>.contains(<span class="vs">r&quot;S&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb228"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb228-1"><a href aria-label="1"></a>s.<span class="bu">str</span>.contains(<span class="vs">r&quot;S&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0     True
 1    False
@@ -2725,17 +2721,15 @@ dtype: bool</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb213"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb213-1"><a href aria-label="1"></a>d <span class="op">=</span> pl.DataFrame({</span>
-<span id="cb213-2"><a href aria-label="2"></a>  <span class="st">&quot;x&quot;</span>: [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
-<span id="cb213-3"><a href aria-label="3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb230"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb230-1"><a href aria-label="1"></a>d <span class="op">=</span> pl.DataFrame({</span>
+<span id="cb230-2"><a href aria-label="2"></a>  <span class="st">&quot;x&quot;</span>: [<span class="st">&quot;Bob Smith&quot;</span>, <span class="st">&quot;Alice Jones&quot;</span>]</span>
+<span id="cb230-3"><a href aria-label="3"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb214"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb214-1"><a href aria-label="1"></a>d.with_columns(</span>
-<span id="cb214-2"><a href aria-label="2"></a>  first <span class="op">=</span> (</span>
-<span id="cb214-3"><a href aria-label="3"></a>    pl.col(<span class="st">&quot;x&quot;</span>).<span class="bu">str</span>.extract(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>)</span>
-<span id="cb214-4"><a href aria-label="4"></a>  ),</span>
-<span id="cb214-5"><a href aria-label="5"></a>  s <span class="op">=</span> pl.col(<span class="st">&quot;x&quot;</span>).<span class="bu">str</span>.contains(<span class="vs">r&quot;S&quot;</span>)</span>
-<span id="cb214-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb231"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb231-1"><a href aria-label="1"></a>d.with_columns(</span>
+<span id="cb231-2"><a href aria-label="2"></a>  first <span class="op">=</span> pl.col(<span class="st">&quot;x&quot;</span>).<span class="bu">str</span>.extract(<span class="vs">r&quot;</span><span class="dv">^</span><span class="kw">(</span><span class="dv">\w</span><span class="op">+</span><span class="kw">)</span><span class="vs">&quot;</span>),</span>
+<span id="cb231-3"><a href aria-label="3"></a>  s <span class="op">=</span> pl.col(<span class="st">&quot;x&quot;</span>).<span class="bu">str</span>.contains(<span class="vs">r&quot;S&quot;</span>)</span>
+<span id="cb231-4"><a href aria-label="4"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2793,7 +2787,7 @@ white-space: pre-wrap;
 <thead>
 <tr class="header">
 <th style="text-align: left;">Task</th>
-<th style="text-align: left;">stringr</th>
+<th style="text-align: left;"><code>stringr</code></th>
 <th style="text-align: left;">Python</th>
 </tr>
 </thead>
@@ -2881,8 +2875,8 @@ white-space: pre-wrap;
 <h2>Takeaways</h2>
 <div class="medium">
 <ul>
-<li><p>stringr gives R a consistent, vectorized set of string functions. Python’s equivalents are methods on a single <code>str</code>, applied to many strings with a comprehension or the <code>.str</code> accessor of pandas and polars.</p></li>
-<li><p>Regular expression syntax is largely shared between the languages. stringr generally takes the string first and works over vectors. Python’s <code>re</code> takes the pattern first and works on one string. Return values depend on the operation.</p></li>
+<li><p><code>stringr</code> gives R a consistent, vectorized set of string functions. Python’s equivalents are methods on a single <code>str</code>, applied to many strings with a comprehension or the <code>.str</code> accessor of pandas and polars.</p></li>
+<li><p>Regular expression syntax is largely shared between the languages. <code>stringr</code> generally takes the string first and works over vectors. Python’s <code>re</code> takes the pattern first and works on one string. Return values depend on the operation.</p></li>
 <li><p>Regex escapes sit on top of string escapes. Use raw strings, <code>r&quot;(...)&quot;</code> in R and <code>r&quot;...&quot;</code> in Python, to avoid doubling every backslash.</p></li>
 <li><p>Build patterns up incrementally and test them against examples that should and should not match. If a pattern becomes unreadable, a few simpler steps are usually the better choice.</p></li>
 </ul>
