@@ -221,7 +221,7 @@ schedule:
   day: 3
   topic: "Web Scraping"
   lecture: "Scraping"
-  slides: ""
+  slides: "Lec13"
   r_readings:
     - text: "rvest - selector gadget vignette"
       link: https://rvest.tidyverse.org/articles/articles/selectorgadget.html
