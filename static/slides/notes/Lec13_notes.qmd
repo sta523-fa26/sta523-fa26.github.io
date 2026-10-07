@@ -1,0 +1,98 @@
+```{r setup}
+#| include: false
+library(rvest)
+```
+
+```{python py_setup}
+#| include: false
+from urllib.parse import urljoin
+from urllib.robotparser import RobotFileParser
+
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+pd.set_option("display.width", 120)
+```
+
+
+# Example - Rotten Tomatoes
+
+Scrape the movies present in the downloaded HTML of Movies at Home, sorted by popularity, into a data frame with the title, Tomatometer score, critic-status label, and absolute movie URL. Keep scores as text (for example, `"95%"`) and preserve missing values. Derive the critic-status label from the icon attributes.
+
+For this example, assume each movie tile contains the title, score, critic icon, and link elements. A score element may be empty.
+
+## BeautifulSoup
+
+```{python}
+base = "https://www.rottentomatoes.com"
+url = base + "/browse/movies_at_home/sort:popular"
+headers = {"User-Agent": "sta523-example"}
+
+rp = RobotFileParser(base + "/robots.txt")
+rp.read()
+rp.can_fetch(headers["User-Agent"], url)
+```
+
+```{python}
+response = requests.get(url, headers=headers, timeout=10)
+response.raise_for_status()
+
+page = BeautifulSoup(response.text, "html.parser")
+tiles = page.select("div.flex-container")
+
+rows = []
+for tile in tiles:
+    title = tile.select_one(
+        "rt-text[data-qa='discovery-media-list-item-title']"
+    )
+    score = tile.select_one("rt-text[slot='criticsScore']")
+    icon = tile.select_one("score-icon-critics")
+    href = tile.select_one("a.js-tile-link")["href"]
+
+    if icon.get("certified") == "true":
+        label = "Certified Fresh"
+    else:
+        label = {"positive": "Fresh", "negative": "Rotten"}.get(
+            icon.get("sentiment")
+        )
+
+    rows.append({
+        "title": title.get_text(" ", strip=True),
+        "score": score.get_text(" ", strip=True) or None,
+        "label": label,
+        "url": urljoin(response.url, href),
+    })
+
+movies = pd.DataFrame(rows)
+movies
+```
+
+## rvest
+
+```{r}
+base = "https://www.rottentomatoes.com"
+url = paste0(base, "/browse/movies_at_home/sort:popular")
+
+session = polite::bow(url, user_agent = "sta523-example")
+session
+```
+
+```{r}
+page = polite::scrape(session)
+tiles = page |> html_elements("div.flex-container")
+icons = tiles |> html_element("score-icon-critics")
+
+movies = tibble::tibble(
+  title = tiles |> html_element("rt-text[data-qa='discovery-media-list-item-title']") |> html_text2(),
+  score = tiles |> html_element("rt-text[slot='criticsScore']") |> html_text2() |> dplyr::na_if(""),
+  label = dplyr::case_when(
+    html_attr(icons, "certified") == "true" ~ "Certified Fresh",
+    html_attr(icons, "sentiment") == "positive" ~ "Fresh",
+    html_attr(icons, "sentiment") == "negative" ~ "Rotten"
+  ),
+  url = tiles |> html_element("a.js-tile-link") |> html_attr("href")
+) |>
+  dplyr::mutate(url = paste0(base, url))
+movies
+```

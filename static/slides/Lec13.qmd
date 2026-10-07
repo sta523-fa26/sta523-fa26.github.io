@@ -1,5 +1,5 @@
 ---
-title: "Web Scraping<br/>(rvest & Beautiful Soup)"
+title: "Web Scraping<br/>(Beautiful Soup & rvest)"
 subtitle: "Lecture 13"
 author: "Dr. Colin Rundel"
 footer: "Sta 523 - Fall 2026"
@@ -31,12 +31,24 @@ knitr::opts_chunk$set(
 library(rvest)
 ```
 
+```{python py_setup}
+#| include: false
+import builtins
+import pprint
+import re
+import sys
 
+def _display(value):
+    if value is None:
+        return
+    builtins._ = value
+    if isinstance(value, list):
+        pprint.pprint(value, width=80)
+    else:
+        print(repr(value))
 
-
-# {#rvest-logo data-menu-title="rvest" .nostretch}
-
-![](imgs/hex-rvest.png){fig-align="center" width="32%"}
+sys.displayhook = _display
+```
 
 
 ## Hypertext Markup Language
@@ -79,11 +91,11 @@ An HTML document is built from elements. Most have an opening tag, optional attr
 :::
 
 ::: {.medium}
-| Part       | Here                        | Notes                                                    |
-|:-----------|:----------------------------|:---------------------------------------------------------|
-| tag name   | `div`                       | what kind of element this is (`p`, `a`, `table`, `div`, ...) |
-| attributes | `class="name"` `id="first"` | name and value pairs, any number of them                 |
-| content    | `John`                      | text, other elements, or both                            |
+| Part         | Here                        | Notes                                                    |
+|:-------------|:----------------------------|:---------------------------------------------------------|
+| name         | `div`                       | what kind of element this is (`p`, `a`, `table`, `div`, ...) |
+| attribute(s) | `class="name"` `id="first"` | name and value pairs, any number of them                 |
+| content      | `John`                      | text, other elements, or both                            |
 :::
 
 . . .
@@ -130,35 +142,33 @@ html
 ::::
 
 
-## rvest
+## Beautiful Soup
 
 ::: {.medium}
-`rvest` is a package in the tidyverse that makes processing and manipulation of HTML data straightforward. It provides high-level functions for interacting with HTML via the xml2 package.
+Beautiful Soup is the most widely used Python package for parsing and navigating HTML. It is installed as `beautifulsoup4` and imported as `bs4`.
 
-* `read_html()` - read HTML data from a URL or character string.
+* `BeautifulSoup(html, parser)` - parse HTML from a string, returning the document as a `BeautifulSoup` object.
 
-* `html_elements()` / ~~`html_nodes()`~~ - select specified elements from the HTML document using CSS selectors (or XPath).
+The document and every element in it are `Tag` objects, with methods and attributes for
 
-* `html_element()` / ~~`html_node()`~~ - select the first match within each input element using CSS selectors (or XPath).
+* selecting - `.select()`, `.select_one()` by CSS selector, `.find_all()`, `.find()` by tag name and attributes.
 
-* `html_table()` - parse an HTML table into a data frame.
+* extracting - `.get_text()`, `.name`, `.attrs`, and `tag["attr"]` or `tag.get("attr")` for one attribute.
 
-* `html_text()` / `html_text2()` - extract a tag's text content.
-
-* `html_name()` - extract a tag/element's name(s).
-
-* `html_attrs()` - extract all attributes.
-
-* `html_attr()` - extract attribute value(s) by name.
+* traversing and modifying - moving between parents, children and siblings, and adding, replacing or removing elements. We will not cover these.
 :::
 
-## HTML, rvest, & xml2
+::: {.aside}
+Beautiful Soup only parses HTML. It does not download pages or read tables. We will pair it with `requests` to download pages.
+:::
+
+
+## HTML & bs4
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
-```{r}
-html =
-'<html>
+```{python}
+html = '''<html>
   <head>
     <title>This is a title</title>
   </head>
@@ -174,79 +184,170 @@ html =
       <div class="fax">555-555-8888</div>
     </div>
   </body>
-</html>'
+</html>'''
 ```
 :::
 
 ::: {.column width='50%'}
-```{r}
-read_html(html)
-read_html(html)[1]
+```{python}
+from bs4 import BeautifulSoup
+
+soup = BeautifulSoup(html, "html.parser")
+soup.title
+```
+
+::: {.fragment}
+```{python}
+type(soup)
+type(soup.title)
+type(soup.title.string)
 ```
 :::
+:::
 ::::
+
+::: {.small .fragment}
+| Class             | What it is                                              |
+|:------------------|:--------------------------------------------------------|
+| `BeautifulSoup`   | the whole document, behaves like a `Tag`                |
+| `Tag`             | an element, with a name, attributes and children        |
+| `NavigableString` | a run of text inside a tag, behaves like a `str`        |
+:::
+
+
+## Parsers {.scrollable}
+
+The second argument to `BeautifulSoup()` picks the parser. Real pages are often not well formed, and each parser repairs broken HTML differently. The result is the tree you will be selecting from, so pick one parser and use it consistently. `prettify()` shows the repaired tree as indented HTML.
+
+::: {.xsmall}
+```{python}
+bad = "<p>One<p>Two<li>Three"
+```
+:::
+
+. . .
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{python}
+BeautifulSoup(bad, "html.parser")
+```
+
+::: {.fragment}
+```{python}
+print(
+  BeautifulSoup(bad, "html.parser")
+  .prettify()
+)
+```
+:::
+:::
+
+::: {.column width='50%'}
+```{python}
+BeautifulSoup(bad, "lxml")
+```
+
+::: {.fragment}
+```{python}
+print(
+  BeautifulSoup(bad, "lxml")
+  .prettify()
+)
+```
+:::
+:::
+::::
+
+::: {.aside}
+`"html.parser"` is built into Python. `"lxml"` is faster and `"html5lib"` is the most forgiving of broken HTML, but both need to be installed separately.
+:::
+
+
+## Tags as attributes
+
+The simplest way to reach an element is by its tag name, as an attribute of the document or of another `Tag`. This returns the first element with that name, or `None` if there is none.
+
+::: {.xsmall}
+```{python}
+soup.title
+soup.p
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.div
+soup.body.div
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+print(soup.body.dv)
+```
+:::
+
+::: {.aside}
+`soup.body.div` is shorthand for `soup.find("body").find("div")`. It is convenient for exploring a page, but it only ever gives the first match and a typo in the tag name silently returns `None`.
+:::
 
 
 ## Selecting elements
 
-`html_element()` returns the first element matching a selector.
+`select()` returns all matches as a list, and `select_one()` returns the first matching `Tag`, or `None`. Both can be called on the whole document or on any `Tag`.
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_element("p")
-```
-:::
-
-
-. . .
-
-::: {.xsmall}
-```{r}
-read_html(html) |> html_element("p") |> html_text()
+```{python}
+soup.select("p")
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_element("p") |> html_name()
-```
-:::
-
-
-. . .
-
-::: {.xsmall}
-```{r}
-read_html(html) |> html_element("p") |> html_attrs()
+```{python}
+p = soup.select_one("p"); p
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_element("p") |> html_attr("align")
+```{python}
+soup.select_one(".contact").select("div")
 ```
 :::
 
 
-## Selecting multiple tags
+## Many elements
 
-`html_elements()` returns every match as a node set, extraction functions are vectorized over the node set.
+The extraction methods belong to a single `Tag`. With more than one element you will need to use a comprehension.
 
-::: {.xsmall}
-```{r}
-read_html(html) |> html_elements("div")
+::: {.xsmall .wrap-output}
+```{python}
+#| error: true
+soup.select(".name").get_text()
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_elements("div") |> html_text()
+```{python}
+[d.get_text() for d in soup.select(".name")]
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+[d["id"] for d in soup.select(".name")]
 ```
 :::
 
@@ -271,7 +372,7 @@ div.name {
 Scraping tools borrow just the selector half of the language. It is a compact, standardized way of describing a set of elements, and it is already understood by a wide variety of tools.
 
 ::: {.aside}
-`html_elements()` also supports [XPath](https://www.w3schools.com/xml/xpath_intro.asp) selectors as an alternative to CSS selectors, though we will prefer CSS selectors in this course.
+Beautiful Soup's `select()` is implemented by the `soupsieve` package, which supports the CSS selector standard along with a few extensions of its own.
 :::
 
 
@@ -298,20 +399,20 @@ A, B             |  `p, #last`      | Select everything matched by either select
 ::: {.columns .xsmall}
 
 ::: {.column}
-```{r}
-read_html(html) |> html_elements(".name")
+```{python}
+soup.select(".name")
 ```
 
 ::: {.fragment}
-```{r}
-read_html(html) |> html_elements("#first")
+```{python}
+soup.select("#first")
 ```
 :::
 :::
 
 ::: {.column .fragment}
-```{r}
-read_html(html) |> html_elements("p, #last")
+```{python}
+soup.select("p, #last")
 ```
 :::
 
@@ -342,15 +443,15 @@ A ~ B       |  `.home ~ div` | Select all &lt;div&gt; siblings that come after a
 ::: {.columns .mxsmall}
 
 ::: {.column}
-```{r}
-read_html(html) |> html_elements("body div")
+```{python}
+soup.select("body div")
 ```
 :::
 
 ::: {.column .fragment}
-```{r}
-read_html(html) |> html_elements("body > div")
-read_html(html) |> html_elements(".work + div")
+```{python}
+soup.select("body > div")
+soup.select(".work + div")
 ```
 :::
 
@@ -379,14 +480,14 @@ Selector          |  Example            | Description
 
 :::: {.columns .mxsmall}
 ::: {.column width="50%"}
-```{r}
-read_html(html) |> html_elements("[align]")
+```{python}
+soup.select("[align]")
 ```
 :::
 
 ::: {.column width="50%"}
-```{r}
-read_html(html) |> html_elements("[class^=ho]")
+```{python}
+soup.select("[class^=ho]")
 ```
 :::
 ::::
@@ -394,8 +495,8 @@ read_html(html) |> html_elements("[class^=ho]")
 . . .
 
 ::: {.mxsmall}
-```{r}
-read_html(html) |> html_elements("[id$=st]")
+```{python}
+soup.select("[id$=st]")
 ```
 :::
 
@@ -417,43 +518,55 @@ Selector          |  Example              | Description
 
 :::
 
-Not every tool supports every pseudo-class, so a selector that works in the browser may fail in a scraping library. For example, the newer `details:open` is an error in rvest but works in Beautiful Soup.
+Not every tool supports every pseudo-class, so a selector that works in the browser may fail in a scraping library. For example, the newer `details:open` works in Beautiful Soup but is an error in `rvest`.
 
 ::: {.aside}
-See MDN's [selector reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Selectors) for the full list of selectors, combinators and pseudo-classes.
+See MDN's [selector reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Selectors) for the full list of selectors, combinators and pseudo-classes. Beautiful Soup also adds a few non-standard ones such as `:-soup-contains("text")`, which selects by text content but only works in `bs4`.
 :::
 
 
 ## Pseudo-classes
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_elements(".contact div:first-child")
+```{python}
+soup.select(".contact div:first-child")
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_elements(".contact div:nth-child(2)")
+```{python}
+soup.select(".contact div:nth-child(2)")
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_elements(".contact div:not(.home)")
+```{python}
+soup.select(".contact div:not(.home)")
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-read_html(html) |> html_elements("div:has(.work)")
+```{python}
+soup.select("div:has(.work)")
 ```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.select(".contact div:-soup-contains('9999')")
+```
+:::
+
+::: {.aside}
+`:-soup-contains()` is a `bs4` extension, this selector will not work in the browser or in `rvest`.
 :::
 
 
@@ -471,67 +584,197 @@ There are usually many selectors that return the same elements. The goal is one 
 
 * Always check how many elements came back. Too many or too few is the first sign that the selector is wrong.
 
-* Not everything needs to be purely selector based - you can also process via R or Python after extraction.
-
-## `html_text()` vs `html_text2()`
-
-::: {.xsmall}
-```{r}
-par = read_html(
-  "<p>
-    First sentence.
-    Same line.<br>New line.
-  </p>"
-)
-```
-:::
+* Not everything needs to be purely selector based - you can also process via Python or R after extraction.
 
 
-. . .
+## Missing elements
+
+When nothing matches, `select()` returns an empty list and `select_one()` returns `None`, so chaining a method onto a missing element is an error.
 
 ::: {.xsmall}
-```{r}
-par |> html_text()
-par |> html_text() |> cat(sep="\n")
+```{python}
+soup.select("span")
+print(soup.select_one("span"))
 ```
 :::
 
 . . .
 
 ::: {.xsmall}
-```{r}
-par |> html_text2()
-par |> html_text2() |> cat(sep="\n")
+```{python}
+#| error: true
+soup.select_one("span").get_text()
 ```
 :::
 
+. . .
 
-## HTML tables
+Attributes behave similarly, `tag["attr"]` raises a `KeyError` if the attribute is missing while `tag.get("attr")` returns `None`.
 
 ::: {.xsmall}
-```{r}
-html_table =
-'<html>
-  <head>
-    <title>This is a title</title>
-  </head>
-  <body>
-    <table>
-      <tr> <th>a</th> <th>b</th> <th>c</th> </tr>
-      <tr> <td>1</td> <td>2</td> <td>3</td> </tr>
-      <tr> <td>2</td> <td>3</td> <td>4</td> </tr>
-      <tr> <td>3</td> <td>4</td> <td>5</td> </tr>
-    </table>
-  </body>
-</html>'
-```
-```{r}
-read_html(html_table) |>
-  html_elements("table") |>
-  html_table()
+```{python}
+print(p.get("class"))
 ```
 :::
 
+
+## `find()` and `find_all()`
+
+Beautiful Soup also has its own search methods that match on tag name and attribute values. `find_all()` returns a list and `find()` returns the first match (or `None`). Both can be chained, as each `Tag` is searched in the same way as the full document.
+
+::: {.xsmall}
+```{python}
+soup.find_all("div", class_="home")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.find(id="last")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.find("div", class_="contact").find_all("div", class_="work")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.find(id="first")["class"]
+```
+:::
+
+::: {.aside}
+`class_` has a trailing underscore because `class` is reserved in Python. Since an element can have several classes, `tag["class"]` is always a list.
+:::
+
+
+## More flexible searching
+
+Where `find_all()` earns its place over `select()` is in what it accepts as a filter. The tag name and each attribute can be a string, a list of strings, a regular expression, or `True` to match any value, and `string=` searches the text instead of the tags.
+
+::: {.xsmall}
+```{python}
+soup.find_all(["p", "title"])
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.find_all(class_=re.compile("^ho"))
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+soup.find_all(string=re.compile("555"))
+```
+:::
+
+. . .
+
+A function can be used as well, it receives each `Tag` and should return `True` for a match.
+
+::: {.xsmall}
+```{python}
+soup.find_all(lambda t: t.name == "div" and t.get_text().endswith("4"))
+```
+:::
+
+
+
+## Extracting text
+
+`get_text()` returns the raw text of a tag and all of its descendants, including the source whitespace. The `separator` and `strip` arguments control how the pieces are joined.
+
+::: {.xsmall}
+```{python}
+contact = soup.select_one(".contact")
+contact.get_text()
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+contact.get_text(" ", strip=True)
+```
+:::
+
+. . .
+
+The `.stripped_strings` generator gives the same pieces as a list, one per descendant, with the whitespace removed.
+
+::: {.xsmall}
+```{python}
+list(contact.stripped_strings)
+```
+:::
+
+
+## Extracting text
+
+`.string` is the text of a tag that has exactly one string as its content. It works for simple elements such as `p` or `div.home`, but a tag that contains other elements has no single string, so `.string` is `None` and `get_text()` must be used instead.
+
+::: {.xsmall}
+```{python}
+soup.p.string
+soup.select_one("div.home").string
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+print(contact.string)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+contact.get_text(" ", strip=True)
+```
+:::
+
+
+## Reading from the web
+
+`BeautifulSoup()` does not accept a URL, so the page is downloaded first with `requests` and the text of the response is then parsed.
+
+::: {.xsmall}
+```{python}
+#| eval: false
+import requests
+
+r = requests.get("https://example.com", timeout=10)
+r.raise_for_status()
+
+soup = BeautifulSoup(r.text, "html.parser")
+soup.select(".title")
+```
+:::
+
+`raise_for_status()` turns a failed request (404, 500, ...) into an exception. Without it we would happily parse the error page.
+
+::: {.aside}
+We will look at `requests` and HTTP in much more detail in the coming lectures.
+:::
 
 
 ## SelectorGadget
@@ -577,30 +820,370 @@ knitr::include_graphics("imgs/ok-cupid-2.png")
 ## Crawl rules & `robots.txt`
 
 ::: {.medium}
-Sites use the [robots exclusion standard](https://www.rfc-editor.org/rfc/rfc9309.html) to publish crawler rules in `robots.txt`. Following these rules does not mean you are authorized to use the data. Also consider the site's terms and the privacy of the people represented in the data.
+Sites use the [robots exclusion standard](https://www.rfc-editor.org/rfc/rfc9309.html) to publish crawler rules in `robots.txt`. Following these rules does not mean you are authorized to use the website to collect the data. Also consider the site's terms and the privacy of the people represented in the data.
 
 You can find examples at all of your favorite websites: [Google](https://www.google.com/robots.txt), [Facebook](https://facebook.com/robots.txt), etc.
 :::
 
 . . .
 
-
 ::: {.medium}
-These files are meant to be machine readable, so the `polite` package can handle this for us (and much more).
+These files are meant to be machine readable, and `urllib.robotparser` from the standard library reads them. Check the rules for the same user agent that you will send with your requests.
 :::
 
 ::: {.xsmall}
-```{r}
+```{python}
 #| eval: false
-polite::bow("https://www.google.com")
-polite::bow("https://www.facebook.com")
+from urllib.robotparser import RobotFileParser
+
+user_agent = "sta523-example"
+rp = RobotFileParser("https://www.google.com/robots.txt")
+rp.read()
+
+rp.can_fetch(user_agent, "https://www.google.com/search?q=duke")
+rp.can_fetch(user_agent, "https://www.google.com/maps")
+```
+:::
+
+::: {.aside}
+These rules apply to this site. Fetch a separate `robots.txt` when changing sites. An allowed path does not establish permission to reuse its data.
+:::
+
+
+## Rate limiting
+
+::: {.medium}
+Making requests too quickly can overload a server, get your IP blocked, or violate a site's terms of service. Adding delays between requests is essential for responsible scraping.
+:::
+
+. . .
+
+::: {.medium}
+The simplest approach is `time.sleep()` between requests. This loop uses `rp` from the previous slide and only URLs on that site.
+:::
+
+::: {.mxsmall}
+```{python}
+#| eval: false
+import time
+
+user_agent = "sta523-example"
+urls = ["https://www.google.com/search?q=duke",
+        "https://www.google.com/maps"]
+
+for url in urls:
+  if rp.can_fetch(user_agent, url):
+    try:
+      r = requests.get(url, headers={"User-Agent": user_agent}, timeout=10)
+      r.raise_for_status()
+    finally:
+      time.sleep(5)
+```
+:::
+
+::: {.aside}
+`finally` keeps the delay even if a request fails. `robots.txt` can also specify a `Crawl-delay`, available via `rp.crawl_delay(user_agent)`, but this is not a super common feature.
+:::
+
+
+## Graceful error handling
+
+When scraping many pages, retrieval or parsing can fail. Wrapping the request in `try` / `except` lets us capture those errors and continue, returning `None` on failure.
+
+::: {.mxsmall}
+```{python}
+#| eval: false
+def safe_read(url):
+  try:
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    return BeautifulSoup(r.text, "html.parser")
+  except requests.RequestException:
+    return None
+
+pages = [safe_read(url) for url in urls]
+```
+:::
+
+. . .
+
+Keeping the exception alongside the result lets us inspect what went wrong afterwards.
+
+::: {.mxsmall}
+```{python}
+#| eval: false
+def safe_read(url):
+  try:
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    return {"result": BeautifulSoup(r.text, "html.parser"), "error": None}
+  except requests.RequestException as e:
+    return {"result": None, "error": e}
+```
+:::
+
+::: {.aside}
+Missing selectors usually return empty results rather than errors, so check counts and required fields explicitly.
+:::
+
+
+## Example - Rotten Tomatoes
+
+Open [Movies at Home, sorted by popularity](https://www.rottentomatoes.com/browse/movies_at_home/sort:popular). Inspect the page and choose selectors that let us retrieve the following details:
+
+* title, 
+* Tomatometer score, 
+* displayed critic-status label,
+* absolute movie URL
+
+Using these selectors construct a data frame containing these results. Some movies will be missing one or more of these, use `None` for any missing fields.
+
+
+# {#rvest-logo data-menu-title="rvest" .nostretch}
+
+![](imgs/hex-rvest.png){fig-align="center" width="32%"}
+
+
+## rvest
+
+::: {.medium}
+`rvest` is a package in the tidyverse that makes processing and manipulation of HTML data straightforward. It provides high-level functions for interacting with HTML via the `xml2` package.
+
+* `read_html()` - read HTML data from a URL or character string.
+
+* `html_elements()` / ~~`html_nodes()`~~ - select specified elements from the HTML document using CSS selectors (or XPath).
+
+* `html_element()` / ~~`html_node()`~~ - select the first match within each input element using CSS selectors (or XPath).
+
+* `html_table()` - parse an HTML table into a data frame.
+
+* `html_text()` / `html_text2()` - extract a tag's text content.
+
+* `html_name()` - extract a tag/element's name(s).
+
+* `html_attrs()` - extract all attributes.
+
+* `html_attr()` - extract attribute value(s) by name.
+:::
+
+::: {.aside}
+Unlike Beautiful Soup, `read_html()` downloads as well as parses, so no extra packages are needed.
+:::
+
+
+## HTML, rvest, & xml2
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+html =
+'<html>
+  <head>
+    <title>This is a title</title>
+  </head>
+  <body>
+    <p align="center">Hello world!</p>
+    <br/>
+    <div class="name" id="first">John</div>
+    <div class="name" id="last">Doe</div>
+    <div class="contact">
+      <div class="home">555-555-1234</div>
+      <div class="home">555-555-2345</div>
+      <div class="work">555-555-9999</div>
+      <div class="fax">555-555-8888</div>
+    </div>
+  </body>
+</html>'
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+read_html(html)
+read_html(html)[1]
+```
+:::
+::::
+
+
+## Selecting elements
+
+`html_element()` returns the first element matching a selector, and the `html_*()` helpers extract from it.
+
+::: {.xsmall}
+```{r}
+read_html(html) |> html_element("p")
+```
+:::
+
+
+. . .
+
+::: {.xsmall}
+```{r}
+read_html(html) |> html_element("p") |> html_text()
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+read_html(html) |> html_element("p") |> html_name()
+```
+:::
+
+
+. . .
+
+::: {.xsmall}
+```{r}
+read_html(html) |> html_element("p") |> html_attrs()
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+read_html(html) |> html_element("p") |> html_attr("align")
+```
+:::
+
+
+## Selecting multiple tags
+
+`html_elements()` returns every match as a node set. Unlike Beautiful Soup, the extraction functions are vectorized over node sets, so there is no need for a loop.
+
+::: {.mxsmall}
+```{r}
+read_html(html) |> html_elements("div")
+```
+:::
+
+. . .
+
+::: {.mxsmall}
+```{r}
+read_html(html) |> html_elements("div") |> html_text()
+```
+:::
+
+. . .
+
+::: {.mxsmall}
+```{r}
+read_html(html) |> html_elements(".name") |> html_attr("id")
+```
+:::
+
+
+## Same selectors
+
+The selector syntax also uses CSS,
+
+:::: {.columns .mxsmall}
+::: {.column width="50%"}
+```{r}
+read_html(html) |> html_elements("p, #last")
+```
+
+::: {.fragment}
+```{r}
+read_html(html) |> html_elements("body > div")
+```
+:::
+:::
+
+::: {.column width="50%"}
+::: {.fragment}
+```{r}
+read_html(html) |> html_elements("[class^=ho]")
+```
+:::
+
+::: {.fragment}
+```{r}
+read_html(html) |> html_elements(".contact div:not(.home)")
+```
+:::
+:::
+::::
+
+::: {.aside}
+`html_elements()` also supports [XPath](https://www.w3schools.com/xml/xpath_intro.asp) selectors as an alternative to CSS selectors, though we will prefer CSS selectors in this course.
+:::
+
+
+## Missing elements
+
+`html_element()` returns a missing node when nothing matches and the extraction functions then return `NA`, while `html_elements()` returns an empty node set and the extraction functions return an empty vector.
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+page = read_html(html)
+page |> html_element("span")
+page |> html_element("span") |> html_text()
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+page |> html_elements("span")
+page |> html_elements("span") |> html_text()
+```
+:::
+::::
+
+. . .
+
+This is why `html_element()` is the right choice when extracting one field per item, as the output stays aligned with the inputs.
+
+::: {.mxsmall}
+```{r}
+page |> html_elements("body > div") |> 
+  html_element(".work") |> html_text()
+```
+:::
+
+
+## `html_text()` vs `html_text2()`
+
+::: {.xsmall}
+```{r}
+par = read_html(
+  "<p>
+    First sentence.
+    Same line.<br>New line.
+  </p>"
+)
+```
+:::
+
+
+. . .
+
+::: {.xsmall}
+```{r}
+par |> html_text()
+par |> html_text() |> cat(sep="\n")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+par |> html_text2()
+par |> html_text2() |> cat(sep="\n")
 ```
 :::
 
 
 ## Scraping with polite
 
-Beyond the `bow()` function, `polite` also has a `scrape()` function that helps you scrape a website while maintaining the three pillars of a polite session:
+The `polite` package handles `robots.txt`, delays, and caching for us while maintaining the three pillars of a polite session:
 
 * seek permission
 
@@ -610,88 +1193,24 @@ Beyond the `bow()` function, `polite` also has a `scrape()` function that helps 
 
 . . .
 
-This is achieved by using the session object from `bow()` within the `scrape()` function to make the request
-(this is equivalent to `rvest`'s `read_html()` and returns a parsed HTML object).
-
-New paths within the website can be accessed by using the `nod()` function before using `scrape()`.
-
-
-## Rate limiting
-
-Making requests too quickly can overload a server, get your IP blocked, or violate a site's terms of service. Adding delays between requests is essential for responsible scraping.
-
-. . .
-
-The simplest approach is `Sys.sleep()` between requests.
-
-::: {.xsmall}
-```{r}
-#| eval: false
-for (url in urls) {
-  read_html(url) |> html_elements(".title")
-  Sys.sleep(1)  # wait 1 second between requests
-}
-```
-:::
-
-. . .
-
-`polite` uses the larger of the requested delay (5 seconds by default) and the crawl delay in `robots.txt`.
+`bow()` reads the site's `robots.txt` and returns a session object, `nod()` moves to a new path within the site, and `scrape()` makes the request (this is equivalent to `read_html()` and returns a parsed HTML object).
 
 ::: {.xsmall}
 ```{r}
 #| eval: false
 session = polite::bow("https://example.com")
-
 polite::nod(session, "page/1") |> polite::scrape()
 polite::nod(session, "page/2") |> polite::scrape()
 ```
 :::
 
+`polite` uses the larger of the requested delay (5 seconds by default) and the crawl delay in `robots.txt`.
 
-## JavaScript rendered pages
-
-`read_html()` only sees the static HTML delivered by the server. Pages that use JavaScript to render content will appear empty or incomplete.
-
-. . .
-
-`rvest::read_html_live()` runs Chrome via `chromote` and returns a `LiveHTML` object. It lets us select dynamically generated elements, though some content may require waiting, scrolling, or clicking first.
-
-::: {.xsmall}
-```{r}
-#| eval: false
-page = read_html_live("https://example.com")
-page |> html_elements(".some-js-rendered-class")
-```
-:::
-
-. . .
-
-The live object supports browser interactions (these selectors are placeholders).
-
-::: {.xsmall}
-```{r}
-#| eval: false
-page$click("#load-more-button")
-page$scroll_to(top = 1000)
-page$type("#search-box", "query text")
-page$view()
-page$session$screenshot("screenshot.png")
-```
-:::
-
-::: {.aside}
-Requires installing `chromote` and having Google Chrome available on your system.
-:::
 
 
 ## Graceful error handling
 
-When scraping many pages, retrieval or parsing can fail. Wrapping `read_html()` lets us capture those errors and continue.
-
-. . .
-
-`purrr::possibly()` wraps a function so that errors return a default value instead of stopping.
+`purrr::possibly()` wraps a function so that errors return a default value instead of stopping, which is the `try` / `except` pattern from earlier packaged as a function.
 
 ::: {.xsmall}
 ```{r}
@@ -720,449 +1239,27 @@ results |> purrr::map("error")   # error objects (NULL on success)
 :::
 
 
-::: {.aside}
-Missing selectors often return empty results instead of errors. Check counts and required fields explicitly. These wrappers do not detect changed page structure.
-:::
-
-
-## Live exercise - Rotten Tomatoes
-
-Open [Movies at Home, sorted by popularity](https://www.rottentomatoes.com/browse/movies_at_home/sort:popular). Together, inspect the page and choose selectors for the first 20 movies displayed.
-
-Build a data frame with one row per movie:
-
-* title, Tomatometer score, displayed critic-status label, and absolute movie URL
-* keep movies with missing scores or labels; use `NA` for missing fields
-
-. . .
-
-Visit each movie's URL to add its content rating, runtime, and audience-rating count. Preserve counts reported as ranges or thresholds (such as `1,000+`) as text.
-
-::: {.aside}
-Record the retrieval date and listing order. Check crawl rules and access before making requests, and use a delay between movie pages. If access fails, we will inspect the page together rather than bypass the restriction.
-:::
-
-
-# Beautiful Soup
-
-## Beautiful Soup
-
-::: {.medium}
-Beautiful Soup is the most widely used Python package for parsing and navigating HTML. It is installed as `beautifulsoup4` and imported as `bs4`.
-
-* `BeautifulSoup()` - parse HTML from a string, returning a `BeautifulSoup` object.
-
-* `select()` - select all matching elements using a CSS selector, returned as a list of `Tag` objects.
-
-* `select_one()` - select the first matching element using a CSS selector.
-
-* `find_all()` / `find()` - select elements by tag name and attribute values rather than a CSS selector.
-
-* `get_text()` - extract a tag's text content.
-
-* `.name` - a tag's name.
-
-* `.attrs` - all of a tag's attributes as a dictionary.
-
-* `tag["attr"]` / `tag.get("attr")` - extract an attribute value by name.
-:::
-
-::: {.aside}
-Beautiful Soup only parses HTML. It does not download pages or read tables. We will pair it with `requests` to download pages.
-:::
-
-
-## HTML & bs4
-
-:::: {.columns .xsmall}
-::: {.column width='50%'}
-```{python}
-html = '''<html>
-  <head>
-    <title>This is a title</title>
-  </head>
-  <body>
-    <p align="center">Hello world!</p>
-    <br/>
-    <div class="name" id="first">John</div>
-    <div class="name" id="last">Doe</div>
-    <div class="contact">
-      <div class="home">555-555-1234</div>
-      <div class="home">555-555-2345</div>
-      <div class="work">555-555-9999</div>
-      <div class="fax">555-555-8888</div>
-    </div>
-  </body>
-</html>'''
-```
-:::
-
-::: {.column width='50%'}
-```{python}
-from bs4 import BeautifulSoup
-
-soup = BeautifulSoup(html, "html.parser")
-type(soup)
-soup.title
-```
-:::
-::::
-
-::: {.aside}
-The second argument picks the parser. `"html.parser"` is built into Python. `"lxml"` is faster and `"html5lib"` is the most forgiving of broken HTML, but both need to be installed separately.
-:::
-
-
-## Selecting elements
-
-`select()` returns all matches as a list, and `select_one()` returns the first matching `Tag`, or `None`. Unlike rvest, these methods operate on one document or tag at a time.
-
-::: {.xsmall}
-```{python}
-soup.select("p")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-p = soup.select_one("p")
-p
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-p.get_text()
-p.name
-p.attrs
-p["align"]
-```
-:::
-
-
-## Many elements
-
-The extraction methods belong to a single `Tag`; they are not vectorized like rvest's `html_*()` functions. With more than one element we use a comprehension.
-
-::: {.xsmall .wrap-output}
-```{python}
-#| error: true
-soup.select(".name").get_text()
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-[d.get_text() for d in soup.select(".name")]
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-[d["id"] for d in soup.select(".name")]
-```
-:::
-
-
-## Nesting tags
-
-::: {.xsmall}
-```{python}
-soup.select("body div")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.select("body > div")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.select("body div div")
-```
-:::
-
-
-## Other selectors
-
-The selector syntax is the same as before, since CSS selectors are a web standard and not part of either package.
-
-::: {.xsmall}
-```{python}
-soup.select("div.name")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.select("#first")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.select("[align]")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.select(".contact div")
-```
-:::
-
-
-## Missing elements
-
-When nothing matches, `select()` returns an empty list and `select_one()` returns `None`, so chaining a method onto a missing element is an error.
-
-::: {.xsmall}
-```{python}
-soup.select("span")
-print(soup.select_one("span"))
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-#| error: true
-soup.select_one("span").get_text()
-```
-:::
-
-. . .
-
-Attributes behave the same way: `tag["attr"]` raises a `KeyError` if the attribute is missing while `tag.get("attr")` returns `None`.
-
-::: {.xsmall}
-```{python}
-print(p.get("class"))
-```
-:::
-
-
-## `find()` and `find_all()`
-
-Beautiful Soup also has its own search methods that match on tag name and attribute values. `find_all()` returns a list and `find()` returns the first match (or `None`).
-
-::: {.xsmall}
-```{python}
-soup.find_all("div", class_="home")
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-soup.find(id="last")
-```
-:::
-
-. . .
-
-Searches can be chained, as each `Tag` can be searched in the same way as the full document.
-
-::: {.xsmall}
-```{python}
-soup.find("div", class_="contact").find_all("div", class_="work")
-```
-:::
-
-::: {.aside}
-`class_` has a trailing underscore because `class` is a reserved word in Python.
-:::
-
-
-## Extracting text
-
-`get_text()` behaves like `html_text()` and returns the raw text, including the whitespace from the source. There is no direct equivalent of `html_text2()`, but the `separator` and `strip` arguments get us most of the way there.
-
-::: {.xsmall}
-```{python}
-contact = soup.select_one(".contact")
-contact.get_text()
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-contact.get_text(" ", strip=True)
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-list(contact.stripped_strings)
-```
-:::
-
-
-
-
-## Reading from the web
-
-`BeautifulSoup()` does not accept a URL, so the page is downloaded first with `requests` and the text of the response is then parsed.
-
-::: {.xsmall}
-```{python}
-#| eval: false
-import requests
-
-r = requests.get("https://example.com", timeout=10)
-r.raise_for_status()
-
-soup = BeautifulSoup(r.text, "html.parser")
-soup.select(".title")
-```
-:::
-
-`raise_for_status()` turns a failed request (404, 500, ...) into an exception. Without it we would happily parse the error page.
-
-::: {.aside}
-We will look at `requests` and HTTP in much more detail in the coming lectures.
-:::
-
-
-## Checking crawl rules
-
-`urllib.robotparser` reads `robots.txt`. Check the rules for the same user agent that you will send with your requests.
-
-::: {.xsmall}
-```{python}
-#| eval: false
-from urllib.robotparser import RobotFileParser
-
-user_agent = "sta523-example"
-rp = RobotFileParser("https://www.google.com/robots.txt")
-rp.read()
-
-rp.can_fetch(user_agent, "https://www.google.com/search?q=duke")
-rp.can_fetch(user_agent, "https://www.google.com/maps")
-```
-:::
-
-These rules apply to this site. Fetch a separate `robots.txt` when changing sites. An allowed path does not establish permission to reuse its data.
-
-
-## Rate limiting in Python
-
-Use the site's crawl delay and request rate, when specified, with a conservative default. This loop uses only URLs on the site checked above.
-
-::: {.xsmall}
-```{python}
-#| eval: false
-import requests
-import time
-
-urls = ["https://www.google.com/search?q=duke",
-        "https://www.google.com/maps"]
-delay = max(5, rp.crawl_delay(user_agent) or 0)
-rate = rp.request_rate(user_agent)
-if rate is not None:
-  delay = max(delay, rate.seconds / rate.requests)
-
-for url in urls:
-  if rp.can_fetch(user_agent, url):
-    try:
-      r = requests.get(url, headers={"User-Agent": user_agent}, timeout=10)
-      r.raise_for_status()
-    finally:
-      time.sleep(delay)
-```
-:::
-
-::: {.aside}
-`finally` keeps the delay even if a request fails. Handling failures is next.
-:::
-
-
-## Graceful error handling
-
-For request failures, we can mimic `purrr::possibly()` with `try` / `except`, returning `None` on failure. Missing elements still need explicit checks.
-
-::: {.xsmall}
-```{python}
-#| eval: false
-def safe_read(url):
-  try:
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    return BeautifulSoup(r.text, "html.parser")
-  except requests.RequestException:
-    return None
-
-pages = [safe_read(url) for url in urls]
-```
-:::
-
-. . .
-
-Keeping the request exception gives us the same result/error structure as `purrr::safely()`.
-
-::: {.xsmall}
-```{python}
-#| eval: false
-def safe_read(url):
-  try:
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    return {"result": BeautifulSoup(r.text, "html.parser"), "error": None}
-  except requests.RequestException as e:
-    return {"result": None, "error": e}
-```
-:::
-
-
-
 # Summary {visibility="uncounted"}
 
-## rvest and Beautiful Soup {visibility="uncounted"}
+## Beautiful Soup and rvest {visibility="uncounted"}
 
 ::: {.small}
-| Task                   | rvest                                | Python                                          |
-|:-----------------------|:-------------------------------------|:------------------------------------------------|
-| download a page        | `read_html(url)`                     | `requests.get(url).text`                        |
-| parse HTML             | `read_html(html)`                    | `BeautifulSoup(html, "html.parser")`            |
-| select all matches     | `html_elements(css)`                 | `select(css)`, `find_all()`                     |
-| first match per input  | `html_element(css)`                  | `select_one(css)`, `find()`                     |
-| no match               | empty node set / missing node        | `[]`, `None`                                    |
-| text                   | `html_text()`, `html_text2()`        | `get_text()`, `get_text(sep, strip=True)`       |
-| tag name               | `html_name()`                        | `.name`                                         |
-| all attributes         | `html_attrs()`                       | `.attrs`                                        |
-| one attribute          | `html_attr("href")`                  | `tag["href"]`, `tag.get("href")`                |
-| tables                 | `html_table()`                       | `pandas.read_html()`                            |
-| many elements          | vectorized                           | comprehension                                   |
-| robots.txt             | `polite::bow()`                      | `urllib.robotparser`                            |
-| rate limiting          | `polite::scrape()`, `Sys.sleep()`    | `time.sleep()`                                  |
-| error handling         | `possibly()`, `safely()`             | `try` / `except`                                |
-| JavaScript pages       | `read_html_live()`                   | Playwright, Selenium                            |
+| Task                   | Python                                          | rvest                                |
+|:-----------------------|:------------------------------------------------|:-------------------------------------|
+| download a page        | `requests.get(url).text`                        | `read_html(url)`                     |
+| parse HTML             | `BeautifulSoup(html, "html.parser")`            | `read_html(html)`                    |
+| select all matches     | `select(css)`, `find_all()`                     | `html_elements(css)`                 |
+| first match per input  | `select_one(css)`, `find()`                     | `html_element(css)`                  |
+| no match               | `[]`, `None`                                    | empty node set / missing node        |
+| text                   | `get_text()`, `get_text(sep, strip=True)`       | `html_text()`, `html_text2()`        |
+| tag name               | `.name`                                         | `html_name()`                        |
+| all attributes         | `.attrs`                                        | `html_attrs()`                       |
+| one attribute          | `tag["href"]`, `tag.get("href")`                | `html_attr("href")`                  |
+| tables                 | `pandas.read_html()`                            | `html_table()`                       |
+| many elements          | comprehension                                   | vectorized                           |
+| robots.txt             | `urllib.robotparser`                            | `polite::bow()`                      |
+| rate limiting          | `time.sleep()`                                  | `polite::scrape()`, `Sys.sleep()`    |
+| error handling         | `try` / `except`                                | `possibly()`, `safely()`             |
 :::
 
 
@@ -1173,7 +1270,9 @@ def safe_read(url):
 
 * CSS selectors do the picking in both languages. Tools like SelectorGadget and the browser's inspector help find a selector that matches what we want and nothing else.
 
-* rvest's functions are vectorized over a set of elements, while Beautiful Soup's methods work on one `Tag` at a time and are combined with comprehensions.
+* Beautiful Soup's methods work on one `Tag` at a time and are combined with comprehensions, while `rvest`'s functions are vectorized over a set of elements.
+
+* `find_all()` covers the cases a selector cannot, such as matching on text or with a regular expression.
 
 * Just because a page can be scraped does not mean it should be. Check `robots.txt` and the terms of service, slow down your requests, and expect some of them to fail.
 :::
