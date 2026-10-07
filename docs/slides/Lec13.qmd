@@ -109,7 +109,7 @@ Two attributes matter more than the rest when scraping:
 
 ## The document tree
 
-Elements nest inside one another, so a page is a tree. Selectors describe elements by both what they are and by where they sit in the tree.
+Elements nest inside one another, so a page is a tree. Selectors describe elements both by what they are and by where they sit in the tree.
 
 :::: {.columns}
 ::: {.column .xsmall width='33%'}
@@ -159,7 +159,7 @@ The document and every element in it are `Tag` objects, with methods and attribu
 :::
 
 ::: {.aside}
-Beautiful Soup only parses HTML. It does not download pages or read tables. We will pair it with `requests` to download pages.
+Beautiful Soup only parses HTML. It does not download pages, so we will pair it with `requests`.
 :::
 
 
@@ -386,7 +386,7 @@ Selector         |  Example         | Description
 :----------------|:-----------------|:--------------------------------------------------
 element          |  `p`             | Select all &lt;p&gt; elements
 .class           |  `.name`         | Select all elements with class="name"
-#id              |  `#first`        | Select all elements with id="first"
+#id              |  `#first`        | Select the element with id="first"
 element.class    |  `div.name`      | Select all &lt;div&gt; elements with class="name"
 A, B             |  `p, #last`      | Select everything matched by either selector
 
@@ -566,7 +566,7 @@ soup.select(".contact div:-soup-contains('9999')")
 :::
 
 ::: {.aside}
-`:-soup-contains()` is a `bs4` extension, this selector will not work in the browser or in `rvest`.
+`:-soup-contains()` is a `bs4` extension, so this selector will not work in the browser or in `rvest`.
 :::
 
 
@@ -609,7 +609,7 @@ soup.select_one("span").get_text()
 
 . . .
 
-Attributes behave similarly, `tag["attr"]` raises a `KeyError` if the attribute is missing while `tag.get("attr")` returns `None`.
+Attributes behave similarly. `tag["attr"]` raises a `KeyError` if the attribute is missing, while `tag.get("attr")` returns `None`.
 
 ::: {.xsmall}
 ```{python}
@@ -685,7 +685,7 @@ soup.find_all(string=re.compile("555"))
 
 . . .
 
-A function can be used as well, it receives each `Tag` and should return `True` for a match.
+A function can be used as well. It receives each `Tag` and should return `True` for a match.
 
 ::: {.xsmall}
 ```{python}
@@ -716,7 +716,7 @@ contact.get_text(" ", strip=True)
 
 . . .
 
-The `.stripped_strings` generator gives the same pieces as a list, one per descendant, with the whitespace removed.
+The `.stripped_strings` generator yields the same pieces one at a time, one per descendant string, with the whitespace removed.
 
 ::: {.xsmall}
 ```{python}
@@ -741,14 +741,6 @@ soup.select_one("div.home").string
 ::: {.xsmall}
 ```{python}
 print(contact.string)
-```
-:::
-
-. . .
-
-::: {.xsmall}
-```{python}
-contact.get_text(" ", strip=True)
 ```
 :::
 
@@ -779,7 +771,7 @@ We will look at `requests` and HTTP in much more detail in the coming lectures.
 
 ## SelectorGadget
 
-This is a JavaScript-based tool that helps you interactively build an appropriate CSS selector for the content you are interested in.
+SelectorGadget is a browser extension (or bookmarklet) that builds a CSS selector interactively, by clicking on elements you want and elements you do not. When it cannot untangle a page, the browser's inspector (right-click, Inspect) shows the exact tags, classes and ids around any element.
 
 
 ::: {.center}
@@ -846,7 +838,7 @@ rp.can_fetch(user_agent, "https://www.google.com/maps")
 :::
 
 ::: {.aside}
-These rules apply to this site. Fetch a separate `robots.txt` when changing sites. An allowed path does not establish permission to reuse its data.
+These rules apply only to this site. Fetch a separate `robots.txt` when changing sites. An allowed path does not establish permission to reuse its data.
 :::
 
 
@@ -859,7 +851,7 @@ Making requests too quickly can overload a server, get your IP blocked, or viola
 . . .
 
 ::: {.medium}
-The simplest approach is `time.sleep()` between requests. This loop uses `rp` from the previous slide and only URLs on that site.
+The simplest approach is `time.sleep()` between requests. This loop uses `rp` from the previous slide, so all of the URLs must be on that site.
 :::
 
 ::: {.mxsmall}
@@ -882,7 +874,7 @@ for url in urls:
 :::
 
 ::: {.aside}
-`finally` keeps the delay even if a request fails. `robots.txt` can also specify a `Crawl-delay`, available via `rp.crawl_delay(user_agent)`, but this is not a super common feature.
+`finally` keeps the delay even if a request fails. `robots.txt` can also specify a `Crawl-delay`, available via `rp.crawl_delay(user_agent)`, but few sites set one.
 :::
 
 
@@ -931,12 +923,12 @@ Missing selectors usually return empty results rather than errors, so check coun
 
 Open [Movies at Home, sorted by popularity](https://www.rottentomatoes.com/browse/movies_at_home/sort:popular). Inspect the page and choose selectors that let us retrieve the following details:
 
-* title, 
-* Tomatometer score, 
+* title,
+* Tomatometer score,
 * displayed critic-status label,
 * absolute movie URL
 
-Using these selectors construct a data frame containing these results. Some movies will be missing one or more of these, use `None` for any missing fields.
+Using these selectors construct a data frame containing these results. Some movies will be missing one or more of these, so use `None` for any missing fields.
 
 
 # {#rvest-logo data-menu-title="rvest" .nostretch}
@@ -1080,7 +1072,7 @@ read_html(html) |> html_elements(".name") |> html_attr("id")
 
 ## Same selectors
 
-The selector syntax also uses CSS,
+`rvest` uses the same CSS selectors as Beautiful Soup, so everything from earlier carries over.
 
 :::: {.columns .mxsmall}
 ::: {.column width="50%"}
@@ -1142,7 +1134,7 @@ This is why `html_element()` is the right choice when extracting one field per i
 
 ::: {.mxsmall}
 ```{r}
-page |> html_elements("body > div") |> 
+page |> html_elements("body > div") |>
   html_element(".work") |> html_text()
 ```
 :::
@@ -1215,6 +1207,14 @@ polite::nod(session, "page/2") |> polite::scrape()
 ::: {.xsmall}
 ```{r}
 #| eval: false
+urls = c("https://www.google.com/search?q=duke",
+         "https://www.google.com/maps")
+```
+:::
+
+::: {.xsmall}
+```{r}
+#| eval: false
 safe_read = purrr::possibly(read_html, otherwise = NULL)
 urls |>
   purrr::map(safe_read)
@@ -1249,13 +1249,12 @@ results |> purrr::map("error")   # error objects (NULL on success)
 | download a page        | `requests.get(url).text`                        | `read_html(url)`                     |
 | parse HTML             | `BeautifulSoup(html, "html.parser")`            | `read_html(html)`                    |
 | select all matches     | `select(css)`, `find_all()`                     | `html_elements(css)`                 |
-| first match per input  | `select_one(css)`, `find()`                     | `html_element(css)`                  |
+| first match            | `select_one(css)`, `find()`                     | `html_element(css)`, per input       |
 | no match               | `[]`, `None`                                    | empty node set / missing node        |
-| text                   | `get_text()`, `get_text(sep, strip=True)`       | `html_text()`, `html_text2()`        |
+| text                   | `get_text()`, `get_text(" ", strip=True)`       | `html_text()`, `html_text2()`        |
 | tag name               | `.name`                                         | `html_name()`                        |
 | all attributes         | `.attrs`                                        | `html_attrs()`                       |
 | one attribute          | `tag["href"]`, `tag.get("href")`                | `html_attr("href")`                  |
-| tables                 | `pandas.read_html()`                            | `html_table()`                       |
 | many elements          | comprehension                                   | vectorized                           |
 | robots.txt             | `urllib.robotparser`                            | `polite::bow()`                      |
 | rate limiting          | `time.sleep()`                                  | `polite::scrape()`, `Sys.sleep()`    |
@@ -1272,7 +1271,7 @@ results |> purrr::map("error")   # error objects (NULL on success)
 
 * Beautiful Soup's methods work on one `Tag` at a time and are combined with comprehensions, while `rvest`'s functions are vectorized over a set of elements.
 
-* `find_all()` covers the cases a selector cannot, such as matching on text or with a regular expression.
+* `find_all()` covers the cases a selector cannot, such as matching with a regular expression or an arbitrary function.
 
 * Just because a page can be scraped does not mean it should be. Check `robots.txt` and the terms of service, slow down your requests, and expect some of them to fail.
 :::

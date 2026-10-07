@@ -1140,7 +1140,7 @@ Dr. Colin Rundel
 </section>
 <section id="the-document-tree" class="slide level2">
 <h2>The document tree</h2>
-<p>Elements nest inside one another, so a page is a tree. Selectors describe elements by both what they are and by where they sit in the tree.</p>
+<p>Elements nest inside one another, so a page is a tree. Selectors describe elements both by what they are and by where they sit in the tree.</p>
 <div class="columns">
 <div class="column xsmall" style="width:33%;">
 <pre><code>html
@@ -1181,7 +1181,7 @@ Dr. Colin Rundel
 </div>
 
 <aside><div>
-<p>Beautiful Soup only parses HTML. It does not download pages or read tables. We will pair it with <code>requests</code> to download pages.</p>
+<p>Beautiful Soup only parses HTML. It does not download pages, so we will pair it with <code>requests</code>.</p>
 </div></aside></section>
 <section id="html-bs4" class="slide level2">
 <h2>HTML &amp; bs4</h2>
@@ -1493,7 +1493,7 @@ Dr. Colin Rundel
 <tr class="odd">
 <td style="text-align: left;">#id</td>
 <td style="text-align: left;"><code>#first</code></td>
-<td style="text-align: left;">Select all elements with id=“first”</td>
+<td style="text-align: left;">Select the element with id=“first”</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">element.class</td>
@@ -1809,7 +1809,7 @@ Dr. Colin Rundel
 
 </div>
 <aside><div>
-<p><code>:-soup-contains()</code> is a <code>bs4</code> extension, this selector will not work in the browser or in <code>rvest</code>.</p>
+<p><code>:-soup-contains()</code> is a <code>bs4</code> extension, so this selector will not work in the browser or in <code>rvest</code>.</p>
 </div></aside></section>
 <section id="choosing-a-selector" class="slide level2">
 <h2>Choosing a selector</h2>
@@ -1849,7 +1849,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="fragment">
-<p>Attributes behave similarly, <code>tag[&quot;attr&quot;]</code> raises a <code>KeyError</code> if the attribute is missing while <code>tag.get(&quot;attr&quot;)</code> returns <code>None</code>.</p>
+<p>Attributes behave similarly. <code>tag[&quot;attr&quot;]</code> raises a <code>KeyError</code> if the attribute is missing, while <code>tag.get(&quot;attr&quot;)</code> returns <code>None</code>.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href aria-label="1"></a><span class="bu">print</span>(p.get(<span class="st">&quot;class&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1937,7 +1937,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="fragment">
-<p>A function can be used as well, it receives each <code>Tag</code> and should return <code>True</code> for a match.</p>
+<p>A function can be used as well. It receives each <code>Tag</code> and should return <code>True</code> for a match.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb95-1"><a href aria-label="1"></a>soup.find_all(<span class="kw">lambda</span> t: t.name <span class="op">==</span> <span class="st">&quot;div&quot;</span> <span class="kw">and</span> t.get_text().endswith(<span class="st">&quot;4&quot;</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1971,7 +1971,7 @@ Dr. Colin Rundel
 </div>
 </div>
 <div class="fragment">
-<p>The <code>.stripped_strings</code> generator gives the same pieces as a list, one per descendant, with the whitespace removed.</p>
+<p>The <code>.stripped_strings</code> generator yields the same pieces one at a time, one per descendant string, with the whitespace removed.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb101-1"><a href aria-label="1"></a><span class="bu">list</span>(contact.stripped_strings)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -2007,29 +2007,19 @@ Dr. Colin Rundel
 </div>
 </div>
 </div>
-<div class="fragment">
-<div class="xsmall">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href aria-label="1"></a>contact.get_text(<span class="st">&quot; &quot;</span>, strip<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>&#39;555-555-1234 555-555-2345 555-555-9999 555-555-8888&#39;</code></pre>
-</div>
-</div>
-</div>
-</div>
 </section>
 <section id="reading-from-the-web" class="slide level2">
 <h2>Reading from the web</h2>
 <p><code>BeautifulSoup()</code> does not accept a URL, so the page is downloaded first with <code>requests</code> and the text of the response is then parsed.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href aria-label="1"></a><span class="im">import</span> requests</span>
-<span id="cb111-2"><a href aria-label="2"></a></span>
-<span id="cb111-3"><a href aria-label="3"></a>r <span class="op">=</span> requests.get(<span class="st">&quot;https://example.com&quot;</span>, timeout<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb111-4"><a href aria-label="4"></a>r.raise_for_status()</span>
-<span id="cb111-5"><a href aria-label="5"></a></span>
-<span id="cb111-6"><a href aria-label="6"></a>soup <span class="op">=</span> BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>)</span>
-<span id="cb111-7"><a href aria-label="7"></a>soup.select(<span class="st">&quot;.title&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb109-1"><a href aria-label="1"></a><span class="im">import</span> requests</span>
+<span id="cb109-2"><a href aria-label="2"></a></span>
+<span id="cb109-3"><a href aria-label="3"></a>r <span class="op">=</span> requests.get(<span class="st">&quot;https://example.com&quot;</span>, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb109-4"><a href aria-label="4"></a>r.raise_for_status()</span>
+<span id="cb109-5"><a href aria-label="5"></a></span>
+<span id="cb109-6"><a href aria-label="6"></a>soup <span class="op">=</span> BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>)</span>
+<span id="cb109-7"><a href aria-label="7"></a>soup.select(<span class="st">&quot;.title&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <p><code>raise_for_status()</code> turns a failed request (404, 500, …) into an exception. Without it we would happily parse the error page.</p>
@@ -2039,7 +2029,7 @@ Dr. Colin Rundel
 </div></aside></section>
 <section id="selectorgadget" class="slide level2">
 <h2>SelectorGadget</h2>
-<p>This is a JavaScript-based tool that helps you interactively build an appropriate CSS selector for the content you are interested in.</p>
+<p>SelectorGadget is a browser extension (or bookmarklet) that builds a CSS selector interactively, by clicking on elements you want and elements you do not. When it cannot untangle a page, the browser’s inspector (right-click, Inspect) shows the exact tags, classes and ids around any element.</p>
 <div class="center">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -2089,20 +2079,20 @@ Dr. Colin Rundel
 </div>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href aria-label="1"></a><span class="im">from</span> urllib.robotparser <span class="im">import</span> RobotFileParser</span>
-<span id="cb112-2"><a href aria-label="2"></a></span>
-<span id="cb112-3"><a href aria-label="3"></a>user_agent <span class="op">=</span> <span class="st">&quot;sta523-example&quot;</span></span>
-<span id="cb112-4"><a href aria-label="4"></a>rp <span class="op">=</span> RobotFileParser(<span class="st">&quot;https://www.google.com/robots.txt&quot;</span>)</span>
-<span id="cb112-5"><a href aria-label="5"></a>rp.read()</span>
-<span id="cb112-6"><a href aria-label="6"></a></span>
-<span id="cb112-7"><a href aria-label="7"></a>rp.can_fetch(user_agent, <span class="st">&quot;https://www.google.com/search?q=duke&quot;</span>)</span>
-<span id="cb112-8"><a href aria-label="8"></a>rp.can_fetch(user_agent, <span class="st">&quot;https://www.google.com/maps&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb110-1"><a href aria-label="1"></a><span class="im">from</span> urllib.robotparser <span class="im">import</span> RobotFileParser</span>
+<span id="cb110-2"><a href aria-label="2"></a></span>
+<span id="cb110-3"><a href aria-label="3"></a>user_agent <span class="op">=</span> <span class="st">&quot;sta523-example&quot;</span></span>
+<span id="cb110-4"><a href aria-label="4"></a>rp <span class="op">=</span> RobotFileParser(<span class="st">&quot;https://www.google.com/robots.txt&quot;</span>)</span>
+<span id="cb110-5"><a href aria-label="5"></a>rp.read()</span>
+<span id="cb110-6"><a href aria-label="6"></a></span>
+<span id="cb110-7"><a href aria-label="7"></a>rp.can_fetch(user_agent, <span class="st">&quot;https://www.google.com/search?q=duke&quot;</span>)</span>
+<span id="cb110-8"><a href aria-label="8"></a>rp.can_fetch(user_agent, <span class="st">&quot;https://www.google.com/maps&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
 </div>
 <aside><div>
-<p>These rules apply to this site. Fetch a separate <code>robots.txt</code> when changing sites. An allowed path does not establish permission to reuse its data.</p>
+<p>These rules apply only to this site. Fetch a separate <code>robots.txt</code> when changing sites. An allowed path does not establish permission to reuse its data.</p>
 </div></aside></section>
 <section id="rate-limiting" class="slide level2">
 <h2>Rate limiting</h2>
@@ -2111,57 +2101,57 @@ Dr. Colin Rundel
 </div>
 <div class="fragment">
 <div class="medium">
-<p>The simplest approach is <code>time.sleep()</code> between requests. This loop uses <code>rp</code> from the previous slide and only URLs on that site.</p>
+<p>The simplest approach is <code>time.sleep()</code> between requests. This loop uses <code>rp</code> from the previous slide, so all of the URLs must be on that site.</p>
 </div>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href aria-label="1"></a><span class="im">import</span> time</span>
-<span id="cb113-2"><a href aria-label="2"></a></span>
-<span id="cb113-3"><a href aria-label="3"></a>user_agent <span class="op">=</span> <span class="st">&quot;sta523-example&quot;</span></span>
-<span id="cb113-4"><a href aria-label="4"></a>urls <span class="op">=</span> [<span class="st">&quot;https://www.google.com/search?q=duke&quot;</span>,</span>
-<span id="cb113-5"><a href aria-label="5"></a>        <span class="st">&quot;https://www.google.com/maps&quot;</span>]</span>
-<span id="cb113-6"><a href aria-label="6"></a></span>
-<span id="cb113-7"><a href aria-label="7"></a><span class="cf">for</span> url <span class="kw">in</span> urls:</span>
-<span id="cb113-8"><a href aria-label="8"></a>  <span class="cf">if</span> rp.can_fetch(user_agent, url):</span>
-<span id="cb113-9"><a href aria-label="9"></a>    <span class="cf">try</span>:</span>
-<span id="cb113-10"><a href aria-label="10"></a>      r <span class="op">=</span> requests.get(url, headers<span class="op">=</span>{<span class="st">&quot;User-Agent&quot;</span>: user_agent}, timeout<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb113-11"><a href aria-label="11"></a>      r.raise_for_status()</span>
-<span id="cb113-12"><a href aria-label="12"></a>    <span class="cf">finally</span>:</span>
-<span id="cb113-13"><a href aria-label="13"></a>      time.sleep(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb111-1"><a href aria-label="1"></a><span class="im">import</span> time</span>
+<span id="cb111-2"><a href aria-label="2"></a></span>
+<span id="cb111-3"><a href aria-label="3"></a>user_agent <span class="op">=</span> <span class="st">&quot;sta523-example&quot;</span></span>
+<span id="cb111-4"><a href aria-label="4"></a>urls <span class="op">=</span> [<span class="st">&quot;https://www.google.com/search?q=duke&quot;</span>,</span>
+<span id="cb111-5"><a href aria-label="5"></a>        <span class="st">&quot;https://www.google.com/maps&quot;</span>]</span>
+<span id="cb111-6"><a href aria-label="6"></a></span>
+<span id="cb111-7"><a href aria-label="7"></a><span class="cf">for</span> url <span class="kw">in</span> urls:</span>
+<span id="cb111-8"><a href aria-label="8"></a>  <span class="cf">if</span> rp.can_fetch(user_agent, url):</span>
+<span id="cb111-9"><a href aria-label="9"></a>    <span class="cf">try</span>:</span>
+<span id="cb111-10"><a href aria-label="10"></a>      r <span class="op">=</span> requests.get(url, headers<span class="op">=</span>{<span class="st">&quot;User-Agent&quot;</span>: user_agent}, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb111-11"><a href aria-label="11"></a>      r.raise_for_status()</span>
+<span id="cb111-12"><a href aria-label="12"></a>    <span class="cf">finally</span>:</span>
+<span id="cb111-13"><a href aria-label="13"></a>      time.sleep(<span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
 </div>
 <aside><div>
-<p><code>finally</code> keeps the delay even if a request fails. <code>robots.txt</code> can also specify a <code>Crawl-delay</code>, available via <code>rp.crawl_delay(user_agent)</code>, but this is not a super common feature.</p>
+<p><code>finally</code> keeps the delay even if a request fails. <code>robots.txt</code> can also specify a <code>Crawl-delay</code>, available via <code>rp.crawl_delay(user_agent)</code>, but few sites set one.</p>
 </div></aside></section>
 <section id="graceful-error-handling" class="slide level2">
 <h2>Graceful error handling</h2>
 <p>When scraping many pages, retrieval or parsing can fail. Wrapping the request in <code>try</code> / <code>except</code> lets us capture those errors and continue, returning <code>None</code> on failure.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb114-1"><a href aria-label="1"></a><span class="kw">def</span> safe_read(url):</span>
-<span id="cb114-2"><a href aria-label="2"></a>  <span class="cf">try</span>:</span>
-<span id="cb114-3"><a href aria-label="3"></a>    r <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb114-4"><a href aria-label="4"></a>    r.raise_for_status()</span>
-<span id="cb114-5"><a href aria-label="5"></a>    <span class="cf">return</span> BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>)</span>
-<span id="cb114-6"><a href aria-label="6"></a>  <span class="cf">except</span> requests.RequestException:</span>
-<span id="cb114-7"><a href aria-label="7"></a>    <span class="cf">return</span> <span class="va">None</span></span>
-<span id="cb114-8"><a href aria-label="8"></a></span>
-<span id="cb114-9"><a href aria-label="9"></a>pages <span class="op">=</span> [safe_read(url) <span class="cf">for</span> url <span class="kw">in</span> urls]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb112-1"><a href aria-label="1"></a><span class="kw">def</span> safe_read(url):</span>
+<span id="cb112-2"><a href aria-label="2"></a>  <span class="cf">try</span>:</span>
+<span id="cb112-3"><a href aria-label="3"></a>    r <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb112-4"><a href aria-label="4"></a>    r.raise_for_status()</span>
+<span id="cb112-5"><a href aria-label="5"></a>    <span class="cf">return</span> BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>)</span>
+<span id="cb112-6"><a href aria-label="6"></a>  <span class="cf">except</span> requests.RequestException:</span>
+<span id="cb112-7"><a href aria-label="7"></a>    <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb112-8"><a href aria-label="8"></a></span>
+<span id="cb112-9"><a href aria-label="9"></a>pages <span class="op">=</span> [safe_read(url) <span class="cf">for</span> url <span class="kw">in</span> urls]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <p>Keeping the exception alongside the result lets us inspect what went wrong afterwards.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb115-1"><a href aria-label="1"></a><span class="kw">def</span> safe_read(url):</span>
-<span id="cb115-2"><a href aria-label="2"></a>  <span class="cf">try</span>:</span>
-<span id="cb115-3"><a href aria-label="3"></a>    r <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="dv">10</span>)</span>
-<span id="cb115-4"><a href aria-label="4"></a>    r.raise_for_status()</span>
-<span id="cb115-5"><a href aria-label="5"></a>    <span class="cf">return</span> {<span class="st">&quot;result&quot;</span>: BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>), <span class="st">&quot;error&quot;</span>: <span class="va">None</span>}</span>
-<span id="cb115-6"><a href aria-label="6"></a>  <span class="cf">except</span> requests.RequestException <span class="im">as</span> e:</span>
-<span id="cb115-7"><a href aria-label="7"></a>    <span class="cf">return</span> {<span class="st">&quot;result&quot;</span>: <span class="va">None</span>, <span class="st">&quot;error&quot;</span>: e}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb113-1"><a href aria-label="1"></a><span class="kw">def</span> safe_read(url):</span>
+<span id="cb113-2"><a href aria-label="2"></a>  <span class="cf">try</span>:</span>
+<span id="cb113-3"><a href aria-label="3"></a>    r <span class="op">=</span> requests.get(url, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb113-4"><a href aria-label="4"></a>    r.raise_for_status()</span>
+<span id="cb113-5"><a href aria-label="5"></a>    <span class="cf">return</span> {<span class="st">&quot;result&quot;</span>: BeautifulSoup(r.text, <span class="st">&quot;html.parser&quot;</span>), <span class="st">&quot;error&quot;</span>: <span class="va">None</span>}</span>
+<span id="cb113-6"><a href aria-label="6"></a>  <span class="cf">except</span> requests.RequestException <span class="im">as</span> e:</span>
+<span id="cb113-7"><a href aria-label="7"></a>    <span class="cf">return</span> {<span class="st">&quot;result&quot;</span>: <span class="va">None</span>, <span class="st">&quot;error&quot;</span>: e}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
@@ -2178,7 +2168,7 @@ Dr. Colin Rundel
 <li>displayed critic-status label,</li>
 <li>absolute movie URL</li>
 </ul>
-<p>Using these selectors construct a data frame containing these results. Some movies will be missing one or more of these, use <code>None</code> for any missing fields.</p>
+<p>Using these selectors construct a data frame containing these results. Some movies will be missing one or more of these, so use <code>None</code> for any missing fields.</p>
 </section></section>
 <section>
 <section id="rvest-logo" class="title-slide slide level1 nostretch center" data-menu-title="rvest">
@@ -2213,38 +2203,38 @@ Dr. Colin Rundel
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href aria-label="1"></a>html <span class="ot">=</span></span>
-<span id="cb116-2"><a href aria-label="2"></a><span class="st">&#39;&lt;html&gt;</span></span>
-<span id="cb116-3"><a href aria-label="3"></a><span class="st">  &lt;head&gt;</span></span>
-<span id="cb116-4"><a href aria-label="4"></a><span class="st">    &lt;title&gt;This is a title&lt;/title&gt;</span></span>
-<span id="cb116-5"><a href aria-label="5"></a><span class="st">  &lt;/head&gt;</span></span>
-<span id="cb116-6"><a href aria-label="6"></a><span class="st">  &lt;body&gt;</span></span>
-<span id="cb116-7"><a href aria-label="7"></a><span class="st">    &lt;p align=&quot;center&quot;&gt;Hello world!&lt;/p&gt;</span></span>
-<span id="cb116-8"><a href aria-label="8"></a><span class="st">    &lt;br/&gt;</span></span>
-<span id="cb116-9"><a href aria-label="9"></a><span class="st">    &lt;div class=&quot;name&quot; id=&quot;first&quot;&gt;John&lt;/div&gt;</span></span>
-<span id="cb116-10"><a href aria-label="10"></a><span class="st">    &lt;div class=&quot;name&quot; id=&quot;last&quot;&gt;Doe&lt;/div&gt;</span></span>
-<span id="cb116-11"><a href aria-label="11"></a><span class="st">    &lt;div class=&quot;contact&quot;&gt;</span></span>
-<span id="cb116-12"><a href aria-label="12"></a><span class="st">      &lt;div class=&quot;home&quot;&gt;555-555-1234&lt;/div&gt;</span></span>
-<span id="cb116-13"><a href aria-label="13"></a><span class="st">      &lt;div class=&quot;home&quot;&gt;555-555-2345&lt;/div&gt;</span></span>
-<span id="cb116-14"><a href aria-label="14"></a><span class="st">      &lt;div class=&quot;work&quot;&gt;555-555-9999&lt;/div&gt;</span></span>
-<span id="cb116-15"><a href aria-label="15"></a><span class="st">      &lt;div class=&quot;fax&quot;&gt;555-555-8888&lt;/div&gt;</span></span>
-<span id="cb116-16"><a href aria-label="16"></a><span class="st">    &lt;/div&gt;</span></span>
-<span id="cb116-17"><a href aria-label="17"></a><span class="st">  &lt;/body&gt;</span></span>
-<span id="cb116-18"><a href aria-label="18"></a><span class="st">&lt;/html&gt;&#39;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href aria-label="1"></a>html <span class="ot">=</span></span>
+<span id="cb114-2"><a href aria-label="2"></a><span class="st">&#39;&lt;html&gt;</span></span>
+<span id="cb114-3"><a href aria-label="3"></a><span class="st">  &lt;head&gt;</span></span>
+<span id="cb114-4"><a href aria-label="4"></a><span class="st">    &lt;title&gt;This is a title&lt;/title&gt;</span></span>
+<span id="cb114-5"><a href aria-label="5"></a><span class="st">  &lt;/head&gt;</span></span>
+<span id="cb114-6"><a href aria-label="6"></a><span class="st">  &lt;body&gt;</span></span>
+<span id="cb114-7"><a href aria-label="7"></a><span class="st">    &lt;p align=&quot;center&quot;&gt;Hello world!&lt;/p&gt;</span></span>
+<span id="cb114-8"><a href aria-label="8"></a><span class="st">    &lt;br/&gt;</span></span>
+<span id="cb114-9"><a href aria-label="9"></a><span class="st">    &lt;div class=&quot;name&quot; id=&quot;first&quot;&gt;John&lt;/div&gt;</span></span>
+<span id="cb114-10"><a href aria-label="10"></a><span class="st">    &lt;div class=&quot;name&quot; id=&quot;last&quot;&gt;Doe&lt;/div&gt;</span></span>
+<span id="cb114-11"><a href aria-label="11"></a><span class="st">    &lt;div class=&quot;contact&quot;&gt;</span></span>
+<span id="cb114-12"><a href aria-label="12"></a><span class="st">      &lt;div class=&quot;home&quot;&gt;555-555-1234&lt;/div&gt;</span></span>
+<span id="cb114-13"><a href aria-label="13"></a><span class="st">      &lt;div class=&quot;home&quot;&gt;555-555-2345&lt;/div&gt;</span></span>
+<span id="cb114-14"><a href aria-label="14"></a><span class="st">      &lt;div class=&quot;work&quot;&gt;555-555-9999&lt;/div&gt;</span></span>
+<span id="cb114-15"><a href aria-label="15"></a><span class="st">      &lt;div class=&quot;fax&quot;&gt;555-555-8888&lt;/div&gt;</span></span>
+<span id="cb114-16"><a href aria-label="16"></a><span class="st">    &lt;/div&gt;</span></span>
+<span id="cb114-17"><a href aria-label="17"></a><span class="st">  &lt;/body&gt;</span></span>
+<span id="cb114-18"><a href aria-label="18"></a><span class="st">&lt;/html&gt;&#39;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{html_document}
 &lt;html&gt;
 [1] &lt;head&gt;\n&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8 ...
 [2] &lt;body&gt;\n    &lt;p align=&quot;center&quot;&gt;Hello world!&lt;/p&gt;\n    &lt;br&gt;&lt;div class=&quot;name&quot; ...</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html)[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html)[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$node
-&lt;pointer: 0x77f6424880&gt;</code></pre>
+&lt;pointer: 0x7b376b8980&gt;</code></pre>
 </div>
 </div>
 </div></div>
@@ -2254,7 +2244,7 @@ Dr. Colin Rundel
 <p><code>html_element()</code> returns the first element matching a selector, and the <code>html_*()</code> helpers extract from it.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{html_node}
 &lt;p align=&quot;center&quot;&gt;</code></pre>
@@ -2264,7 +2254,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;Hello world!&quot;</code></pre>
 </div>
@@ -2274,7 +2264,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_name</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_name</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;p&quot;</code></pre>
 </div>
@@ -2284,7 +2274,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attrs</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attrs</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   align 
 &quot;center&quot; </code></pre>
@@ -2295,7 +2285,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attr</span>(<span class="st">&quot;align&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;p&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attr</span>(<span class="st">&quot;align&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;center&quot;</code></pre>
 </div>
@@ -2308,7 +2298,7 @@ Dr. Colin Rundel
 <p><code>html_elements()</code> returns every match as a node set. Unlike Beautiful Soup, the extraction functions are vectorized over node sets, so there is no need for a loop.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;div&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;div&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (7)}
 [1] &lt;div class=&quot;name&quot; id=&quot;first&quot;&gt;John&lt;/div&gt;
@@ -2324,7 +2314,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;div&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;div&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;John&quot;                                                                                  
 [2] &quot;Doe&quot;                                                                                   
@@ -2340,7 +2330,7 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;.name&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attr</span>(<span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;.name&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_attr</span>(<span class="st">&quot;id&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;first&quot; &quot;last&quot; </code></pre>
 </div>
@@ -2350,11 +2340,11 @@ Dr. Colin Rundel
 </section>
 <section id="same-selectors" class="slide level2">
 <h2>Same selectors</h2>
-<p>The selector syntax also uses CSS,</p>
+<p><code>rvest</code> uses the same CSS selectors as Beautiful Soup, so everything from earlier carries over.</p>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;p, #last&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;p, #last&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (2)}
 [1] &lt;p align=&quot;center&quot;&gt;Hello world!&lt;/p&gt;
@@ -2363,7 +2353,7 @@ Dr. Colin Rundel
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;body &gt; div&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;body &gt; div&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (3)}
 [1] &lt;div class=&quot;name&quot; id=&quot;first&quot;&gt;John&lt;/div&gt;
@@ -2375,7 +2365,7 @@ Dr. Colin Rundel
 </div><div class="column" style="width:50%;">
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;[class^=ho]&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;[class^=ho]&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (2)}
 [1] &lt;div class=&quot;home&quot;&gt;555-555-1234&lt;/div&gt;
@@ -2385,7 +2375,7 @@ Dr. Colin Rundel
 </div>
 <div class="fragment">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;.contact div:not(.home)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href aria-label="1"></a><span class="fu">read_html</span>(html) <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;.contact div:not(.home)&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (2)}
 [1] &lt;div class=&quot;work&quot;&gt;555-555-9999&lt;/div&gt;
@@ -2404,24 +2394,24 @@ Dr. Colin Rundel
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a>page <span class="ot">=</span> <span class="fu">read_html</span>(html)</span>
-<span id="cb145-2"><a href aria-label="2"></a>page <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;span&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href aria-label="1"></a>page <span class="ot">=</span> <span class="fu">read_html</span>(html)</span>
+<span id="cb143-2"><a href aria-label="2"></a>page <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;span&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_missing}
 &lt;NA&gt;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;span&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_element</span>(<span class="st">&quot;span&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;span&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;span&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{xml_nodeset (0)}</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;span&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;span&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>character(0)</code></pre>
 </div>
@@ -2431,8 +2421,8 @@ Dr. Colin Rundel
 <p>This is why <code>html_element()</code> is the right choice when extracting one field per item, as the output stays aligned with the inputs.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;body &gt; div&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb153-2"><a href aria-label="2"></a>  <span class="fu">html_element</span>(<span class="st">&quot;.work&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href aria-label="1"></a>page <span class="sc">|&gt;</span> <span class="fu">html_elements</span>(<span class="st">&quot;body &gt; div&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb151-2"><a href aria-label="2"></a>  <span class="fu">html_element</span>(<span class="st">&quot;.work&quot;</span>) <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA             NA             &quot;555-555-9999&quot;</code></pre>
 </div>
@@ -2444,22 +2434,22 @@ Dr. Colin Rundel
 <h2><code>html_text()</code> vs <code>html_text2()</code></h2>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href aria-label="1"></a>par <span class="ot">=</span> <span class="fu">read_html</span>(</span>
-<span id="cb155-2"><a href aria-label="2"></a>  <span class="st">&quot;&lt;p&gt;</span></span>
-<span id="cb155-3"><a href aria-label="3"></a><span class="st">    First sentence.</span></span>
-<span id="cb155-4"><a href aria-label="4"></a><span class="st">    Same line.&lt;br&gt;New line.</span></span>
-<span id="cb155-5"><a href aria-label="5"></a><span class="st">  &lt;/p&gt;&quot;</span></span>
-<span id="cb155-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href aria-label="1"></a>par <span class="ot">=</span> <span class="fu">read_html</span>(</span>
+<span id="cb153-2"><a href aria-label="2"></a>  <span class="st">&quot;&lt;p&gt;</span></span>
+<span id="cb153-3"><a href aria-label="3"></a><span class="st">    First sentence.</span></span>
+<span id="cb153-4"><a href aria-label="4"></a><span class="st">    Same line.&lt;br&gt;New line.</span></span>
+<span id="cb153-5"><a href aria-label="5"></a><span class="st">  &lt;/p&gt;&quot;</span></span>
+<span id="cb153-6"><a href aria-label="6"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb154"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb154-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;\n    First sentence.\n    Same line.New line.\n  &quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text</span>() <span class="sc">|&gt;</span> <span class="fu">cat</span>(<span class="at">sep=</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb156"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text</span>() <span class="sc">|&gt;</span> <span class="fu">cat</span>(<span class="at">sep=</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     First sentence.
@@ -2472,11 +2462,11 @@ Dr. Colin Rundel
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text2</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text2</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;First sentence. Same line.\nNew line.&quot;</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text2</span>() <span class="sc">|&gt;</span> <span class="fu">cat</span>(<span class="at">sep=</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href aria-label="1"></a>par <span class="sc">|&gt;</span> <span class="fu">html_text2</span>() <span class="sc">|&gt;</span> <span class="fu">cat</span>(<span class="at">sep=</span><span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>First sentence. Same line.
 New line.</code></pre>
@@ -2497,9 +2487,9 @@ New line.</code></pre>
 <p><code>bow()</code> reads the site’s <code>robots.txt</code> and returns a session object, <code>nod()</code> moves to a new path within the site, and <code>scrape()</code> makes the request (this is equivalent to <code>read_html()</code> and returns a parsed HTML object).</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href aria-label="1"></a>session <span class="ot">=</span> polite<span class="sc">::</span><span class="fu">bow</span>(<span class="st">&quot;https://example.com&quot;</span>)</span>
-<span id="cb164-2"><a href aria-label="2"></a>polite<span class="sc">::</span><span class="fu">nod</span>(session, <span class="st">&quot;page/1&quot;</span>) <span class="sc">|&gt;</span> polite<span class="sc">::</span><span class="fu">scrape</span>()</span>
-<span id="cb164-3"><a href aria-label="3"></a>polite<span class="sc">::</span><span class="fu">nod</span>(session, <span class="st">&quot;page/2&quot;</span>) <span class="sc">|&gt;</span> polite<span class="sc">::</span><span class="fu">scrape</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a href aria-label="1"></a>session <span class="ot">=</span> polite<span class="sc">::</span><span class="fu">bow</span>(<span class="st">&quot;https://example.com&quot;</span>)</span>
+<span id="cb162-2"><a href aria-label="2"></a>polite<span class="sc">::</span><span class="fu">nod</span>(session, <span class="st">&quot;page/1&quot;</span>) <span class="sc">|&gt;</span> polite<span class="sc">::</span><span class="fu">scrape</span>()</span>
+<span id="cb162-3"><a href aria-label="3"></a>polite<span class="sc">::</span><span class="fu">nod</span>(session, <span class="st">&quot;page/2&quot;</span>) <span class="sc">|&gt;</span> polite<span class="sc">::</span><span class="fu">scrape</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <p><code>polite</code> uses the larger of the requested delay (5 seconds by default) and the crawl delay in <code>robots.txt</code>.</p>
@@ -2510,21 +2500,27 @@ New line.</code></pre>
 <p><code>purrr::possibly()</code> wraps a function so that errors return a default value instead of stopping, which is the <code>try</code> / <code>except</code> pattern from earlier packaged as a function.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href aria-label="1"></a>safe_read <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">possibly</span>(read_html, <span class="at">otherwise =</span> <span class="cn">NULL</span>)</span>
-<span id="cb165-2"><a href aria-label="2"></a>urls <span class="sc">|&gt;</span></span>
-<span id="cb165-3"><a href aria-label="3"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(safe_read)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb163-1"><a href aria-label="1"></a>urls <span class="ot">=</span> <span class="fu">c</span>(<span class="st">&quot;https://www.google.com/search?q=duke&quot;</span>,</span>
+<span id="cb163-2"><a href aria-label="2"></a>         <span class="st">&quot;https://www.google.com/maps&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="xsmall">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb164"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href aria-label="1"></a>safe_read <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">possibly</span>(read_html, <span class="at">otherwise =</span> <span class="cn">NULL</span>)</span>
+<span id="cb164-2"><a href aria-label="2"></a>urls <span class="sc">|&gt;</span></span>
+<span id="cb164-3"><a href aria-label="3"></a>  purrr<span class="sc">::</span><span class="fu">map</span>(safe_read)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="fragment">
 <p><code>purrr::safely()</code> is similar but returns a list with <code>result</code> and <code>error</code> components, letting you inspect what went wrong.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href aria-label="1"></a>safe_read <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">safely</span>(read_html)</span>
-<span id="cb166-2"><a href aria-label="2"></a>results <span class="ot">=</span> urls <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(safe_read)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb165"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href aria-label="1"></a>safe_read <span class="ot">=</span> purrr<span class="sc">::</span><span class="fu">safely</span>(read_html)</span>
+<span id="cb165-2"><a href aria-label="2"></a>results <span class="ot">=</span> urls <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(safe_read)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb167"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb167-1"><a href aria-label="1"></a>results <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="st">&quot;result&quot;</span>)  <span class="co"># successful results (NULL on failure)</span></span>
-<span id="cb167-2"><a href aria-label="2"></a>results <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="st">&quot;error&quot;</span>)   <span class="co"># error objects (NULL on success)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb166"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb166-1"><a href aria-label="1"></a>results <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="st">&quot;result&quot;</span>)  <span class="co"># successful results (NULL on failure)</span></span>
+<span id="cb166-2"><a href aria-label="2"></a>results <span class="sc">|&gt;</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="st">&quot;error&quot;</span>)   <span class="co"># error objects (NULL on success)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -2567,9 +2563,9 @@ New line.</code></pre>
 <td style="text-align: left;"><code>html_elements(css)</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">first match per input</td>
+<td style="text-align: left;">first match</td>
 <td style="text-align: left;"><code>select_one(css)</code>, <code>find()</code></td>
-<td style="text-align: left;"><code>html_element(css)</code></td>
+<td style="text-align: left;"><code>html_element(css)</code>, per input</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">no match</td>
@@ -2578,7 +2574,7 @@ New line.</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: left;">text</td>
-<td style="text-align: left;"><code>get_text()</code>, <code>get_text(sep, strip=True)</code></td>
+<td style="text-align: left;"><code>get_text()</code>, <code>get_text(&quot; &quot;, strip=True)</code></td>
 <td style="text-align: left;"><code>html_text()</code>, <code>html_text2()</code></td>
 </tr>
 <tr class="odd">
@@ -2597,26 +2593,21 @@ New line.</code></pre>
 <td style="text-align: left;"><code>html_attr(&quot;href&quot;)</code></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">tables</td>
-<td style="text-align: left;"><code>pandas.read_html()</code></td>
-<td style="text-align: left;"><code>html_table()</code></td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">many elements</td>
 <td style="text-align: left;">comprehension</td>
 <td style="text-align: left;">vectorized</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">robots.txt</td>
 <td style="text-align: left;"><code>urllib.robotparser</code></td>
 <td style="text-align: left;"><code>polite::bow()</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">rate limiting</td>
 <td style="text-align: left;"><code>time.sleep()</code></td>
 <td style="text-align: left;"><code>polite::scrape()</code>, <code>Sys.sleep()</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">error handling</td>
 <td style="text-align: left;"><code>try</code> / <code>except</code></td>
 <td style="text-align: left;"><code>possibly()</code>, <code>safely()</code></td>
@@ -2632,7 +2623,7 @@ New line.</code></pre>
 <li><p>HTML is hierarchical, and scraping is the work of picking the elements we want out of that hierarchy and flattening them into a data frame.</p></li>
 <li><p>CSS selectors do the picking in both languages. Tools like SelectorGadget and the browser’s inspector help find a selector that matches what we want and nothing else.</p></li>
 <li><p>Beautiful Soup’s methods work on one <code>Tag</code> at a time and are combined with comprehensions, while <code>rvest</code>’s functions are vectorized over a set of elements.</p></li>
-<li><p><code>find_all()</code> covers the cases a selector cannot, such as matching on text or with a regular expression.</p></li>
+<li><p><code>find_all()</code> covers the cases a selector cannot, such as matching with a regular expression or an arbitrary function.</p></li>
 <li><p>Just because a page can be scraped does not mean it should be. Check <code>robots.txt</code> and the terms of service, slow down your requests, and expect some of them to fail.</p></li>
 </ul>
 </div>

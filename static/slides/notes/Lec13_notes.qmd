@@ -1,7 +1,3 @@
-```{r setup}
-#| include: false
-library(rvest)
-```
 
 ```{python py_setup}
 #| include: false
@@ -18,9 +14,9 @@ pd.set_option("display.width", 120)
 
 # Example - Rotten Tomatoes
 
-Scrape the movies present in the downloaded HTML of Movies at Home, sorted by popularity, into a data frame with the title, Tomatometer score, critic-status label, and absolute movie URL. Keep scores as text (for example, `"95%"`) and preserve missing values. Derive the critic-status label from the icon attributes.
+Scrape the movies present in the downloaded HTML of Movies at Home, sorted by popularity, into a data frame with the title, Tomatometer score, critic-status label, and absolute movie URL. Store the score as a number (so `"95%"` becomes `95`) and preserve missing values. Derive the critic-status label from the icon attributes.
 
-For this example, assume each movie tile contains the title, score, critic icon, and link elements. A score element may be empty.
+For this example, assume every movie tile contains the title, score, critic icon, and link elements, so the page-wide selections line up. A score element may be empty.
 
 ## BeautifulSoup
 
@@ -39,36 +35,31 @@ response = requests.get(url, headers=headers, timeout=10)
 response.raise_for_status()
 
 page = BeautifulSoup(response.text, "html.parser")
-tiles = page.select("div.flex-container")
 
-rows = []
-for tile in tiles:
-    title = tile.select_one(
-        "rt-text[data-qa='discovery-media-list-item-title']"
-    )
-    score = tile.select_one("rt-text[slot='criticsScore']")
-    icon = tile.select_one("score-icon-critics")
-    href = tile.select_one("a.js-tile-link")["href"]
-
-    if icon.get("certified") == "true":
-        label = "Certified Fresh"
-    else:
-        label = {"positive": "Fresh", "negative": "Rotten"}.get(
-            icon.get("sentiment")
-        )
-
-    rows.append({
-        "title": title.get_text(" ", strip=True),
-        "score": score.get_text(" ", strip=True) or None,
-        "label": label,
-        "url": urljoin(response.url, href),
-    })
-
-movies = pd.DataFrame(rows)
+movies = pd.DataFrame({
+    "title": page.select("rt-text[data-qa='discovery-media-list-item-title']"),
+    "score": page.select("rt-text[slot='criticsScore']"),
+    "icon":  page.select("div.flex-container score-icon-critics"),
+    "url":   page.select("a.js-tile-link"),
+}).assign(
+    title = pd.col("title").map(lambda t: t.get_text(" ", strip=True)),
+    score = pd.col("score").map(lambda s: s.get_text(strip=True).rstrip("%") or None).astype("Int64"),
+    sentiment = pd.col("icon").map(lambda i: i.get("sentiment")),
+    certified = pd.col("icon").map(lambda i: i.get("certified") == "true"),
+    label = pd.col("sentiment").map({"positive": "Fresh", "negative": "Rotten"})
+              .where(~pd.col("certified"), "Certified Fresh"),
+    url = pd.col("url").map(lambda a: urljoin(response.url, a["href"])),
+).drop(columns=["icon", "sentiment", "certified"])
 movies
 ```
 
 ## rvest
+
+```{r}
+#| message: false
+library(tidyverse)
+library(rvest)
+```
 
 ```{r}
 base = "https://www.rottentomatoes.com"
@@ -80,19 +71,19 @@ session
 
 ```{r}
 page = polite::scrape(session)
-tiles = page |> html_elements("div.flex-container")
-icons = tiles |> html_element("score-icon-critics")
+icons = page |> html_elements("div.flex-container score-icon-critics")
 
-movies = tibble::tibble(
-  title = tiles |> html_element("rt-text[data-qa='discovery-media-list-item-title']") |> html_text2(),
-  score = tiles |> html_element("rt-text[slot='criticsScore']") |> html_text2() |> dplyr::na_if(""),
-  label = dplyr::case_when(
+movies = tibble(
+  title = page |> html_elements("rt-text[data-qa='discovery-media-list-item-title']") |> html_text2(),
+  score = page |> html_elements("rt-text[slot='criticsScore']") |> html_text2() |> stringr::str_remove("%") |> as.integer(),
+  label = case_when(
     html_attr(icons, "certified") == "true" ~ "Certified Fresh",
     html_attr(icons, "sentiment") == "positive" ~ "Fresh",
     html_attr(icons, "sentiment") == "negative" ~ "Rotten"
   ),
-  url = tiles |> html_element("a.js-tile-link") |> html_attr("href")
+  url = page |> html_elements("a.js-tile-link") |> html_attr("href")
 ) |>
-  dplyr::mutate(url = paste0(base, url))
+  mutate(url = paste0(base, url))
+  
 movies
 ```
