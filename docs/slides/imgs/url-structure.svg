@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1260 230" width="1260" height="230" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<text x="42.0" y="120" font-size="40" fill="#333333" textLength="120.0" lengthAdjust="spacingAndGlyphs">https</text>
+<rect x="42.0" y="134" width="120.0" height="6" rx="3" fill="#325b74"/>
+<text x="102.0" y="176" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">scheme</text>
+<text x="162.0" y="120" font-size="40" fill="#999999" textLength="72.0" lengthAdjust="spacingAndGlyphs">://</text>
+<text x="234.0" y="120" font-size="40" fill="#333333" textLength="264.0" lengthAdjust="spacingAndGlyphs">example.com</text>
+<rect x="234.0" y="134" width="264.0" height="6" rx="3" fill="#325b74"/>
+<text x="366.0" y="176" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">host</text>
+<text x="498.0" y="120" font-size="40" fill="#999999" textLength="24.0" lengthAdjust="spacingAndGlyphs">:</text>
+<text x="522.0" y="120" font-size="40" fill="#333333" textLength="96.0" lengthAdjust="spacingAndGlyphs">8080</text>
+<rect x="522.0" y="76" width="96.0" height="6" rx="3" fill="#325b74"/>
+<text x="570.0" y="58" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">port</text>
+<text x="618.0" y="120" font-size="40" fill="#333333" textLength="312.0" lengthAdjust="spacingAndGlyphs">/path/to/page</text>
+<rect x="618.0" y="134" width="312.0" height="6" rx="3" fill="#325b74"/>
+<text x="774.0" y="176" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">path</text>
+<text x="930.0" y="120" font-size="40" fill="#999999" textLength="24.0" lengthAdjust="spacingAndGlyphs">?</text>
+<text x="954.0" y="120" font-size="40" fill="#333333" textLength="168.0" lengthAdjust="spacingAndGlyphs">a=1&amp;b=2</text>
+<rect x="954.0" y="76" width="168.0" height="6" rx="3" fill="#325b74"/>
+<text x="1038.0" y="58" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">query</text>
+<text x="1122.0" y="120" font-size="40" fill="#999999" textLength="24.0" lengthAdjust="spacingAndGlyphs">#</text>
+<text x="1146.0" y="120" font-size="40" fill="#333333" textLength="72.0" lengthAdjust="spacingAndGlyphs">top</text>
+<rect x="1146.0" y="134" width="72.0" height="6" rx="3" fill="#325b74"/>
+<text x="1182.0" y="176" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">fragment</text>
+</svg>

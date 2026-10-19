@@ -1,0 +1,79 @@
+---
+preserve-tabs: true
+filters:
+  - ../_makefile-tabs.lua
+---
+
+# Exercise 1
+
+Write a `Makefile` with `all` and `clean` targets for a project where `scrape.py` downloads pages into `data/pages/`, `parse.R` writes `data/listings.csv`, `fit.py` writes `results/fit.json`, and `report.qmd` renders `report.html` from the csv and json. Use command variables, create the output directories, and use a completion marker for the pages. Preserve the downloaded pages when cleaning derived outputs.
+
+```makefile
+PY := uv run python
+R  := Rscript
+
+.DELETE_ON_ERROR:
+
+all: report.html
+
+report.html: report.qmd data/listings.csv results/fit.json
+	quarto render report.qmd
+
+results/fit.json: fit.py data/listings.csv
+	mkdir -p "$(@D)"
+	$(PY) fit.py
+
+data/listings.csv: parse.R data/pages/.done
+	$(R) parse.R
+
+data/pages/.done: scrape.py
+	mkdir -p "$(@D)"
+	rm -f "$@"
+	$(PY) scrape.py
+	touch "$@"
+
+clean:
+	rm -f data/listings.csv results/fit.json report.html
+	rm -rf report_files
+
+.PHONY: all clean
+```
+
+Each scenario starts from an up-to-date build. After editing `parse.R`:
+
+```
+Rscript parse.R
+mkdir -p "results"
+uv run python fit.py
+quarto render report.qmd
+```
+
+After editing `fit.py`:
+
+```
+mkdir -p "results"
+uv run python fit.py
+quarto render report.qmd
+```
+
+Deleting one downloaded page does **not** invalidate `data/pages/.done`. The downstream targets will still look current. To refresh the batch explicitly:
+
+```bash
+make -B data/pages/.done
+make
+```
+
+The scraper must return a nonzero exit status on failure. Removing the old marker before starting ensures that a failed refresh is retried next time. For a fixed, known list of pages, tracking individual files can detect missing outputs directly.
+
+`make clean` preserves `data/pages/` and its marker. The next build runs `parse.R`, `fit.py`, and Quarto, without downloading again. `.DELETE_ON_ERROR` removes a tracked target changed by a failing recipe; it does not remove arbitrary side effects.
+
+Useful checks in this exercise directory:
+
+```bash
+make
+make                 # no recipes should run
+make clean
+make -j 4            # rebuild derived outputs from saved pages
+```
+
+Do not combine `all` and `clean` in a parallel invocation: cleanup can race with the build.

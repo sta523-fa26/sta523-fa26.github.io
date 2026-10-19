@@ -249,29 +249,45 @@ schedule:
 
 - week: 9
   day: 1
-  topic: "Web Scraping"
-  lecture: "http"
-  slides: ""
+  topic: "Web APIs"
+  lecture: "HTTP & Web APIs"
+  slides: "Lec14"
   r_readings:
     - text: "httr2"
       link: https://httr2.r-lib.org/
+    - text: "GitHub API Docs"
+      link: https://docs.github.com/en/rest?apiVersion=2022-11-28
   py_readings:
     - text: "Requests"
       link: https://requests.readthedocs.io/en/latest/
 
 - week: 9
   day: 3
-  topic: "Web Scraping"
-  lecture: "APIs"
+  topic: "Automation"
+  lecture: "Automating Workflows (make)"
   slides: ""
   r_readings:
-    - text: "plumber2"
-      link: https://plumber2.posit.co/
-    - text: "GitHub API Docs"
-      link: https://docs.github.com/en/rest?apiVersion=2022-11-28
+    - text: "GNU make manual"
+      link: https://www.gnu.org/software/make/manual/make.html
+    - text: "minimal make"
+      link: https://kbroman.org/minimal_make/
   py_readings:
-    - text: "FastAPI"
-      link: https://fastapi.tiangolo.com/
+    - text: "Software Carpentry - Automation and Make"
+      link: https://swcarpentry.github.io/make-novice/
+
+# - week: 9
+#   day: 3
+#   topic: "Web Scraping"
+#   lecture: "APIs"
+#   slides: ""
+#   r_readings:
+#     - text: "plumber2"
+#       link: https://plumber2.posit.co/
+#     - text: "GitHub API Docs"
+#       link: https://docs.github.com/en/rest?apiVersion=2022-11-28
+#   py_readings:
+#     - text: "FastAPI"
+#       link: https://fastapi.tiangolo.com/
 
 
 - week: 10
