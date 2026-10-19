@@ -249,7 +249,7 @@ schedule:
 
 - week: 9
   day: 1
-  topic: "Web APIs"
+  topic: "Web Scraping"
   lecture: "HTTP & Web APIs"
   slides: "Lec14"
   r_readings:
@@ -263,7 +263,7 @@ schedule:
 
 - week: 9
   day: 3
-  topic: "Automation"
+  topic: "Web Scraping"
   lecture: "Automating Workflows (make)"
   slides: ""
   r_readings:
