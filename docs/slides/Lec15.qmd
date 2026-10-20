@@ -33,50 +33,84 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{python py_setup}
+#| include: false
+import builtins
+import os
+import pprint
+import sys
 
-## From scripts to a workflow
+def _display(value):
+    if value is None:
+        return
+    builtins._ = value
+    if isinstance(value, (list, dict)):
+        pprint.pprint(value, width=45, sort_dicts=False)
+    else:
+        print(repr(value))
 
-By the end of this lecture, you should be able to:
-
-* describe a project as files and dependencies;
-
-* write rules that build its outputs in the right order;
-
-* predict what needs to rerun after an input changes;
-
-* check that a build works from scratch and skips completed work.
-
-We will use one Python, R, and Quarto project throughout.
+sys.displayhook = _display
+```
 
 
-# Automating a project
+## Relative and absolute paths
 
-## A typical project
-
-Most data projects are a handful of scripts that read some files and write others, ending in a report. Here is a small one that mixes Python, R, and Quarto.
+An absolute path starts at the root of the file system and specifies one location.
 
 ::: {.small}
 ```
-project/
-├── get_data.py       downloads the raw data to data/raw.csv
-├── clean_data.R      cleans it into data/clean.csv
-├── plot.py           draws figs/scores.png from the clean data
-└── report.qmd        renders report.html from the clean data and the figure
+/Users/colin/project/data/raw.csv
 ```
+:::
+
+A relative path starts from the working directory (usually where the process was started).
+
+::: {.medium}
+| Path              | Meaning                                                   |
+|:------------------|:----------------------------------------------------------|
+| `data/raw.csv`    | `raw.csv` inside `data`, inside the working directory     |
+| `./clean_data.R`  | `clean_data.R` in the working directory                   |
+| `../other/x.csv`  | up one directory, then into `other`                       |
 :::
 
 . . .
 
-Building the report by hand means running the right commands, in the right order, every time something changes.
+Absolute paths break when a project moves or is copied to another computer.
+
+For reproducibility, never use absolute paths. Instead use relative paths that assume the project root is the working directory.
+
+
+## {#jenny-fire data-menu-title="setwd()"}
+
+![](imgs/jenny_fire.png){fig-align="center" width="66%"}
+
+::: {.aside}
+Source: Jenny Bryan's [Zen and the Art of Workflow Maintenance](https://speakerdeck.com/jennybc/zen-and-the-art-of-workflow-maintenance)
+:::
+
+# Automating a project
+
+## A typical report
+
+A data analysis often involves several scripts that read files and write results for the next step. This project combines Python, R, and Quarto to produce an HTML report.
 
 ::: {.small}
-```bash
-mkdir -p data figs
-uv run python get_data.py
-Rscript clean_data.R
-uv run python plot.py
-quarto render report.qmd
 ```
+project/
+├── get_data.py       # downloads the raw data to data/raw.csv
+├── clean_data.R      # cleans it into data/clean.csv
+├── plot_scores.py    # draws figs/scores.png from the clean data
+├── plot_counts.py    # draws figs/counts.png from the clean data
+├── report.qmd        # renders report.html from the clean data and the figures
+├── pyproject.toml    # declares the Python dependencies
+└── uv.lock           # records their resolved versions
+```
+:::
+
+Our goal is to keep `report.html` up to date as the scripts and data change, without rerunning steps unnecessarily.
+
+::: {.aside}
+The example project is in the course [exercises repository](https://github.com/sta523-fa26/exercises).
 :::
 
 
@@ -84,6 +118,7 @@ quarto render report.qmd
 
 ```{mermaid}
 %%| echo: false
+%%{init: {"flowchart": {"htmlLabels": false, "padding": 12}}}%%
 flowchart LR
     classDef script fill:#E69F00,stroke:#D55E00,color:#000
     classDef data   fill:#56B4E9,stroke:#0072B2,color:#000
@@ -91,63 +126,72 @@ flowchart LR
     get([get_data.py]):::script --> raw[data/raw.csv]:::data
     raw --> clean[data/clean.csv]:::data
     cleanR([clean_data.R]):::script --> clean
-    clean --> png[figs/scores.png]:::data
-    plot([plot.py]):::script --> png
+    clean --> scores[figs/scores.png]:::data
+    plots([plot_scores.py]):::script --> scores
+    clean --> counts[figs/counts.png]:::data
+    plotc([plot_counts.py]):::script --> counts
     clean --> html[report.html]:::output
-    png --> html
+    scores --> html
+    counts --> html
     qmd([report.qmd]):::script --> html
 ```
 
-If we edit `clean_data.R`, the clean data, the figure, and the report are all out of date but the download is not. Keeping track of this by hand is tedious and error prone, so we would like a tool that does it for us.
+If we edit `clean_data.R`, which steps must run again to bring the report up to date?
 
+. . .
 
-## make
+What about `report.qmd`?
+
+## `make`
 
 * A build tool that creates files from other files by following a set of rules you write down.
 
-* Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs, but it knows nothing about any particular language. Anything that reads files and writes files can be automated with make.
+* Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs, but it is language agnostic. Anything that reads files and writes files can be automated with `make`.
 
-* Available on Linux through the system package manager, on macOS with the command line tools, and on Windows through WSL or Rtools.
+* Available on almost any operating system with basic development tools installed.
 
-* The rules usually live in a text file named `Makefile` in the project directory. Run `make --version` to check your installation.
-
-::: {.aside}
-We use GNU make syntax. The main examples also work with GNU make 3.81, the older version supplied with the macOS command line tools.
-:::
+* The rules (usually) live in a text file named `Makefile` in the project directory.
 
 
-## Rules
+## Example rule - `data/clean.csv`
 
-A `Makefile` is a list of rules. Each rule names a target, the prerequisites it is built from, and a recipe of shell commands that builds it.
+The dependency diagram shows two inputs for this file: the cleaning script and the raw data. We can express that relationship as a rule using the following syntax:
 
-::: {.small}
+::: {.small .pt-3}
 ```makefile
-target: prerequisite1 prerequisite2 ...
-	recipe line 1
-	recipe line 2
-	...
+data/clean.csv: clean_data.R data/raw.csv
+	mkdir -p data
+	Rscript clean_data.R
 ```
 :::
 
-* For file rules, paths are relative to make's **working directory**, usually the directory where you run `make`.
+::: {.pt-3}
+* The *target*, `data/clean.csv`, is the output we want to build.
+* The *prerequisites*, `clean_data.R` and `data/raw.csv`, are inputs. Changing either can make the output outdated.
+* The *recipe* is the two indented shell commands that produce the output.
+:::
 
-* Each recipe line runs in its own shell by default, usually `/bin/sh` on Unix. Your interactive shell settings may not apply.
+::: {.aside}
+Each recipe line starts with a literal tab.
+:::
 
-* In these examples, each recipe line begins with a literal tab character, not spaces.
 
+## A full Makefile
 
-## A first Makefile
-
-One rule per output file, with the script that produces it and the files that script reads as the prerequisites.
+We can express the full dependency graph as follows:
 
 ::: {.small}
 ```makefile
-report.html: report.qmd data/clean.csv figs/scores.png
+report.html: report.qmd data/clean.csv figs/scores.png figs/counts.png
 	quarto render report.qmd
 
-figs/scores.png: plot.py data/clean.csv
+figs/scores.png: plot_scores.py data/clean.csv
 	mkdir -p figs
-	uv run python plot.py
+	uv run python plot_scores.py
+
+figs/counts.png: plot_counts.py data/clean.csv
+	mkdir -p figs
+	uv run python plot_counts.py
 
 data/clean.csv: clean_data.R data/raw.csv
 	mkdir -p data
@@ -159,15 +203,42 @@ data/raw.csv: get_data.py
 ```
 :::
 
-The dependency graph determines build order. The first ordinary target is the default; here that is `report.html`. `mkdir -p` creates a directory if needed.
+
+## Previewing a build
+
+With no target named, `make` selects the first target in the Makefile.
+
+If we invoke `make` with the `-n` flag it previews the build's commands without running them.
+
+::: {.small}
+```bash
+make -n
+```
+```
+mkdir -p data
+uv run python get_data.py
+mkdir -p data
+Rscript clean_data.R
+mkdir -p figs
+uv run python plot_scores.py
+mkdir -p figs
+uv run python plot_counts.py
+quarto render report.qmd
+```
+:::
+
+. . .
+
+From this we can see that `make` works backward from the report to find its prerequisites, then plans the commands in dependency order.
 
 
-## Running make
+## From preview to build
 
-With no target named, `make` builds the default target and echoes its recipe commands. Each example below starts with no generated files.
-
-:::: {.columns .small}
+:::: {.columns}
 ::: {.column width='48%'}
+First run:
+
+::: {.small}
 ```bash
 make
 ```
@@ -177,38 +248,16 @@ uv run python get_data.py
 mkdir -p data
 Rscript clean_data.R
 mkdir -p figs
-uv run python plot.py
+uv run python plot_scores.py
+mkdir -p figs
+uv run python plot_counts.py
 quarto render report.qmd
 ```
 :::
+:::
 
 ::: {.column width='48%'}
-```bash
-make data/clean.csv
-```
-```
-mkdir -p data
-uv run python get_data.py
-mkdir -p data
-Rscript clean_data.R
-```
-:::
-::::
-
-. . .
-
-Naming a target builds just that target and whatever it needs.
-
-
-## How make decides what to run
-
-For an ordinary file rule, make rebuilds a missing target or one whose prerequisite has a newer modification time. It updates prerequisites first, then checks the target.
-
-It compares **timestamps**, not file contents.
-
-. . .
-
-Running `make` a second time therefore does nothing.
+Second run:
 
 ::: {.small}
 ```bash
@@ -219,156 +268,185 @@ make: `report.html' is up to date.
 ```
 :::
 
-. . .
-
-<br/>
-
-After the first build we edit `clean_data.R` and run `make` again. Which commands run? What if we had edited `report.qmd` instead, or `get_data.py`?
-
-
-## Predict the rebuild
-
-Start from a completed build. For each change, which outputs need to be rebuilt?
-
-::: {.fragment .medium}
-| Change | Outputs rebuilt |
-|:-------|:----------------|
-| Edit `clean_data.R` | clean data, figure, report |
-| Edit `report.qmd` | report only |
-| Edit `get_data.py` | raw data, clean data, figure, report |
-| Delete `figs/scores.png` | figure, report |
-| The remote website changes | none: no local prerequisite changed |
-:::
-
-::: {.aside}
-These predictions assume each successful recipe writes its target. Downloading fresh data needs an explicit refresh policy.
-:::
-
-
-## Dry runs
-
-For these rules, `make -n` prints the commands that would run without executing them. **Each column starts from an up-to-date build.**
-
-:::: {.columns .small}
-::: {.column width='48%'}
-```bash
-touch clean_data.R
-make -n
-```
-```
-mkdir -p data
-Rscript clean_data.R
-mkdir -p figs
-uv run python plot.py
-quarto render report.qmd
-```
-:::
-
-::: {.column width='48%'}
-```bash
-touch report.qmd
-make -n
-```
-```
-quarto render report.qmd
-```
-:::
-::::
-
-::: {.aside}
-`touch` changes the modification time without changing contents. A dry run leaves outputs stale; run `make` between these examples if trying them in the same project.
-:::
-
-
-## Tabs, not spaces
-
-The most common error with a new `Makefile` is indenting a recipe with spaces. make only recognizes a tab as the start of a recipe line.
+Third run:
 
 ::: {.small}
 ```bash
 make
 ```
 ```
-Makefile:4: *** missing separator.  Stop.
+make: `report.html' is up to date.
+```
+:::
+:::
+::::
+
+
+## Requesting an output
+
+Specific targets can be built directly by passing their name as an argument to `make`.
+
+::: {.small}
+```bash
+rm -f data/clean.csv # remove existing file
+make data/clean.csv
+```
+```
+mkdir -p data
+uv run python get_data.py
+mkdir -p data
+Rscript clean_data.R
 ```
 :::
 
-Most editors switch to tabs automatically for files named `Makefile`, but if yours converts tabs to spaces you will need to turn that off for this file type.
+
+
+## How Make decides what to run
+
+For each requested file, Make follows the same procedure:
+
+1. Check its prerequisites, updating any that need rebuilding.
+2. Run its recipe if the target is missing or a prerequisite has a newer modification time.
+3. Otherwise, reuse the existing target.
+
+Make compares modification times (timestamps), not file contents. Saving a script can trigger a rebuild even if its output would be unchanged.
+
+
+## What reruns after a change?
+
+Once the project is built, Make reruns only the steps downstream of what changed, which answers the questions from the dependency diagram. Each row starts from an up-to-date project, makes one change, and runs `make`.
+
+::: {.medium}
+| Change                   | Steps that run                       | Steps skipped                 |
+|:-------------------------|:-------------------------------------|:------------------------------|
+| Edit `clean_data.R`      | Clean, both plots, render            | Download                      |
+| Edit `report.qmd`        | Render                               | Download, clean, both plots   |
+| Delete `figs/scores.png` | Plot scores, render                  | Download, clean, plot counts  |
+| Edit `get_data.py`       | Everything                           | None                          |
+| Nothing                  | None                                 | Everything                    |
+:::
+
+A deleted output is rebuilt even though its inputs did not change, and the steps after it rerun because the new file is newer.
+
+
+## Make only sees declared dependencies
+
+Make does not inspect scripts to discover their inputs and outputs. The `Makefile` must describe those relationships.
+
+* An omitted input can leave an outdated result that Make considers up to date. Include data, helper scripts, and configuration.
+
+* Changes outside the project are invisible. If the file `get_data.py` downloads is updated online, nothing local is newer, so the raw data is not refreshed.
+
+* A recipe that never creates its target runs again each time that missing target is requested.
+
+* An extra output with no rule of its own may not be recreated if it is deleted.
+
+Editing a recipe also does not trigger a rebuild, because `Makefile` is not listed as a prerequisite. Use `make -B report.html` to force a rebuild of the report and all of its prerequisites, including the download.
+
+
+## Tabs, not spaces
+
+A common error is indenting a recipe with spaces. By default, Make requires a tab at the start of each recipe line.
+
+Spaces will produce a `missing separator` error like the following:
+
+::: {.small}
+```bash
+make
+```
+```
+Makefile:2: *** missing separator.  Stop.
+```
+:::
+
+If your editor converts tabs to spaces, disable that setting for `Makefile` files. Showing whitespace characters can help you spot the difference.
 
 
 ## Recipe lines use separate shells
 
-A `cd` on one recipe line does not change the directory for the next line. Keep related commands on the same line with `&&`.
+By default, each recipe line runs in a separate shell. Changes to the working directory, shell variables, or an activated environment do not carry over to the next line.
 
-:::: {.columns .xsmall}
+:::: {.columns}
 ::: {.column width="48%"}
-This does not keep the directory change:
+`Rscript` runs in the original directory:
 
+::: {.xsmall}
 ```makefile
 preview:
 	cd analysis
 	Rscript summary.R
 ```
 :::
+:::
 ::: {.column width="48%"}
-Run both commands in one shell:
+`Rscript` runs inside `analysis`:
 
+::: {.xsmall}
 ```makefile
 preview:
 	cd analysis && Rscript summary.R
 ```
 :::
+:::
 ::::
 
-::: {.medium}
-`make -C analysis` changes make's working directory before it reads the `Makefile`. `make -f analysis/Makefile` selects a file but **does not** change directories.
-:::
+* `&&` runs the second command only if the first succeeds. With `;`, the second command runs even if `cd` fails.
 
-::: {.aside}
-Write `$$` when a recipe needs a literal dollar sign for the shell, e.g. `echo "$$HOME"`. Make expands its own variables first.
-:::
+* A trailing `\` continues a recipe onto the next line, keeping it in the same shell.
+
+* On Unix, the default shell is `/bin/sh`. Do not assume your interactive aliases or Bash/Zsh-specific syntax will work.
 
 
 ## Phony targets
 
-A target can name an action. An `all` target gathers the desired outputs; a `clean` target removes selected generated files.
+Sometimes we want a target that is not a file but rather describes an action. These are called phony targets. Common examples are an `all` target that builds everything and a `clean` target that removes generated files.
 
 ::: {.small}
 ```makefile
 all: report.html
 
 clean:
-	rm -f data/clean.csv figs/scores.png report.html
-	rm -rf report_files
+	rm -f data/clean.csv figs/scores.png figs/counts.png report.html
 
 .PHONY: all clean
 ```
 :::
 
-`.PHONY` makes these names actions even if files named `all` or `clean` exist. `make all` checks its prerequisites; it does not force their recipes to rerun.
+`.PHONY` tells Make that these names are actions, so it never looks for files called `all` or `clean`.
 
-This `clean` keeps downloaded raw data. Remove only files the workflow can regenerate.
+This `clean` leaves `data/raw.csv` alone since it was downloaded rather than computed. Only remove files the workflow can regenerate.
 
+
+## Useful make flags
+
+As we have seen, `make` accepts flags that change what it builds and how. The following are some of the most useful.
+
+::: {.medium}
+| Option        | Effect                                                              |
+|:--------------|:--------------------------------------------------------------------|
+| `-n`          | print the recipes that would run without running them               |
+| `-B`          | rebuild requested targets and prerequisites, ignoring timestamps    |
+| `-j N`        | run up to `N` recipes in parallel where the graph allows            |
+| `-k`          | keep going after an error and build what can still be built         |
+| `-s`          | do not echo commands                                                |
+| `-f file`     | use `file` instead of `Makefile`                                    |
+| `-C dir`      | change to `dir` before doing anything                               |
+:::
+
+# Intermediate Make
 
 ## Variables
 
-Variables keep shared commands in one place. Here `:=` stores a value immediately, and `$(NAME)` inserts it into a recipe.
+Make variables hold text, such as commands or paths, for reuse. `:=` expands any variable references on the right and stores the result when Make reads the file. `$(NAME)` inserts the stored value.
 
 ::: {.xsmall}
 ```makefile
 PY := uv run python
 R  := Rscript
 
-all: report.html
-
-.PHONY: all
-
-report.html: report.qmd data/clean.csv figs/scores.png
-	quarto render report.qmd
-
-figs/scores.png: plot.py data/clean.csv
+figs/scores.png: plot_scores.py data/clean.csv
 	mkdir -p figs
-	$(PY) plot.py
+	$(PY) plot_scores.py
 
 data/clean.csv: clean_data.R data/raw.csv
 	mkdir -p data
@@ -380,21 +458,25 @@ data/raw.csv: get_data.py
 ```
 :::
 
+::: {.aside}
+Make expands recipe variables before the shell runs. Use `$$` to pass a dollar sign to the shell, as in `echo "$$HOME"` to print your home directory.
+:::
+
 
 ## Automatic variables
 
-Inside a recipe make also provides variables that refer to the rule itself, so recipes do not need to repeat file names.
+Make also supplies automatic variables whose values depend on the rule being run. They let a recipe refer to its target and prerequisites without repeating their names.
 
 ::: {.medium}
 | Variable | Meaning                                  |
 |:---------|:-----------------------------------------|
 | `$@`     | the target                               |
 | `$<`     | the first prerequisite                   |
-| `$^`     | all normal prerequisites, without duplicates |
+| `$^`     | all prerequisites, without duplicates    |
 | `$(@D)`  | the directory part of the target         |
 :::
 
-::: {.small}
+::: {.small .pt-4}
 ```makefile
 data/clean.csv: clean_data.R data/raw.csv
 	mkdir -p "$(@D)"
@@ -402,27 +484,33 @@ data/clean.csv: clean_data.R data/raw.csv
 ```
 :::
 
+. . .
+
+Here `$(@D)` is `data`, `$<` is `clean_data.R`, and `$(R)` is `Rscript` from the previous slide.
+
 ::: {.aside}
-`$<` is `clean_data.R`, because it is listed first. These variables are available in recipes; see the [GNU make reference](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html).
+See the [GNU Make reference](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html) for more.
 :::
+
+
 
 
 ## Pattern rules
 
-When several files are built the same way, a `%` in the target and prerequisites acts as a wildcard that must match the same text in both.
+The project's two plotting scripts, `plot_scores.py` and `plot_counts.py`, each write a PNG to `figs/`. Their rules are identical apart from the names.
+
+A single pattern rule covers both. `%` stands for the part of the name that varies, here `scores` or `counts`, and the same text is substituted into the prerequisites.
 
 :::: {.columns .xsmall}
 ::: {.column width='48%'}
 ```makefile
-figs/scores.png: plot_scores.py \
-                 data/clean.csv
-	mkdir -p "$(@D)"
-	$(PY) "$<"
+figs/scores.png: plot_scores.py data/clean.csv
+	mkdir -p figs
+	uv run python plot_scores.py
 
-figs/counts.png: plot_counts.py \
-                 data/clean.csv
-	mkdir -p "$(@D)"
-	$(PY) "$<"
+figs/counts.png: plot_counts.py data/clean.csv
+	mkdir -p figs
+	uv run python plot_counts.py
 ```
 :::
 
@@ -435,14 +523,12 @@ figs/%.png: plot_%.py data/clean.csv
 :::
 ::::
 
-. . .
-
-Since the script is listed first, `$<` is the script for whichever figure is being built. Pattern rules only fire when something asks for a matching target, so the figures still need to be listed as prerequisites of `report.html`.
+A pattern rule only applies to targets that are asked for, so both figures still need to be listed as prerequisites of `report.html`.
 
 
 ## Wildcards and functions
 
-Make functions use `$(name arguments)`. Here we find source files and derive their output names.
+Make functions use a `$(name arguments)` syntax. Here we find `.qmd` files in the working directory and construct the corresponding `.html` target names.
 
 ::: {.small}
 ```makefile
@@ -458,29 +544,29 @@ all: $(HTML)
 ```
 :::
 
-* `$(wildcard pattern)` expands to the files matching a shell glob.
+* `wildcard` finds existing `.qmd` files using globbing.
 
-* `$(patsubst from,to,text)` rewrites each word in `text` that matches `from`.
+* `patsubst` replaces `.qmd` with `.html` in each name.
 
-This assumes each `.qmd` renders to a same-named HTML file. Add data files, shared configuration, and other inputs as prerequisites when the documents use them.
 
 
 ## This course's website
 
-A simplified version of the website's build rules, with repeated paths collected in variables.
+The following is a simplified version of the Makefile used to generate this course's website:
 
 ::: {.xsmall}
 ```makefile
-QMD  := $(wildcard static/slides/*.qmd)
-HTML := $(patsubst %.qmd,%.html,$(QMD))
-PDF  := $(patsubst %.html,%.pdf,$(HTML))
+QMD   := $(wildcard static/slides/*.qmd)
+HTML  := $(patsubst %.qmd,%.html,$(QMD))
+PDF   := $(patsubst %.html,%.pdf,$(HTML))
+THEME := static/slides/slides.scss static/slides/_bootstrap-utilities.scss
 
 all: build
 
 build: $(HTML) $(PDF)
 	hugo
 
-static/slides/%.html: static/slides/%.qmd
+static/slides/%.html: static/slides/%.qmd $(THEME)
 	quarto render "$<"
 
 static/slides/%.pdf: static/slides/%.html
@@ -490,233 +576,59 @@ static/slides/%.pdf: static/slides/%.html
 ```
 :::
 
-::: {.aside}
-`patsubst` changes filename suffixes; `subst` replaces matching text anywhere in a path. The next slide adds the shared theme dependencies.
-:::
-
-
-## Include shared inputs
-
-The slide rules also need the theme files that Quarto reads. Put shared inputs in a variable, then add them to the prerequisites.
-
-::: {.small}
-```makefile
-THEME := static/slides/slides.scss \
-         static/slides/_bootstrap-utilities.scss
-
-static/slides/%.html: static/slides/%.qmd $(THEME)
-	quarto render "$<"
-```
-:::
-
-* Editing the shared theme should rebuild all affected slides.
-
-* Images, included files, and configuration also need dependencies where relevant.
-
-* `:=` expands a variable when it is defined; `=` expands it when used. Either works for fixed command names, but the distinction matters when variables refer to other variables.
-
-
-## Creating directories
-
-If a script expects its output directory to exist, create that directory in the recipe. `mkdir -p` succeeds when the directory already exists.
-
-::: {.small}
-```makefile
-data/raw.csv: get_data.py
-	mkdir -p "$(@D)"
-	$(PY) get_data.py
-```
-:::
-
-. . .
-
-Alternatively, a directory can be listed as an order-only prerequisite after a `|`. It is created if missing, but its timestamp is ignored, which matters since a directory's time changes whenever a file inside it does.
-
-::: {.small}
-```makefile
-data/raw.csv: get_data.py | data
-	$(PY) get_data.py
-
-data:
-	mkdir -p "$@"
-```
-:::
-
-
-## Many outputs: a completion marker
-
-A scraper may produce a changing collection of pages. A completion marker (or sentinel) records that the whole batch finished successfully.
-
-::: {.small}
-```makefile
-data/pages/.done: get_pages.py
-	mkdir -p "$(@D)"
-	rm -f "$@"
-	$(PY) get_pages.py
-	touch "$@"
-
-data/listings.csv: parse_pages.R data/pages/.done
-	$(R) parse_pages.R
-```
-:::
-
-Remove the old marker before starting, and create it only after the script succeeds. A failed batch then leaves no marker, so the next build retries it.
-
-
-## What the marker does not track
-
-A marker records completion, not the state of every file in the batch.
-
-* Deleting or editing one saved page does not change `.done`; make will not notice it through this dependency.
-
-* A change on the remote website does not change a local timestamp.
-
-* Refresh explicitly when needed, then rebuild downstream outputs:
-
-::: {.small}
-```bash
-make -B data/pages/.done
-make
-```
-:::
-
-::: {.aside}
-For a fixed set of outputs, GNU make 4.3+ also supports grouped targets (`a.csv b.csv &: script.py`). That syntax is unavailable in macOS's bundled make 3.81.
-:::
+Because `build` is phony, `hugo` runs on every `make`, after the required slide updates.
 
 
 ## Environments as prerequisites
 
-`uv run` normally checks and syncs the project environment. A marker can also make environment changes visible to make, so affected outputs are rebuilt.
-
-::: {.small}
-```makefile
-.venv/.synced: pyproject.toml uv.lock
-	rm -f "$@"
-	uv sync --locked
-	touch "$@"
-
-data/raw.csv: get_data.py .venv/.synced
-	mkdir -p "$(@D)"
-	$(PY) get_data.py
-```
-:::
-
-`uv sync --locked` fails if the lockfile needs updating. Update it deliberately with `uv lock`, then rebuild. Add this prerequisite to every Python-derived target that should rerun after an environment change.
-
-::: {.aside}
-The marker does not detect manual changes inside `.venv`. R projects can use a similar marker depending on `renv.lock`, with `renv::restore()` in its recipe.
-:::
-
-
-## make only sees files
-
-make knows nothing about what a script reads or writes. It only compares the timestamps of the files you list, so the `Makefile` has to describe the project accurately.
-
-* A prerequisite you forget to list means a stale target that make believes is up to date.
-
-* A recipe that does not produce its target means that target is rebuilt on every run.
-
-* Extra outputs are not tracked unless the rules represent them explicitly or use a documented batch strategy.
+Python results also depend on package versions. In a uv project, `pyproject.toml` declares the dependencies and `uv run` keeps `.venv` in step with them, but Make does not know that outputs built with older packages are now stale.
 
 . . .
 
-<br/>
-
-Prefer explicit output files and list every input that can affect them: data, helper scripts, configuration, and environment lockfiles. A change to a recipe itself does not automatically invalidate its target.
-
-
-## Failed recipes and partial outputs
-
-By default, a nonzero command exit stops that recipe and prevents dependent targets from being built. A script can still leave a partly written output behind.
+An empty marker file connects the two. Make rebuilds it when `pyproject.toml` changes, and every rule that runs Python lists it as a prerequisite, here shown for the figures.
 
 ::: {.small}
 ```makefile
-.DELETE_ON_ERROR:
+.venv/.synced: pyproject.toml
+	uv sync
+	touch "$@"
 
-results/fit.json: fit.py data/listings.csv
+figs/%.png: plot_%.py data/clean.csv .venv/.synced
 	mkdir -p "$(@D)"
 	$(PY) "$<"
 ```
 :::
 
-`.DELETE_ON_ERROR` removes a target changed by a failed recipe. It does not clean up other files the script wrote, and it only helps when the script reports failure.
-
-::: {.aside}
-For valuable outputs, scripts can write to a temporary file and rename it into place only after success. Completion markers need their own cleanup, as shown earlier.
-:::
 
 
-## Useful options
+## Failed recipes and partial outputs
 
-::: {.medium}
-| Option        | Effect                                                              |
-|:--------------|:--------------------------------------------------------------------|
-| `-n`          | print recipes instead of running them (see caveat below)              |
-| `-B`          | rebuild everything, ignoring timestamps                             |
-| `-j N`        | run up to `N` recipes in parallel where the graph allows            |
-| `-k`          | keep going after an error and build what can still be built         |
-| `-s`          | do not echo commands                                                |
-| `-f file`     | use `file` instead of `Makefile`                                    |
-| `-C dir`      | change to `dir` before doing anything                               |
-:::
+A command can write part of its output before failing. Make stops on the error, but normally leaves that file behind. A later run may consider it up to date because its timestamp is new.
+
+Add this special target to the Makefile:
 
 ::: {.small}
-```bash
-make -j 4 all
+```makefile
+.DELETE_ON_ERROR:
 ```
 :::
 
-With `-j`, independent recipes can run at the same time. Shared files and directories must be represented correctly; do not run `make -j all clean`.
+If a recipe changes its target and exits with an error, Make deletes the target so the next run tries again. This protects against an incomplete `data/raw.csv` after a failed download.
 
-::: {.aside}
-`-n` is not a sandbox: recursive `$(MAKE)` recipes, `+`-prefixed recipes, and commands expanded by `$(shell ...)` can still execute. Inspect unfamiliar Makefiles first.
-:::
+It does not remove other files the command wrote, and the command must report failure with a nonzero exit status.
 
 
-## Exercise 1
+## Beyond Make
 
-A project has the following pieces,
-
-* `scrape.py` downloads many HTML pages into `data/pages/`
-
-* `parse.R` reads those pages and writes `data/listings.csv`
-
-* `fit.py` reads `data/listings.csv` and writes `results/fit.json`
-
-* `report.qmd` reads both `data/listings.csv` and `results/fit.json` and renders to `report.html`
-
-Write a `Makefile` with `all` and `clean` targets, variables for the Python and R commands, and directory creation where needed. Use a completion marker for the downloaded pages. Let `clean` remove derived outputs while preserving the pages.
-
-After a complete build, predict what reruns if `parse.R` changes, `fit.py` changes, or one downloaded page is deleted. Test the first two with `touch` and `make -n`.
-
-
-## Check your Makefile
-
-Try these checks in the exercise project:
-
-1. Build with no generated files. Every required directory should be created.
-
-2. Run `make` again. No recipe should run.
-
-3. Change one script and inspect `make -n`. Only affected outputs should rebuild.
-
-4. Run `make clean`, then `make -j 4`. The derived outputs should rebuild using the saved pages.
-
-5. Explain why deleting one page can leave the marker looking current. Decide when the project should refresh its download.
-
-
-## Beyond make
-
-make is general purpose and widely available, but it only understands files and timestamps. Workflow tools built for data analysis extend the same idea.
+Make coordinates commands using file dependencies and timestamps. Tools designed for data analysis extend this approach to other kinds of dependencies and execution environments.
 
 ::: {.medium}
 * `targets` for R tracks R objects and declared file targets. It uses hashes of code and data to detect changes and supports parallel execution.
 
-* `Snakemake` uses a Python-based workflow language with explicit inputs and outputs. It adds features for software environments, clusters, and containers.
+* `Snakemake` uses a Python-based workflow language with explicit inputs and outputs. It adds support for software environments, clusters, and containers.
 :::
 
-Both are worth learning when a project outgrows a `Makefile`. For most course projects and papers, make is enough.
+Make is a useful starting point for projects organized around scripts and files. Consider these tools when you need to track R objects or manage more complex computing environments.
 
 
 # Summary {visibility="uncounted"}
@@ -724,15 +636,15 @@ Both are worth learning when a project outgrows a `Makefile`. For most course pr
 ## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
-* A `Makefile` describes a project as rules, each with a target file, the prerequisite files it depends on, and the shell commands that build it. Recipe lines start with a tab.
+* A file rule names an output, its prerequisite inputs, and a recipe that builds it. Recipe lines start with a tab.
 
-* Make rebuilds missing or outdated targets using modification times. It cannot detect changed web content or unlisted inputs.
+* Make rebuilds missing or outdated targets using modification times, not file contents.
 
-* Phony targets like `all` and `clean` give the project a standard interface, and `make -n` shows what would run before anything does.
+* Phony targets like `all` and `clean` name tasks. Use `make -n` to preview the commands for a build.
 
-* Variables, automatic variables, and pattern rules remove repetition, so a single rule can build every figure or every document.
+* Variables and pattern rules reduce repetition when several outputs are built in the same way.
 
-* Make only knows the dependencies you declare. Represent multiple outputs deliberately, handle partial failures, and verify both a fresh build and a second run.
+* Make only knows the dependencies you declare, so list every input and check both a fresh build and a second run.
 :::
 
 
@@ -744,4 +656,184 @@ Both are worth learning when a project outgrows a `Makefile`. For most course pr
 - [Software Carpentry - Automation and Make](https://swcarpentry.github.io/make-novice/)
 - [targets](https://docs.ropensci.org/targets/) and the [targets user manual](https://books.ropensci.org/targets/)
 - [Snakemake](https://snakemake.readthedocs.io/)
+:::
+
+
+# File-system reference {visibility="uncounted"}
+
+## Path shortcuts {visibility="uncounted"}
+
+In a relative path, `.` refers to the working directory and `..` moves up one directory, wherever it appears. A leading `~` is a shortcut for your home directory when expanded by the shell or a path function.
+
+::: {.small}
+```{r}
+fs::path_abs("..")
+fs::path_expand("~/Desktop")
+```
+
+```{python}
+os.path.abspath("..")
+os.path.expanduser("~/Desktop")
+```
+:::
+
+::: {.aside}
+Not every function expands `~`. In Python, use `os.path.expanduser()` before passing such a path to `open()`.
+:::
+
+
+## Building and taking apart paths {visibility="uncounted"}
+
+Use path functions to join directory and file names with the appropriate separator for your operating system.
+
+Other path functions extract the file name, directory, or extension. Python's `splitext()` returns both the path without its extension and the extension, including the dot.
+
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+file.path("data", "penguins.csv")
+basename("data/penguins.csv")
+dirname("data/penguins.csv")
+tools::file_ext("data/penguins.csv")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+os.path.join("data", "penguins.csv")
+os.path.basename("data/penguins.csv")
+os.path.dirname("data/penguins.csv")
+os.path.splitext("data/penguins.csv")
+```
+:::
+::::
+
+
+## Listing and checking {visibility="uncounted"}
+
+These calls list names inside `data`, without the `data/` prefix. Join each name to `"data"` before opening it, or use `full.names = TRUE` with R's `list.files()`.
+
+```{r}
+#| include: false
+options(width = 38)
+```
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+list.files("data", pattern = "\\.csv$")
+file.exists("data/penguins.csv")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+files = sorted(os.listdir("data"))
+[f for f in files if f.endswith(".csv")]
+os.path.exists("data/penguins.csv")
+```
+:::
+::::
+
+```{r}
+#| include: false
+options(width = 80)
+```
+
+
+## Creating and deleting {visibility="uncounted"}
+
+These examples create `out` and an empty placeholder file, then delete them. Creating an existing directory warns in R. Python raises an error unless `exist_ok=True`.
+
+Both file-creation calls overwrite an existing file with an empty one. Deletion bypasses the trash, so check the path first. `os.rmdir()` removes only empty directories.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+dir.create("out")
+file.create("out/a.png")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+os.makedirs("out", exist_ok=True)
+open("out/a.png", "w").close()
+```
+:::
+::::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+unlink("out", recursive = TRUE)
+```
+
+```{r}
+#| include: false
+dir.create("out")
+file.create("out/a.png")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+os.remove("out/a.png")
+os.rmdir("out")
+```
+:::
+::::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+dir.exists("out")
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+os.path.exists("out")
+```
+:::
+::::
+
+
+## The `fs` package {visibility="uncounted"}
+
+The `fs` package gives R's file operations consistent names and behavior.
+
+* Names group by task, with `path_`, `file_`, and `dir_` prefixes.
+* Functions accept vectors of paths. Failed operations raise errors. Existence checks return `TRUE` or `FALSE`.
+* Paths always use `/` as the separator, even on Windows.
+
+::: {.small}
+```{r}
+fs::dir_info("data", glob = "*.csv") |>
+  dplyr::select(path, size, modification_time)
+```
+:::
+
+
+## Function reference {visibility="uncounted"}
+
+These functions serve similar purposes, but their arguments and return values differ. Names in the `fs` column assume the `fs::` prefix.
+
+::: {.small}
+| Task                | Base R              | `fs`                          | Python                          |
+|---------------------|---------------------|-------------------------------|---------------------------------|
+| Working directory   | `getwd()`           | `path_wd()`                   | `os.getcwd()`                   |
+| Absolute path       | `normalizePath()`   | `path_abs()`                  | `os.path.abspath()`             |
+| Join paths          | `file.path()`       | `path()`                      | `os.path.join()`                |
+| File name           | `basename()`        | `path_file()`                 | `os.path.basename()`            |
+| Directory name      | `dirname()`         | `path_dir()`                  | `os.path.dirname()`             |
+| Extension           | `tools::file_ext()` | `path_ext()`                  | `os.path.splitext()`            |
+| List files          | `list.files()`      | `dir_ls()`                    | `os.listdir()`                  |
+| Check existence     | `file.exists()`     | `file_exists()`               | `os.path.exists()`              |
+| Create directory    | `dir.create()`      | `dir_create()`                | `os.makedirs()`                 |
+| Delete              | `unlink()`          | `file_delete()`, `dir_delete()` | `os.remove()`, `os.rmdir()`   |
+| Copy                | `file.copy()`       | `file_copy()`                 | `shutil.copy()`                 |
+| Move or rename      | `file.rename()`     | `file_move()`                 | `os.rename()`                   |
+| Size, times, etc.   | `file.info()`       | `file_info()`                 | `os.stat()`                     |
 :::

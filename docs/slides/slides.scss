@@ -204,6 +204,11 @@ $lang-sh-bg: #f1f1f1;
   &::before { content: "bash"; background: $lang-sh; color: white; }
 }
 
+// The highlight theme colors Makefile targets (dv) and prerequisites (dt) alike
+.reveal pre.sourceCode.makefile code span.dt {
+  color: #4758ab;
+}
+
 
 // Bootstrap utility classes, see _bootstrap-utilities.scss
 @import "bootstrap-utilities";
