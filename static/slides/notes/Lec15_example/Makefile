@@ -23,7 +23,6 @@ data/raw.csv: get_data.py
 	$(PY) get_data.py
 
 clean:
-	rm -f data/clean.csv figs/scores.png figs/counts.png report.html
+	rm -f data/raw.csv data/clean.csv figs/scores.png figs/counts.png report.html
 
 .PHONY: all clean
-.DELETE_ON_ERROR:

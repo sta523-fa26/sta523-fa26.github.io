@@ -24,7 +24,7 @@ report.html: report.qmd data/clean.csv $(FIGS)
 	quarto render "$<"
 
 clean:
-	rm -f data/clean.csv $(FIGS) report.html
+	rm -f data/raw.csv data/clean.csv $(FIGS) report.html
 
 .PHONY: all clean
 .DELETE_ON_ERROR:

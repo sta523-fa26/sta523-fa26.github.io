@@ -4206,8 +4206,8 @@ Dr. Colin Rundel
 </table>
 </div>
 <div class="fragment">
-<p>Absolute paths break when a project moves or is copied to another computer.</p>
-<p>For reproducibility, never use absolute paths. Instead use relative paths that assume the project root is the working directory.</p>
+<p>Absolute paths almost always break when a project moves or is copied to another computer.</p>
+<p>For reproducibility, never use absolute paths. Instead use relative paths that assume the project root will be the working directory.</p>
 </div>
 </section>
 <section id="jenny-fire" class="slide level2" data-menu-title="setwd()">
@@ -4228,7 +4228,8 @@ Dr. Colin Rundel
 </section>
 <section id="a-typical-report" class="slide level2">
 <h2>A typical report</h2>
-<p>A data analysis often involves several scripts that read files and write results for the next step. This project combines Python, R, and Quarto to produce an HTML report.</p>
+<p>A data analysis often involves several scripts that read files and write results which are then used by subsequent steps.</p>
+<p>Below is a toy project that combines Python, R, and Quarto to produce an HTML report.</p>
 <div class="small">
 <pre><code>project/
 ├── get_data.py       # downloads the raw data to data/raw.csv
@@ -4251,7 +4252,7 @@ Dr. Colin Rundel
 <div>
 <p></p><figure class><p></p>
 <div>
-<pre class="mermaid mermaid-js">%%{init: {&quot;flowchart&quot;: {&quot;htmlLabels&quot;: false, &quot;padding&quot;: 12}}}%%
+<pre class="mermaid mermaid-js">%%{init: {&quot;htmlLabels&quot;: false, &quot;flowchart&quot;: {&quot;padding&quot;: 12}}}%%
 flowchart LR
     classDef script fill:#E69F00,stroke:#D55E00,color:#000
     classDef data   fill:#56B4E9,stroke:#0072B2,color:#000
@@ -4281,31 +4282,40 @@ flowchart LR
 <section id="make" class="slide level2">
 <h2><code>make</code></h2>
 <ul>
-<li><p>A build tool that creates files from other files by following a set of rules you write down.</p></li>
-<li><p>Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs, but it is language agnostic. Anything that reads files and writes files can be automated with <code>make</code>.</p></li>
+<li><p>Is a build tool that creates files from other files by following a set of rules you write down.</p></li>
+<li><p>Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs. It is language agnostic, anything that reads and writes files can be automated with <code>make</code>.</p></li>
 <li><p>Available on almost any operating system with basic development tools installed.</p></li>
-<li><p>The rules (usually) live in a text file named <code>Makefile</code> in the project directory.</p></li>
+<li><p>The rules (usually) live in a text file named <code>Makefile</code> in the project directory that uses simple syntax to specify the dependency graph from the previous slide.</p></li>
 </ul>
 </section>
 <section id="example-rule---dataclean.csv" class="slide level2">
 <h2>Example rule - <code>data/clean.csv</code></h2>
-<p>The dependency diagram shows two inputs for this file: the cleaning script and the raw data. We can express that relationship as a rule using the following syntax:</p>
+<p>The dependency diagram shows two inputs for this file:</p>
+<div class="columns">
+<div class="column">
+<ul>
+<li>the cleaning script</li>
+</ul>
+</div><div class="column">
+<ul>
+<li>the raw data</li>
+</ul>
+</div></div>
+<p>We can express that relationship as a rule using the following Make syntax:</p>
 <div class="small pt-3">
 <div class="code-copy-outer-scaffold"><div class="sourceCode"><pre class="sourceCode makefile code-with-copy"><code id="makefile-example-1" class="sourceCode makefile"><span><span class="dv">data/clean.csv:</span><span class="dt"> clean_data.R data/raw.csv</span></span>
 <span>  mkdir -p data</span>
 <span>  Rscript clean_data.R</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = "data/clean.csv: clean_data.R data/raw.csv\n\tmkdir -p data\n\tRscript clean_data.R".split("\n");var code = document.getElementById("makefile-example-1");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
 </div>
 <div class="pt-3">
+<p>The pieces of this rule are:</p>
 <ul>
-<li>The <em>target</em>, <code>data/clean.csv</code>, is the output we want to build.</li>
-<li>The <em>prerequisites</em>, <code>clean_data.R</code> and <code>data/raw.csv</code>, are inputs. Changing either can make the output outdated.</li>
-<li>The <em>recipe</em> is the two indented shell commands that produce the output.</li>
+<li>The <em>target</em> (<code>data/clean.csv</code>) - is the file we want to build.</li>
+<li>The <em>prerequisites</em> (<code>clean_data.R</code> and <code>data/raw.csv</code>) - are the inputs. Changing either can make the output outdated.</li>
+<li>The <em>recipe</em> - is the two indented shell commands that generate the output from the prequisites.</li>
 </ul>
 </div>
-
-<aside><div>
-<p>Each recipe line starts with a literal tab.</p>
-</div></aside></section>
+</section>
 <section id="a-full-makefile" class="slide level2">
 <h2>A full Makefile</h2>
 <p>We can express the full dependency graph as follows:</p>
@@ -4379,7 +4389,10 @@ quarto render report.qmd</code></pre>
 <pre><code>make: `report.html&#39; is up to date.</code></pre>
 </div>
 </div></div>
-</section>
+
+<aside><div>
+<p>We have removed R and Python output to make things fit on the slide.</p>
+</div></aside></section>
 <section id="requesting-an-output" class="slide level2">
 <h2>Requesting an output</h2>
 <p>Specific targets can be built directly by passing their name as an argument to <code>make</code>.</p>
@@ -4387,17 +4400,15 @@ quarto render report.qmd</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-f</span> data/clean.csv <span class="co"># remove existing file</span></span>
 <span id="cb11-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">make</span> data/clean.csv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>mkdir -p data
-uv run python get_data.py
-mkdir -p data
 Rscript clean_data.R</code></pre>
 </div>
 </section>
 <section id="how-make-decides-what-to-run" class="slide level2">
 <h2>How Make decides what to run</h2>
-<p>For each requested file, Make follows the same procedure:</p>
+<p>For each requested file, Make follows the same simple procedure:</p>
 <ol type="1">
 <li>Check its prerequisites, updating any that need rebuilding.</li>
-<li>Run its recipe if the target is missing or a prerequisite has a newer modification time.</li>
+<li>Run the recipe if the target is missing <em>or</em> a prerequisite has a newer modification time.</li>
 <li>Otherwise, reuse the existing target.</li>
 </ol>
 <p>Make compares modification times (timestamps), not file contents. Saving a script can trigger a rebuild even if its output would be unchanged.</p>
@@ -4502,16 +4513,15 @@ Rscript clean_data.R</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode"><pre class="sourceCode makefile code-with-copy"><code id="makefile-example-5" class="sourceCode makefile"><span><span class="dv">all:</span><span class="dt"> report.html</span></span>
 <span></span>
 <span><span class="dv">clean:</span></span>
-<span>  rm -f data/clean.csv figs/scores.png figs/counts.png report.html</span>
+<span>  rm -f data/raw.csv data/clean.csv figs/scores.png figs/counts.png report.html</span>
 <span></span>
-<span><span class="ot">.PHONY:</span><span class="dt"> all clean</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = "all: report.html\n\nclean:\n\trm -f data/clean.csv figs/scores.png figs/counts.png report.html\n\n.PHONY: all clean".split("\n");var code = document.getElementById("makefile-example-5");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
+<span><span class="ot">.PHONY:</span><span class="dt"> all clean</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = "all: report.html\n\nclean:\n\trm -f data/raw.csv data/clean.csv figs/scores.png figs/counts.png report.html\n\n.PHONY: all clean".split("\n");var code = document.getElementById("makefile-example-5");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
 </div>
 <p><code>.PHONY</code> tells Make that these names are actions, so it never looks for files called <code>all</code> or <code>clean</code>.</p>
-<p>This <code>clean</code> leaves <code>data/raw.csv</code> alone since it was downloaded rather than computed. Only remove files the workflow can regenerate.</p>
 </section>
 <section id="useful-make-flags" class="slide level2">
 <h2>Useful make flags</h2>
-<p>As we have seen, <code>make</code> accepts flags that change what it builds and how. The following are some of the most useful.</p>
+<p>As we have seen, <code>make</code> accepts flags that change what it builds and how. The following are some of the more useful / common.</p>
 <div class="medium">
 <table class="caption-top">
 <colgroup>
@@ -4587,7 +4597,8 @@ Rscript clean_data.R</code></pre>
 </div></aside></section>
 <section id="automatic-variables" class="slide level2">
 <h2>Automatic variables</h2>
-<p>Make also supplies automatic variables whose values depend on the rule being run. They let a recipe refer to its target and prerequisites without repeating their names.</p>
+<p>Make also supplies automatic variables whose values depend on the rule being run. They let a recipe refer to its target and prerequisites without hard coding their names.</p>
+<p>Some useful builtin variables:</p>
 <div class="medium">
 <table class="caption-top">
 <thead>
@@ -4621,18 +4632,15 @@ Rscript clean_data.R</code></pre>
 <span>  mkdir -p <span class="st">&quot;</span><span class="ch">$(</span><span class="dt">@D</span><span class="ch">)</span><span class="st">&quot;</span></span>
 <span>  <span class="ch">$(</span><span class="dt">R</span><span class="ch">)</span> <span class="st">&quot;</span><span class="ch">$&lt;</span><span class="st">&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = "data/clean.csv: clean_data.R data/raw.csv\n\tmkdir -p \"$(@D)\"\n\t$(R) \"$\u003c\"".split("\n");var code = document.getElementById("makefile-example-7");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
 </div>
-<div class="fragment">
-<p>Here <code>$(@D)</code> is <code>data</code>, <code>$&lt;</code> is <code>clean_data.R</code>, and <code>$(R)</code> is <code>Rscript</code> from the previous slide.</p>
 
-</div>
 <aside><div>
-<p>See the <a href="https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html">GNU Make reference</a> for more.</p>
+<p>These are one-character variable names, so <code>$&lt;</code> is shorthand for <code>$(&lt;)</code>. The parentheses are only needed for longer names like <code>@D</code>. See the <a href="https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html">GNU Make reference</a> for more.</p>
 </div></aside></section>
 <section id="pattern-rules" class="slide level2">
 <h2>Pattern rules</h2>
-<p>The project’s two plotting scripts, <code>plot_scores.py</code> and <code>plot_counts.py</code>, each write a PNG to <code>figs/</code>. Their rules are identical apart from the names.</p>
+<p>The project’s two plotting scripts, <code>plot_scores.py</code> and <code>plot_counts.py</code>, each write a PNG to <code>figs/</code>. Their rules are identical apart from the names from them.</p>
 <p>A single pattern rule covers both. <code>%</code> stands for the part of the name that varies, here <code>scores</code> or <code>counts</code>, and the same text is substituted into the prerequisites.</p>
-<div class="columns xsmall">
+<div class="columns mxsmall">
 <div class="column" style="width:48%;">
 <div class="code-copy-outer-scaffold"><div class="sourceCode"><pre class="sourceCode makefile code-with-copy"><code id="makefile-example-8" class="sourceCode makefile"><span><span class="dv">figs/scores.png:</span><span class="dt"> plot_scores.py data/clean.csv</span></span>
 <span>  mkdir -p figs</span>
@@ -4695,7 +4703,7 @@ Rscript clean_data.R</code></pre>
 <h2>Environments as prerequisites</h2>
 <p>Python results also depend on package versions. In a uv project, <code>pyproject.toml</code> declares the dependencies and <code>uv run</code> keeps <code>.venv</code> in step with them, but Make does not know that outputs built with older packages are now stale.</p>
 <div class="fragment">
-<p>An empty marker file connects the two. Make rebuilds it when <code>pyproject.toml</code> changes, and every rule that runs Python lists it as a prerequisite, here shown for the figures.</p>
+<p>An marker file can be used to connect the two. Make rebuilds it when <code>pyproject.toml</code> changes, and every rule that runs Python lists it as a prerequisite, here shown for the figures.</p>
 <div class="small">
 <div class="code-copy-outer-scaffold"><div class="sourceCode"><pre class="sourceCode makefile code-with-copy"><code id="makefile-example-12" class="sourceCode makefile"><span><span class="ot">.venv/.synced:</span><span class="dt"> pyproject.toml</span></span>
 <span>  uv sync</span>
@@ -4705,16 +4713,19 @@ Rscript clean_data.R</code></pre>
 <span>  mkdir -p <span class="st">&quot;</span><span class="ch">$(</span><span class="dt">@D</span><span class="ch">)</span><span class="st">&quot;</span></span>
 <span>  <span class="ch">$(</span><span class="dt">PY</span><span class="ch">)</span> <span class="st">&quot;</span><span class="ch">$&lt;</span><span class="st">&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = ".venv/.synced: pyproject.toml\n\tuv sync\n\ttouch \"$@\"\n\nfigs/%.png: plot_%.py data/clean.csv .venv/.synced\n\tmkdir -p \"$(@D)\"\n\t$(PY) \"$\u003c\"".split("\n");var code = document.getElementById("makefile-example-12");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
 </div>
+
 </div>
-</section>
+<aside><div>
+<p>We don’t want to depend on pyproject.toml directly because the <code>uv sync</code> step is required be recreating the figs.</p>
+</div></aside></section>
 <section id="failed-recipes-and-partial-outputs" class="slide level2">
 <h2>Failed recipes and partial outputs</h2>
-<p>A command can write part of its output before failing. Make stops on the error, but normally leaves that file behind. A later run may consider it up to date because its timestamp is new.</p>
+<p>A command can write part of its output before failing. Make stops on the error, but normally leaves that file behind. A later run may consider it up-to-date because its timestamp is new.</p>
 <p>Add this special target to the Makefile:</p>
 <div class="small">
 <div class="code-copy-outer-scaffold"><div class="sourceCode"><pre class="sourceCode makefile code-with-copy"><code id="makefile-example-13" class="sourceCode makefile"><span><span class="ot">.DELETE_ON_ERROR:</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div><script>document.addEventListener("DOMContentLoaded", function () {var lines = ".DELETE_ON_ERROR:".split("\n");var code = document.getElementById("makefile-example-13");code.querySelectorAll(":scope > span").forEach(function (line, i) {var lead = (lines[i] || "").match(/^\s*/)[0]; if (!lead) return;var w = document.createTreeWalker(line, NodeFilter.SHOW_TEXT), n;while ((n = w.nextNode())) { if (!n.nodeValue.trim()) { n.nodeValue = ""; continue; }n.nodeValue = lead + n.nodeValue.replace(/^\s+/, ""); break; }});});</script>
 </div>
-<p>If a recipe changes its target and exits with an error, Make deletes the target so the next run tries again. This protects against an incomplete <code>data/raw.csv</code> after a failed download.</p>
+<p>If a recipe changes its target and exits with an error, Make deletes the target so the next run tries again. This protects against an incomplete <code>data/raw.csv</code> after a failed partial download.</p>
 <p>It does not remove other files the command wrote, and the command must report failure with a nonzero exit status.</p>
 </section>
 <section id="beyond-make" class="slide level2">
@@ -4739,7 +4750,8 @@ Rscript clean_data.R</code></pre>
 <ul>
 <li><p>A file rule names an output, its prerequisite inputs, and a recipe that builds it. Recipe lines start with a tab.</p></li>
 <li><p>Make rebuilds missing or outdated targets using modification times, not file contents.</p></li>
-<li><p>Phony targets like <code>all</code> and <code>clean</code> name tasks. Use <code>make -n</code> to preview the commands for a build.</p></li>
+<li><p>Phony targets like <code>all</code> and <code>clean</code> name tasks.</p></li>
+<li><p>Use <code>make -n</code> to preview the commands for a build.</p></li>
 <li><p>Variables and pattern rules reduce repetition when several outputs are built in the same way.</p></li>
 <li><p>Make only knows the dependencies you declare, so list every input and check both a fresh build and a second run.</p></li>
 </ul>

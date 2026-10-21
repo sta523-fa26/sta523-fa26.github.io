@@ -75,9 +75,9 @@ A relative path starts from the working directory (usually where the process was
 
 . . .
 
-Absolute paths break when a project moves or is copied to another computer.
+Absolute paths almost always break when a project moves or is copied to another computer.
 
-For reproducibility, never use absolute paths. Instead use relative paths that assume the project root is the working directory.
+For reproducibility, never use absolute paths. Instead use relative paths that assume the project root will be the working directory.
 
 
 ## {#jenny-fire data-menu-title="setwd()"}
@@ -92,7 +92,9 @@ Source: Jenny Bryan's [Zen and the Art of Workflow Maintenance](https://speakerd
 
 ## A typical report
 
-A data analysis often involves several scripts that read files and write results for the next step. This project combines Python, R, and Quarto to produce an HTML report.
+A data analysis often involves several scripts that read files and write results which are then used by subsequent steps. 
+
+Below is a toy project that combines Python, R, and Quarto to produce an HTML report.
 
 ::: {.small}
 ```
@@ -118,7 +120,7 @@ The example project is in the course [exercises repository](https://github.com/s
 
 ```{mermaid}
 %%| echo: false
-%%{init: {"flowchart": {"htmlLabels": false, "padding": 12}}}%%
+%%{init: {"htmlLabels": false, "flowchart": {"padding": 12}}}%%
 flowchart LR
     classDef script fill:#E69F00,stroke:#D55E00,color:#000
     classDef data   fill:#56B4E9,stroke:#0072B2,color:#000
@@ -144,18 +146,30 @@ What about `report.qmd`?
 
 ## `make`
 
-* A build tool that creates files from other files by following a set of rules you write down.
+* Is a build tool that creates files from other files by following a set of rules you write down.
 
-* Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs, but it is language agnostic. Anything that reads files and writes files can be automated with `make`.
+* Originally created by Stuart Feldman in 1976 at Bell Labs to build C programs. It is language agnostic, anything that reads and writes files can be automated with `make`.
 
 * Available on almost any operating system with basic development tools installed.
 
-* The rules (usually) live in a text file named `Makefile` in the project directory.
+* The rules (usually) live in a text file named `Makefile` in the project directory that uses simple syntax to specify the dependency graph from the previous slide.
 
 
 ## Example rule - `data/clean.csv`
 
-The dependency diagram shows two inputs for this file: the cleaning script and the raw data. We can express that relationship as a rule using the following syntax:
+The dependency diagram shows two inputs for this file: 
+
+::: {.columns}
+::: {.column}
+* the cleaning script 
+:::
+
+::: {.column}
+* the raw data
+:::
+:::
+
+We can express that relationship as a rule using the following Make syntax:
 
 ::: {.small .pt-3}
 ```makefile
@@ -166,14 +180,13 @@ data/clean.csv: clean_data.R data/raw.csv
 :::
 
 ::: {.pt-3}
-* The *target*, `data/clean.csv`, is the output we want to build.
-* The *prerequisites*, `clean_data.R` and `data/raw.csv`, are inputs. Changing either can make the output outdated.
-* The *recipe* is the two indented shell commands that produce the output.
+The pieces of this rule are:
+
+* The *target* (`data/clean.csv`) - is the file we want to build.
+* The *prerequisites* (`clean_data.R` and `data/raw.csv`) - are the inputs. Changing either can make the output outdated.
+* The *recipe* - is the two indented shell commands that generate the output from the prequisites.
 :::
 
-::: {.aside}
-Each recipe line starts with a literal tab.
-:::
 
 
 ## A full Makefile
@@ -282,6 +295,10 @@ make: `report.html' is up to date.
 ::::
 
 
+::: {.aside}
+We have removed R and Python output to make things fit on the slide.
+:::
+
 ## Requesting an output
 
 Specific targets can be built directly by passing their name as an argument to `make`.
@@ -293,8 +310,6 @@ make data/clean.csv
 ```
 ```
 mkdir -p data
-uv run python get_data.py
-mkdir -p data
 Rscript clean_data.R
 ```
 :::
@@ -303,10 +318,10 @@ Rscript clean_data.R
 
 ## How Make decides what to run
 
-For each requested file, Make follows the same procedure:
+For each requested file, Make follows the same simple procedure:
 
 1. Check its prerequisites, updating any that need rebuilding.
-2. Run its recipe if the target is missing or a prerequisite has a newer modification time.
+2. Run the recipe if the target is missing *or* a prerequisite has a newer modification time.
 3. Otherwise, reuse the existing target.
 
 Make compares modification times (timestamps), not file contents. Saving a script can trigger a rebuild even if its output would be unchanged.
@@ -406,7 +421,7 @@ Sometimes we want a target that is not a file but rather describes an action. Th
 all: report.html
 
 clean:
-	rm -f data/clean.csv figs/scores.png figs/counts.png report.html
+	rm -f data/raw.csv data/clean.csv figs/scores.png figs/counts.png report.html
 
 .PHONY: all clean
 ```
@@ -414,12 +429,9 @@ clean:
 
 `.PHONY` tells Make that these names are actions, so it never looks for files called `all` or `clean`.
 
-This `clean` leaves `data/raw.csv` alone since it was downloaded rather than computed. Only remove files the workflow can regenerate.
-
-
 ## Useful make flags
 
-As we have seen, `make` accepts flags that change what it builds and how. The following are some of the most useful.
+As we have seen, `make` accepts flags that change what it builds and how. The following are some of the more useful / common.
 
 ::: {.medium}
 | Option        | Effect                                                              |
@@ -465,7 +477,9 @@ Make expands recipe variables before the shell runs. Use `$$` to pass a dollar s
 
 ## Automatic variables
 
-Make also supplies automatic variables whose values depend on the rule being run. They let a recipe refer to its target and prerequisites without repeating their names.
+Make also supplies automatic variables whose values depend on the rule being run. They let a recipe refer to its target and prerequisites without hard coding their names.
+
+Some useful builtin variables:
 
 ::: {.medium}
 | Variable | Meaning                                  |
@@ -484,12 +498,9 @@ data/clean.csv: clean_data.R data/raw.csv
 ```
 :::
 
-. . .
-
-Here `$(@D)` is `data`, `$<` is `clean_data.R`, and `$(R)` is `Rscript` from the previous slide.
 
 ::: {.aside}
-See the [GNU Make reference](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html) for more.
+These are one-character variable names, so `$<` is shorthand for `$(<)`. The parentheses are only needed for longer names like `@D`. See the [GNU Make reference](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html) for more.
 :::
 
 
@@ -497,11 +508,11 @@ See the [GNU Make reference](https://www.gnu.org/software/make/manual/html_node/
 
 ## Pattern rules
 
-The project's two plotting scripts, `plot_scores.py` and `plot_counts.py`, each write a PNG to `figs/`. Their rules are identical apart from the names.
+The project's two plotting scripts, `plot_scores.py` and `plot_counts.py`, each write a PNG to `figs/`. Their rules are identical apart from the names from them.
 
 A single pattern rule covers both. `%` stands for the part of the name that varies, here `scores` or `counts`, and the same text is substituted into the prerequisites.
 
-:::: {.columns .xsmall}
+:::: {.columns .mxsmall}
 ::: {.column width='48%'}
 ```makefile
 figs/scores.png: plot_scores.py data/clean.csv
@@ -585,7 +596,7 @@ Python results also depend on package versions. In a uv project, `pyproject.toml
 
 . . .
 
-An empty marker file connects the two. Make rebuilds it when `pyproject.toml` changes, and every rule that runs Python lists it as a prerequisite, here shown for the figures.
+An marker file can be used to connect the two. Make rebuilds it when `pyproject.toml` changes, and every rule that runs Python lists it as a prerequisite, here shown for the figures.
 
 ::: {.small}
 ```makefile
@@ -599,11 +610,14 @@ figs/%.png: plot_%.py data/clean.csv .venv/.synced
 ```
 :::
 
+::: {.aside}
+We don't want to depend on pyproject.toml directly because the `uv sync` step is required be recreating the figs.
+:::
 
 
 ## Failed recipes and partial outputs
 
-A command can write part of its output before failing. Make stops on the error, but normally leaves that file behind. A later run may consider it up to date because its timestamp is new.
+A command can write part of its output before failing. Make stops on the error, but normally leaves that file behind. A later run may consider it up-to-date because its timestamp is new.
 
 Add this special target to the Makefile:
 
@@ -613,7 +627,7 @@ Add this special target to the Makefile:
 ```
 :::
 
-If a recipe changes its target and exits with an error, Make deletes the target so the next run tries again. This protects against an incomplete `data/raw.csv` after a failed download.
+If a recipe changes its target and exits with an error, Make deletes the target so the next run tries again. This protects against an incomplete `data/raw.csv` after a failed partial download.
 
 It does not remove other files the command wrote, and the command must report failure with a nonzero exit status.
 
@@ -640,7 +654,9 @@ Make is a useful starting point for projects organized around scripts and files.
 
 * Make rebuilds missing or outdated targets using modification times, not file contents.
 
-* Phony targets like `all` and `clean` name tasks. Use `make -n` to preview the commands for a build.
+* Phony targets like `all` and `clean` name tasks. 
+
+* Use `make -n` to preview the commands for a build.
 
 * Variables and pattern rules reduce repetition when several outputs are built in the same way.
 
