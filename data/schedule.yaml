@@ -293,8 +293,8 @@ schedule:
 - week: 10
   day: 1
   topic: "Databases"
-  lecture: "SQL"
-  slides: ""
+  lecture: "dplyr & SQL"
+  slides: "Lec16"
   r_readings:
     - text: "SQL Translation"
       link: https://cran.r-project.org/web/packages/dbplyr/vignettes/sql-translation.html

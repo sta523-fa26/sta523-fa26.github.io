@@ -1,0 +1,802 @@
+---
+title: "dplyr & SQL"
+subtitle: "Lecture 16"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    code-line-numbers: false
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+library(dplyr)
+unlink(c("data/flights.duckdb", "data/flights.duckdb.wal"))
+options(duckdb.home = "~/.duckdb")
+
+# dbplyr's default header prints the absolute path of the database file, which is wider than a slide
+loadNamespace("dbplyr"); loadNamespace("duckdb")
+registerS3method("db_connection_describe", "duckdb_connection", function(con) {
+  paste0("DuckDB [", basename(DBI::dbGetInfo(con)$dbname), "]")
+}, envir = asNamespace("dbplyr"))
+
+options(
+  width = 80,
+  pillar.print_max = 6,
+  pillar.print_min = 6
+)
+
+knitr::opts_chunk$set(
+  fig.align = "center", fig.retina = 2, dpi = 150,
+  out.width = "100%"
+)
+
+if (!file.exists("data/flights.parquet")) {
+  nanoparquet::write_parquet(nycflights13::flights, "data/flights.parquet")
+}
+if (!file.exists("data/planes.parquet")) {
+  nanoparquet::write_parquet(nycflights13::planes, "data/planes.parquet")
+}
+```
+
+```{python py_setup}
+#| include: false
+import polars as pl
+
+pl.Config.set_tbl_rows(6)
+pl.Config.set_tbl_cols(6)
+pl.Config.set_tbl_width_chars(80)
+pl.Config.set_tbl_hide_dtype_separator(True)
+```
+
+
+# Why databases?
+
+## Numbers every programmer should know
+
+Historical estimates (circa 2012) illustrate the differences in scale. Actual timings depend on the hardware and workload.
+
+::: {.medium}
+| Task                                | Time (μs)             | Roughly   |
+|-------------------------------------|:---------------------:|----------:|
+| L1 cache reference                  | $5 \times 10^{-4}$    | 0.5 ns    |
+| L2 cache reference                  | $7 \times 10^{-3}$    | 7 ns      |
+| Main memory reference               | $1 \times 10^{-1}$    | 100 ns    |
+| Random seek SSD                     | $1.5 \times 10^{2}$   | 150 μs    |
+| Read 1 MB sequentially from memory  | $2.5 \times 10^{2}$   | 250 μs    |
+| Read 1 MB sequentially from SSD     | $1 \times 10^{3}$     | 1 ms      |
+| Disk seek                           | $1 \times 10^{4}$     | 10 ms     |
+| Read 1 MB sequentially from disk    | $2 \times 10^{4}$     | 20 ms     |
+| Round trip packet CA to Netherlands | $1.5 \times 10^{5}$   | 150 ms    |
+:::
+
+::: {.aside}
+From [jboner/latency.txt](https://gist.github.com/jboner/2841832) and [sirupsen/napkin-math](https://github.com/sirupsen/napkin-math), based on Jeff Dean's original [talk](http://static.googleusercontent.com/media/research.google.com/en/us/people/jeff/stanford-295-talk.pdf).
+:::
+
+
+## Implications for big data
+
+Using these illustrative rates, imagine we have a 10 GB flat file and want to select the rows that meet some criterion. With no other structure this requires a sequential read of the entire data set.
+
+::: {.medium}
+| File Location    | Performance                        | Time        |
+|:-----------------|:-----------------------------------|:------------|
+| in memory        | $10~GB \times (250~\mu s / 1~MB)$  | 2.5 seconds |
+| on disk (SSD)    | $10~GB \times (1~ms / 1~MB)$       | 10 seconds  |
+| on disk (HD)     | $10~GB \times (20~ms / 1~MB)$      | 200 seconds |
+:::
+
+These estimates cover reading the file once. Repeated reads add to that cost, so reducing unnecessary reads can make a large difference.
+
+. . .
+
+Databases can skip blocks that cannot match a filter, use indexes to locate matching rows, and choose an execution plan suited to the query. Some queries still require scanning all relevant data.
+
+
+## So why databases?
+
+Implementing blocks, indexes, and query planning correctly is hard,
+
+* the optimal strategy depends on your queries, and they change,
+
+* data is modified (inserts, updates, deletes) so the structures must stay consistent,
+
+* multiple users may access the data at the same time,
+
+* failures happen and the data must remain correct and recoverable.
+
+. . .
+
+A database management system (DBMS) handles all of this for you, and provides a standard interface (e.g. SQL) for saying what you want rather than how to get it.
+
+Today we treat the database as a black box and focus on how R and Python talk to it. We will use DuckDB as the engine and look at it in detail next lecture.
+
+
+# SQL
+
+## SQL
+
+Structured Query Language is a special purpose language for querying and modifying tabular data.
+
+* An ANSI standard with dialect divergence (PostgreSQL, MySQL, SQLite, DuckDB, etc.)
+
+* Declarative, a query describes the result and the database decides how to compute it
+
+* Maps closely, but not exactly, onto the dplyr verbs we have already been using
+
+::: {.small}
+```sql
+SELECT origin, dest, COUNT(*) AS n
+FROM flights
+WHERE month = 10 AND day = 21
+GROUP BY origin, dest
+ORDER BY n DESC
+LIMIT 5
+```
+:::
+
+
+## dplyr verbs and SQL clauses
+
+::: {.small}
+| dplyr                                   | SQL                                    |
+|:----------------------------------------|:---------------------------------------|
+| `select(x, y)`                          | `SELECT x, y`                          |
+| `mutate(z = x + y)`                     | `SELECT *, x + y AS z`                 |
+| `filter(x > 1)`                         | `WHERE x > 1`                          |
+| `arrange(desc(x))`                      | `ORDER BY x DESC`                      |
+| `summarize(n = n(), .by = g)`           | `SELECT g, COUNT(*) AS n ... GROUP BY g` |
+| `summarize(...) |> filter(n > 10)`      | `HAVING n > 10`                        |
+| `distinct(x)`                           | `SELECT DISTINCT x`                    |
+| `head(5)`                               | `LIMIT 5`                              |
+| `left_join(y, by = "k")`                | `LEFT JOIN y ON x.k = y.k`             |
+| `mutate(m = mean(x), .by = g)`          | `AVG(x) OVER (PARTITION BY g)`         |
+:::
+
+Clauses appear in a fixed order (`SELECT`, `FROM`, `JOIN`, `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT`) regardless of the order in which they are evaluated.
+
+
+# DBI
+
+## DBI
+
+The `DBI` package provides a consistent R interface to relational databases. Each database has a backend package (`RSQLite`, `RPostgres`, `duckdb`, `bigrquery`, ...) that implements the same set of generics for
+
+* connecting and disconnecting,
+
+* listing tables and fields,
+
+* sending queries and fetching results,
+
+* executing statements that modify the database,
+
+* transactions.
+
+Code written against `DBI` is largely portable between backends. The SQL you send is not (dialects differences).
+
+::: {.aside}
+See [r-dbi.org](https://www.r-dbi.org/) and the list of [backends](https://r-dbi.org/backends/).
+:::
+
+
+## Connecting {.wrap-output}
+
+A connection object is created with `dbConnect()` and a driver from the backend package - the connection may be local or remote.
+
+For DuckDB is local, so the driver takes the path of a database file. If this file/database does not exist it will be created. If no path is supplied the database is created in memory and is *discarded* when the connection closes.
+
+::: {.small}
+```{r}
+(con = DBI::dbConnect(duckdb::duckdb(dbdir = "data/flights.duckdb")))
+```
+:::
+
+
+## Connection objects
+
+The connection is a handle to the open database, it is what every other `DBI` function takes as its first argument. 
+
+The object itself is tiny, since the data stays in the database. Its class comes from the backend, which is how `DBI`'s generics dispatch to the right implementation.
+
+::: {.small}
+```{r}
+class(con)
+DBI::dbIsValid(con)
+```
+:::
+
+. . .
+
+Connections should be closed with `dbDisconnect()` when you are done. R will close a connection when the object is garbage collected, but relying on this is a bad habit.
+
+::: {.small}
+```{r}
+#| eval: false
+DBI::dbDisconnect(con)
+```
+:::
+
+
+## Tables
+
+A data frame can be written as a new table in the database with `dbWriteTable()`.
+
+::: {.small}
+```{r}
+employees = tibble(
+  name   = c("Alice", "Bob", "Carol", "Dave"),
+  salary = c(52000, 40000, 30000, 33000),
+  dept   = c("Accounting", "Accounting", "Sales", "Accounting")
+)
+```
+
+```{r}
+DBI::dbWriteTable(con, "employees", employees)
+```
+:::
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+DBI::dbListTables(con)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+DBI::dbListFields(con, "employees")
+DBI::dbExistsTable(con, "sales")
+```
+:::
+::::
+
+
+## Queries
+
+`dbGetQuery()` sends a query and collects a data frame as the result.
+
+::: {.xsmall}
+```{r}
+DBI::dbGetQuery(con, "SELECT dept, AVG(salary) AS avg FROM employees GROUP BY dept")
+```
+:::
+
+. . .
+
+It wraps the three step process of sending the query, fetching rows, and clearing the result. The steps can be run separately when a result is too large (or slow) to fetch at once.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+res = DBI::dbSendQuery(
+  con, "SELECT * FROM employees"
+)
+DBI::dbFetch(res, n = 2)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+DBI::dbHasCompleted(res)
+DBI::dbFetch(res)
+DBI::dbClearResult(res)
+```
+:::
+::::
+
+
+## Modifying
+
+Statements that change the database rather than return rows (`INSERT`, `UPDATE`, `DELETE`, `CREATE`, `DROP`) are run with `dbExecute()`, which returns the number of rows affected.
+
+::: {.xsmall}
+```{r}
+DBI::dbExecute(con, "INSERT INTO employees VALUES ('Eve', 44000, 'Sales')")
+DBI::dbExecute(con, "UPDATE employees SET salary = salary * 1.1 WHERE dept = 'Sales'")
+```
+:::
+
+. . .
+
+`DBI` also has helpers for common changes: `dbAppendTable()` adds the rows of a data frame and `dbRemoveTable()` drops a table.
+
+::: {.xsmall}
+```{r}
+DBI::dbRemoveTable(con, "employees")
+DBI::dbListTables(con)
+```
+:::
+
+
+## Parameterized queries
+
+Never paste user supplied values into a query string. Quoting is easy to get wrong and a hostile value can change the meaning of the query (SQL injection). Instead leave `?` placeholders and pass the values separately.
+
+::: {.xsmall}
+```{r}
+#| include: false
+DBI::dbWriteTable(con, "airlines", nycflights13::airlines)
+```
+
+```{r}
+one = "SELECT * FROM airlines WHERE carrier = ?"
+two = "SELECT * FROM airlines WHERE carrier IN (?, ?)"
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+DBI::dbGetQuery(
+  con, one, params = list("UA")
+)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+DBI::dbGetQuery(
+  con, two, params = list("UA", "DL")
+)
+```
+:::
+::::
+
+::: {.aside}
+For values that must be interpolated into the string itself, such as table or column names, use `DBI::dbQuoteIdentifier()` and `DBI::dbQuoteString()` or `glue::glue_sql()`.
+:::
+
+
+## Python's DB-API
+
+Python's equivalent to `DBI` is the DB-API specification ([PEP 249](https://peps.python.org/pep-0249/)). Each database has a package (`sqlite3`, `psycopg`, `duckdb`, ...) that implements the specification. A connection creates cursors, and a cursor runs a query and fetches rows as tuples.
+
+::: {.mxsmall}
+```{python}
+import duckdb
+con = duckdb.connect()
+query = "SELECT origin, COUNT(*) AS n FROM 'data/flights.parquet' GROUP BY origin"
+```
+:::
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{python}
+cur = con.cursor()
+cur.execute(query)
+[d[0] for d in cur.description]
+cur.fetchone()
+cur.fetchall()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pl.read_database(query, con)
+```
+:::
+::::
+
+```{python}
+#| include: false
+con.close()
+```
+
+::: {.aside}
+`pl.read_database()` accepts any DB-API connection and returns a frame. Querying a Parquet file as a table is a DuckDB feature, more next lecture.
+:::
+
+
+# dbplyr
+
+## Database tables in dplyr
+
+The `dbplyr` package lets dplyr work with tables in a database. It is installed with the tidyverse and loaded automatically when needed.
+
+It allows dplyr verbs to operate on a reference to a table in the database. `tbl()` points at an existing table, `copy_to()` writes a local data frame to the database and returns a reference to it. The data stays in the database, the R object holds only the connection and the query that produces the table.
+
+::: {.xsmall}
+```{r}
+flights_tbl = copy_to(con, nycflights13::flights, "flights", temporary = FALSE)
+planes_tbl = copy_to(con, nycflights13::planes, "planes", temporary = FALSE)
+airlines_tbl = tbl(con, "airlines")
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+class(flights_tbl)
+lobstr::obj_size(flights_tbl)
+lobstr::obj_size(nycflights13::flights)
+```
+:::
+
+
+## Verbs work as before
+
+The dplyr verbs are all available and the results print like a df tibble.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+(oct_21 = flights_tbl |>
+  filter(month == 10, day == 21) |>
+  select(origin, dest, tailnum, dep_delay)
+)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+collect(oct_21)
+```
+:::
+::::
+
+
+## Laziness
+
+A database table is lazy. Each verb builds a description of the query. Printing executes the query but fetches only enough rows for a preview.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{r}
+nrow(oct_21)
+```
+:::
+
+::: {.column width='50%'}
+```{r}
+oct_21 |> count()
+```
+:::
+::::
+
+. . .
+
+Building a pipeline lets the database combine and optimize the operations.
+
+We use `collect()` to bring the full result into R as a tibble, or `pull()` to retrieve a single column.
+
+
+## `show_query()`
+
+`show_query()` can be used to print the query that will be sent.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{r}
+oct_21 |>
+  show_query()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+oct_21 |>
+  summarize(
+    delay = mean(dep_delay, na.rm = TRUE),
+    .by = origin
+  ) |>
+  show_query()
+```
+:::
+::::
+
+::: {.aside}
+`explain()` shows the query together with the database's execution plan.
+:::
+
+
+## Joins
+
+Join verbs work between tables in the same database and translate to SQL `JOIN` clauses.
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+flights_tbl |>
+  left_join(airlines_tbl, by = "carrier") |>
+  count(name, sort = TRUE)
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+flights_tbl |>
+  left_join(airlines_tbl, by = "carrier") |>
+  count(name, sort = TRUE) |>
+  show_query()
+```
+:::
+::::
+
+
+## Window functions
+
+A grouped `mutate()` or `filter()` needs a per group value on every row. SQL does this with window functions, an aggregate followed by an `OVER (PARTITION BY ...)` clause.
+
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
+```{r}
+flights_tbl |>
+  mutate(n = n(), .by = dest) |>
+  select(
+    origin, dest, carrier, tailnum, arr_delay, n
+  )
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{r}
+flights_tbl |>
+  mutate(n = n(), .by = dest) |>
+  select(
+    origin, dest, carrier, tailnum, arr_delay, n
+  ) |>
+  show_query()
+```
+:::
+::::
+
+
+## `collect()`, `compute()`, `collapse()`
+
+These functions control how a query is executed or composed.
+
+* `collect()` runs the query and returns the result as a tibble in R,
+
+* `compute()` runs the query and stores the result in a temporary table in the database, returning a reference to it. Use it when an expensive intermediate result is reused by several later queries,
+
+* `collapse()` runs nothing but wraps the query so far in a subquery, which is occasionally needed to control how later verbs are translated.
+
+::: {.xsmall}
+```{r}
+by_origin = flights_tbl |>
+  summarize(n = n(), .by = origin) |>
+  compute()
+show_query(by_origin)
+```
+:::
+
+
+## Mixing local data
+
+Because the work happens in the database, a database table cannot be combined directly with a local data frame.
+
+::: {.xsmall}
+```{r}
+big_hubs = tibble(dest = c("ORD", "ATL", "LAX"))
+```
+
+```{r}
+#| error: true
+flights_tbl |> semi_join(big_hubs, by = "dest")
+```
+:::
+
+. . .
+
+The join verbs can copy the local table into the database for you with `copy = TRUE`, or use `copy_to()` to do it yourself first.
+
+::: {.xsmall}
+```{r}
+flights_tbl |> semi_join(big_hubs, by = "dest", copy = TRUE) |> count(dest)
+```
+:::
+
+
+## Translation
+
+dbplyr translates many common vector functions from base R, `stringr`, and `lubridate` into SQL. Support depends on the database backend.
+
+`translate_sql()` lets you see the translation of an expression on its own.
+
+::: {.small}
+```{r}
+dbplyr::translate_sql(x %in% c("a", "b") & y > 10, con = con)
+dbplyr::translate_sql(if_else(x > 0, "late", "on time"), con = con)
+dbplyr::translate_sql(stringr::str_detect(x, "^N1"), con = con)
+dbplyr::translate_sql(lubridate::year(x), con = con)
+```
+:::
+
+
+## Dialects
+
+The connection matters since the translation is specific to the engine. `dbplyr` ships `simulate_*()` connections for checking a translation without connecting to an actual database.
+
+::: {.small}
+```{r}
+dbplyr::translate_sql(paste(x, y), con = con)
+dbplyr::translate_sql(paste(x, y), con = dbplyr::simulate_sqlite())
+dbplyr::translate_sql(paste(x, y), con = dbplyr::simulate_mssql())
+```
+:::
+
+
+## Unknown functions
+
+When dbplyr meets a function it does not know, it passes the call through unchanged, and leaves it to the database to decide whether it makes sense.
+
+::: {.xsmall}
+```{r}
+flights_tbl |> mutate(z = foo(dep_delay)) |> show_query()
+```
+:::
+
+. . .
+
+Running this query is an error, since DuckDB has no `foo()`. The flip side is that any function the database does have can be called from dplyr without a translation, like DuckDB's `regexp_extract()`.
+
+::: {.xsmall}
+```{r}
+flights_tbl |>
+  mutate(n_number = regexp_extract(tailnum, "^N(\\d+)", 1L)) |>
+  select(tailnum, n_number) |>
+  head(3)
+```
+:::
+
+
+## Differences from data frames
+
+Database tables have no intrinsic row order, so `slice()`, `slice_head()`, and `slice_tail()` are unavailable. `head()`, `slice_min()`, `slice_max()`, and `slice_sample()` all work, and `arrange()` before `head()` gives an ordered result.
+
+Translation can also change behavior - SQL aggregates such as `AVG()` and `SUM()` ignore `NULL` values, so dbplyr warns when translating `mean()` without `na.rm = TRUE`. Supplying it acknowledges that behavior and silences the warning.
+
+::: {.xsmall}
+```{r}
+flights_tbl |> summarize(delay = mean(dep_delay)) |> show_query()
+```
+:::
+
+
+
+## Exercise 1
+
+Using `flights_tbl` and `planes_tbl`, answer the following with dplyr. For each, look at the result of `show_query()` and identify which verbs produced which clauses.
+
+1. For each origin airport, which destination received the most flights and how many were there?
+
+2. Which five manufacturers' planes flew the most flights? Report the number of flights and the mean departure delay for each.
+
+3. Repeat question 2 without the five row limit, keeping only manufacturers with at least 30,000 flights. Where does this condition appear in the SQL?
+
+
+# polars & SQL
+
+## `pl.sql()`
+
+`polars` has a SQL interface that compiles a query into the same lazy plan as the expression API. `pl.sql()` looks up each table name among the frames in scope and returns a `LazyFrame`.
+
+::: {.xsmall}
+```{python}
+flights = pl.scan_parquet("data/flights.parquet")
+planes = pl.scan_parquet("data/planes.parquet")
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+pl.sql("""
+  SELECT origin, dest, COUNT(*) AS n
+  FROM flights
+  WHERE month = 10 AND day = 21
+  GROUP BY origin, dest
+  ORDER BY n DESC LIMIT 3
+""").collect()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+pl.sql("""
+  SELECT p.manufacturer, COUNT(*) AS n
+  FROM flights f
+  JOIN planes p ON f.tailnum = p.tailnum
+  GROUP BY p.manufacturer
+  ORDER BY n DESC LIMIT 3
+""", eager=True)
+```
+:::
+::::
+
+
+## One plan, two languages
+
+Polars parses SQL into expressions for its own execution engine. In this example, SQL and the equivalent method chain produce the same plan apart from an integer cast. This reverses the direction of dbplyr, which turns dplyr into SQL for a database to run.
+
+::: {.xsmall}
+```{python}
+q = pl.sql("SELECT origin, COUNT(*) AS n FROM flights GROUP BY origin")
+print(q.explain())
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{python}
+q = flights.group_by("origin").agg(n = pl.len())
+print(q.explain())
+```
+:::
+
+
+## What is supported {.wrap-output}
+
+The `polars` SQL dialect covers the core of a `SELECT` query (`WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, `LIMIT`, joins, subqueries, `CASE`, common table expressions (`WITH`), window functions) and a few hundred functions for strings, dates, and regular expressions.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+pl.sql("""
+  SELECT tailnum, tailnum ~ '^N1' AS n1
+  FROM flights LIMIT 3
+""").collect()
+```
+:::
+
+::: {.column width='50%'}
+```{python}
+#| error: true
+pl.sql("""
+  SELECT foo(dep_delay) FROM flights
+""").collect()
+```
+:::
+::::
+
+Unknown functions are an error because there is no database behind the query to interpret them. Polars SQL also supports operations such as `DELETE`, which returns the remaining rows without modifying the original frame.
+
+::: {.aside}
+The full list of supported clauses and functions is in the [polars SQL reference](https://docs.pola.rs/api/python/stable/reference/sql/index.html).
+:::
+
+```{r}
+#| include: false
+DBI::dbDisconnect(con, shutdown = TRUE)
+```
+
+
+# Summary {visibility="uncounted"}
+
+## Takeaways {visibility="uncounted"}
+
+::: {.medium}
+* A database combines storage structures and a query planner to execute queries efficiently and avoid unnecessary reads. SQL is the standard language for asking it questions.
+
+* `DBI` is the R interface to any relational database. Use `dbGetQuery()` for queries, `dbExecute()` for statements that modify the database, and `?` placeholders for values rather than pasting them into the query.
+
+* `dbplyr` lets dplyr verbs run against a database table. Queries are lazy and translated to SQL, `show_query()` reveals the translation, and `collect()` brings the result into R.
+
+* dbplyr translates many common vector functions from base R, `stringr`, and `lubridate` into SQL. Support depends on the database backend. Unknown functions are passed through to the database, which makes any database function usable but means mistakes surface only when the query runs.
+
+* `polars` goes the other direction, compiling SQL into the same lazy plan as its expression API, so SQL and methods can be mixed freely in a single pipeline.
+:::
+
+
+## Learning more {visibility="uncounted"}
+
+::: {.medium}
+- [R4DS - Databases](https://r4ds.hadley.nz/databases.html)
+- [dbplyr - Introduction](https://dbplyr.tidyverse.org/articles/dbplyr.html) and [Function translation](https://dbplyr.tidyverse.org/articles/translation-function.html)
+- [DBI - Getting started](https://dbi.r-dbi.org/articles/DBI.html)
+- [polars - SQL interface](https://docs.pola.rs/user-guide/sql/intro/)
+- [SQL for Data Scientists](https://sqlfordatascientists.com/) by Renée Teate
+:::

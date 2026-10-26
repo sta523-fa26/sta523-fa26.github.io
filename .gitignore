@@ -16,3 +16,6 @@ static/slides/data/planes.parquet
 static/slides/data/flights.csv
 docs/slides/data/flights.parquet
 docs/slides/data/flights.csv
+static/slides/data/flights.duckdb
+static/slides/data/flights.duckdb.wal
+docs/slides/data/flights.duckdb

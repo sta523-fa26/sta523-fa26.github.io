@@ -1,0 +1,96 @@
+```{r setup}
+#| include: false
+library(dplyr)
+con = DBI::dbConnect(duckdb::duckdb())
+flights_tbl = copy_to(con, nycflights13::flights, "flights", temporary = FALSE)
+planes_tbl = copy_to(con, nycflights13::planes, "planes", temporary = FALSE)
+```
+
+```{python py_setup}
+#| include: false
+import polars as pl
+flights = pl.scan_parquet("../data/flights.parquet")
+planes = pl.scan_parquet("../data/planes.parquet")
+```
+
+
+# Exercise 1
+
+Using `flights_tbl` and `planes_tbl`, find the most common destination from each origin, the five manufacturers with the most flights along with their mean departure delay, and the manufacturers with at least 30,000 flights. Inspect the SQL for each with `show_query()`.
+
+```{r}
+q1 = flights_tbl |>
+  count(origin, dest) |>
+  filter(n == max(n, na.rm = TRUE), .by = origin) |>
+  arrange(origin)
+
+q1
+show_query(q1)
+```
+
+```{r}
+q2 = flights_tbl |>
+  inner_join(planes_tbl, by = "tailnum") |>
+  summarize(n = n(), delay = mean(dep_delay, na.rm = TRUE), .by = manufacturer) |>
+  arrange(desc(n)) |>
+  head(5)
+
+q2
+show_query(q2)
+```
+
+```{r}
+q3 = flights_tbl |>
+  inner_join(planes_tbl, by = "tailnum") |>
+  summarize(n = n(), delay = mean(dep_delay, na.rm = TRUE), .by = manufacturer) |>
+  filter(n >= 30000) |>
+  arrange(desc(n))
+
+q3
+show_query(q3)
+```
+
+
+# Exercise 2
+
+Repeat the three questions from Exercise 1 using `pl.sql()` with the `flights` and `planes` LazyFrames.
+
+```{python}
+pl.sql("""
+  WITH counts AS (
+    SELECT origin, dest, COUNT(*) AS n
+    FROM flights
+    GROUP BY origin, dest
+  ),
+  ranked AS (
+    SELECT *, MAX(n) OVER (PARTITION BY origin) AS max_n
+    FROM counts
+  )
+  SELECT origin, dest, n
+  FROM ranked
+  WHERE n = max_n
+  ORDER BY origin
+""").collect()
+```
+
+```{python}
+pl.sql("""
+  SELECT p.manufacturer, COUNT(*) AS n, AVG(f.dep_delay) AS delay
+  FROM flights f
+  JOIN planes p ON f.tailnum = p.tailnum
+  GROUP BY p.manufacturer
+  ORDER BY n DESC
+  LIMIT 5
+""").collect()
+```
+
+```{python}
+pl.sql("""
+  SELECT p.manufacturer, COUNT(*) AS n, AVG(f.dep_delay) AS delay
+  FROM flights f
+  JOIN planes p ON f.tailnum = p.tailnum
+  GROUP BY p.manufacturer
+  HAVING COUNT(*) >= 30000
+  ORDER BY n DESC
+""").collect()
+```
