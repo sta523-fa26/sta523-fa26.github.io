@@ -309,15 +309,6 @@ schedule:
 - week: 10
   day: 3
   topic: "Databases"
-  lecture: "SQL (2)"
-  slides: ""
-  r_readings: []
-  py_readings: []
-
-
-- week: 11
-  day: 1
-  topic: "Databases"
   lecture: "DuckDB"
   slides: "Lec17"
   r_readings:
@@ -329,10 +320,19 @@ schedule:
       link: https://www.youtube.com/watch?v=GELhdezYmP0
   py_readings: []
 
+
+- week: 11
+  day: 1
+  topic: "Databases"
+  lecture: "DuckDB (2)"
+  slides: ""
+  r_readings: []
+  py_readings: []
+
 - week: 11
   day: 3
   topic: "Databases"
-  lecture: "DuckDB (2)"
+  lecture: "Multicore & Profiling"
   slides: ""
   r_readings: []
   py_readings: []
