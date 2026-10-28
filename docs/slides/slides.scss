@@ -165,6 +165,10 @@ $lang-py-bg: #fdf8e3;
 $lang-py-text: #2b5b84;
 $lang-sh: #6c757d;
 $lang-sh-bg: #f1f1f1;
+$lang-sql: #8e44ad;
+$lang-sql-bg: #f6effa;
+$lang-duckdb: #ff6900;   // DuckDB Hot Orange, see duckdb.org/design/manual
+$lang-duckdb-bg: #fff4ec;
 
 .reveal div.sourceCode {
   position: relative;
@@ -202,6 +206,35 @@ $lang-sh-bg: #f1f1f1;
   border-left-color: $lang-sh;
   background-color: $lang-sh-bg;
   &::before { content: "bash"; background: $lang-sh; color: white; }
+}
+
+.reveal div.sourceCode:has(> pre.sourceCode.sql) {
+  border-left-color: $lang-sql;
+  background-color: $lang-sql-bg;
+  &::before { content: "SQL"; background: $lang-sql; color: white; }
+}
+
+.reveal div.sourceCode:has(> pre.sourceCode.duckdb-cli) {
+  border-left-color: $lang-duckdb;
+  background-color: $lang-duckdb-bg;
+  &::before { content: "DuckDB"; background: $lang-duckdb; color: white; }
+}
+
+// Quarto draws the copy icon in the badge's corner when a code block is
+// hovered, so the badge steps aside and the icon takes its place.
+.reveal div.code-copy-outer-scaffold:hover div.sourceCode::before {
+  opacity: 0;
+}
+
+// Shell prompts, drawn with pseudo-elements so they are not copied with the
+// code. DuckDB prompts come from duckknit's prompt chunk option. The prompt
+// box is a fixed two characters wide so continuation lines align with the
+// first line's text.
+.reveal pre.sourceCode.bash.shell > code > span > a::after {
+  content: ">";
+  display: inline-block;
+  width: 2ch;
+  color: #aaaaaa;
 }
 
 // The highlight theme colors Makefile targets (dv) and prerequisites (dt) alike

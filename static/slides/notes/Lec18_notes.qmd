@@ -1,0 +1,63 @@
+```{r setup}
+#| include: false
+library(duckknit)
+data_dir = path.expand("~/Scratch/duckdb")
+knitr::opts_knit$set(root.dir = data_dir)
+s = duckknit::duckknit_start_session("notes")
+duckknit::duckknit_exec(s, paste0(".cd ", data_dir))
+```
+
+
+# Exercise 1
+
+Using `train_services.parquet`, count the stops per train `type` on 2023-05-20 with `EXPLAIN ANALYZE` and note the columns read, row groups scanned, and data read. Then filter on a single `train_number` instead and compare.
+
+```{duckdb, session='notes'}
+EXPLAIN ANALYZE
+SELECT type, count(*) AS n
+FROM 'train_services.parquet'
+WHERE date = '2023-05-20'
+GROUP BY ALL;
+```
+
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT type, count(*) AS n
+FROM 'train_services.parquet'
+WHERE train_number = 1410
+GROUP BY ALL;
+```
+
+```{duckdb}
+SELECT row_group_id, stats_min, stats_max
+FROM parquet_metadata('train_services.parquet')
+WHERE path_in_schema = 'train_number';
+```
+
+
+# Exercise 2
+
+Using the TPC-H tables, report the average `o_totalprice` by `c_mktsegment` for orders placed in 1995. Use `EXPLAIN` to find the build side of each join and where the date filter ended up, then `EXPLAIN ANALYZE` to find the slowest operator and compare estimates to actual rows.
+
+```{duckdb}
+ATTACH 'tpch.duckdb' AS tpch (READ_ONLY);
+USE tpch;
+```
+
+```{duckdb}
+EXPLAIN
+SELECT c_mktsegment, round(avg(o_totalprice), 2) AS price
+FROM orders JOIN customer ON o_custkey = c_custkey
+WHERE o_orderdate BETWEEN '1995-01-01' AND '1995-12-31'
+GROUP BY ALL
+ORDER BY price DESC;
+```
+
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT c_mktsegment, round(avg(o_totalprice), 2) AS price
+FROM orders JOIN customer ON o_custkey = c_custkey
+WHERE o_orderdate BETWEEN '1995-01-01' AND '1995-12-31'
+GROUP BY ALL
+ORDER BY price DESC;
+```

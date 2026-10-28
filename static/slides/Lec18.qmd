@@ -1,0 +1,1356 @@
+---
+title: "DuckDB for analytics"
+subtitle: "Lecture 18"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    code-line-numbers: false
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+# Data and plans
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+library(dplyr)
+library(duckknit)
+
+options(
+  duckdb.home = "~/.duckdb",
+  width = 80,
+  pillar.print_max = 6,
+  pillar.print_min = 6
+)
+
+# dbplyr's default header prints the absolute path of the database file, which is wider than a slide
+loadNamespace("dbplyr"); loadNamespace("duckdb")
+registerS3method("db_connection_describe", "duckdb_connection", function(con) {
+  paste0("DuckDB [", basename(DBI::dbGetInfo(con)$dbname), "]")
+}, envir = asNamespace("dbplyr"))
+
+knitr::opts_chunk$set(
+  fig.align = "center", fig.retina = 2, dpi = 150,
+  out.width = "100%"
+)
+
+# duckknit chunks are labelled as SQL so they are highlighted, styled, and copyable
+knitr::opts_hooks$set(engine = function(options) {
+  if (options$engine == "duckdb") {
+    options$lang = "sql"
+    options$class.source = "duckdb-cli"
+    options$prompt = TRUE
+  }
+  options
+})
+
+# Python must be initialized while the working directory still holds .venv
+reticulate::use_virtualenv(normalizePath(".venv"), required = TRUE)
+
+# All data for this deck lives outside the repo, every chunk runs from there
+data_dir = path.expand("~/Scratch/duckdb")
+stopifnot(dir.exists(data_dir))
+knitr::opts_knit$set(root.dir = data_dir)
+```
+
+```{r setup_data}
+#| include: false
+# Derived files that the deck reads but does not create on every render
+con = DBI::dbConnect(duckdb::duckdb())
+if (!file.exists("tpch.duckdb")) {
+  DBI::dbExecute(con, "INSTALL tpch; LOAD tpch; CALL dbgen(sf = 1)")
+  DBI::dbExecute(con, "ATTACH 'tpch.duckdb' AS tpch")
+  DBI::dbExecute(con, "COPY FROM DATABASE memory TO tpch")
+  DBI::dbExecute(con, "DETACH tpch")
+}
+derived = c(
+  "services_zstd.parquet" = "COPY services TO 'services_zstd.parquet' (COMPRESSION zstd)",
+  "services_uncompressed.parquet" = "COPY services TO 'services_uncompressed.parquet' (COMPRESSION uncompressed)",
+  "services.duckdb" = "ATTACH 'services.duckdb' AS s; CREATE TABLE s.services AS FROM services; DETACH s"
+)
+missing = derived[!file.exists(names(derived))]
+if (length(missing) > 0) {
+  DBI::dbExecute(con, "
+    CREATE TABLE services AS
+      SELECT \"Service:Date\" AS date, \"Service:Company\" AS company,
+             \"Service:Type\" AS type, \"Stop:Station name\" AS station,
+             \"Stop:Arrival delay\" AS arr_delay, \"Stop:Departure delay\" AS dep_delay
+      FROM 'services-2024-01.csv.gz'
+  ")
+  for (stmt in missing) DBI::dbExecute(con, stmt)
+}
+DBI::dbDisconnect(con, shutdown = TRUE)
+
+invisible(duckplyr::fallback_sitrep())
+unlink("train_services_sorted.parquet")
+unlink("services_part", recursive = TRUE)
+
+s = duckknit::duckknit_start_session("pq")
+duckknit::duckknit_exec(s, paste0(".cd ", data_dir))
+duckknit::duckknit_exec(s, ".maxrows 6")
+duckknit::duckknit_exec(s, ".maxwidth 80")
+```
+
+```{python py_setup}
+#| include: false
+import duckdb
+import polars as pl
+import pandas as pd
+
+pl.Config.set_tbl_rows(6)
+pl.Config.set_tbl_cols(6)
+pl.Config.set_tbl_width_chars(80)
+pl.Config.set_tbl_hide_dtype_separator(True)
+```
+
+```{css}
+/*| echo: false
+.reveal pre code {
+  text-wrap-mode: nowrap !important;
+  max-height: 520px !important;
+}
+.reveal .scrollable pre code {
+  max-height: none !important;
+}
+```
+
+
+
+
+## Data
+
+One week of trains trips in the Netherlands, from the DuckDB blog's [railway data](https://duckdb.org/2024/05/31/analyzing-railway-traffic-in-the-netherlands.html). The file is also available from `https://blobs.duckdb.org/train_services.parquet`.
+
+::: {.xsmall}
+```{duckdb, session='pq'}
+FROM 'train_services.parquet';
+```
+:::
+
+::: {.aside}
+The chunks in this deck run from a directory holding the data files, so file names appear without a path.
+:::
+
+
+## EXPLAIN {.scrollable}
+
+Prefixing a query with `EXPLAIN` returns the plan DuckDB will run rather than the result. The plan is a tree of operators, read from the bottom (the scans) to the top.
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN
+SELECT type, count(*) AS n
+FROM 'train_services.parquet'
+GROUP BY ALL
+ORDER BY n DESC;
+```
+:::
+
+
+## Reading a plan
+
+::: {.medium}
+| Operator                       | Description                                                        |
+|--------------------------------|--------------------------------------------------------------------|
+| `Seq Scan`, `Parquet Scan`     | Read a table or file                                               |
+| `Filter`                       | Apply a `WHERE` condition                                          |
+| `Projection`                   | Compute and select output columns (`SELECT`)                       |
+| `Hash Join`                    | Join by building a hash table on one input and probing with the other |
+| `Hash Group By`                | Group rows and compute aggregates with a hash table (`GROUP BY`)   |
+| `Ungrouped Aggregate`          | A single aggregate over all rows                                   |
+| `Order By`                     | Sort rows                                                          |
+| `Top N`                        | `ORDER BY` with a `LIMIT`, keeps only the needed rows              |
+:::
+
+Each box also lists the columns it needs (`Projections`), any filters it applies, and the estimated number of rows, which is what the optimizer uses to choose between plans.
+
+
+## EXPLAIN ANALYZE {.scrollable}
+
+The same query with `EXPLAIN ANALYZE`, which runs it and adds the actual rows and time per operator and a summary of the data read.
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT type, count(*) AS n
+FROM 'train_services.parquet'
+GROUP BY ALL
+ORDER BY n DESC;
+```
+:::
+
+
+# Parquet
+
+## Row vs column storage
+
+:::: {.columns}
+::: {.column width='50%'}
+Row oriented (CSV, most databases)
+
+::: {.xsmall}
+```
+name,  salary, dept
+Alice, 52000,  Accounting
+Bob,   40000,  Accounting
+Carol, 30000,  Sales
+```
+:::
+
+Reading one column means reading every row, and every value must be parsed from text.
+:::
+
+::: {.column width='50%'}
+Column oriented (Parquet, DuckDB)
+
+::: {.xsmall}
+```
+name:   [Alice, Bob, Carol, ...]
+salary: [52000, 40000, 30000, ...]
+dept:   [Accounting, Accounting, Sales]
+```
+:::
+
+Reading one column skips the others entirely, and values of one type compress well together.
+:::
+::::
+
+Analytical queries touch a few columns of many rows, which is exactly the access pattern column storage is good at. Parquet is the standard columnar file format, used by Spark, Arrow, `pandas`, `polars`, DuckDB, and most cloud warehouses.
+
+
+## Inside a Parquet file
+
+::: {.medium}
+A Parquet file is split into row groups (DuckDB writes 122,880 rows per group by default). Within a row group each column is stored separately as a column chunk, which is compressed and encoded on its own.
+
+The footer holds the schema plus, for every column chunk, its location, size, and statistics (minimum, maximum, and null count).
+:::
+
+::: {.medium}
+| Structure         | What a reader can do with it                                  |
+|-------------------|---------------------------------------------------------------|
+| column chunks     | read only the columns the query needs (projection pushdown)   |
+| row group stats   | skip row groups whose min / max cannot match a filter         |
+| typed, encoded    | no parsing, dictionary and run length encodings shrink data   |
+| footer            | learn the schema and plan without reading the data            |
+:::
+
+::: {.aside}
+See the [Parquet format](https://parquet.apache.org/docs/file-format/) docs and DuckDB's [Parquet overview](https://duckdb.org/docs/stable/data/parquet/overview).
+:::
+
+
+## File metadata
+
+DuckDB exposes the footer through table functions. This file was written in date order, so each row group covers a narrow range of dates.
+
+::: {.mxsmall}
+```{duckdb}
+SELECT num_rows, num_row_groups, format_version, file_size_bytes
+FROM parquet_file_metadata('train_services.parquet');
+```
+:::
+
+. . .
+
+::: {.mxsmall}
+```{duckdb}
+SELECT row_group_id, row_group_num_rows, stats_min, stats_max, compression
+FROM parquet_metadata('train_services.parquet')
+WHERE path_in_schema = 'date';
+```
+:::
+
+
+## Projection pushdown {.scrollable}
+
+The scan reads only the columns a query refers to, and the summary box reports how much of the file that was.
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT sum(trip_distance)
+FROM 'yellow_tripdata_2024-01.parquet';
+```
+:::
+
+::: {.aside}
+`yellow_tripdata_2024-01.parquet` is one month of [NYC taxi trips](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page), 3 million rows and 19 columns in 50 MB.
+:::
+
+
+## More columns, more bytes {.scrollable}
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT sum(trip_distance), sum(total_amount), sum(tip_amount)
+FROM 'yellow_tripdata_2024-01.parquet';
+```
+:::
+
+::: {.aside}
+A bare `count(*)` reads no columns at all, the row count comes from the footer and the plan is empty.
+:::
+
+
+## Filter pushdown and zone maps {.scrollable}
+
+A filter is pushed into the scan. Before reading a row group DuckDB compares the filter against the row group's min and max, and skips it when no row can match.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT count(*)
+FROM 'train_services.parquet'
+WHERE date = '2023-05-21';
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT count(*)
+FROM 'train_services.parquet'
+WHERE station_name = 'Utrecht Centraal';
+```
+:::
+::::
+
+
+## Sort order matters {.scrollable}
+
+Every row group spans `'s-Hertogenbosch` to `Zürich HB`, so a station filter skips nothing. Rewriting the file sorted by station changes that.
+
+::: {.xsmall}
+```{duckdb}
+COPY (FROM 'train_services.parquet' ORDER BY station_name)
+  TO 'train_services_sorted.parquet';
+```
+
+```{duckdb}
+SELECT row_group_id, stats_min, stats_max
+FROM parquet_metadata('train_services_sorted.parquet')
+WHERE path_in_schema = 'station_name';
+```
+
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT count(*)
+FROM 'train_services_sorted.parquet'
+WHERE station_name = 'Utrecht Centraal';
+```
+:::
+
+
+## Exercise 1
+
+Using `train_services.parquet`,
+
+1. Write a query that counts the number of stops per train `type` on 2023-05-20 and run it with `EXPLAIN ANALYZE`. Which columns were read, how many row groups were scanned, and how much data was read?
+
+2. Change the filter to a single `train_number` and compare. Why does this query read more of the file?
+
+
+# Storage formats
+
+## Three ways to store a table
+
+`services-2024-01.csv.gz` holds every stop of every train in the Netherlands for January 2024, 1.8 million rows. We load six of its columns as a native table and write that back out as CSV and Parquet.
+
+::: {.xsmall}
+```{duckdb}
+.timer on
+CREATE TABLE services AS
+  SELECT "Service:Date" AS date, "Service:Company" AS company,
+         "Service:Type" AS type, "Stop:Station name" AS station,
+         "Stop:Arrival delay" AS arr_delay, "Stop:Departure delay" AS dep_delay
+  FROM 'services-2024-01.csv.gz';
+COPY services TO 'services-2024-01.csv';
+COPY services TO 'services-2024-01.parquet';
+```
+:::
+
+::: {.aside}
+The original column names contain spaces and colons, which is why they are quoted and renamed here.
+:::
+
+
+## The same query, three times
+
+::: {.xxsmall}
+```{duckdb}
+SELECT sum(arr_delay) AS delay, count(*) AS n
+FROM 'services-2024-01.csv'
+WHERE station = 'Utrecht Centraal';
+```
+:::
+
+:::: {.columns .xxsmall}
+::: {.column width='50%' .fragment}
+```{duckdb}
+SELECT sum(arr_delay) AS delay, count(*) AS n
+FROM 'services-2024-01.parquet'
+WHERE station = 'Utrecht Centraal';
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{duckdb}
+SELECT sum(arr_delay) AS delay, count(*) AS n
+FROM services
+WHERE station = 'Utrecht Centraal';
+```
+:::
+::::
+
+```{duckdb}
+#| include: false
+.timer off
+```
+
+
+## Where the time goes {.scrollable}
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT sum(arr_delay) AS delay, count(*) AS n
+FROM 'services-2024-01.csv'
+WHERE station = 'Utrecht Centraal';
+```
+:::
+
+
+## Reading the CSV plan
+
+::: {.medium}
+* The CSV scan parses all 1.8 million rows, nearly all of the query's time is spent there. Only two columns are kept, but every byte still has to be read and tokenized.
+
+* The filter is a separate operator above the scan. A CSV file has no statistics, so there is nothing to push the filter into.
+
+* The Parquet and native table scans show `Filters:` inside the scan node and only read the needed column chunks, so the same query is 20 to 30 times faster.
+
+* The native table is faster still. DuckDB keeps additional statistics (such as distinct value counts) that make its estimates and plans better, and no file format decoding is needed.
+:::
+
+::: {.aside}
+See [file formats](https://duckdb.org/docs/stable/guides/performance/file_formats) in the performance guide.
+:::
+
+
+## Compression
+
+The same table on disk in different formats,
+
+::: {.xsmall}
+```{r}
+fs::file_info(c(
+  "services-2024-01.csv", "services_uncompressed.parquet",
+  "services-2024-01.parquet", "services_zstd.parquet", "services.duckdb"
+)) |>
+  select(path, size) |>
+  arrange(desc(size))
+```
+:::
+
+::: {.aside}
+`COPY services TO 'services_zstd.parquet' (COMPRESSION zstd)` and similar wrote the variants. Snappy is the default since every reader supports it, `zstd` is smaller at the cost of slower writes. Parquet also dictionary and run length encodes each column before compressing, which is why even the uncompressed file is far smaller than the CSV.
+:::
+
+
+## Partitioning
+
+Hive partitioning writes a directory of files, one per value of the partition columns, with the value encoded in the path. A filter on a partition column then skips whole files.
+
+::: {.xsmall}
+```{duckdb}
+COPY services TO 'services_part' (FORMAT parquet, PARTITION_BY (company));
+```
+:::
+
+::: {.xsmall}
+```{r}
+fs::dir_ls("services_part", recurse = TRUE, type = "file") |> head(4)
+```
+:::
+
+
+## Partition pruning {.scrollable}
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT count(*)
+FROM read_parquet('services_part/*/*.parquet', hive_partitioning = true)
+WHERE company = 'NS';
+```
+:::
+
+The `File Filters` line shows the partition filter and `Scanning Files: 1/15` the result. The other fourteen files were never opened.
+
+
+## Remote files
+
+DuckDB reads Parquet over HTTP (and S3, GCS, Azure) with the `httpfs` extension, which loads automatically. Only the footer and the needed column chunks are fetched, using range requests.
+
+::: {.xsmall}
+```{duckdb}
+#| eval: false
+EXPLAIN ANALYZE
+SELECT count(*)
+FROM 'https://blobs.duckdb.org/train_services.parquet'
+WHERE date = '2023-05-21';
+```
+:::
+
+:::: {.columns .xxsmall}
+::: {.column width='35%'}
+```
+┌───────────────────────────────────┐
+│         HTTPFS HTTP Stats         │
+│                                   │
+│            in: 16.1 KiB           │
+│            out: 0 bytes           │
+│              #HEAD: 1             │
+│              #GET: 3              │
+└───────────────────────────────────┘
+╭─ Summary ──────────╮
+│ Total Time: 0.885s │
+│ Data Read: 16.5 kB │
+╰────────────────────╯
+```
+:::
+
+::: {.column width='63%'}
+```
+╭─ Table Scan ────────────────────────────────────╮
+│ Function: PARQUET_SCAN                          │
+│ Filters: date = '2023-05-21'::DATE              │
+│ Total Files Read: 1                             │
+│ Filename(s):                                    │
+│ https://blobs.duckdb.org/train_services.parquet │
+│ Row Groups Scanned: 2 / 4                       │
+│ 44,679 rows                                 0µs │
+╰─────────────────────────────────────────────────╯
+```
+:::
+::::
+
+::: {.aside}
+Output captured on 2026-10-26 and trimmed. The 1.6 MB file was read using 16 KiB of transfer, three GET requests for the footer and two row groups.
+:::
+
+
+## Remote and partitioned
+
+The BTS on-time flight data for 2022 to 2024 is 17 million rows and 110 columns, about 1 GB of hive partitioned Parquet on `blobs.duckdb.org`.
+
+::: {.xxsmall}
+```{duckdb}
+#| eval: false
+CREATE VIEW flights AS FROM read_parquet([
+  'https://blobs.duckdb.org/flight-data-partitioned/Year=2022/data_0.parquet',
+  'https://blobs.duckdb.org/flight-data-partitioned/Year=2023/data_0.parquet',
+  'https://blobs.duckdb.org/flight-data-partitioned/Year=2024/data_0.parquet'
+], hive_partitioning = true);
+
+SELECT Month, count(*) AS n, round(avg(DepDelay), 1) AS delay
+FROM flights
+WHERE Year = 2024 AND Origin = 'RDU'
+GROUP BY ALL ORDER BY Month;
+```
+:::
+
+:::: {.columns .xxsmall}
+::: {.column width='35%'}
+```
+┌───────────────────────────────────┐
+│         HTTPFS HTTP Stats         │
+│            in: 11.1 MiB           │
+│              #HEAD: 2             │
+│             #GET: 148             │
+└───────────────────────────────────┘
+╭─ Summary ──────────╮
+│ Total Time:  2.58s │
+│ Data Read: 11.7 MB │
+╰────────────────────╯
+```
+:::
+
+::: {.column width='63%'}
+```
+╭─ Table Scan ──────────────────────────────╮
+│ Function: READ_PARQUET                    │
+│ Projections: Month, DepDelay              │
+│ Filters: Origin = 'RDU'                   │
+│ File Filters: Year = 2024                 │
+│ Scanning Files: 1/3                       │
+│ Row Groups Scanned: 48 / 48               │
+│ 29,578 rows                        12.81s │
+╰───────────────────────────────────────────╯
+```
+:::
+::::
+
+::: {.aside}
+Captured output, trimmed. Partition pruning, projection pushdown, and filter pushdown together turn 1 GB into 11 MiB of transfer and a few seconds.
+:::
+
+
+## Which format when
+
+::: {.medium}
+| Format            | Use it for                                                          |
+|-------------------|---------------------------------------------------------------------|
+| CSV               | interchange with everything, small data, one time loads             |
+| Parquet           | large data at rest, sharing between tools and languages, cloud storage |
+| DuckDB database   | data you query repeatedly from DuckDB, updates and transactions, indexes |
+| Partitioned Parquet | very large data filtered by a few columns (dates, regions)         |
+:::
+
+Whatever the format, sort by the columns you filter on, keep files between 100 MB and a few GB, and avoid thousands of tiny files.
+
+::: {.aside}
+See [performance guide](https://duckdb.org/docs/stable/guides/performance/overview) for DuckDB's own recommendations.
+:::
+
+
+# Query plans
+
+## How a query runs
+
+::: {.medium}
+1. The parser turns the SQL text into a syntax tree.
+
+2. The binder resolves names against the catalog (tables, files, functions) and checks types.
+
+3. The result is a logical plan, a tree of relational operators (scan, filter, project, join, aggregate) that describes what to compute.
+
+4. The optimizer rewrites the logical plan into an equivalent one that is cheaper to run.
+
+5. The physical planner picks an implementation for each operator (hash join, sort, ...) and the execution engine runs it in parallel over vectors of rows.
+:::
+
+`EXPLAIN` shows step 5, the physical plan. `explain_output` controls what is shown.
+
+
+## Logical and physical plans {.scrollable}
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{duckdb}
+SET explain_output = 'optimized_only';
+EXPLAIN
+SELECT station_name, count(*) AS n
+FROM 'train_services.parquet'
+WHERE type = 'Intercity'
+GROUP BY ALL;
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{duckdb}
+SET explain_output = 'physical_only';
+EXPLAIN
+SELECT station_name, count(*) AS n
+FROM 'train_services.parquet'
+WHERE type = 'Intercity'
+GROUP BY ALL;
+```
+:::
+::::
+
+The logical plan is already optimized. The physical plan adds the implementation of each operator.
+
+
+## Estimates and actuals {.scrollable}
+
+The `~` numbers in `EXPLAIN` are estimates, `EXPLAIN ANALYZE` reports what actually happened.
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN SELECT station_name, count(*) AS n
+FROM 'train_services.parquet' WHERE type = 'Intercity'
+GROUP BY ALL ORDER BY n DESC LIMIT 5;
+```
+:::
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN ANALYZE SELECT station_name, count(*) AS n
+FROM 'train_services.parquet' WHERE type = 'Intercity'
+GROUP BY ALL ORDER BY n DESC LIMIT 5;
+```
+:::
+
+
+## The optimizer
+
+The optimizer is a sequence of rewrite passes over the logical plan, 46 of them in DuckDB 2.0 (`FROM duckdb_optimizers()` lists them). The important ones,
+
+::: {.medium}
+* filter pushdown, move filters as close to the scan as possible (into it when the scan supports it),
+
+* projection pushdown (`unused_columns`), drop columns that nothing above needs,
+
+* join ordering, choose which tables to join first and which side to build the hash table on, using cardinality estimates,
+
+* statistics propagation, carry min / max and null information up the plan to tighten the `~` estimates. Parquet files have no distinct value counts, which is why the previous slide estimated 48,161 groups against 159 actual,
+
+* top N and limit pushdown, turn `ORDER BY ... LIMIT n` into a `Top N` operator that never sorts the full result.
+:::
+
+## Switching a pass off {.scrollable}
+
+::: {.xsmall}
+```{duckdb}
+SET disabled_optimizers = 'filter_pushdown';
+```
+
+```{duckdb}
+EXPLAIN
+SELECT station_name, count(*) AS n
+FROM 'train_services.parquet'
+WHERE type = 'Intercity'
+GROUP BY ALL;
+```
+:::
+
+::: {.aside}
+`disabled_optimizers` removes a pass. Without filter pushdown the previous slide's query gains a separate `Filter` and the scan returns all 380,959 rows.
+:::
+
+
+## Switching off another {.scrollable}
+
+Without projection pushdown (`unused_columns`) the scan no longer lists `Projections`, every column of the file is read.
+
+::: {.xsmall}
+```{duckdb}
+SET disabled_optimizers = 'unused_columns';
+```
+
+```{duckdb}
+EXPLAIN
+SELECT station_name, count(*) AS n
+FROM 'train_services.parquet'
+WHERE type = 'Intercity'
+GROUP BY ALL;
+```
+:::
+
+```{duckdb}
+#| include: false
+SET disabled_optimizers = '';
+```
+
+
+## Joins
+
+To look at join planning we use the TPC-H benchmark data, generated by DuckDB's `tpch` extension (`CALL dbgen(sf = 1)`). `lineitem` has 6 million rows and `orders` 1.5 million.
+
+::: {.mxsmall}
+```{duckdb}
+ATTACH 'tpch.duckdb' AS tpch (READ_ONLY);
+USE tpch;
+```
+:::
+
+We will look at the plan for the following query, which joins the two largest tables with a selective filter on one of them.
+
+```{duckdb}
+#| include: false
+.timer on
+```
+
+::: {.mxsmall}
+```{duckdb}
+SELECT count(*) AS n
+FROM lineitem JOIN orders ON l_orderkey = o_orderkey
+WHERE l_shipdate >= '1998-11-01';
+```
+:::
+
+::: {.aside}
+TPC-H is a standard decision support benchmark with a small star schema, see the [tpch extension](https://duckdb.org/docs/stable/core_extensions/tpch).
+:::
+
+
+## Join order and build side {.scrollable}
+
+```{duckdb}
+#| include: false
+.timer off
+```
+
+::: {.xsmall}
+```{duckdb}
+EXPLAIN
+SELECT count(*) AS n
+FROM lineitem JOIN orders ON l_orderkey = o_orderkey
+WHERE l_shipdate >= '1998-11-01';
+```
+:::
+
+::: {.aside}
+A hash join builds a table from its right input and probes with the left, so the smaller input (10,300 filtered line items) belongs on the right.
+:::
+
+
+## Without the join optimizer {.scrollable}
+
+::: {.xsmall}
+```{duckdb}
+SET disabled_optimizers = 'join_order,build_side_probe_side';
+```
+
+```{duckdb}
+EXPLAIN
+SELECT count(*) AS n
+FROM lineitem JOIN orders ON l_orderkey = o_orderkey
+WHERE l_shipdate >= '1998-11-01';
+```
+:::
+
+::: {.aside}
+With `SET disabled_optimizers = 'join_order,build_side_probe_side'` the sides swap, orders are built and line items probe.
+:::
+
+
+## Does it matter
+
+```{duckdb}
+#| include: false
+.timer on
+```
+
+::: {.xsmall}
+```{duckdb}
+SELECT count(*) AS n
+FROM lineitem JOIN orders ON l_orderkey = o_orderkey
+WHERE l_shipdate >= '1998-11-01';
+```
+:::
+
+```{duckdb}
+#| include: false
+SET disabled_optimizers = '';
+.timer off
+USE memory;
+DETACH tpch;
+```
+
+On two tables the difference is a few milliseconds. With five or six tables the number of possible join orders is in the thousands and a bad one can be slower by orders of magnitude, which is why the optimizer searches them using its cardinality estimates.
+
+
+## Profiling
+
+::: {.medium}
+* `.timer on` in the CLI reports wall clock time for each statement.
+
+* `EXPLAIN ANALYZE` runs the query and reports rows and time per operator. The time is summed over threads, so an operator can report more time than the total.
+
+* `EXPLAIN (FORMAT json)` (or `html`, `graphviz`, `mermaid`) gives the plan in a form that other tools can render. In the CLI, `.web` opens the last `EXPLAIN ANALYZE` in a browser.
+
+* `CALL enable_profiling(format := 'json', save_location := 'profile.json')` records a profile for every query that follows, without changing the queries.
+:::
+
+::: {.aside}
+See [profiling](https://duckdb.org/docs/stable/dev/profiling) in the DuckDB docs.
+:::
+
+
+## Exercise 2
+
+Using the TPC-H tables, write a query that reports the average `o_totalprice` by `c_mktsegment` for orders placed in 1995 (`o_orderdate`).
+
+1. `EXPLAIN` it. Which table is on the build side of each join and where did the date filter end up?
+
+2. Run it with `EXPLAIN ANALYZE`. Which operator takes the most time, and how far off were the row estimates?
+
+
+# dbplyr and duckplyr
+
+## Two routes from dplyr to DuckDB
+
+::: {.small}
+| | `dbplyr` | `duckplyr` |
+|---|---|---|
+| How verbs are translated | into a SQL string sent to the database | into DuckDB's relational API, no SQL |
+| Works with | any database with a backend | DuckDB only |
+| Input | a table in the database (`tbl()`) | a data frame or a file (`as_duckdb_tibble()`, `read_parquet_duckdb()`) |
+| Result | `collect()` to get a tibble | a data frame already, materialized when needed |
+| Unknown R function | passed through to SQL, error at run time | falls back to dplyr in R |
+| Semantics | SQL's (`NULL`, ordering, aggregates) | dplyr's, identical results to dplyr |
+:::
+
+`duckplyr` is the tidyverse's "drop in" DuckDB backend. The promise is dplyr code with no changes, DuckDB speed where possible, and dplyr behavior when not.
+
+
+## duckplyr frames
+
+`read_parquet_duckdb()` and `as_duckdb_tibble()` return a `duckplyr_df`. Nothing is read until a result is needed, printing shows a preview.
+
+::: {.xsmall}
+```{r}
+#| message: false
+ts = duckplyr::read_parquet_duckdb("train_services.parquet")
+class(ts)
+```
+:::
+
+. . .
+
+::: {.xsmall}
+```{r}
+(q = ts |>
+  filter(type == "Intercity") |>
+  summarize(n = n(), .by = station_name) |>
+  arrange(desc(n)) |>
+  head(3)
+)
+```
+:::
+
+
+## The plan {.scrollable}
+
+`explain()` on a duckplyr frame prints the DuckDB plan, with the same pushdowns we saw from SQL.
+
+::: {.xsmall}
+```{r}
+explain(q)
+```
+:::
+
+
+## Prudence {.wrap-output}
+
+A duckplyr frame is a data frame, so any R function can ask for its rows. Whether that is allowed is controlled by its prudence,
+
+* `lavish`, materialize whenever asked (the default for `as_duckdb_tibble()`),
+
+* `thrifty`, materialize if the result is small (the default for `read_parquet_duckdb()`),
+
+* `stingy`, never materialize automatically, `collect()` or `as_tibble()` must be explicit.
+
+::: {.xsmall}
+```{r}
+#| error: true
+nrow(ts)
+```
+:::
+
+::: {.aside}
+See the [prudence](https://duckplyr.tidyverse.org/articles/prudence.html) article. Prudence protects against accidentally pulling a 10 GB Parquet file into R because a function like `nrow()` or `View()` asked for it.
+:::
+
+
+## Fallback {.wrap-output}
+
+When a pipeline uses something DuckDB cannot do, duckplyr falls back to dplyr, silently by default. `fallback_config(info = TRUE)` reports when it happens.
+
+::: {.xxsmall}
+```{r}
+duckplyr::fallback_config(info = TRUE)
+ts_lavish = duckplyr::read_parquet_duckdb("train_services.parquet", prudence = "lavish")
+```
+
+```{r}
+ts_lavish |> filter(date >= as.Date("2023-05-20")) |> count()
+```
+:::
+
+. . .
+
+Correct but slow, the whole file went through dplyr. Hoisting the constant out fixes it.
+
+::: {.xxsmall}
+```{r}
+cutoff = as.Date("2023-05-20")
+ts_lavish |> filter(date >= cutoff) |> count()
+```
+:::
+
+
+## Fallback and prudence {.wrap-output}
+
+A thrifty or stingy frame refuses a fallback that would materialize too much, so the mistake surfaces as an error rather than a slow silent success.
+
+::: {.xsmall}
+```{r}
+#| error: true
+ts |> filter(date >= as.Date("2023-05-20")) |> count()
+```
+:::
+
+::: {.aside}
+See the [fallback](https://duckplyr.tidyverse.org/articles/fallback.html) article for what duckplyr can and cannot translate. `fallback_sitrep()` summarizes the fallbacks that have been logged.
+:::
+
+
+## Benchmark
+
+TPC-H query 1 on `lineitem` (6 million rows), four ways.
+
+```{r}
+#| include: false
+con = DBI::dbConnect(duckdb::duckdb("tpch.duckdb"), read_only = TRUE)
+lineitem_tbl = tbl(con, "lineitem")
+lineitem_df = collect(lineitem_tbl)
+lineitem_dp = duckplyr::as_duckdb_tibble(lineitem_df)
+```
+
+::: {.mxsmall}
+```{r}
+cutoff = as.Date("1998-09-02")
+q1 = function(d) {
+  d |>
+    filter(l_shipdate <= cutoff) |>
+    summarize(
+      sum_qty = sum(l_quantity), avg_disc = mean(l_discount), n = n(),
+      .by = c(l_returnflag, l_linestatus)
+    ) |>
+    arrange(l_returnflag, l_linestatus)
+}
+q1_fallback = function(d) {
+  d |>
+    filter(l_shipdate <= as.Date("1998-09-02")) |>
+    summarize(
+      sum_qty = sum(l_quantity), avg_disc = mean(l_discount), n = n(),
+      .by = c(l_returnflag, l_linestatus)
+    ) |>
+    arrange(l_returnflag, l_linestatus)
+}
+```
+:::
+
+`lineitem_df` is a tibble, `lineitem_tbl` a `dbplyr` table, and `lineitem_dp` a duckplyr frame.
+
+
+## Benchmark results
+
+```{r}
+#| include: false
+duckplyr::fallback_config(info = FALSE)
+```
+
+::: {.xsmall}
+```{r}
+#| warning: false
+bench::mark(
+  dplyr = q1(lineitem_df),
+  dbplyr = q1(lineitem_tbl) |> collect(),
+  duckplyr = q1(lineitem_dp) |> collect(),
+  duckplyr_fallback = q1_fallback(lineitem_dp) |> collect(),
+  check = FALSE, iterations = 3
+) |>
+  select(expression, median, mem_alloc)
+```
+:::
+
+. . .
+
+::: {.medium}
+* `dbplyr` and `duckplyr` are both DuckDB doing the work, and both are much faster than dplyr on 6 million rows.
+
+* The fallback version is slower than plain dplyr. duckplyr first materializes the whole table into R and then runs dplyr on it, paying for both.
+:::
+
+```{r}
+#| include: false
+DBI::dbDisconnect(con, shutdown = TRUE)
+```
+
+
+## Mixing the two
+
+A duckplyr frame can be handed to `dbplyr` with `as_tbl()`, which exposes it as a view in duckplyr's connection. From there `show_query()`, `sql()` passthrough, and the rest of `dbplyr` are available.
+
+::: {.mxsmall}
+```{r}
+duckplyr::as_tbl(q) |>
+  mutate(n_k = sql("round(n / 1000.0, 1)")) |>
+  show_query()
+```
+:::
+
+. . .
+
+`compute_parquet()` runs a pipeline and writes the result to a Parquet file, returning a frame that reads from it. This is the way to checkpoint an expensive intermediate.
+
+::: {.mxsmall}
+```{r}
+q |> duckplyr::compute_parquet("top3.parquet") |> explain()
+```
+:::
+
+
+## Which one
+
+::: {.medium}
+Use `dbplyr` when
+
+* the data already lives in a database, DuckDB or otherwise, and should stay there,
+
+* you want to see or hand edit the SQL, or need a DuckDB function with no R equivalent,
+
+* you need to write tables, which goes through `DBI` and `compute()`.
+
+Use `duckplyr` when
+
+* you have dplyr code and data frames or Parquet files, and want it faster without rewriting,
+
+* dplyr semantics matter (results must match dplyr exactly),
+
+* you are happy to let fallback handle the parts DuckDB cannot.
+:::
+
+::: {.aside}
+`library(duckplyr)` also calls `methods_overwrite()`, which makes every data frame in the session go through DuckDB. Calling functions with `duckplyr::` leaves the rest of the session alone.
+:::
+
+
+# Python
+
+## The ecosystem
+
+::: {.medium}
+* `duckdb` provides SQL and a relational API (method chains that build a query lazily), and reads files and remote data directly.
+
+* `polars` is a dataframe library with its own lazy engine and optimizer, closest to DuckDB in design.
+
+* `pandas` is the eager, in memory dataframe library most other packages accept and return.
+
+* `pyarrow` is the in memory columnar format that all three understand. Data moves between them through Arrow without being copied into Python objects.
+:::
+
+DuckDB can query `pandas`, `polars`, and Arrow objects in place, and return results as any of them.
+
+
+## Relational API
+
+`duckdb.read_parquet()`, `duckdb.read_csv()`, and `duckdb.sql()` return a relation, a lazy description of a query. Methods add operations, nothing runs until a result is requested.
+
+::: {.xsmall}
+```{python}
+r = (
+  duckdb.read_parquet("train_services.parquet")
+    .filter("type = 'Intercity'")
+    .aggregate("station_name, count(*) AS n")
+    .order("n DESC")
+    .limit(3)
+)
+r
+```
+:::
+
+::: {.aside}
+Printing a relation runs it for a preview, as a dbplyr table does. Expressions inside the methods are SQL fragments.
+:::
+
+
+## The plan {.scrollable}
+
+::: {.xsmall}
+```{python}
+print(r.explain())
+```
+:::
+
+::: {.aside}
+`r.sql_query()` returns the generated SQL, the analogue of `show_query()`, and `r.explain(analyze=True)` of `EXPLAIN ANALYZE`.
+:::
+
+
+## Getting results out
+
+A relation converts to whichever library you want to continue in.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+r.pl()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+r.df()
+```
+:::
+::::
+
+Also `to_arrow_table()`, `fetchnumpy()` (a dict of arrays), `fetchall()` (a list of tuples), and `to_arrow_reader(batch_size)` to stream a large result in batches.
+
+::: {.aside}
+DuckDB 2.0 removed `fetchone()` from relations, `limit(1).fetchall()` replaces it.
+:::
+
+
+## Replacement scans
+
+A SQL query can refer to a Python variable by name. DuckDB looks up `pandas`, `polars`, and Arrow objects in the calling scope and scans them in place.
+
+::: {.xsmall}
+```{python}
+employees = pd.DataFrame({
+  "name": ["Alice", "Bob", "Carol"],
+  "salary": [52000, 40000, 30000]
+})
+```
+:::
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+duckdb.sql(
+  "FROM employees WHERE salary > 35000"
+).df()
+```
+:::
+
+::: {.column width='50%' .fragment}
+```{python}
+print(duckdb.sql(
+  "FROM employees WHERE salary > 35000"
+).explain())
+```
+:::
+::::
+
+
+## polars and DuckDB
+
+A `polars` LazyFrame can be queried the same way, and the result handed back to polars.
+
+::: {.xsmall}
+```{python}
+lf = pl.scan_parquet("train_services.parquet")
+rel = duckdb.sql("""
+  SELECT station_name, count(*) AS n
+  FROM lf WHERE type = 'Intercity'
+  GROUP BY ALL ORDER BY n DESC LIMIT 3
+""")
+rel.pl()
+```
+:::
+
+::: {.aside}
+Going the other way, `pl.DataFrame(rel)` and `pa.table(rel)` accept a relation directly. See [polars and DuckDB](https://duckdb.org/docs/stable/guides/python/polars).
+:::
+
+
+## Pushdown into polars {.scrollable}
+
+The LazyFrame is scanned through Arrow, and DuckDB pushes the projection and the filter into polars, so only the needed column and rows cross the boundary.
+
+::: {.xsmall}
+```{python}
+print(rel.explain())
+```
+:::
+
+
+## Same file, three readers
+
+```{python}
+#| include: false
+import time
+def timeit(label, f):
+  start = time.perf_counter()
+  v = f()
+  print(f"{label:18s} {time.perf_counter() - start:6.3f} s   {v:.3f}")
+```
+
+`timeit()` runs a function once and prints the elapsed time and the result.
+
+::: {.mxsmall}
+```{python}
+f, col = "yellow_tripdata_2024-01.parquet", "trip_distance"
+timeit("pandas",          lambda: pd.read_parquet(f)[col].mean())
+timeit("pandas columns=", lambda: pd.read_parquet(f, columns=[col])[col].mean())
+timeit("polars lazy",     lambda: pl.scan_parquet(f).select(pl.col(col).mean()).collect().item())
+timeit("duckdb",          lambda: duckdb.sql(f"SELECT avg({col}) FROM '{f}'").fetchall()[0][0])
+```
+:::
+
+. . .
+
+The engines are all fast. The difference is whether the reader was told, or worked out, that only one of the nineteen columns was needed.
+
+
+## Which tool
+
+::: {.medium}
+| | `pandas` | `polars` | `duckdb` |
+|---|---|---|---|
+| Model | eager, in memory | lazy or eager, in memory | SQL, lazy, spills to disk |
+| Larger than memory | no | streaming for some queries | yes |
+| Parallel | no | yes | yes |
+| Strengths | ecosystem, plotting, modeling inputs | expressions, speed, strict types | SQL, files and remote data, joins at scale |
+| Weak spots | memory, speed, inconsistent API | smaller ecosystem | no in place mutation of frames |
+:::
+
+In practice they are used together. Read and reduce with DuckDB or polars, hand the small result to `pandas` for plotting or modeling.
+
+
+## Further afield
+
+::: {.medium}
+* Extensions add features to the engine, `spatial` (geometry types and GIS functions), `httpfs` and `azure` (remote storage), `json`, `iceberg` and `delta` (lakehouse table formats), and community extensions.
+
+* `duckdb -ui` opens a notebook style interface in the browser for exploring a database.
+
+* `ibis` is a Python dataframe API that compiles to SQL for a dozen backends, with DuckDB as the default. It plays the role `dbplyr` does in R.
+
+* The DuckDB engine also runs in the browser (`duckdb-wasm`) and from Java, Go, Rust, Node, and Swift.
+:::
+
+::: {.aside}
+See [extensions](https://duckdb.org/docs/stable/core_extensions/overview) and the [DuckDB UI](https://duckdb.org/docs/stable/core_extensions/ui).
+:::
+
+```{r}
+#| include: false
+duckknit::duckknit_kill_all_sessions()
+```
+
+
+# Summary {visibility="uncounted"}
+
+## Takeaways {visibility="uncounted"}
+
+::: {.medium}
+* Parquet stores columns separately in row groups with min / max statistics. Readers use this for projection pushdown (read only needed columns) and filter pushdown (skip row groups), and sorting a file by its filter columns makes the skipping effective.
+
+* CSV must be parsed in full on every query. Parquet is the format for data at rest, a DuckDB database is faster still for data queried repeatedly. Partitioning lets a filter skip whole files, locally or remotely.
+
+* `EXPLAIN` shows the physical plan with estimates, `EXPLAIN ANALYZE` adds actual rows and time per operator. The optimizer pushes filters and projections into scans and reorders joins, and `disabled_optimizers` shows what each pass contributes.
+
+* `dbplyr` translates to SQL and works with any database. `duckplyr` uses DuckDB directly with dplyr semantics and falls back to dplyr, which is convenient and occasionally very slow.
+
+* In Python the relational API, replacement scans, and Arrow let DuckDB, `polars`, and `pandas` share data without copies. The tool matters less than making sure only the needed columns are read.
+:::
+
+
+## Learning more {visibility="uncounted"}
+
+::: {.medium}
+- [DuckDB performance guide](https://duckdb.org/docs/stable/guides/performance/overview)
+- [Querying Parquet with precision using DuckDB](https://duckdb.org/2021/06/25/querying-parquet.html)
+- [DuckDB tricks part 3](https://duckdb.org/2024/11/29/duckdb-tricks-part-3.html) (CSV vs Parquet vs native, sorting, partitioning)
+- [duckplyr](https://duckplyr.tidyverse.org/) articles on [prudence](https://duckplyr.tidyverse.org/articles/prudence.html) and [fallback](https://duckplyr.tidyverse.org/articles/fallback.html)
+- [DuckDB Python API](https://duckdb.org/docs/stable/clients/python/overview) and [relational API](https://duckdb.org/docs/stable/clients/python/relational_api)
+:::

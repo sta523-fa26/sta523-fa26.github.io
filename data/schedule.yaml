@@ -319,7 +319,7 @@ schedule:
   day: 1
   topic: "Databases"
   lecture: "DuckDB"
-  slides: ""
+  slides: "Lec17"
   r_readings:
     - text: "DuckDB SQL Reference"
       link: https://duckdb.org/docs/sql/introduction

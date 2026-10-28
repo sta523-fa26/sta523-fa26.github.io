@@ -6,13 +6,6 @@ flights_tbl = copy_to(con, nycflights13::flights, "flights", temporary = FALSE)
 planes_tbl = copy_to(con, nycflights13::planes, "planes", temporary = FALSE)
 ```
 
-```{python py_setup}
-#| include: false
-import polars as pl
-flights = pl.scan_parquet("../data/flights.parquet")
-planes = pl.scan_parquet("../data/planes.parquet")
-```
-
 
 # Exercise 1
 
@@ -48,49 +41,4 @@ q3 = flights_tbl |>
 
 q3
 show_query(q3)
-```
-
-
-# Exercise 2
-
-Repeat the three questions from Exercise 1 using `pl.sql()` with the `flights` and `planes` LazyFrames.
-
-```{python}
-pl.sql("""
-  WITH counts AS (
-    SELECT origin, dest, COUNT(*) AS n
-    FROM flights
-    GROUP BY origin, dest
-  ),
-  ranked AS (
-    SELECT *, MAX(n) OVER (PARTITION BY origin) AS max_n
-    FROM counts
-  )
-  SELECT origin, dest, n
-  FROM ranked
-  WHERE n = max_n
-  ORDER BY origin
-""").collect()
-```
-
-```{python}
-pl.sql("""
-  SELECT p.manufacturer, COUNT(*) AS n, AVG(f.dep_delay) AS delay
-  FROM flights f
-  JOIN planes p ON f.tailnum = p.tailnum
-  GROUP BY p.manufacturer
-  ORDER BY n DESC
-  LIMIT 5
-""").collect()
-```
-
-```{python}
-pl.sql("""
-  SELECT p.manufacturer, COUNT(*) AS n, AVG(f.dep_delay) AS delay
-  FROM flights f
-  JOIN planes p ON f.tailnum = p.tailnum
-  GROUP BY p.manufacturer
-  HAVING COUNT(*) >= 30000
-  ORDER BY n DESC
-""").collect()
 ```

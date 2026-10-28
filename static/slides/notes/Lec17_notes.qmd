@@ -1,0 +1,49 @@
+```{r setup}
+#| include: false
+library(duckknit)
+```
+
+```{duckdb, db='../data/flights.duckdb', session='notes'}
+#| include: false
+.maxrows 20
+```
+
+
+# Exercise 1
+
+Find the total number of seats on all of the planes that flew out of New York in 2013.
+
+```{duckdb}
+SELECT sum(seats) AS total_seats
+FROM flights LEFT JOIN planes USING (tailnum);
+```
+
+
+# Exercise 2
+
+For each month find the carrier with the worst mean arrival delay using a window function and `QUALIFY`, then find the fraction of each carrier's flights that departed more than 30 minutes late compared to the fraction over all flights using a CTE.
+
+```{duckdb}
+WITH monthly AS (
+  SELECT month, carrier, avg(arr_delay) AS delay
+  FROM flights
+  GROUP BY ALL
+)
+SELECT month, carrier, round(delay, 1) AS delay
+FROM monthly
+QUALIFY rank() OVER (PARTITION BY month ORDER BY delay DESC) = 1
+ORDER BY month;
+```
+
+```{duckdb}
+WITH overall AS (
+  SELECT avg(CASE WHEN dep_delay > 30 THEN 1 ELSE 0 END) AS overall_late
+  FROM flights
+)
+SELECT carrier,
+       round(avg(CASE WHEN dep_delay > 30 THEN 1 ELSE 0 END), 3) AS late,
+       round(overall_late, 3) AS overall_late
+FROM flights CROSS JOIN overall
+GROUP BY carrier, overall_late
+ORDER BY late DESC;
+```
