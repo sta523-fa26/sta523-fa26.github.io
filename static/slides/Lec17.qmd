@@ -16,7 +16,7 @@ execute:
 engine: knitr
 ---
 
-# DuckDB
+## DuckDB
 
 ```{r setup}
 #| message: false
@@ -101,7 +101,7 @@ DBI::dbDisconnect(con, shutdown = TRUE)
 
 
 
-## DuckDB
+
 
 DuckDB is an open source, in-process, analytical relational database. It was created at CWI in the Netherlands and first released in 2019.
 
@@ -110,6 +110,8 @@ DuckDB is an open source, in-process, analytical relational database. It was cre
 * Analytical means online analytical processing (OLAP) vs online transaction processing (OLTP).
 
 * Data is stored by column.
+
+* Queries are multithreaded and use all available CPU cores by default.
 
 * CSV, JSON, and Parquet files can be queried directly without an explicit import step.
 
@@ -155,7 +157,7 @@ Today the focus is the SQL itself, using DuckDB's command line interface (CLI). 
 
 # The DuckDB CLI
 
-## Installing
+## Installation
 
 The CLI is a single executable with no dependencies. It is separate from the R and Python packages, which bundle the engine but not the shell.
 
@@ -181,6 +183,8 @@ winget install DuckDB.cli
 :::
 
 The CLI is already installed on the department servers.
+
+DuckDB v2.0.0 has just been released and is the version used in these slides, but everything here also works with older versions.
 
 
 ::: {.aside}
@@ -252,12 +256,12 @@ SELECT * FROM employees;
 ```
 :::
 
-SQL keywords are case insensitive. By convention they are written in upper case and identifiers in lower case. Whitespace and line breaks are ignored, and a statement ends with a semicolon.
+SQL keywords are case insensitive. By convention they are written in upper case and identifiers in lower case. Whitespace and line breaks are ignored, and a query is ended by a semicolon.
 
 
 ## Output formats
 
-The default output format is called `duckbox`. The format can be changed via `.mode`.
+The default output format is called `duckbox`, alternative formats can be selected by `.mode`.
 
 :::: {.columns .mxsmall}
 ::: {.column width='50%'}
@@ -297,7 +301,7 @@ SELECT name, dept FROM employees LIMIT 3;
 ```
 
 ::: {.aside}
-See [output formats](https://duckdb.org/docs/stable/clients/cli/output_formats.html) for the full list. `.mode` is persistent for your session.
+See [output formats](https://duckdb.org/docs/stable/clients/cli/output_formats.html) for the full list, `.mode` is persistent for your session.
 :::
 
 
@@ -321,8 +325,6 @@ SELECT * FROM
 ```
 :::
 ::::
-
-Quoting the filename is equivalent to calling `read_csv()`. The function form is needed when the file requires options, e.g. a different delimiter or explicit column types.
 
 ::: {.aside}
 Column types are inferred by sampling the file, see [CSV loading](https://duckdb.org/docs/stable/data/csv/overview).
@@ -351,8 +353,6 @@ SELECT * FROM phone;
 :::
 ::::
 
-The data is copied into the database, so the file is no longer needed.
-
 ::: {.aside}
 `SHOW TABLES` is the SQL equivalent of `.tables`, so it also works from R and Python.
 :::
@@ -360,7 +360,7 @@ The data is copied into the database, so the file is no longer needed.
 
 ## Views
 
-A view stores the query rather than its result. It can be used like a table but is re-evaluated each time, so the file is read on every query and must remain available.
+A view stores the query rather than its result. It can be used like a table but is re-evaluated each time, so the file is read on every query.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -413,7 +413,7 @@ DROP VIEW IF EXISTS phone_view;
 ```
 :::
 
-::: {.column width='50%'}
+::: {.column .fragment width='50%'}
 ```{duckdb}
 CREATE OR REPLACE TABLE phone AS
   SELECT * FROM 'data/phone.csv';
@@ -428,7 +428,7 @@ CREATE OR REPLACE TABLE phone AS
 
 DuckDB extends standard SQL with a collection of shortcuts that remove boilerplate. They are not portable to other databases, but they make interactive work much more pleasant.
 
-Some of the ones that come up most often,
+Some commonly used examples,
 
 * `FROM` first syntax and an optional `SELECT`
 
@@ -445,12 +445,18 @@ See [friendly SQL](https://duckdb.org/docs/stable/sql/dialect/friendly_sql) for 
 :::
 
 
-## FROM first and GROUP BY ALL
+## FROM first
 
 Starting with `FROM` lets you name the table before the columns, which matches the order you think in (and the order `dplyr` pipes run in). `SELECT *` is implied when it is omitted.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
+```{duckdb}
+FROM employees;
+```
+:::
+
+::: {.column width='50%' .fragment}
 ```{duckdb}
 FROM employees
 SELECT name, salary
@@ -458,17 +464,32 @@ ORDER BY salary DESC
 LIMIT 2;
 ```
 :::
+::::
+
+
+## BY ALL
+
+`GROUP BY ALL` groups by every non-aggregated column in the `SELECT`, so the grouping columns do not need to be listed twice. `ORDER BY ALL` sorts by every selected column, left to right.
+
+:::: {.columns .small}
+::: {.column width='50%'}
+```{duckdb}
+SELECT dept, count(*) AS n
+FROM employees
+GROUP BY dept
+ORDER BY dept;
+```
+:::
 
 ::: {.column width='50%' .fragment}
 ```{duckdb}
 FROM employees
 SELECT dept, count(*) AS n
-GROUP BY ALL;
+GROUP BY ALL
+ORDER BY ALL;
 ```
 :::
 ::::
-
-`GROUP BY ALL` groups by every non-aggregated column in the `SELECT`, so the grouping columns do not need to be listed twice.
 
 
 ## EXCLUDE and REPLACE
@@ -496,24 +517,28 @@ FROM employees LIMIT 3;
 
 `DESCRIBE` reports the columns and types of a table or query. `SUMMARIZE` computes summary statistics for every column.
 
-:::: {.columns .xsmall}
-::: {.column width='40%'}
+::: {.xsmall}
 ```{duckdb}
 DESCRIBE employees;
 ```
 :::
 
-::: {.column width='60%' .fragment}
 ```{duckdb}
-SELECT column_name, min, max
-FROM (SUMMARIZE employees);
+#| include: false
+.maxwidth 100
+```
+
+::: {.xsmall .fragment}
+```{duckdb}
+SUMMARIZE employees;
 ```
 :::
-::::
 
-::: {.aside}
-`SUMMARIZE` returns min, max, approximate number of unique values, mean, standard deviation, quartiles, count, and null percentage for each column, which is too wide for the slide. Both work on files too, e.g. `DESCRIBE 'data/phone.csv'`.
-:::
+```{duckdb}
+#| include: false
+.maxwidth 0
+```
+
 
 
 ## Semi and anti joins
@@ -563,7 +588,9 @@ CREATE TABLE planes AS SELECT * FROM 'data/planes.parquet';
 
 . . .
 
-Large results are truncated for display, with the limits set by `.maxrows` and `.maxwidth`. `.timer on` reports the time taken by each statement. We open the database and set all three,
+Large results are truncated for display, with the limits set by `.maxrows` and `.maxwidth`. 
+
+`.timer on` reports the time taken by each statement.
 
 ::: {.small}
 ```{.bash .shell}
@@ -619,7 +646,7 @@ SELECT sum(seats) FROM flights NATURAL LEFT JOIN planes;
 <br/>
 
 ::: {.center .large}
-Why or why not?
+Does this answer make sense? Why or why not?
 :::
 
 
@@ -636,21 +663,16 @@ SELECT sum(seats) FROM flights LEFT JOIN planes USING (tailnum);
 
 # Worked examples
 
-```{duckdb}
-#| include: false
-.timer off
-```
-
 ## Example 1
 
-For each carrier, how does its average departure delay compare to the average over all flights? The per-carrier averages are one `GROUP BY` away,
+For each carrier, how does its average departure delay compare to the average over all flights?
 
-::: {.mxsmall}
+. . .
+
+::: {.xsmall}
 ```{duckdb}
 SELECT carrier, round(avg(dep_delay), 2) AS carrier_avg
-FROM flights
-GROUP BY ALL
-ORDER BY carrier_avg;
+FROM flights GROUP BY ALL ORDER BY carrier_avg;
 ```
 :::
 
@@ -659,14 +681,13 @@ ORDER BY carrier_avg;
 
 A query that returns a single value can be used anywhere a value is expected. Here the overall average is computed once and divides every carrier's average.
 
-::: {.mxsmall}
+::: {.xsmall}
 ```{duckdb}
 SELECT carrier,
-       round(avg(dep_delay), 2) AS carrier_avg,
-       round(avg(dep_delay) / (SELECT avg(dep_delay) FROM flights), 2) AS ratio
+  round(avg(dep_delay), 2) AS carrier_avg,
+  round(carrier_avg / (SELECT avg(dep_delay) FROM flights), 2) AS ratio
 FROM flights
-GROUP BY ALL
-ORDER BY ratio;
+GROUP BY ALL ORDER BY ratio;
 ```
 :::
 
@@ -675,66 +696,63 @@ ORDER BY ratio;
 
 `WITH` names a subquery up front so the query reads top to bottom. `CROSS JOIN` adds the one row of `overall` to every flight.
 
-::: {.xxsmall}
+::: {.mxsmall}
 ```{duckdb}
 WITH overall AS (
   SELECT avg(dep_delay) AS overall_avg FROM flights
 )
-SELECT carrier,
-       round(avg(dep_delay) / overall_avg, 2) AS ratio
-FROM flights CROSS JOIN overall
-GROUP BY carrier, overall_avg
-ORDER BY ratio;
+SELECT carrier, round(avg(dep_delay) / overall_avg, 2) AS ratio
+FROM flights 
+CROSS JOIN overall
+GROUP BY carrier, overall_avg ORDER BY ratio;
 ```
-:::
-
-::: {.aside}
-`overall_avg` is not an aggregate so it must be in `GROUP BY`. Several CTEs are separated by commas.
 :::
 
 
 ## In `dplyr`
 
-::: {.small}
+::: {.xsmall}
 ```{r}
-flights = nycflights13::flights
-
 system.time({
-  overall = mean(flights$dep_delay, na.rm = TRUE)
-
-  flights |>
+  res = nycflights13::flights |>
+    mutate(overall_avg = mean(dep_delay, na.rm = TRUE)) |>
     summarize(
       carrier_avg = round(mean(dep_delay, na.rm = TRUE), 2),
+      ratio = round(carrier_avg / first(overall_avg), 2),
       .by = carrier
     ) |>
-    mutate(ratio = round(carrier_avg / overall, 2)) |>
     arrange(ratio)
 })
+res
 ```
 :::
 
-The same computation in `dplyr`, for comparison.
 
+```{duckdb}
+#| include: false
+.timer off
+```
 
 ## Example 2
 
 For each origin airport, what are the three most common destinations?
 
-The counts are one `GROUP BY` away, but "the top three within each origin" needs a rank computed within groups.
+. . .
 
 ::: {.mxsmall}
 ```{duckdb}
 SELECT origin, dest, count(*) AS n
 FROM flights
-GROUP BY ALL
-ORDER BY origin, n DESC;
+GROUP BY ALL ORDER BY origin, n DESC;
 ```
 :::
 
 
 ## Window functions {.wrap-output}
 
-A window function computes a value for each row from the other rows in its partition without collapsing them, like a grouped `mutate()`. Filtering on that value in `WHERE` does not work, since `WHERE` is evaluated before window functions.
+A window function computes a value for each row from the other rows in its partition without collapsing them, like a grouped `mutate()`. 
+
+Filtering on that value in `WHERE` does not work as `WHERE` is evaluated before window functions.
 
 ::: {.mxsmall}
 ```{duckdb}
@@ -832,7 +850,6 @@ Next time we will look at the Parquet format and why it is so well suited to thi
 ```{duckdb}
 #| include: false
 .cd /Users/rundel/Scratch/bts_ontime
-.timer on
 ```
 
 :::: {.columns .xsmall}
@@ -841,7 +858,11 @@ Next time we will look at the Parquet format and why it is so well suited to thi
 .shell du -sh .
 ```
 ```{duckdb}
-.shell ls Year=2024
+FROM glob('Year=202*/*');
+```
+```{duckdb}
+#| include: false
+.timer on
 ```
 :::
 
@@ -863,11 +884,12 @@ Folder names like `Year=2024` are Hive partitioning, which DuckDB turns into a `
 
 ## Four decades of delays
 
-Every one of the 217 million rows contributes to this one.
+Every one of the 217 million rows contributes to the following query.
 
 ::: {.small}
 ```{duckdb}
-SELECT Year // 10 * 10 AS decade, count(*) AS flights,
+SELECT Year // 10 * 10 AS decade, 
+       count(*) AS flights,
        round(avg(DepDelay), 1) AS dep_delay,
        round(100 * avg(DepDel15), 1) AS pct_late
 FROM ontime
@@ -882,7 +904,7 @@ The 1980s are 1987 to 1989 and 2024 stops at the end of June.
 
 ## Flying out of RDU
 
-The CTE and `QUALIFY` pattern from the worked examples is unchanged at this scale. The busiest destination from RDU each year,
+The busiest destination from RDU each year:
 
 ::: {.xsmall}
 ```{duckdb}

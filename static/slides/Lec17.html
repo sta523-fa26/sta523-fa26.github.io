@@ -1079,9 +1079,8 @@ Dr. Colin Rundel
 </div>
 
 </section>
-<section>
-<section id="duckdb" class="title-slide slide level1 center">
-<h1>DuckDB</h1>
+<section id="duckdb" class="slide level2">
+<h2>DuckDB</h2>
 <div class="cell" data-layout-align="center">
 <style type="text/css">
 .reveal pre code {
@@ -1090,14 +1089,12 @@ max-height: 520px !important;
 }
 </style>
 </div>
-</section>
-<section id="duckdb-1" class="slide level2">
-<h2>DuckDB</h2>
 <p>DuckDB is an open source, in-process, analytical relational database. It was created at CWI in the Netherlands and first released in 2019.</p>
 <ul>
 <li><p>In-process means there is no server. The engine is a library that runs inside R, Python, or the CLI, and a database is a single file.</p></li>
 <li><p>Analytical means online analytical processing (OLAP) vs online transaction processing (OLTP).</p></li>
 <li><p>Data is stored by column.</p></li>
+<li><p>Queries are multithreaded and use all available CPU cores by default.</p></li>
 <li><p>CSV, JSON, and Parquet files can be queried directly without an explicit import step.</p></li>
 </ul>
 
@@ -1142,14 +1139,14 @@ max-height: 520px !important;
 </div>
 </div></div>
 <p>Today the focus is the SQL itself, using DuckDB’s command line interface (CLI). Everything we use today works in the same way when run through <code>dbGetQuery()</code> or <code>duckdb.sql()</code>.</p>
-</section></section>
+</section>
 <section>
 <section id="the-duckdb-cli" class="title-slide slide level1 center">
 <h1>The DuckDB CLI</h1>
 
 </section>
-<section id="installing" class="slide level2">
-<h2>Installing</h2>
+<section id="installation" class="slide level2">
+<h2>Installation</h2>
 <p>The CLI is a single executable with no dependencies. It is separate from the R and Python packages, which bundle the engine but not the shell.</p>
 <div class="small pt-2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href aria-hidden="true" tabindex="-1"></a><span class="co"># macOS</span></span>
@@ -1164,6 +1161,7 @@ max-height: 520px !important;
 <span id="cb8-2"><a href aria-hidden="true" tabindex="-1"></a><span class="ex">winget</span> install DuckDB.cli</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The CLI is already installed on the department servers.</p>
+<p>DuckDB v2.0.0 has just been released and is the version used in these slides, but everything here also works with older versions.</p>
 
 <aside><div>
 <p>See <a href="https://duckdb.org/docs/installation/">installation</a> for all platforms and the <a href="https://duckdb.org/docs/stable/clients/cli/overview">CLI overview</a>.</p>
@@ -1261,11 +1259,11 @@ clang-21.0.0</code></pre>
 </div>
 </div>
 </div>
-<p>SQL keywords are case insensitive. By convention they are written in upper case and identifiers in lower case. Whitespace and line breaks are ignored, and a statement ends with a semicolon.</p>
+<p>SQL keywords are case insensitive. By convention they are written in upper case and identifiers in lower case. Whitespace and line breaks are ignored, and a query is ended by a semicolon.</p>
 </section>
 <section id="output-formats" class="slide level2">
 <h2>Output formats</h2>
-<p>The default output format is called <code>duckbox</code>. The format can be changed via <code>.mode</code>.</p>
+<p>The default output format is called <code>duckbox</code>, alternative formats can be selected by <code>.mode</code>.</p>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
@@ -1320,7 +1318,7 @@ Carol,Sales</code></pre>
 </div></div>
 
 <aside><div>
-<p>See <a href="https://duckdb.org/docs/stable/clients/cli/output_formats.html">output formats</a> for the full list. <code>.mode</code> is persistent for your session.</p>
+<p>See <a href="https://duckdb.org/docs/stable/clients/cli/output_formats.html">output formats</a> for the full list, <code>.mode</code> is persistent for your session.</p>
 </div></aside></section></section>
 <section>
 <section id="files-as-tables" class="title-slide slide level1 center">
@@ -1363,7 +1361,6 @@ Carol,Sales</code></pre>
 </div>
 </div>
 </div></div>
-<p>Quoting the filename is equivalent to calling <code>read_csv()</code>. The function form is needed when the file requires options, e.g. a different delimiter or explicit column types.</p>
 
 <aside><div>
 <p>Column types are inferred by sampling the file, see <a href="https://duckdb.org/docs/stable/data/csv/overview">CSV loading</a>.</p>
@@ -1405,14 +1402,13 @@ Carol,Sales</code></pre>
 </div>
 </div>
 </div></div>
-<p>The data is copied into the database, so the file is no longer needed.</p>
 
 <aside><div>
 <p><code>SHOW TABLES</code> is the SQL equivalent of <code>.tables</code>, so it also works from R and Python.</p>
 </div></aside></section>
 <section id="views" class="slide level2">
 <h2>Views</h2>
-<p>A view stores the query rather than its result. It can be used like a table but is re-evaluated each time, so the file is read on every query and must remain available.</p>
+<p>A view stores the query rather than its result. It can be used like a table but is re-evaluated each time, so the file is read on every query.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
@@ -1484,7 +1480,7 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb53-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">DROP</span> <span class="kw">VIEW</span> <span class="cf">IF</span> <span class="kw">EXISTS</span> phone_view;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div><div class="column" style="width:50%;">
+</div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb54-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">OR</span> <span class="kw">REPLACE</span> <span class="kw">TABLE</span> phone <span class="kw">AS</span></span>
 <span id="cb54-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;data/phone.csv&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1500,7 +1496,7 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <section id="friendly-sql" class="slide level2">
 <h2>Friendly SQL</h2>
 <p>DuckDB extends standard SQL with a collection of shortcuts that remove boilerplate. They are not portable to other databases, but they make interactive work much more pleasant.</p>
-<p>Some of the ones that come up most often,</p>
+<p>Some commonly used examples,</p>
 <ul>
 <li><p><code>FROM</code> first syntax and an optional <code>SELECT</code></p></li>
 <li><p><code>GROUP BY ALL</code> and <code>ORDER BY ALL</code></p></li>
@@ -1512,16 +1508,33 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <aside><div>
 <p>See <a href="https://duckdb.org/docs/stable/sql/dialect/friendly_sql">friendly SQL</a> for the complete list.</p>
 </div></aside></section>
-<section id="from-first-and-group-by-all" class="slide level2">
-<h2>FROM first and GROUP BY ALL</h2>
+<section id="from-first" class="slide level2">
+<h2>FROM first</h2>
 <p>Starting with <code>FROM</code> lets you name the table before the columns, which matches the order you think in (and the order <code>dplyr</code> pipes run in). <code>SELECT *</code> is implied when it is omitted.</p>
 <div class="columns small">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb55-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees</span>
-<span id="cb55-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> name, salary</span>
-<span id="cb55-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> salary <span class="kw">DESC</span></span>
-<span id="cb55-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">2</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb55-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>┌─────────┬─────────┬────────────┐
+│  name   │ salary  │    dept    │
+│ varchar │ double  │  varchar   │
+├─────────┼─────────┼────────────┤
+│ Alice   │ 52000.0 │ Accounting │
+│ Bob     │ 40000.0 │ Accounting │
+│ Carol   │ 30000.0 │ Sales      │
+│ Dave    │ 33000.0 │ Accounting │
+│ Eve     │ 44000.0 │ Sales      │
+│ Frank   │ 37000.0 │ Sales      │
+└─────────┴─────────┴────────────┘</code></pre>
+</div>
+</div>
+</div><div class="column fragment" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb57-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees</span>
+<span id="cb57-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> name, salary</span>
+<span id="cb57-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> salary <span class="kw">DESC</span></span>
+<span id="cb57-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">LIMIT</span> <span class="dv">2</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┐
 │  name   │ salary  │
@@ -1532,11 +1545,34 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 └─────────┴─────────┘</code></pre>
 </div>
 </div>
+</div></div>
+</section>
+<section id="by-all" class="slide level2">
+<h2>BY ALL</h2>
+<p><code>GROUP BY ALL</code> groups by every non-aggregated column in the <code>SELECT</code>, so the grouping columns do not need to be listed twice. <code>ORDER BY ALL</code> sorts by every selected column, left to right.</p>
+<div class="columns small">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb59-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> dept, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb59-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees</span>
+<span id="cb59-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> dept</span>
+<span id="cb59-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> dept;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>┌────────────┬───────┐
+│    dept    │   n   │
+│  varchar   │ int64 │
+├────────────┼───────┤
+│ Accounting │     3 │
+│ Sales      │     3 │
+└────────────┴───────┘</code></pre>
+</div>
+</div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb57-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees</span>
-<span id="cb57-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> dept, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb57-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb61-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees</span>
+<span id="cb61-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> dept, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb61-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb61-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────┬───────┐
 │    dept    │   n   │
@@ -1548,7 +1584,6 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 </div>
 </div>
 </div></div>
-<p><code>GROUP BY ALL</code> groups by every non-aggregated column in the <code>SELECT</code>, so the grouping columns do not need to be listed twice.</p>
 </section>
 <section id="exclude-and-replace" class="slide level2">
 <h2>EXCLUDE and REPLACE</h2>
@@ -1556,8 +1591,8 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb59-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> EXCLUDE (dept)</span>
-<span id="cb59-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees <span class="kw">LIMIT</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb63-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> EXCLUDE (dept)</span>
+<span id="cb63-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees <span class="kw">LIMIT</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┐
 │  name   │ salary  │
@@ -1571,8 +1606,8 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb61-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">REPLACE</span> (salary <span class="op">/</span> <span class="dv">1000</span> <span class="kw">AS</span> salary)</span>
-<span id="cb61-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees <span class="kw">LIMIT</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb65-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">REPLACE</span> (salary <span class="op">/</span> <span class="dv">1000</span> <span class="kw">AS</span> salary)</span>
+<span id="cb65-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> employees <span class="kw">LIMIT</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬────────┬────────────┐
 │  name   │ salary │    dept    │
@@ -1589,10 +1624,9 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <section id="describe-and-summarize" class="slide level2">
 <h2>DESCRIBE and SUMMARIZE</h2>
 <p><code>DESCRIBE</code> reports the columns and types of a table or query. <code>SUMMARIZE</code> computes summary statistics for every column.</p>
-<div class="columns xsmall">
-<div class="column" style="width:40%;">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb63-1"><a href aria-hidden="true" tabindex="-1"></a>DESCRIBE employees;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb67-1"><a href aria-hidden="true" tabindex="-1"></a>DESCRIBE employees;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────────┐
 │   employees    │
@@ -1603,34 +1637,32 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 └────────────────┘</code></pre>
 </div>
 </div>
-</div><div class="column fragment" style="width:60%;">
+</div>
+<div class="xsmall fragment">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb65-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> column_name, <span class="fu">min</span>, <span class="fu">max</span></span>
-<span id="cb65-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> (SUMMARIZE employees);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb69-1"><a href aria-hidden="true" tabindex="-1"></a>SUMMARIZE employees;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>┌─────────────┬────────────┬─────────┐
-│ column_name │    min     │   max   │
-│   varchar   │  varchar   │ varchar │
-├─────────────┼────────────┼─────────┤
-│ name        │ Alice      │ Frank   │
-│ salary      │ 30000.0    │ 52000.0 │
-│ dept        │ Accounting │ Sales   │
-└─────────────┴────────────┴─────────┘</code></pre>
+<pre><code>┌─────────────┬─────────────┬────────────┬─────────┬───┬─────────┬───────┬─────────────────┐
+│ column_name │ column_type │    min     │   max   │ … │   q75   │ count │ null_percentage │
+│   varchar   │   varchar   │  varchar   │ varchar │ … │ varchar │ int64 │  decimal(9,2)   │
+├─────────────┼─────────────┼────────────┼─────────┼───┼─────────┼───────┼─────────────────┤
+│ name        │ VARCHAR     │ Alice      │ Frank   │ … │ NULL    │     6 │            0.00 │
+│ salary      │ DOUBLE      │ 30000.0    │ 52000.0 │ … │ 44000.0 │     6 │            0.00 │
+│ dept        │ VARCHAR     │ Accounting │ Sales   │ … │ NULL    │     6 │            0.00 │
+└─────────────┴─────────────┴────────────┴─────────┴───┴─────────┴───────┴─────────────────┘
+  3 rows               use .last to show entire result                12 columns (7 shown)</code></pre>
 </div>
 </div>
-</div></div>
-
-<aside><div>
-<p><code>SUMMARIZE</code> returns min, max, approximate number of unique values, mean, standard deviation, quartiles, count, and null percentage for each column, which is too wide for the slide. Both work on files too, e.g. <code>DESCRIBE &#39;data/phone.csv&#39;</code>.</p>
-</div></aside></section>
+</div>
+</section>
 <section id="semi-and-anti-joins" class="slide level2">
 <h2>Semi and anti joins</h2>
 <p>DuckDB also adds join types. <code>SEMI JOIN</code> keeps the rows of the left table that have a match, and <code>ANTI JOIN</code> keeps those that do not. Neither adds columns from the right table.</p>
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb67-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees</span>
-<span id="cb67-2"><a href aria-hidden="true" tabindex="-1"></a>SEMI <span class="kw">JOIN</span> phone <span class="kw">USING</span> (name);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb71-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees</span>
+<span id="cb71-2"><a href aria-hidden="true" tabindex="-1"></a>SEMI <span class="kw">JOIN</span> phone <span class="kw">USING</span> (name);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┬────────────┐
 │  name   │ salary  │    dept    │
@@ -1645,8 +1677,8 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb69-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees</span>
-<span id="cb69-2"><a href aria-hidden="true" tabindex="-1"></a>ANTI <span class="kw">JOIN</span> phone <span class="kw">USING</span> (name);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb73-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> employees</span>
+<span id="cb73-2"><a href aria-hidden="true" tabindex="-1"></a>ANTI <span class="kw">JOIN</span> phone <span class="kw">USING</span> (name);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┬────────────┐
 │  name   │ salary  │    dept    │
@@ -1671,17 +1703,18 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <h2>flights.duckdb</h2>
 <p>The <code>flights.duckdb</code> database contains <code>nycflights13::flights</code> and <code>nycflights13::planes</code> as tables. It was built from Parquet files with the file-as-table trick,</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb71"><pre class="sourceCode sql duckdb-cli code-with-copy"><code class="sourceCode sql"><span id="cb71-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> flights <span class="kw">AS</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;data/flights.parquet&#39;</span>;</span>
-<span id="cb71-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> planes <span class="kw">AS</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;data/planes.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb75"><pre class="sourceCode sql duckdb-cli code-with-copy"><code class="sourceCode sql"><span id="cb75-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> flights <span class="kw">AS</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;data/flights.parquet&#39;</span>;</span>
+<span id="cb75-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">TABLE</span> planes <span class="kw">AS</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> <span class="st">&#39;data/planes.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
-<p>Large results are truncated for display, with the limits set by <code>.maxrows</code> and <code>.maxwidth</code>. <code>.timer on</code> reports the time taken by each statement. We open the database and set all three,</p>
+<p>Large results are truncated for display, with the limits set by <code>.maxrows</code> and <code>.maxwidth</code>.</p>
+<p><code>.timer on</code> reports the time taken by each statement.</p>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode bash shell code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href aria-hidden="true" tabindex="-1"></a><span class="ex">duckdb</span> data/flights.duckdb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb76"><pre class="sourceCode bash shell code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href aria-hidden="true" tabindex="-1"></a><span class="ex">duckdb</span> data/flights.duckdb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell" data-layout-align="center" data-db="data/flights.duckdb" data-session="flights">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb73-1"><a href aria-hidden="true" tabindex="-1"></a>.maxrows <span class="dv">6</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb74-1"><a href aria-hidden="true" tabindex="-1"></a>.maxwidth <span class="dv">80</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb75-1"><a href aria-hidden="true" tabindex="-1"></a>.timer <span class="kw">on</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb77-1"><a href aria-hidden="true" tabindex="-1"></a>.maxrows <span class="dv">6</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb78-1"><a href aria-hidden="true" tabindex="-1"></a>.maxwidth <span class="dv">80</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb79-1"><a href aria-hidden="true" tabindex="-1"></a>.timer <span class="kw">on</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 
@@ -1693,7 +1726,7 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 <h2>flights</h2>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb76-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> flights;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb80-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> flights;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌───────┬───────┬───────┬───┬────────┬────────┬──────────────────────────┐
 │ year  │ month │  day  │ … │  hour  │ minute │        time_hour         │
@@ -1710,7 +1743,7 @@ Did you mean &quot;pg_views&quot;?</code></pre>
 │  2013 │     9 │    30 │ … │    8.0 │   40.0 │ 2013-09-30 08:00:00-04   │
 └───────┴───────┴───────┴───┴────────┴────────┴──────────────────────────┘
   336776 rows (6 shown)                             19 columns (6 shown)
-Run Time (s): real 0.008 user 0.013111 sys 0.004930</code></pre>
+Run Time (s): real 0.008 user 0.013426 sys 0.006671</code></pre>
 </div>
 </div>
 </div>
@@ -1719,7 +1752,7 @@ Run Time (s): real 0.008 user 0.013111 sys 0.004930</code></pre>
 <h2>planes</h2>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb78-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> planes;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb82-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> planes;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬───────┬─────────────────────────┬───┬───────┬───────┬───────────┐
 │ tailnum │ year  │          type           │ … │ seats │ speed │  engine   │
@@ -1736,7 +1769,7 @@ Run Time (s): real 0.008 user 0.013111 sys 0.004930</code></pre>
 │ N999DN  │  1992 │ Fixed wing multi engine │ … │   142 │  NULL │ Turbo-jet │
 └─────────┴───────┴─────────────────────────┴───┴───────┴───────┴───────────┘
   3322 rows (6 shown)                                   9 columns (6 shown)
-Run Time (s): real 0.001 user 0.000656 sys 0.000071</code></pre>
+Run Time (s): real 0.001 user 0.000659 sys 0.000167</code></pre>
 </div>
 </div>
 </div>
@@ -1751,7 +1784,7 @@ Run Time (s): real 0.001 user 0.000656 sys 0.000071</code></pre>
 <p>Does the following seem correct?</p>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb80-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(seats) <span class="kw">FROM</span> flights <span class="kw">NATURAL</span> <span class="kw">LEFT</span> <span class="kw">JOIN</span> planes;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb84-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(seats) <span class="kw">FROM</span> flights <span class="kw">NATURAL</span> <span class="kw">LEFT</span> <span class="kw">JOIN</span> planes;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────┐
 │ sum(seats) │
@@ -1759,13 +1792,13 @@ Run Time (s): real 0.001 user 0.000656 sys 0.000071</code></pre>
 ├────────────┤
 │     614366 │
 └────────────┘
-Run Time (s): real 0.003 user 0.004924 sys 0.000325</code></pre>
+Run Time (s): real 0.003 user 0.005299 sys 0.000579</code></pre>
 </div>
 </div>
 </div>
 <p><br></p>
 <div class="center large">
-<p>Why or why not?</p>
+<p>Does this answer make sense? Why or why not?</p>
 </div>
 </section>
 <section id="a-correct-solution" class="slide level2">
@@ -1773,7 +1806,7 @@ Run Time (s): real 0.003 user 0.004924 sys 0.000325</code></pre>
 <p><code>flights</code> and <code>planes</code> share two column names, <code>tailnum</code> and <code>year</code>, but <code>year</code> means different things in each table. Naming the join column avoids matching on both.</p>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb82-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(seats) <span class="kw">FROM</span> flights <span class="kw">LEFT</span> <span class="kw">JOIN</span> planes <span class="kw">USING</span> (tailnum);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb86-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(seats) <span class="kw">FROM</span> flights <span class="kw">LEFT</span> <span class="kw">JOIN</span> planes <span class="kw">USING</span> (tailnum);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────┐
 │ sum(seats) │
@@ -1781,7 +1814,7 @@ Run Time (s): real 0.003 user 0.004924 sys 0.000325</code></pre>
 ├────────────┤
 │   38851317 │
 └────────────┘
-Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
+Run Time (s): real 0.002 user 0.003479 sys 0.000161</code></pre>
 </div>
 </div>
 </div>
@@ -1793,13 +1826,12 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 </section>
 <section id="example-1" class="slide level2">
 <h2>Example 1</h2>
-<p>For each carrier, how does its average departure delay compare to the average over all flights? The per-carrier averages are one <code>GROUP BY</code> away,</p>
-<div class="mxsmall">
+<p>For each carrier, how does its average departure delay compare to the average over all flights?</p>
+<div class="fragment">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb84-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay), <span class="dv">2</span>) <span class="kw">AS</span> carrier_avg</span>
-<span id="cb84-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
-<span id="cb84-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb84-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> carrier_avg;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb88-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay), <span class="dv">2</span>) <span class="kw">AS</span> carrier_avg</span>
+<span id="cb88-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> carrier_avg;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────────┐
 │ carrier │ carrier_avg │
@@ -1816,7 +1848,9 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 │ F9      │       20.22 │
 └─────────┴─────────────┘
   16 rows     2 columns
-  (6 shown)             </code></pre>
+  (6 shown)             
+Run Time (s): real 0.001 user 0.003019 sys 0.001440</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1824,14 +1858,13 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 <section id="scalar-subqueries" class="slide level2">
 <h2>Scalar subqueries</h2>
 <p>A query that returns a single value can be used anywhere a value is expected. Here the overall average is computed once and divides every carrier’s average.</p>
-<div class="mxsmall">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb86-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier,</span>
-<span id="cb86-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay), <span class="dv">2</span>) <span class="kw">AS</span> carrier_avg,</span>
-<span id="cb86-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay) <span class="op">/</span> (<span class="kw">SELECT</span> <span class="fu">avg</span>(dep_delay) <span class="kw">FROM</span> flights), <span class="dv">2</span>) <span class="kw">AS</span> ratio</span>
-<span id="cb86-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
-<span id="cb86-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb86-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> ratio;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb90-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier,</span>
+<span id="cb90-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay), <span class="dv">2</span>) <span class="kw">AS</span> carrier_avg,</span>
+<span id="cb90-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(carrier_avg <span class="op">/</span> (<span class="kw">SELECT</span> <span class="fu">avg</span>(dep_delay) <span class="kw">FROM</span> flights), <span class="dv">2</span>) <span class="kw">AS</span> ratio</span>
+<span id="cb90-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb90-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> ratio;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────────┬────────┐
 │ carrier │ carrier_avg │ ratio  │
@@ -1847,7 +1880,8 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 │ EV      │       19.96 │   1.58 │
 │ F9      │       20.22 │    1.6 │
 └─────────┴─────────────┴────────┘
-  16 rows (6 shown)    3 columns</code></pre>
+  16 rows (6 shown)    3 columns
+Run Time (s): real 0.002 user 0.006068 sys 0.002056</code></pre>
 </div>
 </div>
 </div>
@@ -1855,16 +1889,15 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 <section id="common-table-expressions" class="slide level2">
 <h2>Common table expressions</h2>
 <p><code>WITH</code> names a subquery up front so the query reads top to bottom. <code>CROSS JOIN</code> adds the one row of <code>overall</code> to every flight.</p>
-<div class="xxsmall">
+<div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb88-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> overall <span class="kw">AS</span> (</span>
-<span id="cb88-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="fu">avg</span>(dep_delay) <span class="kw">AS</span> overall_avg <span class="kw">FROM</span> flights</span>
-<span id="cb88-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb88-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier,</span>
-<span id="cb88-5"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay) <span class="op">/</span> overall_avg, <span class="dv">2</span>) <span class="kw">AS</span> ratio</span>
-<span id="cb88-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights <span class="kw">CROSS</span> <span class="kw">JOIN</span> overall</span>
-<span id="cb88-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> carrier, overall_avg</span>
-<span id="cb88-8"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> ratio;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb92-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> overall <span class="kw">AS</span> (</span>
+<span id="cb92-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="fu">avg</span>(dep_delay) <span class="kw">AS</span> overall_avg <span class="kw">FROM</span> flights</span>
+<span id="cb92-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb92-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> carrier, <span class="fu">round</span>(<span class="fu">avg</span>(dep_delay) <span class="op">/</span> overall_avg, <span class="dv">2</span>) <span class="kw">AS</span> ratio</span>
+<span id="cb92-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights </span>
+<span id="cb92-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CROSS</span> <span class="kw">JOIN</span> overall</span>
+<span id="cb92-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> carrier, overall_avg <span class="kw">ORDER</span> <span class="kw">BY</span> ratio;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬────────┐
 │ carrier │ ratio  │
@@ -1881,49 +1914,55 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 │ F9      │    1.6 │
 └─────────┴────────┘
       16 rows     
-     (6 shown)     </code></pre>
+     (6 shown)     
+Run Time (s): real 0.003 user 0.006365 sys 0.000743</code></pre>
 </div>
 </div>
 </div>
-
-<aside><div>
-<p><code>overall_avg</code> is not an aggregate so it must be in <code>GROUP BY</code>. Several CTEs are separated by commas.</p>
-</div></aside></section>
+</section>
 <section id="in-dplyr" class="slide level2">
 <h2>In <code>dplyr</code></h2>
-<div class="small">
+<div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href aria-hidden="true" tabindex="-1"></a>flights <span class="ot">=</span> nycflights13<span class="sc">::</span>flights</span>
-<span id="cb90-2"><a href aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb90-3"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb90-4"><a href aria-hidden="true" tabindex="-1"></a>  overall <span class="ot">=</span> <span class="fu">mean</span>(flights<span class="sc">$</span>dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb90-5"><a href aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb90-6"><a href aria-hidden="true" tabindex="-1"></a>  flights <span class="sc">|&gt;</span></span>
-<span id="cb90-7"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
-<span id="cb90-8"><a href aria-hidden="true" tabindex="-1"></a>      <span class="at">carrier_avg =</span> <span class="fu">round</span>(<span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>),</span>
-<span id="cb90-9"><a href aria-hidden="true" tabindex="-1"></a>      <span class="at">.by =</span> carrier</span>
-<span id="cb90-10"><a href aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb90-11"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">ratio =</span> <span class="fu">round</span>(carrier_avg <span class="sc">/</span> overall, <span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb90-12"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(ratio)</span>
-<span id="cb90-13"><a href aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
+<span id="cb94-2"><a href aria-hidden="true" tabindex="-1"></a>  res <span class="ot">=</span> nycflights13<span class="sc">::</span>flights <span class="sc">|&gt;</span></span>
+<span id="cb94-3"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">overall_avg =</span> <span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb94-4"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarize</span>(</span>
+<span id="cb94-5"><a href aria-hidden="true" tabindex="-1"></a>      <span class="at">carrier_avg =</span> <span class="fu">round</span>(<span class="fu">mean</span>(dep_delay, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">2</span>),</span>
+<span id="cb94-6"><a href aria-hidden="true" tabindex="-1"></a>      <span class="at">ratio =</span> <span class="fu">round</span>(carrier_avg <span class="sc">/</span> <span class="fu">first</span>(overall_avg), <span class="dv">2</span>),</span>
+<span id="cb94-7"><a href aria-hidden="true" tabindex="-1"></a>      <span class="at">.by =</span> carrier</span>
+<span id="cb94-8"><a href aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb94-9"><a href aria-hidden="true" tabindex="-1"></a>    <span class="fu">arrange</span>(ratio)</span>
+<span id="cb94-10"><a href aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.015   0.001   0.016 </code></pre>
+  0.652   0.034   0.694 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href aria-hidden="true" tabindex="-1"></a>res</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 3
+  carrier carrier_avg ratio
+  &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt;
+1 US             3.78  0.3 
+2 HA             4.9   0.39
+3 AS             5.8   0.46
+4 AA             8.59  0.68
+5 DL             9.26  0.73
+6 MQ            10.6   0.83
+# ℹ 10 more rows</code></pre>
 </div>
 </div>
 </div>
-<p>The same computation in <code>dplyr</code>, for comparison.</p>
 </section>
 <section id="example-2" class="slide level2">
 <h2>Example 2</h2>
 <p>For each origin airport, what are the three most common destinations?</p>
-<p>The counts are one <code>GROUP BY</code> away, but “the top three within each origin” needs a rank computed within groups.</p>
+<div class="fragment">
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb92-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb92-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
-<span id="cb92-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb92-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> origin, n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb98-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb98-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> flights</span>
+<span id="cb98-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> origin, n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┬───────┐
 │ origin  │  dest   │   n   │
@@ -1944,19 +1983,21 @@ Run Time (s): real 0.001 user 0.003291 sys 0.000088</code></pre>
 </div>
 </div>
 </div>
+</div>
 </section>
 <section id="window-functions" class="slide level2 wrap-output">
 <h2>Window functions</h2>
-<p>A window function computes a value for each row from the other rows in its partition without collapsing them, like a grouped <code>mutate()</code>. Filtering on that value in <code>WHERE</code> does not work, since <code>WHERE</code> is evaluated before window functions.</p>
+<p>A window function computes a value for each row from the other rows in its partition without collapsing them, like a grouped <code>mutate()</code>.</p>
+<p>Filtering on that value in <code>WHERE</code> does not work as <code>WHERE</code> is evaluated before window functions.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb94-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> counts <span class="kw">AS</span> (</span>
-<span id="cb94-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n <span class="kw">FROM</span> flights <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb94-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb94-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, n,</span>
-<span id="cb94-5"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> origin <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="fu">rank</span></span>
-<span id="cb94-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> counts</span>
-<span id="cb94-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="fu">rank</span> <span class="op">&lt;=</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb100-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> counts <span class="kw">AS</span> (</span>
+<span id="cb100-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n <span class="kw">FROM</span> flights <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb100-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb100-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, n,</span>
+<span id="cb100-5"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> origin <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="fu">rank</span></span>
+<span id="cb100-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> counts</span>
+<span id="cb100-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="fu">rank</span> <span class="op">&lt;=</span> <span class="dv">3</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Binder Error: WHERE clause cannot contain window functions!
 
@@ -1971,14 +2012,14 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 <p>The standard fix is to wrap the query in a subquery and filter that. DuckDB adds <code>QUALIFY</code>, which filters on window results directly, as <code>HAVING</code> does for aggregates.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb96-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> counts <span class="kw">AS</span> (</span>
-<span id="cb96-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n <span class="kw">FROM</span> flights <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb96-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb96-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, n,</span>
-<span id="cb96-5"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> origin <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="fu">rank</span></span>
-<span id="cb96-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> counts</span>
-<span id="cb96-7"><a href aria-hidden="true" tabindex="-1"></a>QUALIFY <span class="fu">rank</span> <span class="op">&lt;=</span> <span class="dv">3</span></span>
-<span id="cb96-8"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> origin, <span class="fu">rank</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb102-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> counts <span class="kw">AS</span> (</span>
+<span id="cb102-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> origin, dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n <span class="kw">FROM</span> flights <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb102-3"><a href aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb102-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> origin, dest, n,</span>
+<span id="cb102-5"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> origin <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="kw">AS</span> <span class="fu">rank</span></span>
+<span id="cb102-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> counts</span>
+<span id="cb102-7"><a href aria-hidden="true" tabindex="-1"></a>QUALIFY <span class="fu">rank</span> <span class="op">&lt;=</span> <span class="dv">3</span></span>
+<span id="cb102-8"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> origin, <span class="fu">rank</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┬─────────┬───────┬───────┐
 │ origin  │  dest   │   n   │ rank  │
@@ -2017,7 +2058,7 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 <div class="columns xsmall">
 <div class="column" style="width:40%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb98-1"><a href aria-hidden="true" tabindex="-1"></a>.shell ls <span class="kw">data</span><span class="op">/</span>flights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb104-1"><a href aria-hidden="true" tabindex="-1"></a>.shell ls <span class="kw">data</span><span class="op">/</span>flights</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>2013-01.parquet
 2013-02.parquet
@@ -2035,7 +2076,7 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 </div>
 </div><div class="column fragment" style="width:60%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb100-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="st">&#39;data/flights/*.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb106-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="st">&#39;data/flights/*.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────────┐
 │ count_star() │
@@ -2052,7 +2093,7 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 <p>Files can also be remote. DuckDB fetches only the parts of a Parquet file that a query needs, here the footer of a 1.6 MB file holding the row count.</p>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb102-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="st">&#39;https://blobs.duckdb.org/train_services.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb108-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> <span class="st">&#39;https://blobs.duckdb.org/train_services.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
@@ -2080,27 +2121,36 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 <div class="columns xsmall">
 <div class="column" style="width:40%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb104-1"><a href aria-hidden="true" tabindex="-1"></a>.shell du <span class="op">-</span>sh .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb110-1"><a href aria-hidden="true" tabindex="-1"></a>.shell du <span class="op">-</span>sh .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>9.7G    .</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb106-1"><a href aria-hidden="true" tabindex="-1"></a>.shell ls <span class="dt">Year</span><span class="op">=</span><span class="dv">2024</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb112-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> glob(<span class="st">&#39;Year=202*/*&#39;</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>data_0.parquet</code></pre>
+<pre><code>┌──────────────────────────┐
+│           file           │
+│         varchar          │
+├──────────────────────────┤
+│ Year=2020/data_0.parquet │
+│ Year=2021/data_0.parquet │
+│ Year=2022/data_0.parquet │
+│ Year=2023/data_0.parquet │
+│ Year=2024/data_0.parquet │
+└──────────────────────────┘</code></pre>
 </div>
 </div>
 </div><div class="column fragment" style="width:60%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb108-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">VIEW</span> ontime <span class="kw">AS</span></span>
-<span id="cb108-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> <span class="st">&#39;Year=*/*.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb114-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">VIEW</span> ontime <span class="kw">AS</span></span>
+<span id="cb114-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> <span class="st">&#39;Year=*/*.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Run Time (s): real 0.004 user 0.001843 sys 0.001273</code></pre>
+<pre><code>Run Time (s): real 0.003 user 0.001695 sys 0.001245</code></pre>
 </div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb110-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> ontime;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb116-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">FROM</span> ontime;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────────┐
 │ count_star() │
@@ -2108,7 +2158,7 @@ LINE 5:        rank() OVER (PARTITION BY origin ORDER BY n DESC) AS rank
 ├──────────────┤
 │    217389694 │
 └──────────────┘
-Run Time (s): real 0.043 user 0.300607 sys 0.084282</code></pre>
+Run Time (s): real 0.045 user 0.347191 sys 0.076955</code></pre>
 </div>
 </div>
 </div></div>
@@ -2118,14 +2168,15 @@ Run Time (s): real 0.043 user 0.300607 sys 0.084282</code></pre>
 </div></aside></section>
 <section id="four-decades-of-delays" class="slide level2">
 <h2>Four decades of delays</h2>
-<p>Every one of the 217 million rows contributes to this one.</p>
+<p>Every one of the 217 million rows contributes to the following query.</p>
 <div class="small">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb112-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="dt">Year</span> <span class="op">//</span> <span class="dv">10</span> <span class="op">*</span> <span class="dv">10</span> <span class="kw">AS</span> decade, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> flights,</span>
-<span id="cb112-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">avg</span>(DepDelay), <span class="dv">1</span>) <span class="kw">AS</span> dep_delay,</span>
-<span id="cb112-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="dv">100</span> <span class="op">*</span> <span class="fu">avg</span>(DepDel15), <span class="dv">1</span>) <span class="kw">AS</span> pct_late</span>
-<span id="cb112-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ontime</span>
-<span id="cb112-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb118-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="dt">Year</span> <span class="op">//</span> <span class="dv">10</span> <span class="op">*</span> <span class="dv">10</span> <span class="kw">AS</span> decade, </span>
+<span id="cb118-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> flights,</span>
+<span id="cb118-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">avg</span>(DepDelay), <span class="dv">1</span>) <span class="kw">AS</span> dep_delay,</span>
+<span id="cb118-4"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="dv">100</span> <span class="op">*</span> <span class="fu">avg</span>(DepDel15), <span class="dv">1</span>) <span class="kw">AS</span> pct_late</span>
+<span id="cb118-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ontime</span>
+<span id="cb118-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────┬──────────┬───────────┬──────────┐
 │ decade │ flights  │ dep_delay │ pct_late │
@@ -2137,7 +2188,7 @@ Run Time (s): real 0.043 user 0.300607 sys 0.084282</code></pre>
 │   2010 │ 62561043 │       9.4 │     18.3 │
 │   2020 │ 27722094 │      10.2 │     18.3 │
 └────────┴──────────┴───────────┴──────────┘
-Run Time (s): real 0.292 user 3.412620 sys 0.244579</code></pre>
+Run Time (s): real 0.303 user 3.429797 sys 0.211091</code></pre>
 </div>
 </div>
 </div>
@@ -2147,18 +2198,18 @@ Run Time (s): real 0.292 user 3.412620 sys 0.244579</code></pre>
 </div></aside></section>
 <section id="flying-out-of-rdu" class="slide level2">
 <h2>Flying out of RDU</h2>
-<p>The CTE and <code>QUALIFY</code> pattern from the worked examples is unchanged at this scale. The busiest destination from RDU each year,</p>
+<p>The busiest destination from RDU each year:</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb114-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> rdu <span class="kw">AS</span> (</span>
-<span id="cb114-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="dt">Year</span>, Dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb114-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> ontime</span>
-<span id="cb114-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> Origin <span class="op">=</span> <span class="st">&#39;RDU&#39;</span></span>
-<span id="cb114-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb114-6"><a href aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb114-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> rdu</span>
-<span id="cb114-8"><a href aria-hidden="true" tabindex="-1"></a>QUALIFY <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> <span class="dt">Year</span> <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb114-9"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> <span class="dt">Year</span> <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="dv">6</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb120-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WITH</span> rdu <span class="kw">AS</span> (</span>
+<span id="cb120-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">SELECT</span> <span class="dt">Year</span>, Dest, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb120-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> ontime</span>
+<span id="cb120-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> Origin <span class="op">=</span> <span class="st">&#39;RDU&#39;</span></span>
+<span id="cb120-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb120-6"><a href aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb120-7"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> rdu</span>
+<span id="cb120-8"><a href aria-hidden="true" tabindex="-1"></a>QUALIFY <span class="fu">rank</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION</span> <span class="kw">BY</span> <span class="dt">Year</span> <span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>) <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb120-9"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> <span class="dt">Year</span> <span class="kw">DESC</span> <span class="kw">LIMIT</span> <span class="dv">6</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌───────┬─────────┬───────┐
 │ Year  │  Dest   │   n   │
@@ -2171,7 +2222,7 @@ Run Time (s): real 0.292 user 3.412620 sys 0.244579</code></pre>
 │  2020 │ ATL     │  3552 │
 │  2019 │ ATL     │  5290 │
 └───────┴─────────┴───────┘
-Run Time (s): real 0.167 user 1.526579 sys 0.225974</code></pre>
+Run Time (s): real 0.150 user 1.707782 sys 0.136680</code></pre>
 </div>
 </div>
 </div>
