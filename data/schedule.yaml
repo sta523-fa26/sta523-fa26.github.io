@@ -324,10 +324,26 @@ schedule:
 - week: 11
   day: 1
   topic: "Databases"
-  lecture: "DuckDB (2)"
-  slides: ""
-  r_readings: []
-  py_readings: []
+  lecture: "DuckDB - Parquet & query plans"
+  slides: "Lec18"
+  r_readings:
+    - text: "DuckDB Parquet Overview"
+      link: https://duckdb.org/docs/stable/data/parquet/overview
+    - text: "DuckDB EXPLAIN Guide"
+      link: https://duckdb.org/docs/stable/guides/meta/explain
+    - text: "duckplyr"
+      link: https://duckplyr.tidyverse.org/
+    - text: "duckplyr Memory Protection"
+      link: https://duckplyr.tidyverse.org/articles/prudence.html
+  py_readings:
+    - text: "DuckDB Python API"
+      link: https://duckdb.org/docs/stable/clients/python/overview
+    - text: "DuckDB Relational API"
+      link: https://duckdb.org/docs/stable/clients/python/relational_api
+    - text: "SQL on pandas"
+      link: https://duckdb.org/docs/stable/guides/python/sql_on_pandas
+    - text: "DuckDB and polars"
+      link: https://duckdb.org/docs/stable/guides/python/polars
 
 - week: 11
   day: 3
