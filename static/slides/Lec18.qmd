@@ -130,15 +130,26 @@ One month of yellow taxi trips in New York City, from the TLC's [trip record dat
 
 ```{duckdb, session='pq'}
 #| include: false
-.maxwidth 104
+.maxwidth 110
 ```
+
+::: {.panel-tabset}
+### Preview
 
 ::: {.mxsmall}
 ```{duckdb}
-SELECT tpep_pickup_datetime, PULocationID, payment_type,
-       trip_distance, tip_amount, total_amount
+SELECT *
 FROM 'yellow_tripdata_2026-09.parquet';
 ```
+:::
+
+### Schema
+
+::: {.mxsmall}
+```{duckdb}
+DESCRIBE FROM 'yellow_tripdata_2026-09.parquet';
+```
+:::
 :::
 
 ```{duckdb}
@@ -149,19 +160,6 @@ FROM 'yellow_tripdata_2026-09.parquet';
 ::: {.aside}
 The chunks in this deck run from a directory holding the data files, so file names appear without a path. The files are available on the department servers in `/data/nyc-taxi/`.
 :::
-
-
-## How a query runs
-
-1. SQL describes the result you want.
-
-2. The optimizer chooses a plan of operations.
-
-3. The engine executes that plan.
-
-For example, to count trips by payment type and list the most common types first:
-
-Read `payment_type` → count each category → sort the counts.
 
 
 ## EXPLAIN {.scrollable}
@@ -178,13 +176,18 @@ ORDER BY n DESC;
 ```
 :::
 
+::: {.aside}
+`EXPLAIN` is not part of ANSI SQL but is widely supported - what it returns and how it is read varies widely between engines.
+:::
 
 ## Reading a plan
 
-::: {.medium}
+The following are some of the steps you will see in DuckDB's plans:
+
+::: {.small}
 | Operator                       | Description                                                        |
 |--------------------------------|--------------------------------------------------------------------|
-| `Seq Scan`, `Parquet Scan`     | Read a table or file                                               |
+| `* Scan`                     | Read a table or file, e.g. `Table Scan`, `Parquet Scan`            |
 | `Filter`                       | Apply a `WHERE` condition                                          |
 | `Projection`                   | Compute and select output columns (`SELECT`)                       |
 | `Hash Join`                    | Join by building a hash table on one input and probing with the other |
@@ -194,12 +197,12 @@ ORDER BY n DESC;
 | `Top N`                        | `ORDER BY` with a `LIMIT`, keeps only the needed rows              |
 :::
 
-Each box also lists the columns it needs (`Projections`), any filters it applies, and the estimated number of rows, which is what the optimizer uses to choose between plans. Estimates come from statistics such as a column's range or a file's row count, so they can be far from the actual counts that `EXPLAIN ANALYZE` reports.
+Each box also lists the columns it needs (`Projections`), any filters it applies, and the estimated number of rows, which is what the optimizer uses to choose between plans. Estimates come from statistics such as a column's range or a file's row count, so they can be far from the actual counts.
 
 
 ## EXPLAIN ANALYZE {.scrollable}
 
-The same query with the additional `ANALYZE` keyword then runs the query and adds the actual rows and time per operation.
+Adding the `ANALYZE` keyword runs the query and records the number of rows and time per operation.
 
 ::: {.mxsmall}
 ```{duckdb}
@@ -214,22 +217,23 @@ ORDER BY n DESC;
 
 ## Aside - No indexes
 
-DuckDB read every value of `payment_type`. There is no index in the plan, by design.
+Unlike most databases, DuckDB rarely uses an index. In SQLite, the trip count by `payment_type` sorts rows into a temporary B-tree to group them.
 
-::: {.small}
-| Engine                      | Finds rows by                                     | Built for                                  |
-|-----------------------------|---------------------------------------------------|--------------------------------------------|
-| PostgreSQL, MySQL, SQLite   | B-tree indexes created on chosen columns          | Many small reads and writes (OLTP)         |
-| `dplyr`, `pandas`, `polars` | Scanning in-memory columns                        | Data that fits in memory                   |
-| DuckDB                      | Scanning columns, skipping row groups by min / max | Large scans and aggregations (OLAP)        |
+::: {.xsmall .pt-2}
+```
+|--SCAN taxi USING COVERING INDEX taxi_payment
+`--USE TEMP B-TREE FOR ORDER BY
+```
 :::
 
+::: {.pt-1}
 * An index pays off when a query needs a few rows. Analytical queries read much of the table, where one scan beats many lookups.
-* Compressed columns and vectorized execution make scans cheap.
-* Indexes must be planned in advance, take space, and slow every write. A Parquet file has none to use.
+* Compressed columns and vectorized execution make scans cheap, and zone maps let a scan skip row groups.
+* Pre-built indexes must be planned in advance, take space, and slow every write.
+:::
 
 ::: {.aside}
-DuckDB does build ART indexes for key constraints, used for very selective lookups but not for scans or joins.
+DuckDB builds ART indexes for `PRIMARY KEY` and `UNIQUE` constraints or with `CREATE INDEX`. They enforce constraints and speed up very selective lookups.
 :::
 
 
@@ -280,9 +284,11 @@ Analytical queries touch a few columns of many rows, which is exactly the access
 ## Inside a Parquet file
 
 ::: {.medium}
-A Parquet file is split by rows first, then by columns. The rows are divided into row groups (DuckDB writes 122,880 rows per group by default). Each row group then holds one column chunk per column, with that column's values for those rows, encoded and compressed in pages.
+A Parquet file is split by rows first, then by columns. 
 
-The footer holds the schema plus, for every column chunk, its location, size, and statistics (minimum, maximum, and null count).
+The rows are divided into row groups. Each row group then holds one column chunk per column, with that column's values for those rows, encoded and compressed in pages.
+
+The footer holds the schema plus, for every column chunk, its location, size, and optional statistics (minimum, maximum, and null count).
 :::
 
 ::: {.medium}
@@ -298,24 +304,6 @@ The footer holds the schema plus, for every column chunk, its location, size, an
 ::: {.aside}
 See the [Parquet format](https://parquet.apache.org/docs/file-format/) docs and DuckDB's [Parquet overview](https://duckdb.org/docs/stable/data/parquet/overview).
 :::
-
-
-## Row group statistics
-
-When the writer records them, the footer holds the minimum, maximum, and null count of every column chunk. Before reading a row group, a reader compares the query's filter against these and skips the row group when no row in it can match. DuckDB calls this a zone map, other engines a min / max index.
-
-::: {.medium}
-| Row group | min(`date`) | max(`date`) | `WHERE date = '2026-09-25'` |
-|-----------|-------------|-------------|-----------------------------|
-| 0         | 2026-09-01  | 2026-09-08  | skip                        |
-| 1         | 2026-09-08  | 2026-09-16  | skip                        |
-| 2         | 2026-09-16  | 2026-09-24  | skip                        |
-| 3         | 2026-09-24  | 2026-09-30  | read                        |
-:::
-
-Two things have to be true for this to help. The writer must have recorded the statistics, and the rows must be clustered on the filter column. 
-
-In a file in random order large row group are likely to span the full range of values and nothing will be skipped.
 
 
 ## File metadata
@@ -360,13 +348,25 @@ The Parquet footer already records the row count. DuckDB can answer this unfilte
 SELECT count(*) AS n
 FROM 'yellow_tripdata_2026-09.parquet';
 ```
+:::
 
+:::: {.columns .xsmall}
+::: {.column width='50%'}
 ```{duckdb}
 EXPLAIN
 SELECT count(*) AS n
 FROM 'yellow_tripdata_2026-09.parquet';
 ```
 :::
+
+::: {.column width='50%'}
+```{duckdb}
+EXPLAIN ANALYZE
+SELECT count(*) AS n
+FROM 'yellow_tripdata_2026-09.parquet';
+```
+:::
+::::
 
 
 ## Projection pushdown {.scrollable}
@@ -397,7 +397,7 @@ FROM 'yellow_tripdata_2026-09.parquet';
 
 ## Filter pushdown and zone maps {.scrollable}
 
-Filter pushdown applies a condition inside the scan, so only matching rows reach later operators. Row-group pruning uses min / max statistics to skip groups that cannot contain a match. Pushdown can help even when no groups can be skipped.
+Filter pushdown applies a condition inside the scan, so only matching rows reach later operators. Row-group pruning uses the footer's min / max statistics, which DuckDB calls zone maps, to skip groups that cannot contain a match. Pushdown can help even when no groups can be skipped.
 
 ::: {.mxsmall}
 ```{duckdb}
@@ -409,9 +409,6 @@ WHERE tpep_pickup_datetime >= '2026-09-25';
 ```
 :::
 
-::: {.fragment}
-Only row group 0 can be skipped: its latest pickup is before September 25. The other three groups must be scanned.
-:::
 
 
 ## Sorting the file {.scrollable}
@@ -419,7 +416,7 @@ Only row group 0 can be skipped: its latest pickup is before September 25. The o
 Rewriting the file with DuckDB sorted by pickup time changes the row group size, from four groups of about a million rows to 32 of \~120,000, and makes each of those smaller groups cover a narrow range of times.
 
 ::: {.aside}
-Sorting and rewriting takes time up front. It pays off when later queries repeatedly filter on the sorted columns.
+Sorting and rewriting takes time up front. It pays off when later queries repeatedly filter on the sorted columns - this is directly analogous to building an index in other databases.
 :::
 
 ```{duckdb}
@@ -466,7 +463,7 @@ A filter on `PULocationID` still reads every row group of this file, since sorti
 
 ## Skipping whole files {.scrollable}
 
-Lec17's flight data has one Parquet file per year, in folders such as `Year=2024`. With Hive partitioning, DuckDB reads `Year` from the folder name and uses a filter on it to skip other years' files.
+Recall the BTS flight data has one Parquet file per year, in folders with names like `Year=2024` (we called this Hive partitioning). DuckDB reads `Year` from the folder name and uses a filter on it to skip other years' files.
 
 ```{r}
 #| include: false
@@ -491,7 +488,7 @@ WHERE Year = 2024;
 :::
 
 
-## Average distance three way {.scrollable}
+## Average distance three way {.scrollable .wrap-output}
 
 The taxi data as the Parquet file, as a table loaded into DuckDB with `CREATE TABLE`, and as a CSV file.
 
@@ -501,29 +498,36 @@ The taxi data as the Parquet file, as a table loaded into DuckDB with `CREATE TA
 CREATE TABLE taxi AS FROM 'yellow_tripdata_2026-09.parquet';
 ```
 
-::: {.mxsmall}
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
 ```{duckdb}
-SELECT avg(trip_distance) AS dist, count(*) AS n
+SELECT avg(trip_distance) AS dist,
+       count(*) AS n
 FROM 'yellow_tripdata_2026-09.parquet'
 WHERE PULocationID = 132;
 ```
 :::
 
-::: {.mxsmall .fragment}
+::: {.column width='50%'}
 ```{duckdb}
-SELECT avg(trip_distance) AS dist, count(*) AS n
+SELECT avg(trip_distance) AS dist,
+       count(*) AS n
 FROM taxi
 WHERE PULocationID = 132;
 ```
 :::
+::::
 
-::: {.mxsmall .fragment}
+:::: {.columns .mxsmall}
+::: {.column width='50%'}
 ```{duckdb}
-SELECT avg(trip_distance) AS dist, count(*) AS n
+SELECT avg(trip_distance) AS dist,
+       count(*) AS n
 FROM 'yellow_tripdata_2026-09.csv'
 WHERE PULocationID = 132;
 ```
 :::
+::::
 
 ```{duckdb}
 #| include: false
@@ -642,6 +646,7 @@ Checking every order against every line item would mean trillions of comparisons
 |--------------|-------------------|
 | 10           | HIGH              |
 | 20           | LOW               |
+| 30           | HIGH              |
 :::
 
 ::: {.column width='50%'}
@@ -652,7 +657,8 @@ Checking every order against every line item would mean trillions of comparisons
 | A        | 10           |
 | B        | 10           |
 | C        | 20           |
-| D        | 30           |
+| D        | 20           |
+| E        | 40           |
 :::
 ::::
 
@@ -680,6 +686,7 @@ Hash each order, keyed by `o_orderkey`.
 |-----------------------|------------------------------|
 | 10                    | HIGH                         |
 | 20                    | LOW                          |
+| 30                    | HIGH                         |
 :::
 
 ::: {.column width='50%' .fragment}
@@ -692,12 +699,17 @@ Look up each line item's `l_orderkey`.
 | A        | 10           | HIGH                                 |
 | B        | 10           | HIGH                                 |
 | C        | 20           | LOW                                  |
-| D        | 30           | no match                             |
+| D        | 20           | LOW                                  |
+| E        | 40           | no match                             |
 :::
 ::::
 
 ::: {.medium .fragment}
-This inner join produces three rows. Order 10 appears twice because two line items match it. Item D is dropped because no order has key 30.
+This inner join produces four rows. Orders 10 and 20 each appear twice because two line items match each. Item E is dropped because no order has key 40, and order 30 is never looked up because no line item refers to it.
+:::
+
+::: {.aside}
+Outer joins use the same build and probe, and differ only in what happens to unmatched rows. An unmatched line item, like E, is kept with a `NULL` priority. To keep unmatched orders, like 30, the hash table marks each entry that finds a match and emits the unmarked ones after probing ends.
 :::
 
 ## A real query
@@ -962,27 +974,6 @@ taxi |> filter(tpep_pickup_datetime >= as.POSIXct("2026-09-15", tz = "UTC")) |> 
 
 ::: {.aside}
 See the [fallback](https://duckplyr.tidyverse.org/articles/fallback.html) article for what `duckplyr` can and cannot translate. `fallback_sitrep()` summarizes the fallbacks that have been logged.
-:::
-
-
-## Exercise: materialization
-
-For the original thrifty `taxi` frame, predict the outcome of each call: an error, a one-row summary, or the full dataset in R.
-
-::: {.xsmall}
-```{.r}
-nrow(taxi)
-taxi |> count() |> collect()
-collect(taxi)
-```
-:::
-
-::: {.medium .fragment}
-* `nrow(taxi)` requests automatic materialization, which prudence blocks because the dataset is too large.
-
-* `taxi |> count() |> collect()` computes the count in DuckDB and brings only the one-row result into R.
-
-* `collect(taxi)` explicitly materializes the full dataset in R, bypassing the automatic materialization limit.
 :::
 
 

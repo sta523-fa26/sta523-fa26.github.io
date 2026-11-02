@@ -1097,27 +1097,57 @@ max-height: none !important;
 <section id="data" class="slide level2">
 <h2>Data</h2>
 <p>One month of yellow taxi trips in New York City, from the TLC’s <a href="https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page">trip record data</a>. The September 2026 file is 3.9 million rows and 21 columns in 67 MB.</p>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-1-1">Preview</a></li><li><a href="#tabset-1-2">Schema</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> tpep_pickup_datetime, PULocationID, payment_type,</span>
-<span id="cb1-2"><a href aria-hidden="true" tabindex="-1"></a>       trip_distance, tip_amount, total_amount</span>
-<span id="cb1-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb1-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="op">*</span></span>
+<span id="cb1-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>┌──────────────────────┬──────────────┬──────────────┬───────────────┬────────────┬──────────────┐
-│ tpep_pickup_datetime │ PULocationID │ payment_type │ trip_distance │ tip_amount │ total_amount │
-│      timestamp       │    int32     │    int64     │    double     │   double   │    double    │
-├──────────────────────┼──────────────┼──────────────┼───────────────┼────────────┼──────────────┤
-│ 2026-09-01 00:06:31  │           70 │            1 │          7.06 │       4.03 │        51.99 │
-│ 2026-09-01 00:45:04  │          229 │            1 │          1.16 │       2.73 │        16.38 │
-│ 2026-09-01 00:10:55  │          236 │            1 │           2.5 │       3.85 │         23.1 │
-│          ·           │           ·  │            · │            ·  │         ·  │           ·  │
-│          ·           │           ·  │            · │            ·  │         ·  │           ·  │
-│          ·           │           ·  │            · │            ·  │         ·  │           ·  │
-│ 2026-09-30 23:15:30  │          234 │            0 │          1.19 │        0.0 │        18.41 │
-│ 2026-09-30 23:56:47  │          170 │            0 │          1.05 │        0.0 │        20.15 │
-│ 2026-09-30 23:32:15  │          107 │            0 │          1.64 │        0.0 │        14.95 │
-└──────────────────────┴──────────────┴──────────────┴───────────────┴────────────┴──────────────┘
-  3876044 rows (6 shown)                use .last to show entire result                6 columns</code></pre>
+<pre><code>┌──────────┬──────────────────────┬───┬─────────────┬────────────────────┬────────────────┐
+│ VendorID │ tpep_pickup_datetime │ … │ Airport_fee │ cbd_congestion_fee │ request_source │
+│  int32   │      timestamp       │ … │   double    │       double       │    varchar     │
+├──────────┼──────────────────────┼───┼─────────────┼────────────────────┼────────────────┤
+│        2 │ 2026-09-01 00:06:31  │ … │         2.0 │                0.0 │ NULL           │
+│        2 │ 2026-09-01 00:45:04  │ … │         0.0 │               0.75 │ NULL           │
+│        1 │ 2026-09-01 00:10:55  │ … │         0.0 │               0.75 │ NULL           │
+│        · │          ·           │ … │           · │                 ·  │  ·             │
+│        · │          ·           │ … │           · │                 ·  │  ·             │
+│        · │          ·           │ … │           · │                 ·  │  ·             │
+│        2 │ 2026-09-30 23:15:30  │ … │        NULL │               0.75 │ HV0003         │
+│        2 │ 2026-09-30 23:56:47  │ … │        NULL │               0.75 │ HV0003         │
+│        2 │ 2026-09-30 23:32:15  │ … │        NULL │               0.75 │ HV0003         │
+└──────────┴──────────────────────┴───┴─────────────┴────────────────────┴────────────────┘
+  3876044 rows (6 shown)       use .last to show entire result       21 columns (5 shown)</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-1-2">
+<div class="mxsmall">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href aria-hidden="true" tabindex="-1"></a>DESCRIBE <span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>┌────────────────────────────────────────────────────────────────────┐
+│                  yellow_tripdata_2026-09.parquet                   │
+│                                                                    │
+│ VendorID              integer      tpep_pickup_datetime  timestamp │
+│ tpep_dropoff_datetime timestamp    passenger_count       bigint    │
+│ trip_distance         double       RatecodeID            bigint    │
+│ store_and_fwd_flag    varchar      PULocationID          integer   │
+│ DOLocationID          integer      payment_type          bigint    │
+│ fare_amount           double       extra                 double    │
+│ mta_tax               double       tip_amount            double    │
+│ tolls_amount          double       improvement_surcharge double    │
+│ total_amount          double       congestion_surcharge  double    │
+│ Airport_fee           double       cbd_congestion_fee    double    │
+│ request_source        varchar                                      │
+└────────────────────────────────────────────────────────────────────┘</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1125,26 +1155,16 @@ max-height: none !important;
 <aside><div>
 <p>The chunks in this deck run from a directory holding the data files, so file names appear without a path. The files are available on the department servers in <code>/data/nyc-taxi/</code>.</p>
 </div></aside></section>
-<section id="how-a-query-runs" class="slide level2">
-<h2>How a query runs</h2>
-<ol type="1">
-<li><p>SQL describes the result you want.</p></li>
-<li><p>The optimizer chooses a plan of operations.</p></li>
-<li><p>The engine executes that plan.</p></li>
-</ol>
-<p>For example, to count trips by payment type and list the most common types first:</p>
-<p>Read <code>payment_type</code> → count each category → sort the counts.</p>
-</section>
 <section id="explain" class="slide level2 scrollable">
 <h2>EXPLAIN</h2>
 <p>Prefixing a query with <code>EXPLAIN</code> returns the plan DuckDB will run rather than the result. The plan is a tree of operations, read from the bottom up.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span></span>
-<span id="cb3-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> payment_type, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb3-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
-<span id="cb3-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb3-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span></span>
+<span id="cb5-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> payment_type, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb5-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
+<span id="cb5-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb5-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Order By ────────────────╮
 │ Order By: n DESC          │
@@ -1167,10 +1187,14 @@ max-height: none !important;
 </div>
 </div>
 </div>
-</section>
+
+<aside><div>
+<p><code>EXPLAIN</code> is not part of ANSI SQL but is widely supported - what it returns and how it is read varies widely between engines.</p>
+</div></aside></section>
 <section id="reading-a-plan" class="slide level2">
 <h2>Reading a plan</h2>
-<div class="medium">
+<p>The following are some of the steps you will see in DuckDB’s plans:</p>
+<div class="small">
 <table class="caption-top">
 <colgroup>
 <col style="width: 32%">
@@ -1184,8 +1208,8 @@ max-height: none !important;
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>Seq Scan</code>, <code>Parquet Scan</code></td>
-<td>Read a table or file</td>
+<td><code>* Scan</code></td>
+<td>Read a table or file, e.g. <code>Table Scan</code>, <code>Parquet Scan</code></td>
 </tr>
 <tr class="even">
 <td><code>Filter</code></td>
@@ -1218,21 +1242,21 @@ max-height: none !important;
 </tbody>
 </table>
 </div>
-<p>Each box also lists the columns it needs (<code>Projections</code>), any filters it applies, and the estimated number of rows, which is what the optimizer uses to choose between plans. Estimates come from statistics such as a column’s range or a file’s row count, so they can be far from the actual counts that <code>EXPLAIN ANALYZE</code> reports.</p>
+<p>Each box also lists the columns it needs (<code>Projections</code>), any filters it applies, and the estimated number of rows, which is what the optimizer uses to choose between plans. Estimates come from statistics such as a column’s range or a file’s row count, so they can be far from the actual counts.</p>
 </section>
 <section id="explain-analyze" class="slide level2 scrollable">
 <h2>EXPLAIN ANALYZE</h2>
-<p>The same query with the additional <code>ANALYZE</code> keyword then runs the query and adds the actual rows and time per operation.</p>
+<p>Adding the <code>ANALYZE</code> keyword runs the query and records the number of rows and time per operation.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb5-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> payment_type, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb5-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
-<span id="cb5-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
-<span id="cb5-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb7-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb7-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> payment_type, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb7-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
+<span id="cb7-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span></span>
+<span id="cb7-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">ORDER</span> <span class="kw">BY</span> n <span class="kw">DESC</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0066s │
+│ Total Time: 0.0063s │
 │ Data Read: 457.4 kB │
 ╰─────────────────────╯
 ╭─ Order By ──────────────────────╮
@@ -1263,48 +1287,21 @@ max-height: none !important;
 </section>
 <section id="aside---no-indexes" class="slide level2">
 <h2>Aside - No indexes</h2>
-<p>DuckDB read every value of <code>payment_type</code>. There is no index in the plan, by design.</p>
-<div class="small">
-<table class="caption-top">
-<colgroup>
-<col style="width: 23%">
-<col style="width: 41%">
-<col style="width: 35%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Engine</th>
-<th>Finds rows by</th>
-<th>Built for</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>PostgreSQL, MySQL, SQLite</td>
-<td>B-tree indexes created on chosen columns</td>
-<td>Many small reads and writes (OLTP)</td>
-</tr>
-<tr class="even">
-<td><code>dplyr</code>, <code>pandas</code>, <code>polars</code></td>
-<td>Scanning in-memory columns</td>
-<td>Data that fits in memory</td>
-</tr>
-<tr class="odd">
-<td>DuckDB</td>
-<td>Scanning columns, skipping row groups by min / max</td>
-<td>Large scans and aggregations (OLAP)</td>
-</tr>
-</tbody>
-</table>
+<p>Unlike most databases, DuckDB rarely uses an index. In SQLite, the trip count by <code>payment_type</code> sorts rows into a temporary B-tree to group them.</p>
+<div class="xsmall pt-2">
+<pre><code>|--SCAN taxi USING COVERING INDEX taxi_payment
+`--USE TEMP B-TREE FOR ORDER BY</code></pre>
 </div>
+<div class="pt-1">
 <ul>
 <li>An index pays off when a query needs a few rows. Analytical queries read much of the table, where one scan beats many lookups.</li>
-<li>Compressed columns and vectorized execution make scans cheap.</li>
-<li>Indexes must be planned in advance, take space, and slow every write. A Parquet file has none to use.</li>
+<li>Compressed columns and vectorized execution make scans cheap, and zone maps let a scan skip row groups.</li>
+<li>Pre-built indexes must be planned in advance, take space, and slow every write.</li>
 </ul>
+</div>
 
 <aside><div>
-<p>DuckDB does build ART indexes for key constraints, used for very selective lookups but not for scans or joins.</p>
+<p>DuckDB builds ART indexes for <code>PRIMARY KEY</code> and <code>UNIQUE</code> constraints or with <code>CREATE INDEX</code>. They enforce constraints and speed up very selective lookups.</p>
 </div></aside></section></section>
 <section>
 <section id="parquet-details" class="title-slide slide level1 center">
@@ -1341,8 +1338,9 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <section id="inside-a-parquet-file" class="slide level2">
 <h2>Inside a Parquet file</h2>
 <div class="medium">
-<p>A Parquet file is split by rows first, then by columns. The rows are divided into row groups (DuckDB writes 122,880 rows per group by default). Each row group then holds one column chunk per column, with that column’s values for those rows, encoded and compressed in pages.</p>
-<p>The footer holds the schema plus, for every column chunk, its location, size, and statistics (minimum, maximum, and null count).</p>
+<p>A Parquet file is split by rows first, then by columns.</p>
+<p>The rows are divided into row groups. Each row group then holds one column chunk per column, with that column’s values for those rows, encoded and compressed in pages.</p>
+<p>The footer holds the schema plus, for every column chunk, its location, size, and optional statistics (minimum, maximum, and null count).</p>
 </div>
 <div class="medium">
 <table class="caption-top">
@@ -1384,57 +1382,13 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <aside><div>
 <p>See the <a href="https://parquet.apache.org/docs/file-format/">Parquet format</a> docs and DuckDB’s <a href="https://duckdb.org/docs/stable/data/parquet/overview">Parquet overview</a>.</p>
 </div></aside></section>
-<section id="row-group-statistics" class="slide level2">
-<h2>Row group statistics</h2>
-<p>When the writer records them, the footer holds the minimum, maximum, and null count of every column chunk. Before reading a row group, a reader compares the query’s filter against these and skips the row group when no row in it can match. DuckDB calls this a zone map, other engines a min / max index.</p>
-<div class="medium">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Row group</th>
-<th>min(<code>date</code>)</th>
-<th>max(<code>date</code>)</th>
-<th><code>WHERE date = &#39;2026-09-25&#39;</code></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>0</td>
-<td>2026-09-01</td>
-<td>2026-09-08</td>
-<td>skip</td>
-</tr>
-<tr class="even">
-<td>1</td>
-<td>2026-09-08</td>
-<td>2026-09-16</td>
-<td>skip</td>
-</tr>
-<tr class="odd">
-<td>2</td>
-<td>2026-09-16</td>
-<td>2026-09-24</td>
-<td>skip</td>
-</tr>
-<tr class="even">
-<td>3</td>
-<td>2026-09-24</td>
-<td>2026-09-30</td>
-<td>read</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Two things have to be true for this to help. The writer must have recorded the statistics, and the rows must be clustered on the filter column.</p>
-<p>In a file in random order large row group are likely to span the full range of values and nothing will be skipped.</p>
-</section>
 <section id="file-metadata" class="slide level2">
 <h2>File metadata</h2>
 <p>DuckDB exposes the footer through table functions. Our file has four large row groups of about a million rows each, with statistics recorded for every column chunk.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb9-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> num_rows, num_row_groups, format_version, file_size_bytes</span>
-<span id="cb9-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_file_metadata(<span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb12-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> num_rows, num_row_groups, format_version, file_size_bytes</span>
+<span id="cb12-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_file_metadata(<span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>);</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────┬────────────────┬────────────────┬─────────────────┐
 │ num_rows │ num_row_groups │ format_version │ file_size_bytes │
@@ -1448,10 +1402,10 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <div class="fragment">
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb11-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> path_in_schema, row_group_id <span class="kw">AS</span> rg, row_group_num_rows <span class="kw">AS</span> n,</span>
-<span id="cb11-2"><a href aria-hidden="true" tabindex="-1"></a>       stats_min, stats_max</span>
-<span id="cb11-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_metadata(<span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>)</span>
-<span id="cb11-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> path_in_schema <span class="op">=</span> <span class="st">&#39;tpep_pickup_datetime&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb14-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> path_in_schema, row_group_id <span class="kw">AS</span> rg, row_group_num_rows <span class="kw">AS</span> n,</span>
+<span id="cb14-2"><a href aria-hidden="true" tabindex="-1"></a>       stats_min, stats_max</span>
+<span id="cb14-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_metadata(<span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>)</span>
+<span id="cb14-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> path_in_schema <span class="op">=</span> <span class="st">&#39;tpep_pickup_datetime&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────────────────┬───────┬─────────┬─────────────────────┬─────────────────────┐
 │    path_in_schema    │  rg   │    n    │      stats_min      │      stats_max      │
@@ -1472,8 +1426,8 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <p>The Parquet footer already records the row count. DuckDB can answer this unfiltered <code>count(*)</code> without reading the data columns, just as it did in Lec17.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb13-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb13-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb16-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb16-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────┐
 │    n    │
@@ -1483,17 +1437,32 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 └─────────┘</code></pre>
 </div>
 </div>
+</div>
+<div class="columns xsmall">
+<div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb15-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span></span>
-<span id="cb15-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb15-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb18-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span></span>
+<span id="cb18-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb18-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Column Data Scan ─╮
 │ ~1 row             │
 ╰────────────────────╯</code></pre>
 </div>
 </div>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb20-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb20-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb20-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>╭─ Summary ───────────╮
+│ Total Time: 0.0000s │
+│ Data Read: 131.0 kB │
+╰─────────────────────╯</code></pre>
 </div>
+</div>
+</div></div>
 </section>
 <section id="projection-pushdown" class="slide level2 scrollable">
 <h2>Projection pushdown</h2>
@@ -1501,14 +1470,14 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb17-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb17-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(trip_distance)</span>
-<span id="cb17-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb22-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb22-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(trip_distance)</span>
+<span id="cb22-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0042s │
+│ Total Time: 0.0040s │
 │ Data Read:   5.5 MB │
 ╰─────────────────────╯
 ╭─ Ungrouped Aggregate ───────────╮
@@ -1532,15 +1501,15 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb19-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb19-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(trip_distance), <span class="fu">sum</span>(total_amount),</span>
-<span id="cb19-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">sum</span>(tip_amount)</span>
-<span id="cb19-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb24-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb24-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">sum</span>(trip_distance), <span class="fu">sum</span>(total_amount),</span>
+<span id="cb24-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">sum</span>(tip_amount)</span>
+<span id="cb24-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0113s │
+│ Total Time: 0.0108s │
 │ Data Read:  15.7 MB │
 ╰─────────────────────╯
 ╭─ Ungrouped Aggregate ───────────╮
@@ -1571,18 +1540,18 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 </section>
 <section id="filter-pushdown-and-zone-maps" class="slide level2 scrollable">
 <h2>Filter pushdown and zone maps</h2>
-<p>Filter pushdown applies a condition inside the scan, so only matching rows reach later operators. Row-group pruning uses min / max statistics to skip groups that cannot contain a match. Pushdown can help even when no groups can be skipped.</p>
+<p>Filter pushdown applies a condition inside the scan, so only matching rows reach later operators. Row-group pruning uses the footer’s min / max statistics, which DuckDB calls zone maps, to skip groups that cannot contain a match. Pushdown can help even when no groups can be skipped.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb21-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb21-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>)</span>
-<span id="cb21-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
-<span id="cb21-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> tpep_pickup_datetime <span class="op">&gt;=</span> <span class="st">&#39;2026-09-25&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb26-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb26-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>)</span>
+<span id="cb26-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
+<span id="cb26-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> tpep_pickup_datetime <span class="op">&gt;=</span> <span class="st">&#39;2026-09-25&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell fragment" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0086s │
+│ Total Time: 0.0088s │
 │ Data Read:  12.9 MB │
 ╰─────────────────────╯
 ╭─ Ungrouped Aggregate ────────────────────────────────────╮
@@ -1602,9 +1571,6 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 </div>
 </div>
 </div>
-<div class="fragment">
-<p>Only row group 0 can be skipped: its latest pickup is before September 25. The other three groups must be scanned.</p>
-</div>
 </section>
 <section id="sorting-the-file" class="slide level2 scrollable">
 <h2>Sorting the file</h2>
@@ -1612,13 +1578,13 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb23-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> (<span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span> <span class="kw">ORDER</span> <span class="kw">BY</span> tpep_pickup_datetime)</span>
-<span id="cb23-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">TO</span> <span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb28-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> (<span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span> <span class="kw">ORDER</span> <span class="kw">BY</span> tpep_pickup_datetime)</span>
+<span id="cb28-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">TO</span> <span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb24-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> path_in_schema, row_group_id, stats_min, stats_max</span>
-<span id="cb24-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_metadata(<span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span>)</span>
-<span id="cb24-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> path_in_schema <span class="op">=</span> <span class="st">&#39;tpep_pickup_datetime&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb29-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> path_in_schema, row_group_id, stats_min, stats_max</span>
+<span id="cb29-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> parquet_metadata(<span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span>)</span>
+<span id="cb29-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> path_in_schema <span class="op">=</span> <span class="st">&#39;tpep_pickup_datetime&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
 │    path_in_schema    │ row_group_id │      stats_min      │      stats_max      │
@@ -1639,20 +1605,20 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 </div>
 </div>
 <aside><div>
-<p>Sorting and rewriting takes time up front. It pays off when later queries repeatedly filter on the sorted columns.</p>
+<p>Sorting and rewriting takes time up front. It pays off when later queries repeatedly filter on the sorted columns - this is directly analogous to building an index in other databases.</p>
 </div></aside></section>
 <section id="sort-order-matters" class="slide level2 scrollable">
 <h2>Sort order matters</h2>
 <p>With the rows in time order, the same filter skips every row group it cannot match.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb26-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb26-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>)</span>
-<span id="cb26-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span></span>
-<span id="cb26-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> tpep_pickup_datetime <span class="op">&gt;=</span> <span class="st">&#39;2026-09-25&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb31-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb31-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">count</span>(<span class="op">*</span>)</span>
+<span id="cb31-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_sorted.parquet&#39;</span></span>
+<span id="cb31-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> tpep_pickup_datetime <span class="op">&gt;=</span> <span class="st">&#39;2026-09-25&#39;</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0021s │
+│ Total Time: 0.0022s │
 │ Data Read:   2.7 MB │
 ╰─────────────────────╯
 ╭─ Ungrouped Aggregate ────────────────────────────────────╮
@@ -1678,16 +1644,16 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 </div></aside></section>
 <section id="skipping-whole-files" class="slide level2 scrollable">
 <h2>Skipping whole files</h2>
-<p>Lec17’s flight data has one Parquet file per year, in folders such as <code>Year=2024</code>. With Hive partitioning, DuckDB reads <code>Year</code> from the folder name and uses a filter on it to skip other years’ files.</p>
+<p>Recall the BTS flight data has one Parquet file per year, in folders with names like <code>Year=2024</code> (we called this Hive partitioning). DuckDB reads <code>Year</code> from the folder name and uses a filter on it to skip other years’ files.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center" data-session="flights">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb28-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb28-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(DepDelay) <span class="kw">AS</span> delay</span>
-<span id="cb28-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;Year=*/*.parquet&#39;</span></span>
-<span id="cb28-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="dt">Year</span> <span class="op">=</span> <span class="dv">2024</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb33-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb33-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(DepDelay) <span class="kw">AS</span> delay</span>
+<span id="cb33-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;Year=*/*.parquet&#39;</span></span>
+<span id="cb33-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> <span class="dt">Year</span> <span class="op">=</span> <span class="dv">2024</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0117s │
+│ Total Time: 0.0116s │
 │ Data Read:   8.2 MB │
 ╰─────────────────────╯
 ╭─ Projection ─────────────────────────────╮
@@ -1696,7 +1662,7 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 ╰─────────────────────┬────────────────────╯
 ╭─ Ungrouped Aggregate ────────────────────╮
 │ Aggregates: sum(#0), count(#1)           │
-│ 1 row                             10.0ms │
+│ 1 row                                0µs │
 ╰─────────────────────┒┎───────────────────╯
 ╭─ Projection ────────┚┖───────────────────╮
 │ Projections: DepDelay, DepDelay          │
@@ -1719,14 +1685,16 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 <aside><div>
 <p><code>Scanning Files: 1/38</code> shows partition pruning: whole files are skipped. Row-group pruning can skip groups within the remaining files. This query runs from the flight-data folder used in Lec17 (<code>/data/rdu/</code> on the department servers).</p>
 </div></aside></section>
-<section id="average-distance-three-way" class="slide level2 scrollable">
+<section id="average-distance-three-way" class="slide level2 scrollable wrap-output">
 <h2>Average distance three way</h2>
 <p>The taxi data as the Parquet file, as a table loaded into DuckDB with <code>CREATE TABLE</code>, and as a CSV file.</p>
-<div class="mxsmall">
+<div class="columns mxsmall">
+<div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb30-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb30-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
-<span id="cb30-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb35-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist,</span>
+<span id="cb35-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb35-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
+<span id="cb35-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────────────┬────────┐
 │        dist        │   n    │
@@ -1734,56 +1702,58 @@ dept:   [Accounting, Accounting, Sales]</code></pre>
 ├────────────────────┼────────┤
 │ 14.889403043154276 │ 151619 │
 └────────────────────┴────────┘
-Run Time (s): real 0.007 user 0.026014 sys 0.001321</code></pre>
+Run Time (s): real 0.007 user 0.027430 sys 0.001392</code></pre>
 </div>
 </div>
-</div>
-<div class="mxsmall fragment">
+</div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb32-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb32-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> taxi</span>
-<span id="cb32-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb37-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist,</span>
+<span id="cb37-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb37-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> taxi</span>
+<span id="cb37-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>┌───────────────────┬────────┐
+│       dist        │   n    │
+│      double       │ int64  │
+├───────────────────┼────────┤
+│ 14.88940304315423 │ 151619 │
+└───────────────────┴────────┘
+Run Time (s): real 0.001 user 0.010021 sys 0.000710</code></pre>
+</div>
+</div>
+</div></div>
+<div class="columns mxsmall">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb39-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist,</span>
+<span id="cb39-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb39-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.csv&#39;</span></span>
+<span id="cb39-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌────────────────────┬────────┐
 │        dist        │   n    │
 │       double       │ int64  │
 ├────────────────────┼────────┤
-│ 14.889403043154234 │ 151619 │
+│ 14.889403043154212 │ 151619 │
 └────────────────────┴────────┘
-Run Time (s): real 0.003 user 0.028168 sys 0.000547</code></pre>
+Run Time (s): real 0.188 user 0.890606 sys 0.167949</code></pre>
 </div>
 </div>
-</div>
-<div class="mxsmall fragment">
-<div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb34-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb34-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.csv&#39;</span></span>
-<span id="cb34-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>┌────────────────────┬────────┐
-│        dist        │   n    │
-│       double       │ int64  │
-├────────────────────┼────────┤
-│ 14.889403043154205 │ 151619 │
-└────────────────────┴────────┘
-Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
-</div>
-</div>
-</div>
+</div></div>
 </section>
 <section id="where-the-time-goes" class="slide level2 scrollable">
 <h2>Where the time goes</h2>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb36-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb36-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb36-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.csv&#39;</span></span>
-<span id="cb36-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb41-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb41-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb41-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.csv&#39;</span></span>
+<span id="cb41-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time:  0.126s │
-│ Data Read: 507.1 MB │
+│ Total Time:  0.125s │
+│ Data Read: 509.5 MB │
 ╰─────────────────────╯
 ╭─ Projection ──────────────────────────────╮
 │ Projections: &quot;/&quot;(#0, CAST(#2 AS DOUBLE)), │
@@ -1812,19 +1782,19 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 │ Projections: PULocationID, trip_distance  │
 │ Total Files Read: 1                       │
 │ Filename(s): yellow_tripdata_2026-09.csv  │
-│ 3,876,044 rows                    910.0ms │
+│ 3,876,044 rows                    920.0ms │
 ╰───────────────────────────────────────────╯</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb38-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb38-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb38-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
-<span id="cb38-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb43-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb43-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> <span class="fu">avg</span>(trip_distance) <span class="kw">AS</span> dist, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb43-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> <span class="st">&#39;yellow_tripdata_2026-09.parquet&#39;</span></span>
+<span id="cb43-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> PULocationID <span class="op">=</span> <span class="dv">132</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0066s │
+│ Total Time: 0.0069s │
 │ Data Read:   8.7 MB │
 ╰─────────────────────╯
 ╭─ Projection ──────────────────────────────╮
@@ -2030,6 +2000,10 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 <td>20</td>
 <td>LOW</td>
 </tr>
+<tr class="odd">
+<td>30</td>
+<td>HIGH</td>
+</tr>
 </tbody>
 </table>
 </div><div class="column" style="width:50%;">
@@ -2056,14 +2030,18 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 </tr>
 <tr class="even">
 <td>D</td>
-<td>30</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>40</td>
 </tr>
 </tbody>
 </table>
 </div></div>
 <div class="small">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb40-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> l_item, o_orderpriority</span>
-<span id="cb40-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb45-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> l_item, o_orderpriority</span>
+<span id="cb45-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="medium">
 <p>The join builds a hash table from the smaller input, keyed on the join column, then probes it with each row of the larger input. Each probe is a direct lookup rather than a search.</p>
@@ -2090,6 +2068,10 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 <tr class="even">
 <td>20</td>
 <td>LOW</td>
+</tr>
+<tr class="odd">
+<td>30</td>
+<td>HIGH</td>
 </tr>
 </tbody>
 </table>
@@ -2122,27 +2104,35 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 </tr>
 <tr class="even">
 <td>D</td>
-<td>30</td>
+<td>20</td>
+<td>LOW</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>40</td>
 <td>no match</td>
 </tr>
 </tbody>
 </table>
 </div></div>
 <div class="medium fragment">
-<p>This inner join produces three rows. Order 10 appears twice because two line items match it. Item D is dropped because no order has key 30.</p>
+<p>This inner join produces four rows. Orders 10 and 20 each appear twice because two line items match each. Item E is dropped because no order has key 40, and order 30 is never looked up because no line item refers to it.</p>
 </div>
-</section>
+
+<aside><div>
+<p>Outer joins use the same build and probe, and differ only in what happens to unmatched rows. An unmatched line item, like E, is kept with a <code>NULL</code> priority. To keep unmatched orders, like 30, the hash table marks each entry that finds a match and emits the unmarked ones after probing ends.</p>
+</div></aside></section>
 <section id="a-real-query" class="slide level2">
 <h2>A real query</h2>
 <p>How much revenue did each order priority bring in since 1998?</p>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb41-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n,</span>
-<span id="cb41-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">sum</span>(l_extendedprice <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> l_discount))) <span class="kw">AS</span> revenue</span>
-<span id="cb41-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
-<span id="cb41-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
-<span id="cb41-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> o_orderpriority;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb46-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n,</span>
+<span id="cb46-2"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">sum</span>(l_extendedprice <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> l_discount))) <span class="kw">AS</span> revenue</span>
+<span id="cb46-3"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
+<span id="cb46-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
+<span id="cb46-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> o_orderpriority;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌─────────────────┬────────┬───────────────┐
 │ o_orderpriority │   n    │    revenue    │
@@ -2154,7 +2144,7 @@ Run Time (s): real 0.216 user 0.884908 sys 0.185331</code></pre>
 │ 4-NOT SPECIFIED │ 105487 │    3828180032 │
 │ 5-LOW           │ 108346 │    3940079945 │
 └─────────────────┴────────┴───────────────┘
-Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
+Run Time (s): real 0.018 user 0.062314 sys 0.013773</code></pre>
 </div>
 </div>
 </div>
@@ -2164,15 +2154,15 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <h2>The join plan</h2>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb43-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
-<span id="cb43-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n,</span>
-<span id="cb43-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">sum</span>(l_extendedprice <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> l_discount))) <span class="kw">AS</span> revenue</span>
-<span id="cb43-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
-<span id="cb43-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
-<span id="cb43-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> o_orderpriority;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb48-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">EXPLAIN</span> <span class="kw">ANALYZE</span></span>
+<span id="cb48-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n,</span>
+<span id="cb48-3"><a href aria-hidden="true" tabindex="-1"></a>       <span class="fu">round</span>(<span class="fu">sum</span>(l_extendedprice <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> l_discount))) <span class="kw">AS</span> revenue</span>
+<span id="cb48-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
+<span id="cb48-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
+<span id="cb48-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span> <span class="kw">ORDER</span> <span class="kw">BY</span> o_orderpriority;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Summary ───────────╮
-│ Total Time: 0.0123s │
+│ Total Time: 0.0086s │
 ╰─────────────────────╯
 ╭─ Order By ──────────────────────────────╮
 │ Order By: o_orderpriority ASC           │
@@ -2185,7 +2175,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 ╭─ Hash Group By ────┴────────────────────╮
 │ Groups: #0                              │
 │ Aggregates: count_star(), sum(#1)       │
-│ 5 rows                           20.0ms │
+│ 5 rows                           10.0ms │
 ╰────────────────────┒┎───────────────────╯
 ╭─ Projection ───────┚┖───────────────────╮
 │ Projections:                            │
@@ -2196,7 +2186,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 ╭─ Hash Join ────────┚┖───────────────────╮
 │ Join Type: INNER                        │
 │ Conditions: l_orderkey = o_orderkey     │
-│ 535,027 rows                     40.0ms │
+│ 535,027 rows                     20.0ms │
 ╰────────────────────┰┰───────────────────╯
                      ┃┠────────────────────────────────────────╮
 ╭─ Table Scan ───────┚┖───────────────────╮  ╭─ Table Scan ────┴─────────────────╮
@@ -2208,7 +2198,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 │ Dynamic Filters:                        │  │ o_orderdate &gt;= &#39;1998-01-01&#39;::DATE │
 │ optional: l_orderkey IN PRF(o_orderkey) │  │ Row Groups Scanned: 14 / 14       │
 │ Row Groups Scanned: 49 / 49             │  │ 133,623 rows               10.0ms │
-│ 535,027 rows                     30.0ms │  ╰───────────────────────────────────╯
+│ 535,027 rows                     20.0ms │  ╰───────────────────────────────────╯
 ╰─────────────────────────────────────────╯</code></pre>
 </div>
 </div>
@@ -2227,26 +2217,26 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <h2>Optimization</h2>
 <p>These two queries filter <code>orders</code> at different points, after the join and before it. <code>EXPLAIN</code> gives the exact same plan for both, so DuckDB runs them identically. Write the version that reads best.</p>
 <div class="panel-tabset">
-<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-1-1">Queries</a></li><li><a href="#tabset-1-2">Plan</a></li></ul>
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-2-1">Queries</a></li><li><a href="#tabset-2-2">Plan</a></li></ul>
 <div class="tab-content">
-<div id="tabset-1-1">
+<div id="tabset-2-1">
 <div class="columns xsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb45-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb45-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem</span>
-<span id="cb45-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
-<span id="cb45-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
-<span id="cb45-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb50-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb50-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> orders <span class="kw">JOIN</span> lineitem</span>
+<span id="cb50-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">ON</span> o_orderkey <span class="op">=</span> l_orderkey</span>
+<span id="cb50-4"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
+<span id="cb50-5"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb46-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
-<span id="cb46-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> lineitem <span class="kw">JOIN</span> (</span>
-<span id="cb46-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> orders</span>
-<span id="cb46-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
-<span id="cb46-5"><a href aria-hidden="true" tabindex="-1"></a>) <span class="kw">AS</span> o <span class="kw">ON</span> l_orderkey <span class="op">=</span> o_orderkey</span>
-<span id="cb46-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode sql duckdb-cli duckknit-prompt code-with-copy"><code class="sourceCode sql"><span id="cb51-1"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span> o_orderpriority, <span class="fu">count</span>(<span class="op">*</span>) <span class="kw">AS</span> n</span>
+<span id="cb51-2"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> lineitem <span class="kw">JOIN</span> (</span>
+<span id="cb51-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">FROM</span> orders</span>
+<span id="cb51-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> o_orderdate <span class="op">&gt;=</span> <span class="st">&#39;1998-01-01&#39;</span></span>
+<span id="cb51-5"><a href aria-hidden="true" tabindex="-1"></a>) <span class="kw">AS</span> o <span class="kw">ON</span> l_orderkey <span class="op">=</span> o_orderkey</span>
+<span id="cb51-6"><a href aria-hidden="true" tabindex="-1"></a><span class="kw">GROUP</span> <span class="kw">BY</span> <span class="kw">ALL</span>;</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 <p>In the shared plan, the optimizer</p>
@@ -2257,7 +2247,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <li>added a dynamic filter to the <code>lineitem</code> scan, visible with <code>EXPLAIN ANALYZE</code></li>
 </ul>
 </div>
-<div id="tabset-1-2">
+<div id="tabset-2-2">
 <div class="xxsmall">
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
@@ -2354,8 +2344,8 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <p><code>read_parquet_duckdb()</code> and <code>as_duckdb_tibble()</code> return a <code>duckplyr_df</code>. Nothing is read until a result is needed, and printing shows a preview.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href aria-hidden="true" tabindex="-1"></a>taxi <span class="ot">=</span> duckplyr<span class="sc">::</span><span class="fu">read_parquet_duckdb</span>(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>)</span>
-<span id="cb48-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(taxi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href aria-hidden="true" tabindex="-1"></a>taxi <span class="ot">=</span> duckplyr<span class="sc">::</span><span class="fu">read_parquet_duckdb</span>(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>)</span>
+<span id="cb53-2"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(taxi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] &quot;prudent_duckplyr_df&quot; &quot;duckplyr_df&quot;         &quot;tbl_df&quot;             
 [4] &quot;tbl&quot;                 &quot;data.frame&quot;         </code></pre>
@@ -2365,12 +2355,12 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <div class="fragment">
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href aria-hidden="true" tabindex="-1"></a>(<span class="at">q =</span> taxi <span class="sc">|&gt;</span></span>
-<span id="cb50-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(payment_type <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb50-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">.by =</span> PULocationID) <span class="sc">|&gt;</span></span>
-<span id="cb50-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
-<span id="cb50-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span>
-<span id="cb50-6"><a href aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href aria-hidden="true" tabindex="-1"></a>(<span class="at">q =</span> taxi <span class="sc">|&gt;</span></span>
+<span id="cb55-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(payment_type <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb55-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">.by =</span> PULocationID) <span class="sc">|&gt;</span></span>
+<span id="cb55-4"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb55-5"><a href aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">3</span>)</span>
+<span id="cb55-6"><a href aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A duckplyr data frame: 2 variables
   PULocationID      n
@@ -2388,7 +2378,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <p><code>explain()</code> on a <code>duckplyr</code> frame prints the DuckDB plan,</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">explain</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">explain</span>(q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Top N ────────────────────────────╮
 │ Top: 3                             │
@@ -2443,7 +2433,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <p>Like with <code>dbplyr</code>, <code>collect()</code> explicitly brings the result into R as a tibble:</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href aria-hidden="true" tabindex="-1"></a>q <span class="sc">|&gt;</span> <span class="fu">collect</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href aria-hidden="true" tabindex="-1"></a>q <span class="sc">|&gt;</span> <span class="fu">collect</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 2
   PULocationID      n
@@ -2467,7 +2457,7 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 </ul>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(taxi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(taxi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error:
 ! GetQueryResult: Materialization would result in more than 47619 rows. Use `collect()` or `as_tibble()` to materialize.</code></pre>
@@ -2483,11 +2473,11 @@ Run Time (s): real 0.017 user 0.062815 sys 0.013929</code></pre>
 <p>When <code>duckplyr</code> cannot translate an operation for DuckDB, it falls back to <code>dplyr</code>, silently by default. <code>fallback_config(info = TRUE)</code> reports when it happens.</p>
 <div class="xxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href aria-hidden="true" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">fallback_config</span>(<span class="at">info =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb58-2"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="ot">=</span> duckplyr<span class="sc">::</span><span class="fu">read_parquet_duckdb</span>(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>, <span class="at">prudence =</span> <span class="st">&quot;lavish&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href aria-hidden="true" tabindex="-1"></a>duckplyr<span class="sc">::</span><span class="fu">fallback_config</span>(<span class="at">info =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb63-2"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="ot">=</span> duckplyr<span class="sc">::</span><span class="fu">read_parquet_duckdb</span>(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>, <span class="at">prudence =</span> <span class="st">&quot;lavish&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Error processing duckplyr query with DuckDB, falling back to dplyr.
 Caused by error in `filter()`:
@@ -2505,8 +2495,8 @@ Caused by error in `filter()`:
 <p><code>duckplyr</code> cannot translate this <code>as.POSIXct()</code> call, so the filter runs in R after materializing the file. Computing the constant first gives DuckDB a timestamp value it can compare directly:</p>
 <div class="xxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href aria-hidden="true" tabindex="-1"></a>cutoff <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)</span>
-<span id="cb62-2"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> cutoff) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-hidden="true" tabindex="-1"></a>cutoff <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)</span>
+<span id="cb67-2"><a href aria-hidden="true" tabindex="-1"></a>taxi_lavish <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> cutoff) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A duckplyr data frame: 1 variable
         n
@@ -2522,7 +2512,7 @@ Caused by error in `filter()`:
 <p>A thrifty or stingy frame refuses a fallback that would materialize too much, so the mistake surfaces as an error rather than a slow silent success.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href aria-hidden="true" tabindex="-1"></a>taxi <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href aria-hidden="true" tabindex="-1"></a>taxi <span class="sc">|&gt;</span> <span class="fu">filter</span>(tpep_pickup_datetime <span class="sc">&gt;=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;2026-09-15&quot;</span>, <span class="at">tz =</span> <span class="st">&quot;UTC&quot;</span>)) <span class="sc">|&gt;</span> <span class="fu">count</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Error processing duckplyr query with DuckDB, falling back to dplyr.
 Caused by error:
@@ -2544,22 +2534,6 @@ Caused by error:
 <aside><div>
 <p>See the <a href="https://duckplyr.tidyverse.org/articles/fallback.html">fallback</a> article for what <code>duckplyr</code> can and cannot translate. <code>fallback_sitrep()</code> summarizes the fallbacks that have been logged.</p>
 </div></aside></section>
-<section id="exercise-materialization" class="slide level2">
-<h2>Exercise: materialization</h2>
-<p>For the original thrifty <code>taxi</code> frame, predict the outcome of each call: an error, a one-row summary, or the full dataset in R.</p>
-<div class="xsmall">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(taxi)</span>
-<span id="cb67-2"><a href aria-hidden="true" tabindex="-1"></a>taxi <span class="sc">|&gt;</span> <span class="fu">count</span>() <span class="sc">|&gt;</span> <span class="fu">collect</span>()</span>
-<span id="cb67-3"><a href aria-hidden="true" tabindex="-1"></a><span class="fu">collect</span>(taxi)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="medium fragment">
-<ul>
-<li><p><code>nrow(taxi)</code> requests automatic materialization, which prudence blocks because the dataset is too large.</p></li>
-<li><p><code>taxi |&gt; count() |&gt; collect()</code> computes the count in DuckDB and brings only the one-row result into R.</p></li>
-<li><p><code>collect(taxi)</code> explicitly materializes the full dataset in R, bypassing the automatic materialization limit.</p></li>
-</ul>
-</div>
-</section>
 <section id="which-one" class="slide level2">
 <h2>Which one</h2>
 <div class="medium">
@@ -2604,24 +2578,24 @@ Caused by error:
 <p><code>timeit()</code> runs a function once and prints the elapsed time and the result.</p>
 <div class="mxsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb68-1"><a href aria-hidden="true" tabindex="-1"></a>f, col <span class="op">=</span> <span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>, <span class="st">&quot;trip_distance&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href aria-hidden="true" tabindex="-1"></a>f, col <span class="op">=</span> <span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>, <span class="st">&quot;trip_distance&quot;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;pandas&quot;</span>,          <span class="kw">lambda</span>: pd.read_parquet(f)[col].mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;pandas&quot;</span>,          <span class="kw">lambda</span>: pd.read_parquet(f)[col].mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>pandas              0.271 s   4.969</code></pre>
+<pre><code>pandas              0.368 s   4.969</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;pandas columns&quot;</span>,  <span class="kw">lambda</span>: pd.read_parquet(f, columns<span class="op">=</span>[col])[col].mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;pandas columns&quot;</span>,  <span class="kw">lambda</span>: pd.read_parquet(f, columns<span class="op">=</span>[col])[col].mean())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>pandas columns      0.011 s   4.969</code></pre>
+<pre><code>pandas columns      0.014 s   4.969</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;polars lazy&quot;</span>,     <span class="kw">lambda</span>: pl.scan_parquet(f).select(pl.col(col).mean()).collect().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;polars lazy&quot;</span>,     <span class="kw">lambda</span>: pl.scan_parquet(f).select(pl.col(col).mean()).collect().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>polars lazy         0.008 s   4.969</code></pre>
+<pre><code>polars lazy         0.015 s   4.969</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;duckdb&quot;</span>,          <span class="kw">lambda</span>: duckdb.sql(<span class="ss">f&quot;SELECT avg(</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">) FROM &#39;</span><span class="sc">{</span>f<span class="sc">}</span><span class="ss">&#39;&quot;</span>).fetchall()[<span class="dv">0</span>][<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href aria-hidden="true" tabindex="-1"></a>timeit(<span class="st">&quot;duckdb&quot;</span>,          <span class="kw">lambda</span>: duckdb.sql(<span class="ss">f&quot;SELECT avg(</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">) FROM &#39;</span><span class="sc">{</span>f<span class="sc">}</span><span class="ss">&#39;&quot;</span>).fetchall()[<span class="dv">0</span>][<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>duckdb              0.014 s   4.969</code></pre>
+<pre><code>duckdb              0.017 s   4.969</code></pre>
 </div>
 </div>
 </div>
@@ -2635,11 +2609,11 @@ Caused by error:
 <p>This is the same taxi summary as the earlier <code>duckplyr</code> pipeline: the three pickup locations with the most trips where <code>payment_type = 1</code>.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> (duckdb.read_parquet(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>)</span>
-<span id="cb77-2"><a href aria-hidden="true" tabindex="-1"></a>     .<span class="bu">filter</span>(<span class="st">&quot;payment_type = 1&quot;</span>)</span>
-<span id="cb77-3"><a href aria-hidden="true" tabindex="-1"></a>     .aggregate(<span class="st">&quot;PULocationID, count(*) AS n&quot;</span>)</span>
-<span id="cb77-4"><a href aria-hidden="true" tabindex="-1"></a>     .order(<span class="st">&quot;n DESC&quot;</span>)</span>
-<span id="cb77-5"><a href aria-hidden="true" tabindex="-1"></a>     .limit(<span class="dv">3</span>))<span class="op">;</span> r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href aria-hidden="true" tabindex="-1"></a>r <span class="op">=</span> (duckdb.read_parquet(<span class="st">&quot;yellow_tripdata_2026-09.parquet&quot;</span>)</span>
+<span id="cb81-2"><a href aria-hidden="true" tabindex="-1"></a>     .<span class="bu">filter</span>(<span class="st">&quot;payment_type = 1&quot;</span>)</span>
+<span id="cb81-3"><a href aria-hidden="true" tabindex="-1"></a>     .aggregate(<span class="st">&quot;PULocationID, count(*) AS n&quot;</span>)</span>
+<span id="cb81-4"><a href aria-hidden="true" tabindex="-1"></a>     .order(<span class="st">&quot;n DESC&quot;</span>)</span>
+<span id="cb81-5"><a href aria-hidden="true" tabindex="-1"></a>     .limit(<span class="dv">3</span>))<span class="op">;</span> r</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>┌──────────────┬────────┐
 │ PULocationID │   n    │
@@ -2662,7 +2636,7 @@ Caused by error:
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href aria-hidden="true" tabindex="-1"></a>r.pl()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href aria-hidden="true" tabindex="-1"></a>r.pl()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div><style>
 .dataframe > thead > tr,
@@ -2703,7 +2677,7 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href aria-hidden="true" tabindex="-1"></a>r.df()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href aria-hidden="true" tabindex="-1"></a>r.df()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   PULocationID       n
 0           237  133315
@@ -2715,14 +2689,14 @@ white-space: pre-wrap;
 <div class="columns mxsmall fragment">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href aria-hidden="true" tabindex="-1"></a>r.fetchall()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href aria-hidden="true" tabindex="-1"></a>r.fetchall()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[(237, 133315), (236, 116457), (161, 105679)]</code></pre>
 </div>
 </div>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href aria-hidden="true" tabindex="-1"></a>r.write_parquet(<span class="st">&quot;top3.parquet&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-hidden="true" tabindex="-1"></a>r.write_parquet(<span class="st">&quot;top3.parquet&quot;</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div></div>
 
@@ -2734,18 +2708,18 @@ white-space: pre-wrap;
 <p>A SQL query can refer to a Python variable by name. DuckDB looks up <code>pandas</code>, <code>polars</code>, and Arrow objects in the calling scope and scans them in place.</p>
 <div class="xsmall">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href aria-hidden="true" tabindex="-1"></a>employees <span class="op">=</span> pd.DataFrame({</span>
-<span id="cb85-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;name&quot;</span>: [<span class="st">&quot;Alice&quot;</span>, <span class="st">&quot;Bob&quot;</span>, <span class="st">&quot;Carol&quot;</span>],</span>
-<span id="cb85-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;salary&quot;</span>: [<span class="dv">52000</span>, <span class="dv">40000</span>, <span class="dv">30000</span>]</span>
-<span id="cb85-4"><a href aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb89-1"><a href aria-hidden="true" tabindex="-1"></a>employees <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb89-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;name&quot;</span>: [<span class="st">&quot;Alice&quot;</span>, <span class="st">&quot;Bob&quot;</span>, <span class="st">&quot;Carol&quot;</span>],</span>
+<span id="cb89-3"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;salary&quot;</span>: [<span class="dv">52000</span>, <span class="dv">40000</span>, <span class="dv">30000</span>]</span>
+<span id="cb89-4"><a href aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="columns mxsmall">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href aria-hidden="true" tabindex="-1"></a>duckdb.sql(</span>
-<span id="cb86-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FROM employees WHERE salary &gt; 35000&quot;</span></span>
-<span id="cb86-3"><a href aria-hidden="true" tabindex="-1"></a>).df()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb90-1"><a href aria-hidden="true" tabindex="-1"></a>duckdb.sql(</span>
+<span id="cb90-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FROM employees WHERE salary &gt; 35000&quot;</span></span>
+<span id="cb90-3"><a href aria-hidden="true" tabindex="-1"></a>).df()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    name  salary
 0  Alice   52000
@@ -2754,9 +2728,9 @@ white-space: pre-wrap;
 </div>
 </div><div class="column fragment" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb88-1"><a href aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(duckdb.sql(</span>
-<span id="cb88-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FROM employees WHERE salary &gt; 35000&quot;</span></span>
-<span id="cb88-3"><a href aria-hidden="true" tabindex="-1"></a>).explain())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb92-1"><a href aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(duckdb.sql(</span>
+<span id="cb92-2"><a href aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;FROM employees WHERE salary &gt; 35000&quot;</span></span>
+<span id="cb92-3"><a href aria-hidden="true" tabindex="-1"></a>).explain())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>╭─ Filter ───────────────────╮
 │ Expression: salary &gt; 35000 │
