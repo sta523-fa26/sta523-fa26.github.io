@@ -28,3 +28,5 @@ docs/slides/data/flights/
 docs/slides/data/train_services.parquet
 docs/slides/data/flights.duckdb.wal
 docs/slides/data/employees.duckdb.wal
+
+__pycache__/

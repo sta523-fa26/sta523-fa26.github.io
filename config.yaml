@@ -2,7 +2,7 @@ baseurl: "/"
 title: "Statistical Programming"
 author: "Colin Rundel"
 copyright: "&copy; 2026. All rights reserved."
-ignoreFiles: ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+ignoreFiles: ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$", "__pycache__"]
 module:
   mounts:
     - source: static

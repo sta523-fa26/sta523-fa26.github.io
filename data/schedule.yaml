@@ -348,10 +348,28 @@ schedule:
 - week: 11
   day: 3
   topic: "Databases"
-  lecture: "Multicore & Profiling"
-  slides: ""
-  r_readings: []
-  py_readings: []
+  lecture: "Profiling & Parallelization"
+  slides: "Lec19"
+  r_readings:
+    - text: "Advanced R - Measuring performance"
+      link: https://adv-r.hadley.nz/perf-measure.html
+    - text: "profvis"
+      link: https://profvis.r-lib.org/
+    - text: "bench"
+      link: https://bench.r-lib.org/
+    - text: "mirai"
+      link: https://mirai.r-lib.org/
+    - text: "mirai - Parallel maps"
+      link: https://mirai.r-lib.org/articles/mirai-map.html
+    - text: "purrr - in_parallel()"
+      link: https://purrr.tidyverse.org/reference/in_parallel.html
+  py_readings:
+    - text: "concurrent.futures"
+      link: https://docs.python.org/3/library/concurrent.futures.html
+    - text: "joblib"
+      link: https://joblib.readthedocs.io/
+    - text: "NumPy - Parallel random streams"
+      link: https://numpy.org/doc/stable/reference/random/parallel.html
 
 
 - week: 12
