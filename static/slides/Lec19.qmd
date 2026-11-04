@@ -799,6 +799,30 @@ system.time(mirai_map(waits, Sys.sleep)[])
 :::
 
 
+## Daemons on other machines
+
+The same code runs with daemons on remote machines. The host listens at a URL and the daemons dial in, launched over SSH or submitted through a cluster scheduler.
+
+::: {.xsmall}
+```{r}
+#| eval: false
+daemons(
+  url = host_url(),
+  remote = ssh_config(c("ssh://hypatia", "ssh://germain"))
+)
+
+daemons(
+  n = 20, url = host_url(),
+  remote = cluster_config(command = "sbatch", options = "#SBATCH --mem=4G")
+)
+```
+:::
+
+::: {.aside}
+See the [distributed computing](https://mirai.r-lib.org/articles/mirai.html#distributed-computing) section of the `mirai` docs. `remote_config()` builds a launch command for any other system.
+:::
+
+
 # `mirai` and the tidyverse
 
 ```{r}
@@ -1216,30 +1240,6 @@ is_error_value(m$data)
 Some libraries already use multiple threads, including `data.table`, `polars`, `duckdb`, and optimized BLAS libraries.
 
 Running multithreaded code in several worker processes can create more runnable threads than available cores. Limit internal threads or reduce the worker count, then measure again.
-
-
-## Daemons on other machines {visibility="uncounted"}
-
-The same code runs with daemons on remote machines. The host listens at a URL and the daemons dial in, launched over SSH or submitted through a cluster scheduler.
-
-::: {.xsmall}
-```{r}
-#| eval: false
-daemons(
-  url = host_url(),
-  remote = ssh_config(c("ssh://hypatia", "ssh://germain"))
-)
-
-daemons(
-  n = 20, url = host_url(),
-  remote = cluster_config(command = "sbatch", options = "#SBATCH --mem=4G")
-)
-```
-:::
-
-::: {.aside}
-See the [distributed computing](https://mirai.r-lib.org/articles/mirai.html#distributed-computing) section of the `mirai` docs. `remote_config()` builds a launch command for any other system.
-:::
 
 
 ## Other packages {visibility="uncounted"}
