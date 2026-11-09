@@ -1151,6 +1151,26 @@ wheels = [
 ]
 
 [[package]]
+name = "pymizu"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/e7/1e36e5a6f6fd5c083bd8e5718b4ca7e3191eb89f50150cd6006a5fcd7441/pymizu-0.1.0.tar.gz", hash = "sha256:ee1c3e762f0697901e431846b3e400c95d4c0068a4470bb9d16b5a74cde712e5", size = 688127, upload-time = "2026-11-04T22:27:07.35Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/b1/bb3dfe252e1ccb7b849977f12330e2fc9c6fcecbf3c805e012ea68492a23/pymizu-0.1.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:8900000d2a335356e5b8a53c30a02f59779c58e63e27d281b75e19b23e16fe29", size = 333278, upload-time = "2026-11-04T22:26:50.009Z" },
+    { url = "https://files.pythonhosted.org/packages/44/62/26d3718b1497c67c625fc20681df0155be381ab87f1815456bb951a003c0/pymizu-0.1.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:02f44cf187387885ba98fd6def449989c547fedd31924eee7f4b42cbb12390f7", size = 325486, upload-time = "2026-11-04T22:26:51.387Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/5c/b1303bfe6071f630b180c45c690d1f78bc2c8afffa721f2162b388f23fef/pymizu-0.1.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:2115dc8771f5c2b0bba16679a989efab8892696dce109a40be72ee0229e244a3", size = 1348472, upload-time = "2026-11-04T22:26:53.04Z" },
+    { url = "https://files.pythonhosted.org/packages/02/9e/3171ec06cd9bf96731a50033c1f09c5d55f5468538f0709a61a5d626cc3c/pymizu-0.1.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ac834dc3a2cd64d445411a6c20c56c87797f1501f8d1ea93203c678a06721820", size = 1358637, upload-time = "2026-11-04T22:26:54.511Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/8a/639f790a846ff27659b0893db7a1bd2a981f6e1a32f56f5dff1b2527b52f/pymizu-0.1.0-cp314-cp314-win_amd64.whl", hash = "sha256:5c237902e210b7048faa76a57a70517c22cd1aeb2e02365962fa292d28b2503f", size = 313153, upload-time = "2026-11-04T22:26:55.944Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/2e/1b2269872bfcebcd4140bfe4fcdecab309bac7e2f2d67d80e9c47aba8934/pymizu-0.1.0-cp314-cp314-win_arm64.whl", hash = "sha256:de8ca51e0e37f8050329deb887b5319dd72df8ef71d33b9929ecd5e18fde9d93", size = 301027, upload-time = "2026-11-04T22:26:57.253Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/5b/f7e0064ce8799a9224dd58547c34831c18237b2d9e555dcc0deda2974dc6/pymizu-0.1.0-cp315-cp315-macosx_10_15_x86_64.whl", hash = "sha256:a79ac832a39be8defa91b97e72b146a9cd497b9bf3932f14b2820234ece5b485", size = 333254, upload-time = "2026-11-04T22:26:58.597Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/30/362f6bf1e21acf32c25f6e53bec0af3d43d44969ea0770ee84910449dbe6/pymizu-0.1.0-cp315-cp315-macosx_11_0_arm64.whl", hash = "sha256:790d1f3965ee02359472571e61668d319f5993d64b0c6c609078448092a8a787", size = 326136, upload-time = "2026-11-04T22:27:00.127Z" },
+    { url = "https://files.pythonhosted.org/packages/26/c0/86bdabd44305d43fd5d0369a0a7a86f529fbfcc546235661e386ab9813c5/pymizu-0.1.0-cp315-cp315-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:7013b88892a60bc588495c821a35f2e2030cb430aff1de233c2edeed2a324215", size = 1350899, upload-time = "2026-11-04T22:27:01.62Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/9a/17970f2c293c9e41535fa0983ef700924bcc5e5f76cce6329e8a71d10dc8/pymizu-0.1.0-cp315-cp315-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:c08dfbed961ab9710431abf3cdb3a6060807991da5c783902c91d1e8dfaaec64", size = 1368043, upload-time = "2026-11-04T22:27:03.219Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/6e/ffcf1b861c0e41d8cbb6f7b9e5e6a278d1bc3ba01abc0893e8efc7cc817f/pymizu-0.1.0-cp315-cp315-win_amd64.whl", hash = "sha256:e1d62816caadac627d058fda48174ef97e01aeb374b1f7105c8a90b1b11537dd", size = 313234, upload-time = "2026-11-04T22:27:04.629Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/33/64d3b0d680ba1a3f9113734844b718e37fb5f872f7f3c9b094095416ba82/pymizu-0.1.0-cp315-cp315-win_arm64.whl", hash = "sha256:202885a80f0e1e9e7b23f0fecaaf9a71a3e9c74b9993c41af681eee611243be1", size = 301086, upload-time = "2026-11-04T22:27:05.988Z" },
+]
+
+[[package]]
 name = "pyparsing"
 version = "3.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -1322,6 +1342,7 @@ dependencies = [
     { name = "playwright" },
     { name = "polars" },
     { name = "pyarrow" },
+    { name = "pymizu" },
     { name = "requests" },
     { name = "scipy" },
     { name = "seaborn" },
@@ -1341,6 +1362,7 @@ requires-dist = [
     { name = "playwright", specifier = ">=1.63.0" },
     { name = "polars", specifier = ">=1.44.2" },
     { name = "pyarrow", specifier = ">=25.0.1" },
+    { name = "pymizu", specifier = ">=0.1.0" },
     { name = "requests", specifier = ">=2.34.2" },
     { name = "scipy", specifier = ">=1.18.1" },
     { name = "seaborn", specifier = ">=0.13.2" },

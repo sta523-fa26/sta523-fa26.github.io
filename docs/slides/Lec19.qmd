@@ -24,6 +24,7 @@ library(dplyr)
 library(purrr)
 library(mirai)
 library(parallel)
+library(mizu)
 library(ggplot2)
 
 options(
@@ -1251,3 +1252,189 @@ Running multithreaded code in several worker processes can create more runnable 
 
 * `parallel::parLapply()` and `makeCluster()` create socket workers that work on Windows but need explicit `clusterExport()` of every object.
 :::
+
+
+# {#mizu-logo data-menu-title="mizu" .nostretch visibility="uncounted"}
+
+![](imgs/hex-mizu.png){fig-align="center" width="32%"}
+
+## `mizu` {visibility="uncounted"}
+
+`mizu` is a new package from the author of `mirai` for parallel R on a single machine,
+
+* workers are background R processes, like daemons, but tasks and results move through shared memory rather than sockets,
+
+* a task round trip takes about a microsecond, against roughly 100 for `mirai`, so work can be split much more finely,
+
+* a parallel map places the function and data in shared memory once, and the workers divide the elements among themselves,
+
+* `.seed` gives each element of a map its own random number stream, so results do not depend on the number of workers,
+
+* shared memory only reaches the same machine, so `mirai` is still the tool for remote machines and clusters.
+
+::: {.aside}
+See [shikokuchuo.net/mizu](https://shikokuchuo.net/mizu/). First released in November 2026, and the API is still marked experimental.
+:::
+
+
+## `mizu_pool()` and `mizu_map()` {visibility="uncounted"}
+
+`mizu_pool()` starts the workers, fresh R processes like daemons. `mizu_map()` returns a handle immediately and `mizu_collect()` waits for the results, a list as with `lapply()`. Here ten tasks each draw a million normals and return their standard deviation,
+
+::: {.xsmall}
+```{r}
+sizes = rep(1e6, 10)
+```
+
+```{r}
+p = mizu_pool(n_workers = 4)
+(m = mizu_map(p, sizes, \(n) sd(rnorm(n))))
+```
+
+```{r}
+unlist(mizu_collect(m))
+```
+:::
+
+Adding `.template = numeric(1)` returns a double vector directly, as `vapply()` or `map_dbl()` would.
+
+
+## Smaller pieces {visibility="uncounted"}
+
+To compare the three, fix the total work at ten million draws and cut it into more and smaller pieces. Each method gets four workers and the same function, and each piece returns a single number.
+
+::: {.xsmall}
+```{r}
+daemons(4)
+f = \(n) sd(rnorm(n))
+elapsed = \(expr) system.time(expr)[["elapsed"]]
+```
+
+```{r}
+#| include: false
+everywhere(NULL, .min = 4)[]
+```
+
+```{r}
+time_pieces = function(pieces) {
+  sizes = rep(1e7 / pieces, pieces)
+  tibble(
+    pieces,
+    lapply = elapsed(lapply(sizes, f)),
+    mclapply = elapsed(mclapply(sizes, f, mc.cores = 4)),
+    mirai_map = elapsed(mirai_map(sizes, f)[]),
+    mizu_map = elapsed(mizu_collect(mizu_map(p, sizes, f)))
+  )
+}
+```
+:::
+
+
+## What splitting costs {visibility="uncounted"}
+
+::: {.xsmall}
+```{r piece_times}
+#| cache: true
+(times = map(10^(1:5), time_pieces) |> list_rbind())
+```
+:::
+
+::: {.medium}
+* `mclapply()` deals the pieces out in four batches, one per forked worker, so more pieces cost it almost nothing.
+
+* `mirai_map()` sends every piece as its own task, at roughly 100 µs each. That is 10 seconds for 100,000 pieces.
+
+* `mizu_map()` workers claim pieces in batches from shared memory, so its time follows the work even at 100,000 pieces.
+
+* By the last row the pieces are so small that 100,000 calls to `f()` cost more than the draws, which slows every method.
+:::
+
+```{r}
+#| include: false
+daemons(0)
+mizu_pool_stop(p)
+```
+
+
+## Python workers {visibility="uncounted"}
+
+`pymizu` is the Python side of `mizu`. A pool given `mizu_py_launcher()` has Python processes as its workers, here from the course environment where `pymizu` is installed.
+
+::: {.xsmall}
+```{r}
+py = mizu_pool(
+  n_workers = 4,
+  launcher = mizu_py_launcher(python = ".venv/bin/python")
+)
+```
+:::
+
+`mizu_call()` names a Python function and its arguments, unnamed ones positional and named ones as keywords. `mtcars$mpg` arrives as a NumPy array and the result returns as an R vector.
+
+::: {.xsmall}
+```{r}
+t = mizu_submit_call(py, mizu_call("numpy.quantile", mtcars$mpg, q = c(0.25, 0.5, 0.75)))
+mizu_collect(t)
+quantile(mtcars$mpg, c(0.25, 0.5, 0.75))
+```
+:::
+
+
+## What crosses {visibility="uncounted"}
+
+Values convert to their natural counterpart. Vectors and matrices arrive as NumPy arrays, length 1 vectors as scalars, character vectors as lists of `str`, and named lists as `dict`s.
+
+Large values are written to shared memory once and both sides read them in place, so nothing is serialized or copied again. Summing 80 MB of doubles in a Python worker takes about as long as `sum()` in the session,
+
+::: {.xsmall}
+```{r}
+x = runif(1e7)
+```
+
+```{r}
+system.time(mizu_collect(mizu_submit_call(py, mizu_call("numpy.sum", x))))
+system.time(sum(x))
+```
+:::
+
+
+## Data frames {visibility="uncounted"}
+
+A `.source` string runs a block of Python with the named arguments bound as variables, and its last expression is the result. A data frame arrives as a `pymizu.Frame`, which `polars`, `pyarrow`, and `pandas` can read, and a frame returned comes back as a data frame,
+
+::: {.xsmall}
+```{r}
+by_cyl = mizu_call(.source = r"(
+import polars as pl
+(pl.DataFrame(d)
+   .group_by("cyl")
+   .agg(pl.col("mpg").mean())
+   .sort("cyl"))
+)", d = mtcars)
+mizu_collect(mizu_submit_call(py, by_cyl))
+```
+:::
+
+
+## The same task in Python {visibility="uncounted"}
+
+With a `mizu_call()` as the function, `mizu_map()` runs Python over an R vector. Each element is bound to `x`, and `.template` collects the results into a double vector. These are the ten pieces of a million draws from before, now drawn by NumPy,
+
+::: {.xsmall}
+```{r}
+sd_py = mizu_call(.source = r"(
+import numpy as np
+np.random.default_rng().standard_normal(int(x)).std(ddof = 1)
+)")
+```
+
+```{r}
+m = mizu_map(py, sizes, sd_py, .template = numeric(1))
+mizu_collect(m)
+```
+:::
+
+```{r}
+#| include: false
+mizu_pool_stop(py)
+```

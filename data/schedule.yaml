@@ -376,7 +376,7 @@ schedule:
   day: 1
   topic: "Shiny"
   lecture: "Shiny for R"
-  slides: ""
+  slides: "Lec20"
   r_readings:
     - text: "Shiny Docs & Gallery"
       link: http://shiny.rstudio.com/
