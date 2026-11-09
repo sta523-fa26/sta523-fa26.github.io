@@ -391,16 +391,28 @@ schedule:
 - week: 12
   day: 3
   topic: "Shiny"
-  lecture: "Shiny for Python"
-  slides: ""
-  r_readings: []
+  lecture: "bslib & publishing"
+  slides: "Lec21"
+  r_readings:
+    - text: "bslib"
+      link: https://rstudio.github.io/bslib/
+    - text: "bslib - Cards"
+      link: https://rstudio.github.io/bslib/articles/cards/
+    - text: "bslib - Column-based layouts"
+      link: https://rstudio.github.io/bslib/articles/column-layout/
+    - text: "bslib - Theming"
+      link: https://rstudio.github.io/bslib/articles/theming/
+    - text: "Bootstrap docs"
+      link: https://getbootstrap.com/docs/5.3/
+    - text: "shinylive for R"
+      link: https://posit-dev.github.io/r-shinylive/
   py_readings: []
 
 
 - week: 13
   day: 1
   topic: "Shiny"
-  lecture: "Dynamic UIs"
+  lecture: "Dynamic UIs & Modules"
   slides: ""
   r_readings: []
   py_readings: []
@@ -408,7 +420,7 @@ schedule:
 - week: 13
   day: 3
   topic: "Shiny"
-  lecture: "Modules"
+  lecture: "Shiny for Python"
   slides: ""
   r_readings: []
   py_readings: []
