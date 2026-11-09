@@ -228,15 +228,14 @@ y|n,p &\sim \text{Binom}(n,p)
 \end{aligned}
 $$
 
-and marginal likelihood
+To normalize the likelihood curve, divide by
 
 $$
 \begin{aligned}
-f(y|n,a,b)
+\int_0^1 f(y|n,p) \, dp
   &= {n \choose y}
-    \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}
-    \frac{\Gamma(y+a)\Gamma(n-y+b)}{\Gamma(n+a+b)} \\
-  &= {n \choose y} \frac{B(y+a,n-y+b)}{B(a,b)}
+    \frac{\Gamma(y+1)\Gamma(n-y+1)}{\Gamma(n+2)} \\
+  &= {n \choose y} B(y+1,n-y+1)
 \end{aligned}
 $$
 

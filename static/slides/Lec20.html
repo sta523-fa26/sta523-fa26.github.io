@@ -1395,14 +1395,13 @@ p|a,b &amp;\sim \text{Beta}(a,b) \\
 y|n,p &amp;\sim \text{Binom}(n,p)
 \end{aligned}
 \]</span></p>
-<p>and marginal likelihood</p>
+<p>To normalize the likelihood curve, divide by</p>
 <p><span class="math display">\[
 \begin{aligned}
-f(y|n,a,b)
+\int_0^1 f(y|n,p) \, dp
   &amp;= {n \choose y}
-    \frac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}
-    \frac{\Gamma(y+a)\Gamma(n-y+b)}{\Gamma(n+a+b)} \\
-  &amp;= {n \choose y} \frac{B(y+a,n-y+b)}{B(a,b)}
+    \frac{\Gamma(y+1)\Gamma(n-y+1)}{\Gamma(n+2)} \\
+  &amp;= {n \choose y} B(y+1,n-y+1)
 \end{aligned}
 \]</span></p>
 </div>
