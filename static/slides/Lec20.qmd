@@ -257,7 +257,7 @@ Dependencies in the first Beta-Binomial app, with some inputs grouped. The dashe
 
 ## When an input changes
 
-Suppose we change `input$alpha`.
+Suppose we change `input$a`.
 
 ::: {.medium}
 1. `d()` and its dependent outputs are **invalidated**: their previous results are no longer current.

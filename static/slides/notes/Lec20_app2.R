@@ -11,8 +11,8 @@ ui = page_sidebar(
     sliderInput("x", "# of heads", min=0, max=100, value=7),
     sliderInput("n", "# of flips", min=0, max=100, value=10),
     h4("Prior:"),
-    numericInput("alpha", "Prior # of head", min=0, value=5),
-    numericInput("beta", "Prior # of tails", min=0, value=5),
+    numericInput("a", "Prior # of head", min=0, value=5),
+    numericInput("b", "Prior # of tails", min=0, value=5),
     checkboxInput("options", "Show Options", value = FALSE),
     conditionalPanel(
       "input.options == true",
@@ -58,16 +58,16 @@ server = function(input, output, session) {
     bindEvent(input$n)
   
   d = reactive({
-    req(input$alpha > 0, input$beta > 0, input$x <= input$n)
+    req(input$a > 0, input$b > 0, input$x <= input$n)
 
     tibble(
       p = seq(0, 1, length.out = 1000)
     ) |>
     mutate(
-      prior = dbeta(p, input$alpha, input$beta),
+      prior = dbeta(p, input$a, input$b),
       likelihood = dbinom(input$x, size = input$n, prob = p) /
         (choose(input$n, input$x) * beta(input$x + 1, input$n - input$x + 1)),
-      posterior = dbeta(p, input$alpha + input$x, input$beta + input$n - input$x)
+      posterior = dbeta(p, input$a + input$x, input$b + input$n - input$x)
     ) |>
     pivot_longer(
       cols = -p,

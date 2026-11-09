@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 415" role="img" aria-labelledby="title desc">
 <title id="title">The reactive graph</title>
-<desc id="desc">Inputs alpha, beta, x, and n feed reactive d, which feeds the plot and table. Inputs bw and facet also feed the plot. Input n feeds an observer that updates the x slider, shown by a dashed arrow back to input x.</desc>
+<desc id="desc">Inputs a, b, x, and n feed reactive d, which feeds the plot and table. Inputs bw and facet also feed the plot. Input n feeds an observer that updates the x slider, shown by a dashed arrow back to input x.</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#606b73"/></marker>
   <marker id="update-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8e44ad"/></marker>
@@ -20,7 +20,7 @@
   <rect x="40" y="55" width="270" height="70" fill="#eef3fb" stroke="#276dc3" stroke-width="1.5"/>
   <path d="M 40 55 h 270 v 26 h -270 z" fill="#dce8f8" stroke="#276dc3" stroke-width="1.5"/>
   <text x="175.0" y="73" font-size="17" font-weight="600">Inputs</text>
-  <text x="175.0" y="110" font-size="23">input$alpha, input$beta</text>
+  <text x="175.0" y="110" font-size="23">input$a, input$b</text>
 </g>
 <g id="x">
   <rect x="40" y="165" width="270" height="70" fill="#eef3fb" stroke="#276dc3" stroke-width="1.5"/>
