@@ -245,3 +245,16 @@ $lang-duckdb-bg: #fff4ec;
 
 // Bootstrap utility classes, see _bootstrap-utilities.scss
 @import "bootstrap-utilities";
+
+// Narrower code column for `output-location: column` chunks, leaving more
+// room for the output. Use on the div wrapping the chunk, e.g. {.mxsmall .code-narrow}
+.code-narrow .column-output-location > .column:first-child {
+  flex: 0 0 36%;
+  width: 36%;
+}
+
+.code-narrow .column-output-location > .column:last-child {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}

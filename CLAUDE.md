@@ -87,6 +87,10 @@ Note: When a `#` section header introduces a package that has a hex sticker in `
 ![](imgs/hex-tibble.png){fig-align="center" width="32%"}
 ```
 
+## Embedding bslib / htmltools output in slides
+
+Bootstrap components cannot be rendered directly inside a reveal.js slide, so `bslib` cards, value boxes, layouts, and other htmltools or htmlwidget output are shown through iframes using the `tagframe` package, which lives outside this repo at `~/Desktop/Projects/tagframe` (install with `R CMD INSTALL ~/Desktop/Projects/tagframe`). Loading it in the setup chunk (`library(tagframe)`) registers a `{bslib}` chunk engine (alias of `{tagframe}`): the chunk's last expression must be a tag, tag list, or widget, which is wrapped in `bslib::page()` and embedded as a self-contained iframe (`srcdoc`, dependencies inlined once per deck). Chunk options are `height`, `width`, `theme`, and `title`; `anim_width()` / `anim_height()` animate a tag's size for responsive layout demos. Nothing is written next to the deck, so there is no sidecar folder to publish. See its README for details.
+
 ## Lecture Notes
 
 Exercise solutions for each lecture live in `static/slides/notes/LecXX_notes.qmd`. Keep them minimal:

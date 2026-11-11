@@ -11,7 +11,8 @@ ui = page_sidebar(
     sliderInput("n", "# of flips", min=0, max=100, value=10),
     h4("Prior:"),
     numericInput("a", "Prior # of head", min=0, value=5),
-    numericInput("b", "Prior # of tails", min=0, value=5)
+    numericInput("b", "Prior # of tails", min=0, value=5),
+    actionButton("run", "Run")
   ),
   card(
     card_header("Distributions"),
@@ -66,7 +67,8 @@ server = function(input, output, session) {
     mutate(
       distribution = forcats::as_factor(distribution)
     )
-  })
+  }) |>
+    bindEvent(input$run)
   
   output$plot = renderPlot({
     current_theme = bs_current_theme()

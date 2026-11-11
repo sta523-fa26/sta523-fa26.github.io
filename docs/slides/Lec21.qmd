@@ -1,5 +1,5 @@
 ---
-title: "bslib, dynamic UIs,<br/>and publishing"
+title: "bslib & publishing"
 subtitle: "Lecture 21"
 author: "Dr. Colin Rundel"
 footer: "Sta 523 - Fall 2026"
@@ -15,8 +15,6 @@ execute:
   warning: true
 engine: knitr
 ---
-
-# {#bslib-logo data-menu-title="bslib" .nostretch}
 
 ```{r setup}
 #| message: false
@@ -37,119 +35,176 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Reactive events
+
+## Action buttons
+
+So far every output has updated as soon as any of its inputs changed. An action button lets the user decide when something should happen instead, such as rerunning a slow calculation.
+
+::: {.small}
+```{r run-button}
+#| eval: false
+actionButton("run", "Run")
+```
+:::
+
+`input$run` is a count of clicks that starts at 0. The count itself is rarely useful. What matters is that it changes with every click, which invalidates anything that depends on it.
+
+
+## `bindEvent()`
+
+A reactive normally depends on every input it reads. Piping it into `bindEvent()` replaces those dependencies with the ones we list.
+
+::: {.small}
+```{r run-calculation}
+#| eval: false
+d = reactive({
+  tibble(
+    p = seq(0, 1, length.out = 1000),
+    prior = dbeta(p, input$a, input$b),
+    likelihood = dbinom(input$x, input$n, p),
+    posterior = dbeta(p, input$a + input$x, input$b + input$n - input$x)
+  )
+}) |>
+  bindEvent(input$run)
+```
+:::
+
+::: {.medium}
+* Changing `a`, `b`, `x`, or `n` no longer invalidates `d()`. Only a click does, and the plot and table that use `d()` then update together.
+* Nothing is computed until the first click, so the outputs start out empty. Add `ignoreNULL = FALSE` to also run once at startup.
+* Several events can be listed, e.g. `bindEvent(input$run, input$reset)`.
+:::
+
+
+## `eventReactive()` & `observeEvent()`
+
+Older code and many online examples use these two functions instead. Each is equivalent to a `reactive()` or `observe()` piped into `bindEvent()`.
+
+:::: {.columns}
+::: {.column width='50%' .small}
+```r
+d = eventReactive(input$run, {
+  ...
+})
+```
+:::
+
+::: {.column width='50%' .small}
+```r
+d = reactive({
+  ...
+}) |>
+  bindEvent(input$run)
+```
+:::
+::::
+
+:::: {.columns}
+::: {.column width='50%' .small}
+```r
+observeEvent(input$n, {
+  ...
+})
+```
+:::
+
+::: {.column width='50%' .small}
+```r
+observe({
+  ...
+}) |>
+  bindEvent(input$n)
+```
+:::
+::::
+
+Shiny's documentation recommends `bindEvent()` for new code, and it is what we will use in this course. It also works with `render*()` functions, so there is one interface to learn rather than three.
+
+
+# {#bslib-logo data-menu-title="bslib" .nostretch}
+
 ![](imgs/hex-bslib.png){fig-align="center" width="32%"}
 
-## Shiny & bootstrap
+## Shiny & Bootstrap
 
-The interface provided by Shiny is based on the html elements, styling, and javascript provided by the [Bootstrap library](https://getbootstrap.com/).
+Shiny's interface is built from the HTML elements, styling, and JavaScript of the [Bootstrap library](https://getbootstrap.com/). You do not need to know Bootstrap to use Shiny, but knowing its conventions makes it much easier to customize an app. R Markdown and Quarto HTML documents use Bootstrap as well.
 
-As we've seen so far, knowing the specifics of Bootstrap are not needed for working with Shiny - but understanding some of its conventions goes a long way to helping you customize the elements of your app (via custom CSS and other components).
+The `bslib` package is a UI toolkit for all three, built on modern Bootstrap. It provides
 
-This is not the only place that Bootstrap shows up in the R ecosystem - e.g. both RMarkdown and Quarto html documents use Bootstrap for styling as well.
+* Theming for apps and documents
 
-## `bslib`
+* A choice of Bootstrap version and Bootswatch themes
 
-The `bslib` package provides a modern UI toolkit for Shiny, R Markdown, and Quarto based on Bootstrap. 
-
-It facilitates:
-
-* Custom theming of Shiny apps and R Markdown documents.
-
-* Use of modern (or older) versions of Bootstrap and Bootswatch
-
-* Creation of delightful and customizable Shiny dashboards via useful UI components (e.g., cards, value boxes, sidebars, etc)
+* Dashboard components such as cards, value boxes, and sidebars
 
 
-
-
-# bslib components
+# `bslib` components
 
 ## Cards
 
-> Cards are a common organizing unit for modern user interfaces. At their core, they’re just rectangular containers with borders and padding. However, when utilized properly to group related information, they help users better digest, engage, and navigate through content. This is why most successful dashboard/UI frameworks make cards a core feature of their component library.
+Cards are rectangular containers with a border and padding, used to group related content. They are the basic building block of most dashboards.
 
-<br/>
-
-::: {.xsmall}
+::: {.mxsmall}
 ```{bslib}
 #| output-location: column
-#| height: 100
+#| height: 170
 card(
-  card_header(
-    "A header"
-  ),
+  card_header("A header"),
   card_body(
     shiny::markdown(
       "Some text with a [link](https://github.com)"
     )
-  )
+  ),
+  card_footer("A footer")
 )
 ```
-:::
 
-::: {.aside}
-From bslib [cards vignette](https://rstudio.github.io/bslib/articles/cards/index.html)
-:::
-
-
-## More options
-
-::: {.xsmall}
 ```{bslib}
 #| output-location: column
-#| height: "250px"
+#| height: 220
 card(
-  max_height = 225,
+  max_height = 200,
   card_header(
     "A long, scrolling, description",
     class = "bg-dark"
   ),
   card_body(
-    lorem::ipsum(
-      paragraphs = 3,
-      sentences = 5
-    )
+    lorem::ipsum(paragraphs = 3, sentences = 5)
   )
 )
 ```
 :::
 
-. . .
+## Card bodies
 
-::: {.xsmall}
+A card can hold any content, including widgets and more than one `card_body()`. Bootstrap classes such as `p-0` adjust the padding.
+
+::: {.mxsmall}
 ```{bslib}
 #| output-location: column
-#| height: "250px"
+#| height: 200
 card(
-  max_height = 225,
+  max_height = 180,
   card_header(
     "A leaflet map",
     class = "bg-success"
   ),
   card_body(
     class = "p-0",
-    leaflet::leaflet() |>
-      leaflet::addTiles()
+    leaflet::leaflet() |> leaflet::addTiles()
   )
 )
 ```
-:::
 
-## Multiple card bodies
-
-::: {.xsmall}
 ```{bslib}
 #| output-location: column
-#| height: "525px"
+#| height: 245
 card(
-  max_height = 500,
-  card_header(
-    "A long, scrolling, description",
-    class = "bg-dark"
-  ),
+  max_height = 225,
+  card_header("Two bodies"),
   card_body(
-    leaflet::leaflet() |>
-      leaflet::addTiles()
+    leaflet::leaflet() |> leaflet::addTiles()
   ),
   card_body(
     lorem::ipsum(paragraphs = 1, sentences = 3)
@@ -158,51 +213,88 @@ card(
 ```
 :::
 
-## Value boxes
+## Full screen cards & popovers
 
-These are simplified cards that are designed to show basic numeric or text values.
+`full_screen = TRUE` adds an expand button that appears on hover. `popover()` and `tooltip()` attach extra content to any element, here an icon in the header.
 
-::: {.xsmall}
+::: {.mxsmall .code-narrow}
 ```{bslib}
 #| output-location: column
-#| height: 165
-library(bsicons)
-library(htmltools)
-
-value_box(
-  title = "I got",
-  value = "99 problems",
-  showcase = bs_icon("music-note-beamed"),
-  theme = "cyan",
-  p("bslib ain't one", bs_icon("emoji-smile")),
-  p("hit me", bs_icon("suit-spade"))
+#| height: 420
+#| width: "96%"
+#| scale: 0.8
+page_fillable(
+  card(fill = FALSE, "A card above"),
+  card(
+    full_screen = TRUE,
+    card_header(
+      "A card with settings",
+      popover(
+        bsicons::bs_icon("gear"),
+        title = "Settings",
+        "Inputs can go here."
+      ),
+      class = c(
+        "d-flex",
+        "justify-content-between"
+      )
+    ),
+    leaflet::leaflet() |>
+      leaflet::addTiles()
+  ),
+  card(fill = FALSE, "A card below")
 )
 ```
 :::
 
-## Multiple value boxes
+## Tabbed cards
+
+`navset_card_tab()` puts several panels in one card. `navset_card_pill()` and `navset_card_underline()` differ only in the style of the tabs.
 
 ::: {.xsmall}
 ```{bslib}
 #| output-location: column
-library(bsicons)
-library(htmltools)
+#| height: 350
+navset_card_tab(
+  height = 300,
+  nav_panel(
+    "Map",
+    leaflet::leaflet() |>
+      leaflet::addTiles()
+  ),
+  nav_panel(
+    "Text",
+    lorem::ipsum(1, 3)
+  )
+)
+```
+:::
 
-page_fillable(
+## Value boxes
+
+A `value_box()` is a card built to show one headline value, with an optional `showcase` icon, a `theme` color, and extra detail text.
+
+::: {.xsmall}
+```{bslib}
+#| output-location: column
+#| height: 310
+library(bsicons)
+
+layout_column_wrap(
+  width = 1,
   value_box(
-    title = "1st value",
-    value = "123",
-    theme = "",
-    showcase = bs_icon("bar-chart"),
-    p("The 1st detail")
+    title = "95% interval",
+    value = "0.38 - 0.80",
+    showcase = bs_icon("arrows-expand"),
+    theme = "primary",
+    p("Equal tailed")
   ),
   value_box(
-    title = "2nd value",
-    value = "456",
-    showcase = bs_icon("graph-up"),
-    theme = "danger",
-    p("The 2nd detail"),
-    p("The 3rd detail")
+    title = "Flips",
+    value = "10",
+    showcase = bs_icon("coin"),
+    showcase_layout = "top right",
+    p("7 heads, 3 tails")
   )
 )
 ```
@@ -211,12 +303,44 @@ page_fillable(
 
 # Layouts
 
-## Fixed layout
+## Fillable containers
+
+`page_fillable()` and `card()` are fillable containers. Children that are fill items grow and shrink to share the container's height.
+
+* Cards, value boxes, and plot outputs are fill items by default
+* `fill = FALSE` keeps an item at its natural height
+* `min_height` and `max_height` limit how far an item shrinks or grows
 
 ::: {.xsmall}
 ```{bslib}
 #| output-location: column
-#| height: 600
+#| height: 300
+#| scale: 0.75
+page_fillable(
+  card(
+    card_header("Card 1"),
+    "Fills the remaining space."
+  ),
+  card(
+    fill = FALSE,
+    card_header("Card 2"),
+    "Stays at its natural height."
+  )
+) |>
+  anim_height("100%", "60%")
+```
+:::
+
+## `page_fillable()`
+
+`page_fillable()` sizes the page to the browser window and shares that height among its children. Each card here shrinks from its `max_height` as the page gets shorter.
+
+::: {.mxsmall .code-narrow}
+```{bslib}
+#| output-location: column
+#| height: 450
+#| width: "96%"
+#| scale: 0.8
 library(leaflet)
 page_fillable(
   card(
@@ -234,17 +358,22 @@ page_fillable(
     card_header("Card 3"),
     leaflet() |> addTiles()
   )
-)
+) |>
+  anim_height("100%", "80%")
 ```
 :::
 
 
-## Column layout
+## Build by rows - `layout_columns()`
 
-::: {.xsmall}
+`layout_columns()` places its children side by side in a row. Stacking two of them gives two rows, each with its own `height`.
+
+::: {.mxsmall .code-narrow}
 ```{bslib}
-#| output-location: slide
-#| height: 525
+#| output-location: column
+#| height: 420
+#| width: "96%"
+#| scale: 0.8
 #| code-line-numbers: "|3-13|14-20"
 library(leaflet)
 page_fillable(
@@ -271,18 +400,27 @@ page_fillable(
 :::
 
 
-## Column widths layout
+## `col_widths` & `row_heights`
 
-::: {.xsmall}
+`col_widths` are out of [12 units per row](https://getbootstrap.com/docs/5.3/layout/grid/). Negative values leave empty space, and anything past 12 units wraps.
+
+::: {.mxsmall .code-narrow}
 ```{bslib}
-#| output-location: slide
-#| height: 625
-#| code-line-numbers: "|5|4"
+#| output-location: column
+#| height: 430
+#| width: "96%"
+#| scale: 0.75
+#| code-line-numbers: "|8-10|4-7"
 library(leaflet)
 page_fillable(
   layout_columns(
-    col_widths = c(8, 4, -1, 10, -1),
-    row_heights = c("200px", "300px"),
+    col_widths = c(
+      8, 4,
+      -1, 10, -1
+    ),
+    row_heights = c(
+      "200px", "300px"
+    ),
     card(
       card_header("Card 1"),
       lorem::ipsum(1,3)
@@ -300,17 +438,16 @@ page_fillable(
 ```
 :::
 
-::: {.aside}
-The Bootstrap [grid system](https://getbootstrap.com/docs/5.3/layout/grid/) for details on how this works.
-:::
+## Wrapping layouts
 
+`layout_column_wrap()` makes equal width columns and wraps extra children onto new rows. A fractional `width` is the share of the row each column takes, so `width = 1/2` makes every column half the row.
 
-## Dynamic layouts
-
-::: {.xsmall}
+::: {.mxsmall .code-narrow}
 ```{bslib}
-#| output-location: slide
-#| height: 525
+#| output-location: column
+#| height: 420
+#| width: "96%"
+#| scale: 0.8
 #| code-line-numbers: "|2|3"
 library(leaflet)
 layout_column_wrap(
@@ -336,14 +473,18 @@ layout_column_wrap(
 :::
 
 ## Responsive columns
-  
-::: {.xsmall}
+
+A `width` in pixels is a minimum column width, so the number of columns changes with the space available.
+
+::: {.mxsmall .code-narrow}
 ```{bslib}
-#| output-location: slide
-#| height: 525
+#| output-location: column
+#| height: 420
+#| width: "96%"
+#| scale: 0.8
 #| code-line-numbers: "|3,4"
 library(leaflet)
-layout_column_wrap( 
+layout_column_wrap(
   width = "200px",
   fixed_width = FALSE,
   card(
@@ -352,7 +493,8 @@ layout_column_wrap(
     lorem::ipsum(1,3)
   ),
   card(
-    max_height = 250, fill=FALSE,
+    max_height = 250,
+    fill = FALSE,
     card_header("Card 2"),
     "This is it."
   ),
@@ -366,12 +508,16 @@ layout_column_wrap(
 ```
 :::
 
-## Nested Layouts
+## Nested layouts
 
-::: {.xsmall}
+Layouts can be placed inside other layouts. Here the second column holds its own one column layout of two cards.
+
+::: {.mxsmall .code-narrow}
 ```{bslib}
-#| output-location: slide
-#| height: 500
+#| output-location: column
+#| height: 400
+#| width: "96%"
+#| scale: 0.8
 #| code-line-numbers: "|2,3,20|8,9,19"
 library(leaflet)
 layout_column_wrap(
@@ -398,13 +544,13 @@ layout_column_wrap(
 :::
 
 
-## Dynamic UI components with `!!!`
+## Splicing components with `!!!`
 
-When building UIs dynamically (e.g., in `renderUI()`), you often need to pass a list of components to layout functions. The `!!!` operator (splice/unquote-splice) from rlang expands a list into individual arguments.
+The `!!!` operator from `rlang` splices a list of components into individual arguments to a layout function.
 
 ::: {.xsmall}
 ```{bslib}
-#| height: 100
+#| height: 120
 cards = list(
   card(card_header("Card 1"), "Content 1"),
   card(card_header("Card 2"), "Content 2"),
@@ -415,10 +561,10 @@ layout_column_wrap(width = 1/3, !!!cards)
 ```
 :::
 
-This can also be done with `do.call()` but `!!!` is often more readable and integrates better with tidyverse code.
+`do.call()` also works. To update the UI when reactive dependencies change, build it inside `renderUI()`.
 
-::: aside
-For either approach be careful about naming of list elements - these become argument names which may or may not do what you expect, particularly if the function uses `...`.
+::: {.aside}
+Names on the list elements become argument names, so a named list can set layout arguments by accident. Use `unname()` to drop them.
 :::
 
 
@@ -426,56 +572,50 @@ For either approach be careful about naming of list elements - these become argu
 
 ## Bootswatch
 
-Due to the ubiquity of Bootstrap a large amount of community effort has gone into developing custom themes - a large free collection of these are available at [bootswatch.com/](https://bootswatch.com/).
+Bootstrap is so widely used that the community has built many custom themes. A large free collection is available at [bootswatch.com](https://bootswatch.com/).
 
 <iframe data-src="https://bootswatch.com/" width="100%" height="450px" style="border:1px solid;border-radius: 5px;" data-external="1">
 </iframe>
 
 ## `bs_theme()`
 
-Provides a high level interface to adjusting the theme for an entire Shiny app,
+Provides a high-level interface for adjusting the theme of an entire Shiny app.
 
-* Change bootstrap version via `version` argument
+* Change the Bootstrap version via the `version` argument
 
-* Pick a bootswatch theme via `bootswatch` argument
+* Pick a Bootswatch theme via the `bootswatch` argument
 
 * Adjust basic color palette (`bg`, `fg`, `primary`, `secondary`, etc.)
 
 * Adjust fonts (`base_font`, `code_font`, `heading_font`, `font_scale`)
 
-* and more
+* Try settings interactively by calling `bs_themer()` in the server function
 
-The object returned by `bs_theme()` can be passed to the `theme` argument of `fluidPage()` and similar page UI elements.
-
-. . .
-
-In a Shiny app dynamic theming can be enabled by including `bs_themer()` in the server function of your app.
+The object returned by `bs_theme()` can be passed to the `theme` argument of `page_sidebar()`, `page_fillable()`, and the other page functions.
 
 
-## Bootstrap colors palettes
+## Bootstrap color palettes
 
-Bootstrap provides a large number of built-in colors for styling html elements via CSS. Within these colors, a smaller subset are selected to create a color palette that is the basis for most themes and is used for the default styling of Bootstrap components. 
+Bootstrap provides a large number of built-in colors for styling HTML elements via CSS. A small subset of these forms the palette that most themes are built on and that Bootstrap components use by default.
 
 ::: {.columns}
 ::: {.column}
 ![](imgs/bootstrap-colors.png){width=100% fig-align=center}
 :::
 ::: {.column .xsmall}
-* *Primary* - Main theme color, used for hyperlinks, focus styles, and component and form active states.
+* `primary` is the main theme color, used for links, focus styles, and active states.
 
-* *Secondary* -  used to complement the primary color without drawing too much attention, used for less prominent UI elements.
+* `secondary` complements the primary color and is used for less prominent elements.
 
-* *Success* - used for positive or successful actions and information.
+* `success` marks positive or successful actions and information.
 
-* *Danger* - used for errors and dangerous actions.
+* `danger` marks errors and dangerous actions.
 
-* *Warning* - used for non-destructive warning messages.
+* `warning` marks non-destructive warnings.
 
-* *Info* - used for neutral and informative content.
+* `info` marks neutral, informative content.
 
-* *Light* - Additional theme option for less contrasting colors.
-
-* *Dark* - Additional theme option for higher contrasting colors.
+* `light` and `dark` are extra options with lower and higher contrast.
 :::
 :::
 
@@ -484,36 +624,24 @@ Bootstrap provides a large number of built-in colors for styling html elements v
 
 ## Bootstrap theme colors with Shiny
 
-Theme colors can be specifically applied to most Shiny elements using the `class` argument. 
+Theme colors can be applied to most Shiny elements through the `class` argument. Class names use a prefix for the type of element, such as `btn-` for buttons and `link-` for links.
 
 ::: {.xsmall}
 ```{bslib}
-#| height: 40
+#| height: 56
 actionButton("primary", "Primary", class = "btn-primary")
 ```
 
 ```{bslib}
-#| height: 40
-actionButton("primary", "Danger", class = "btn-danger")
+#| height: 56
+actionButton("danger", "Danger", class = "btn-danger")
 ```
 
 ```{bslib}
-#| height: 30
-actionLink("danger", "Danger", class = c("link-info","bg-success"))
+#| height: 45
+actionLink("success", "Success", class = "link-success")
 ```
 :::
-
-
-*Note* - bootstrap classes make use of prefixes to help specialize the behavior to specific types of html elements.
-
-## `thematic`
-
-The `thematic` package provides a way of simplifying the process of theming ggplot2, lattice, and base R graphics. Additionally, it also provides mechanisms to automatically integrate these themes with Shiny apps, RMarkdown and Quarto documents.
-
-While it is not perfect, it can do much of the heavy lifting and can get you close to a working theme with a minimal amount of intervention.
-
-In order to enable this automatic theming, just include `thematic_shiny()` in your R script before you call `shinyApp()`.
-
 
 
 # Deploying Shiny apps
@@ -521,43 +649,57 @@ In order to enable this automatic theming, just include `thematic_shiny()` in yo
 
 ## Organizing your app
 
-For deployment generally apps will be organized as a single folder that contains all the necessary components (R script, data files, other static content).
+An app is usually deployed as a single folder holding everything it needs (R script, data files, other static content).
 
-* Pay attention to the nature of any paths used in your code 
+* Pay attention to the paths used in your code
 
   * Absolute paths are almost certainly going to break
-  
+
   * Relative paths should be to the root of the app folder
-  
-* Static files (e.g. css, js, etc.) are generally placed in the `www/` subfolder
+
+* Static files (CSS, JavaScript, images) go in the `www/` subfolder
 
 * Your script *does not* need to be named `app.R` or `ui.R`/`server.R` but some tools prefer this pattern
 
 * Check / think about package dependencies
 
 
-## Demo - [shinyapps.io](https://shinyapps.io)
+## Demo - [Posit Connect Cloud](https://connect.posit.cloud/)
 
-This is a cloud based hosting service for Shiny apps provided by Posit. It provides a very easy to use interface for deploying apps directly from RStudio.
+This is Posit's cloud-based hosting service for Shiny apps, Quarto documents, and other data products. It replaces shinyapps.io, which is being retired with existing apps migrated to Connect Cloud.
+
+Apps can be published from a GitHub repository, from the publish button in Positron or RStudio, or from the console with `rsconnect`.
+
+::: {.small}
+```{r}
+#| eval: false
+rsconnect::connectCloudUser()
+rsconnect::deployApp(appDir = "myapp")
+```
+:::
 
 For minimal use it is free, but there are paid plans for more intensive use.
 
 
 ## Demo - shinylive
 
-One of the really exciting developments in the last couple of years is the ability to run R (and Python) inside a web browser using WebAssembly. `shinylive` is a package that lets you bundle your shiny app as a static website that can be hosted anywhere you can host static html.
+R and Python can now run inside a web browser using WebAssembly. The `shinylive` package lets you bundle your Shiny app as a static website that can be hosted anywhere you can host static HTML.
+
+::: {.small}
+```{r}
+#| eval: false
+shinylive::export(appdir = "myapp", destdir = "site")
+httpuv::runStaticServer("site")
+```
+:::
 
 ## Other publishing options
 
-- For other R users - you can share your script(s) and data directly 
+- Share your script(s) and data directly with other R users, or better yet, bundle them into an R package
 
-  - or better yet, bundle them into an R package
-  
-- Run a local instance of [shiny server](https://posit.co/products/open-source/shinyserver/)
+- Run a local instance of [Shiny Server](https://docs.posit.co/shiny-server/)
 
-- Use shinyapps.io (public) or posit.cloud (within a team)
-
-- Use Posit Connect
+- Use Posit Connect (self-hosted, within an organization)
 
 # Summary {visibility="uncounted"}
 
@@ -568,13 +710,13 @@ One of the really exciting developments in the last couple of years is the abili
 
 * `card()` groups related content, with optional `card_header()`, `card_body()`, and `card_footer()` pieces. `value_box()` is a card specialized for a headline number.
 
-* `page_fillable()` with `layout_columns()` and `layout_column_wrap()` handles most dashboard layouts. Column widths follow Bootstrap's 12 unit grid and layouts can nest.
+* `page_fillable()` with `layout_columns()` and `layout_column_wrap()` handles most dashboard layouts. Only `layout_columns()` uses a 12-unit grid; both layouts can nest.
 
-* `!!!` splices a list of components into a layout function, which is how UIs are built dynamically in `renderUI()`.
+* `!!!` splices a list of components into a layout function. `renderUI()` rebuilds UI when its reactive dependencies change.
 
 * `bs_theme()` controls the Bootstrap version, Bootswatch theme, palette, and fonts for a whole app. Bootstrap utility classes such as `btn-primary` and `bg-success` style individual elements.
 
-* A deployable app is a self-contained folder with relative paths. shinyapps.io and shinylive are the quickest ways to publish one.
+* A deployable app is a self-contained folder with relative paths. Posit Connect Cloud and `shinylive` are the quickest ways to publish one.
 :::
 
 
@@ -584,6 +726,6 @@ One of the really exciting developments in the last couple of years is the abili
 - [bslib](https://rstudio.github.io/bslib/) documentation, particularly the articles on [cards](https://rstudio.github.io/bslib/articles/cards/), [value boxes](https://rstudio.github.io/bslib/articles/value-boxes/), [column layouts](https://rstudio.github.io/bslib/articles/column-layout/), and [theming](https://rstudio.github.io/bslib/articles/theming/)
 - [Bootstrap docs](https://getbootstrap.com/docs/5.3/) for the grid system, utility classes, and components
 - [Bootswatch](https://bootswatch.com/) themes
-- [shinylive for R](https://posit-dev.github.io/r-shinylive/) and [shinyapps.io user guide](https://docs.posit.co/shinyapps.io/)
+- [shinylive for R](https://posit-dev.github.io/r-shinylive/) and the [Posit Connect Cloud docs](https://docs.posit.co/connect-cloud/)
 - [Mastering Shiny - Packages](https://mastering-shiny.org/scaling-packaging.html) on organizing an app for sharing
 :::
