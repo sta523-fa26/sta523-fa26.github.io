@@ -57,12 +57,12 @@ server = function(input, output, session) {
   
   d = reactive({
     tibble(
-      p = seq(0, 1, length.out = 1000)
+      p = seq(0, 1, length.out = 1001)
     ) |>
     mutate(
       prior = dbeta(p, input$a, input$b),
       likelihood = dbinom(input$x, size = input$n, prob = p) |>
-      (\(x) {x / (sum(x) / n())})(),
+      (\(x) {x / (sum(x) / (n() - 1))})(),
       posterior = dbeta(p, input$a + input$x, input$b + input$n - input$x)
     ) |>
     pivot_longer(
@@ -95,7 +95,7 @@ server = function(input, output, session) {
   output$table = renderTable({
     d() |>
       summarize(
-        mean = sum(p * density) / n(),
+        mean = sum(p * density) / sum(density),
         mode = p[which.max(density)],
         .by = distribution
       )
@@ -118,11 +118,11 @@ server = function(input, output, session) {
     stats = d() |>
       filter(distribution == input$summary_dist) |>
       summarize(
-        Mean = (sum(p * density) / n()) |> format(nsmall = 3, digits=3),
-        Median = p[(cumsum(density/n()) >= 0.5)][1] |> format(nsmall = 3, digits=3),
+        Mean = (sum(p * density) / sum(density)) |> format(nsmall = 3, digits=3),
+        Median = p[(cumsum(density) / sum(density) >= 0.5)][1] |> format(nsmall = 3, digits=3),
         `CI 95%`= c(
-          p[(cumsum(density/n()) >= 0.025)][1],
-          p[(cumsum(density/n()) >= 0.975)][1]
+          p[(cumsum(density) / sum(density) >= 0.025)][1],
+          p[(cumsum(density) / sum(density) >= 0.975)][1]
         ) |>
           format(nsmall = 3, digits=3) |>
           paste(collapse = " - ")

@@ -60,7 +60,7 @@ A reactive normally depends on every input it reads. Piping it into `bindEvent()
 #| eval: false
 d = reactive({
   tibble(
-    p = seq(0, 1, length.out = 1000),
+    p = seq(0, 1, length.out = 1001),
     prior = dbeta(p, input$a, input$b),
     likelihood = dbinom(input$x, input$n, p),
     posterior = dbeta(p, input$a + input$x, input$b + input$n - input$x)
@@ -546,7 +546,7 @@ layout_column_wrap(
 
 ## Splicing components with `!!!`
 
-The `!!!` operator from `rlang` splices a list of components into individual arguments to a layout function.
+The `!!!` operator from `rlang` splices a list of components into individual arguments to a layout function. `do.call()` also works.
 
 ::: {.xsmall}
 ```{bslib}
@@ -561,11 +561,73 @@ layout_column_wrap(width = 1/3, !!!cards)
 ```
 :::
 
-`do.call()` also works. To update the UI when reactive dependencies change, build it inside `renderUI()`.
-
 ::: {.aside}
 Names on the list elements become argument names, so a named list can set layout arguments by accident. Use `unname()` to drop them.
 :::
+
+
+## `uiOutput()` & `renderUI()`
+
+The UI is normally built once, when the app starts. `uiOutput()` reserves a place in the UI and `renderUI()` fills it with whatever components its code returns.
+
+:::: {.columns}
+::: {.column width='50%' .small}
+```r
+ui = page_sidebar(
+  ...,
+  card(
+    card_header("Summary"),
+    uiOutput("boxes")
+  )
+)
+```
+:::
+
+::: {.column width='50%' .small}
+```r
+output$boxes = renderUI({
+  value_box(
+    title = "Posterior mean",
+    value = post_mean(),
+    theme = "primary"
+  )
+})
+```
+:::
+::::
+
+::: {.medium}
+* It is reactive like every other `render*()` function, so the UI is rebuilt whenever an input or reactive it reads changes.
+* It can return any UI, including `bslib` components, layouts, inputs, and other outputs.
+* Use it when the structure of the UI depends on the inputs or data. If only a value changes then a regular output or an `update*()` function is simpler.
+:::
+
+
+## Dynamic layouts
+
+A typical use is a layout whose number of components is not known in advance. Build the components as a list and splice them into a layout function.
+
+::: {.small}
+```r
+checkboxGroupInput("dists", "Distributions", c("prior", "likelihood", "posterior"))
+```
+
+```r
+output$boxes = renderUI({
+  boxes = map(
+    input$dists,
+    \(dist) value_box(
+      title = paste(dist, "mode"),
+      value = d()$p[which.max(d()[[dist]])]
+    )
+  )
+
+  layout_column_wrap(width = "200px", !!!boxes)
+})
+```
+:::
+
+Each checked distribution gets its own value box, and the layout is rebuilt every time the selection or `d()` changes.
 
 
 # Theming

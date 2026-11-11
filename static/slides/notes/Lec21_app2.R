@@ -2,6 +2,14 @@ library(tidyverse)
 library(shiny)
 library(bslib)
 
+dist_themes = c(prior = "danger", likelihood = "success", posterior = "primary")
+
+stat_icons = c(
+  Mean = "bullseye",
+  Median = "symmetry-vertical",
+  `95% CI` = "distribute-horizontal"
+)
+
 ui = page_sidebar(
   theme = bs_theme(),
   title = "Beta-Binomial Visualizer",
@@ -27,12 +35,12 @@ ui = page_sidebar(
       popover(
         bsicons::bs_icon("gear"),
         title = "Settings",
-        selectInput("summary_dist", "Distribution:", choices = c("prior", "likelihood", "posterior"))
+        selectInput("summary_dist", "Distribution:", choices = names(dist_themes))
       ),
       class = "d-flex justify-content-between align-items-center"
     ),
     card_body(
-      uiOutput("value_boxes")
+      uiOutput("value_boxes", fill = TRUE)
     )
   )
 )
@@ -51,12 +59,12 @@ server = function(input, output, session) {
   
   d = reactive({
     tibble(
-      p = seq(0, 1, length.out = 1000)
+      p = seq(0, 1, length.out = 1001)
     ) |>
     mutate(
       prior = dbeta(p, input$a, input$b),
       likelihood = dbinom(input$x, size = input$n, prob = p) |>
-      (\(x) {x / (sum(x) / n())})(),
+      (\(x) {x / (sum(x) / (n() - 1))})(),
       posterior = dbeta(p, input$a + input$x, input$b + input$n - input$x)
     ) |>
     pivot_longer(
@@ -71,10 +79,8 @@ server = function(input, output, session) {
     bindEvent(input$run)
   
   output$plot = renderPlot({
-    current_theme = bs_current_theme()
-    
-    dist_colors = bs_get_variables(current_theme, c("danger", "success", "primary")) |>
-      setNames(c("prior", "likelihood", "posterior"))
+    dist_colors = bs_get_variables(bs_current_theme(), unname(dist_themes)) |>
+      set_names(names(dist_themes))
     
     ggplot(
       d(),
@@ -87,44 +93,31 @@ server = function(input, output, session) {
   })
   
   output$value_boxes = renderUI({
-
-    stat_icons = list(
-      Mean = bsicons::bs_icon("bullseye"),
-      Median = bsicons::bs_icon("distribute-horizontal"),
-      `CI 95%` = bsicons::bs_icon("arrows-expand-vertical")
-    )
-
-    dist_themes = list(
-      prior = "danger",
-      likelihood = "success",
-      posterior = "primary"
-    )
-
     stats = d() |>
       filter(distribution == input$summary_dist) |>
       summarize(
-        Mean = (sum(p * density) / n()) |> format(nsmall = 3, digits=3),
-        Median = p[(cumsum(density/n()) >= 0.5)][1] |> format(nsmall = 3, digits=3),
-        `CI 95%`= c(
-          p[(cumsum(density/n()) >= 0.025)][1],
-          p[(cumsum(density/n()) >= 0.975)][1]
+        Mean = (sum(p * density) / sum(density)) |> format(nsmall = 3, digits=3),
+        Median = p[(cumsum(density) / sum(density) >= 0.5)][1] |> format(nsmall = 3, digits=3),
+        `95% CI` = c(
+          p[(cumsum(density) / sum(density) >= 0.025)][1],
+          p[(cumsum(density) / sum(density) >= 0.975)][1]
         ) |>
           format(nsmall = 3, digits=3) |>
-          paste(collapse = " - ")
+          paste(collapse = " \u2013 ")
       )
 
-    boxes = purrr::imap(
+    boxes = imap(
       stats,
-      ~ value_box(
-        title = .y,
-        value = .x,
-        showcase = stat_icons[[.y]],
+      \(value, stat) value_box(
+        title = stat,
+        value = span(value, class = "text-nowrap"),
+        showcase = bsicons::bs_icon(stat_icons[[stat]]),
         theme = dist_themes[[input$summary_dist]]
       )
     ) |>
       unname()
 
-    layout_column_wrap(!!!boxes, width = "200px")
+    layout_column_wrap(!!!boxes, width = "250px")
   })
 }
 
