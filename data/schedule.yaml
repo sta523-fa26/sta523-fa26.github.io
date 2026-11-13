@@ -412,15 +412,21 @@ schedule:
 - week: 13
   day: 1
   topic: "Shiny"
-  lecture: "Dynamic UIs & Modules"
+  lecture: "Shiny for Python"
   slides: ""
   r_readings: []
-  py_readings: []
+  py_readings:
+    - text: "Shiny for Python"
+      link: https://shiny.posit.co/py/
+    - text: "Shiny for R users"
+      link: https://shiny.posit.co/py/docs/comp-r-shiny.html
+    - text: "Primer on Python decorators"
+      link: https://realpython.com/primer-on-python-decorators/
 
 - week: 13
   day: 3
   topic: "Shiny"
-  lecture: "Shiny for Python"
+  lecture: "Dynamic UIs & Modules"
   slides: ""
   r_readings: []
   py_readings: []
