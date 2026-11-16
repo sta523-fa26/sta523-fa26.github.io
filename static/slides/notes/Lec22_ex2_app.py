@@ -1,11 +1,9 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy import stats
 from faicons import icon_svg
 from shiny import App, reactive, render, ui
-
-dist_themes = {"prior": "danger", "likelihood": "success", "posterior": "primary"}
 
 dist_colors = {"prior": "#dc3545", "likelihood": "#198754", "posterior": "#0d6efd"}
 
@@ -32,8 +30,17 @@ app_ui = ui.page_sidebar(
         ui.input_action_button("run", "Run"),
     ),
     ui.navset_card_tab(
-        ui.nav_panel("Plot", ui.output_plot("plot")),
-        ui.nav_panel("Table", ui.output_data_frame("table")),
+        ui.nav_panel(
+            "Plot", 
+            ui.output_plot("plot")
+        ),
+        ui.nav_panel(
+            "Table",
+            ui.div(
+                ui.output_data_frame("table"),
+                class_="d-flex justify-content-center",
+            ),
+        ),
         title="Distributions",
         full_screen=True,
     ),
@@ -43,7 +50,7 @@ app_ui = ui.page_sidebar(
             ui.popover(
                 icon_svg("gear"),
                 ui.input_select(
-                    "summary_dist", "Distribution:", choices=list(dist_themes)
+                    "summary_dist", "Distribution:", choices=list(dist_colors)
                 ),
                 title="Settings",
             ),
@@ -59,7 +66,6 @@ app_ui = ui.page_sidebar(
 
 def server(input, output, session):
     @reactive.effect
-    @reactive.event(input.n)
     def _():
         ui.update_slider("x", max=input.n())
 
@@ -70,42 +76,44 @@ def server(input, output, session):
     @reactive.calc
     @reactive.event(input.run)
     def d():
-        p = np.linspace(0, 1, 1001)
-        lik = stats.binom.pmf(input.x(), input.n(), p)
+        x, n, a, b = input.x(), input.n(), input.a(), input.b()
 
-        return pd.DataFrame({
-            "p": p,
-            "prior": stats.beta.pdf(p, input.a(), input.b()),
-            "likelihood": lik / (lik.sum() / (len(p) - 1)),
-            "posterior": stats.beta.pdf(
-                p, input.a() + input.x(), input.b() + input.n() - input.x()
-            ),
-        }).melt(id_vars="p", var_name="distribution", value_name="density")
+        return (
+            pd.DataFrame({"p": np.linspace(0, 1, 1001)})
+            .assign(
+                prior=lambda df: stats.beta.pdf(df.p, a, b),
+                likelihood=lambda df: stats.beta.pdf(df.p, x + 1, n - x + 1),
+                posterior=lambda df: stats.beta.pdf(df.p, a + x, b + n - x),
+            )
+            .melt(id_vars="p", var_name="distribution", value_name="density")
+        )
 
     @render.plot
     def plot():
-        fig, ax = plt.subplots()
-        for dist, df in d().groupby("distribution", sort=False):
-            ax.plot(df["p"], df["density"], color=dist_colors[dist], label=dist)
-            ax.fill_between(
-                df["p"], df["density"], color=dist_colors[dist], alpha=0.3
-            )
-        ax.set(xlabel="p", ylabel="density")
-        ax.legend()
-        return fig
+        ax = sns.lineplot(
+            d(), x="p", y="density", hue="distribution", palette=dist_colors
+        )
+        for line in ax.lines:
+            ax.fill_between(*line.get_data(), color=line.get_color(), alpha=0.3)
+        return ax
 
     @render.data_frame
     def table():
-        def summarize(df):
-            return pd.Series({
-                "mean": (df["p"] * df["density"]).sum() / df["density"].sum(),
-                "mode": df["p"][df["density"].idxmax()],
-            })
-
         return (
             d()
+            .assign(
+                cdf=lambda df: df.groupby("distribution")["density"].transform(
+                    lambda s: s.cumsum() / s.sum()
+                )
+            )
+            .set_index("p")
             .groupby("distribution", sort=False)
-            .apply(summarize)
+            .agg(
+                mean=("density", lambda s: np.average(s.index, weights=s)),
+                median=("cdf", lambda s: (s >= 0.5).idxmax()),
+                lower=("cdf", lambda s: (s >= 0.025).idxmax()),
+                upper=("cdf", lambda s: (s >= 0.975).idxmax()),
+            )
             .round(3)
             .reset_index()
         )
@@ -115,14 +123,12 @@ def server(input, output, session):
         dist = input.summary_dist()
         df = d()[d()["distribution"] == dist]
         cdf = df["density"].cumsum() / df["density"].sum()
-
-        def quantile(prob):
-            return df["p"][cdf >= prob].iloc[0]
+        lo, med, hi = df["p"].iloc[np.searchsorted(cdf, [0.025, 0.5, 0.975])]
 
         summary = {
-            "Mean": f"{(df['p'] * df['density']).sum() / df['density'].sum():.3f}",
-            "Median": f"{quantile(0.5):.3f}",
-            "95% CI": f"{quantile(0.025):.3f} - {quantile(0.975):.3f}",
+            "Mean": f"{np.average(df['p'], weights=df['density']):.3f}",
+            "Median": f"{med:.3f}",
+            "95% CI": f"{lo:.3f} - {hi:.3f}",
         }
 
         boxes = [
@@ -131,7 +137,7 @@ def server(input, output, session):
                 value,
                 showcase=icon_svg(stat_icons[stat]),
                 showcase_layout="top right",
-                theme=dist_themes[dist],
+                theme=ui.value_box_theme(bg=dist_colors[dist], fg="white"),
             )
             for stat, value in summary.items()
         ]
