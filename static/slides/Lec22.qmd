@@ -57,7 +57,7 @@ What changes is the syntax, and most of today is about mapping what we already k
 
 ## Getting started
 
-Add the package to a project with `uv`, then write the app in a file named `app.py`.
+Add the package to a project with `uv`,
 
 ::: {.small}
 ```bash
@@ -65,7 +65,9 @@ uv add shiny
 ```
 :::
 
-An app is started from the terminal.
+<br/>
+
+The app is written as a python script and then run from the command line via:
 
 ::: {.small}
 ```bash
@@ -75,7 +77,11 @@ uv run shiny run --reload app.py
 
 The `--reload` flag watches `app.py` and restarts the app every time the file is saved.
 
-Positron and VS Code have a Shiny extension that adds a run button and shows the app in a viewer pane, much like RStudio does for R. The button only appears for a file named `app.py`, or one whose name starts with `app_` or ends with `_app`, such as `app_demo.py`.
+Positron and VS Code have a Shiny extension that adds a run button and shows the app in a viewer pane, much like RStudio does for R. 
+
+::: {.aside}
+The button only appears for a file named `app.py`, or one whose name starts with `app_` or ends with `_app`, such as `app_demo.py`.
+:::
 
 
 ## Core and Express
@@ -83,16 +89,13 @@ Positron and VS Code have a Shiny extension that adds a run button and shows the
 Shiny for Python has two syntaxes for writing an app.
 
 ::: {.medium}
-* Shiny Express mixes UI and server code together in one script. It is compact and reads like a notebook, which makes it nice for small apps.
+* Shiny Express mixes UI and server code together in one script. It is compact and reads like a notebook, which makes it nice for small apps. (Competes with streamlit)
 
 * Shiny Core keeps a UI object and a server function separate, just like R.
 :::
 
 We will use Core throughout. It maps directly onto the R apps we have written, and what you learn transfers to Express easily.
 
-::: {.aside}
-The Shiny documentation shows both. Component examples have Express and Core tabs, and the API reference has a section for each.
-:::
 
 
 # Some Python syntax
@@ -106,6 +109,7 @@ A function can be defined inside another function. The inner function can use th
 def power_func(k):
     def power(x):
         return x**k
+    
     return power
 ```
 
@@ -132,12 +136,15 @@ def shout(f):
 ```
 :::
 
+. . .
+
 :::: {.columns .small}
 ::: {.column width='50%'}
 ```{python}
 def greet(name):
     return f"Hello, {name}!"
-
+```
+```{python}
 greet("Colin")
 shout(greet)("Colin")
 ```
@@ -148,7 +155,8 @@ shout(greet)("Colin")
 @shout
 def greet(name):
     return f"Hello, {name}!"
-
+```
+```{python}
 greet("Colin")
 ```
 :::
@@ -160,7 +168,7 @@ The `@` line is shorthand for the `greet = shout(greet)`
 
 ## Decorators that register
 
-A decorator can also return the function unchanged and just keep a reference to it. Here `render()` saves each function in a dictionary, using the function's name as the key.
+Here `render()` stores each function by name in a dictionary and returns it unchanged.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -216,27 +224,30 @@ def repeat(n):
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```{python}
+
 @repeat(2)
 def greet(name):
     return f"Hello, {name}!"
-
+```
+```{python}
 greet("Colin")
 ```
 :::
 
-::: {.column width='50%'}
+::: {.column width='50%' .fragment}
 ```{python}
 @repeat(2)
 @shout
 def greet(name):
     return f"Hello, {name}!"
-
+```
+```{python}
 greet("Colin")
 ```
 :::
 ::::
 
-Stacked decorators are applied from the bottom up, so this is `repeat(2)(shout(greet))`. The order matters, and we will see a case in Shiny where getting it wrong is an error.
+Stacked decorators are applied from the bottom up, so the order matters.
 
 
 ## Positional and keyword arguments
@@ -245,7 +256,7 @@ In a Python call all positional arguments must come before any keyword arguments
 
 ![](imgs/Lec22_arguments.svg){fig-align="center" width="50%"}
 
-UI functions take their children as positional arguments, so the named options that R code often puts first have to move to the end.
+In shiny the UI functions take their children as *positional arguments*, so the named options that R code often puts first have to move to the end.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -312,7 +323,8 @@ app = App(app_ui, server)
 
 ::: {.medium}
 * `ui` holds the UI functions and `App` ties the pieces together. 
-    * Most apps also import `render` for the output renderers and `reactive` for the reactive tools.
+    * Most apps also import `render` for the output renderers and 
+    * `reactive` for the reactive tools.
 * The UI object is called `app_ui` by convention, since the name `ui` is taken by the module.
 * `shiny run app.py` looks for an object named `app` by default. Another name can be given as `shiny run app.py:my_app`.
 :::
@@ -320,7 +332,7 @@ app = App(app_ui, server)
 
 ## UI function names
 
-Every UI function lives in `ui` and uses `snake_case`. Inputs start with `input_` and outputs start with `output_`, instead of ending in `Input` and `Output`.
+Every UI function lives in `ui` and uses `snake_case`. Inputs start with `input_` and outputs start with `output_`.
 
 ::: {.small}
 | R                                | Python                                |
@@ -337,7 +349,7 @@ Every UI function lives in `ui` and uses `snake_case`. Inputs start with `input_
 | `card()`, `value_box()`          | `ui.card()`, `ui.value_box()`         |
 :::
 
-The `bslib` functions keep their names, since they were already in `snake_case`.
+The `bslib` functions keep their names, since they were already in `snake_case` with consistent prefixes.
 
 ::: {.aside}
 You can see the development process of Shiny for R -> Shiny for Python -> bslib
@@ -422,7 +434,7 @@ Python is being more explicit here. Every reactive value is an object, and calli
 
 . . .
 
-Leaving off the parentheses is the most common mistake when coming from R. The result is the reactive object and not its value, which usually leads to a weird type error somewhere later.
+Leaving off the parentheses is the most common mistake when coming from R. The result is the reactive object and not its value, which usually leads to a weird type error.
 
 ::: {.small}
 ```python
@@ -463,24 +475,22 @@ def summary_title():
 ::: {.medium}
 * A `render*()` function wrapped around a block of code becomes a `@render` decorator on a function with no arguments.
 * There is no assignment to `output`. The function name is the output id, so `summary_title()` fills `ui.output_text("summary_title")`.
-* The value needs an explicit `return`. An R block returns its last expression, while a Python function without a `return` returns `None`.
+* The function needs an explicit `return` (a Python function without a `return` returns `None`).
 :::
 
 
 ## Plots and tables
 
-`@render.plot` works with `matplotlib` and anything built on it, such as `seaborn` and `plotnine`. Return the figure, or draw with `pyplot` and return nothing.
+`@render.plot` works with `matplotlib` and anything built on it, such as `seaborn` and `plotnine`. Return the figure or axes, or draw with `pyplot` and return nothing.
 
 ::: {.small}
 ```python
 @render.plot
 def plot():
-    fig, ax = plt.subplots()
-    for dist, df in d().groupby("distribution", sort=False):
-        ax.plot(df["p"], df["density"], label=dist)
-        ax.fill_between(df["p"], df["density"], alpha=0.3)
-    ax.legend()
-    return fig
+    ax = sns.lineplot(d(), x="p", y="density", hue="distribution")
+    for line in ax.lines:
+        ax.fill_between(*line.get_data(), color=line.get_color(), alpha=0.3)
+    return ax
 ```
 :::
 
@@ -500,6 +510,10 @@ def table():
 
 
 ## Reactive expressions
+
+`reactive()` becomes the `@reactive.calc` decorator. The result is used in the same way in both languages, by calling `d()` from another reactive context.
+
+Nothing about the behavior changes. A calc is lazy, it caches its value, and it is invalidated when any input it read changes. 
 
 :::: {.columns .xsmall}
 ::: {.column width='50%'}
@@ -528,9 +542,7 @@ def d():
 :::
 ::::
 
-`reactive()` becomes the `@reactive.calc` decorator. The result is used the same way in both languages, by calling `d()` from an output or another reactive.
 
-Nothing about the behavior changes. A calc is lazy, it caches its value, and it is invalidated when any input it read changes. 
 
 
 ## Observers
@@ -560,14 +572,14 @@ def _():
 ::::
 
 ::: {.medium}
-* An effect is never called by name, so by convention the function is named `_`. Reusing `_` for several effects is fine. `reactive.calc`s and `render`s need unique names.
+* An effect is never called by name, so by convention the function is named `_`. Reusing `_` for different effects is fine. `reactive.calc`s and `render`s need unique names.
 * The `update*()` functions are in `ui` as `ui.update_slider()`, `ui.update_numeric()`, and so on. They find the current session on their own, so `session` is not passed.
 :::
 
 
 ## Events
 
-`bindEvent()` becomes the `@reactive.event()` decorator, which takes the reactive values to listen to.
+`bindEvent()` becomes the `@reactive.event()` decorator, which takes the reactive value(s) to listen to.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -591,6 +603,7 @@ def d():
 
 ::: {.medium}
 * The event is passed as `input.run` without parentheses. We are handing over the reactive object to watch, not reading its current value.
+* Multiple events are given as separate arguments, `@reactive.event(input.run, input.reset)`, just like `bindEvent`.
 * `@reactive.event()` goes directly above the `def`, underneath `@reactive.calc`, `@reactive.effect`, or `@render.*`. Decorators apply from the bottom up, so the event wraps the function first. The wrong order is an error.
 * `ignoreNULL` and `ignoreInit` become `ignore_none` and `ignore_init`.
 :::
@@ -638,7 +651,76 @@ def boxes():
 :::
 ::::
 
-The `bsicons` package has no Python version. The `faicons` package fills the same role with Font Awesome icons, e.g. `faicons.icon_svg("gear")`.
+::: {.aside}
+For icons, Python uses `faicons` (Font Awesome) in place of `bsicons`, e.g. `faicons.icon_svg("gear")`.
+:::
+
+## Requiring values
+
+`req()` works the same way in both languages: if any argument is missing, the calculation stops quietly and the output stays blank.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```r
+output$tbl = renderTable({
+  req(input$file)
+  read.csv(input$file$datapath)
+})
+```
+:::
+
+::: {.column width='50%'}
+```python
+@render.table
+def tbl():
+    file = req(input.file())
+    return pd.read_csv(file[0]["datapath"])
+```
+:::
+::::
+
+::: {.medium}
+* `req()` is imported from `shiny` alongside `App`, `reactive`, `render`, and `ui`. It receives values, so the inputs are called, `input.file()`.
+* It returns its first argument, so checking and reading a value can be one line.
+* "Missing" means falsy in Python: `None`, `False`, `""`, and empty lists, but also `0`, which R treats as a valid value. A data frame cannot be passed to `req()` at all, since pandas raises an error when asked whether one is true.
+:::
+
+
+## Showing a message
+
+There is no `validate()` or `need()`. Instead, raise a `SafeException` and its message is shown in place of the output.
+
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```r
+output$plot = renderPlot({
+  validate(
+    need(input$x <= input$n,
+         "Too many heads")
+  )
+  ...
+})
+```
+:::
+
+::: {.column width='50%'}
+```python
+from shiny.types import SafeException
+
+@render.plot
+def plot():
+    if input.x() > input.n():
+        raise SafeException("Too many heads")
+    ...
+```
+:::
+::::
+
+::: {.medium}
+* Any exception's message is shown while developing, but deployed apps (e.g. on Posit Connect) usually replace it with a generic error. A `SafeException`'s message is always shown.
+* Raised inside a `@reactive.calc`, it reaches every output that uses the calc, just like `validate()`.
+* The message is styled as an error, not the gray text `validate()` gives.
+:::
 
 
 ## Other pieces
@@ -648,7 +730,6 @@ A few more tools have direct equivalents in Python.
 ::: {.small}
 | R                          | Python                             |
 |----------------------------|------------------------------------|
-| `req(input$file)`          | `req(input.file())`                |
 | `reactiveVal(0)`           | `reactive.value(0)`                |
 | `isolate(input$x)`         | `with reactive.isolate():`         |
 | `invalidateLater(1000)`    | `reactive.invalidate_later(1)`     |
@@ -656,8 +737,6 @@ A few more tools have direct equivalents in Python.
 | `tags$small()`             | `ui.tags.small()`                  |
 | `HTML()`, `markdown()`     | `ui.HTML()`, `ui.markdown()`       |
 :::
-
-`req()` is imported from `shiny` alongside `App`, `reactive`, `render`, and `ui`.
 
 
 ## Common mistakes
@@ -700,17 +779,19 @@ The statistical pieces change along with the Shiny ones.
 | `dbinom(x, n, p)`                    | `stats.binom.pmf(x, n, p)`                    |
 | `tibble()`                           | `pd.DataFrame()`                              |
 | `pivot_longer()`                     | `.melt()`                                     |
-| `summarize(.by = distribution)`      | `.groupby("distribution")`                    |
-| `ggplot()` with `geom_line()`        | `ax.plot()`                                   |
+| `summarize(..., .by = distribution)` | `.groupby("distribution").agg(...)`           |
+| `ggplot()` with `geom_line()`        | `sns.lineplot()`                              |
 | `geom_ribbon()`                      | `ax.fill_between()`                           |
 | `bsicons::bs_icon()`                 | `faicons.icon_svg()`                          |
 :::
 
-::: {.small}
+<br/>
+
+::: {.xsmall}
 ```python
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy import stats
 from faicons import icon_svg
 from shiny import App, reactive, render, ui
@@ -721,6 +802,14 @@ from shiny import App, reactive, render, ui
 ## Example
 
 Translate the Beta-Binomial app from last lecture into Shiny for Python.
+
+Add the packages used by the app and the accompanying examples:
+
+::: {.small}
+```bash
+uv add shiny numpy pandas matplotlib scipy faicons seaborn
+```
+:::
 
 
 # Publishing
@@ -740,7 +829,7 @@ uv export --no-hashes --format requirements.txt -o requirements.txt
 :::
 
 ::: {.medium}
-* `shinylive` bundles the app as a static site that runs entirely in the browser using Pyodide. Only packages that have been built for Pyodide are available, which covers `numpy`, `pandas`, `scipy`, and `matplotlib`.
+* `shinylive` bundles the app as a static site that runs entirely in the browser using Pyodide. Packages with compiled code need Pyodide-compatible builds; many pure-Python packages also work. `numpy`, `pandas`, `scipy`, and `matplotlib` are available.
 :::
 
 ::: {.small}
@@ -782,7 +871,7 @@ uv run python -m http.server --directory site
 
 * A decorator passes the function below it to another function and rebinds the name to the result. Shiny uses decorators wherever R wraps a block of code in a function call, so `renderPlot({})`, `reactive({})`, and `observe({})` become `@render.plot`, `@reactive.calc`, and `@reactive.effect`.
 
-* An output is matched to the UI by the name of its function, and its value has to be returned explicitly.
+* An output is matched to the UI by the name of its function. Most output renderers require an explicit `return`; `@render.plot` can also capture pyplot drawing without one.
 
 * Reactive values are read by calling them, as in `input.x()`. They are passed without parentheses to `@reactive.event()`, which sits directly above the `def`.
 
