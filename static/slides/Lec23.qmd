@@ -1,0 +1,444 @@
+---
+title: "Dynamic UIs & Modules"
+subtitle: "Lecture 23"
+author: "Dr. Colin Rundel"
+footer: "Sta 523 - Fall 2026"
+format:
+  revealjs:
+    theme: slides.scss
+    transition: fade
+    slide-number: true
+    code-line-numbers: false
+    self-contained: true
+execute:
+  echo: true
+  warning: true
+engine: knitr
+---
+
+```{r setup}
+#| message: false
+#| warning: false
+#| include: false
+library(shiny)
+library(bslib)
+
+options(
+  width = 80
+)
+
+knitr::opts_chunk$set(
+  fig.align = "center", fig.retina = 2, dpi = 150,
+  out.width = "100%"
+)
+```
+
+# Dynamic UI
+
+## Comparing priors
+
+Our Beta-Binomial app has a single prior. To see how much the posterior depends on that choice we want to compare several priors, without knowing in advance how many there will be.
+
+![](imgs/Lec23_app.png){fig-align="center" width="60%"}
+
+
+## A card for each prior
+
+Each prior needs its own pair of inputs and every input needs its own id. A function that builds the ids from a number lets us make as many cards as we need.
+
+::: {.small}
+```r
+prior_card = function(id) {
+  card(
+    card_header(paste("Prior", id)),
+    numericInput(paste0("a_", id), "Prior # of heads", min = 0, value = 1),
+    numericInput(paste0("b_", id), "Prior # of tails", min = 0, value = 1)
+  )
+}
+```
+:::
+
+`prior_card(2)` creates the inputs `a_2` and `b_2`, which the server reads as `input$a_2` and `input$b_2`.
+
+
+## A first attempt with `renderUI()`
+
+:::: {.columns}
+::: {.column width='50%' .small}
+```r
+sidebar(
+  ...,
+  actionButton("add", "Add prior"),
+  uiOutput("priors")
+)
+```
+:::
+
+::: {.column width='50%' .small}
+```r
+output$priors = renderUI({
+  map(
+    seq_len(input$add), prior_card
+  )
+})
+```
+:::
+::::
+
+::: {.medium}
+* `input$add` counts clicks, so each click rebuilds the output with one more card.
+
+* Rebuilding replaces all of the cards, including the ones already on the page, so every input goes back to its default value.
+
+* The cards are always `1` to `input$add`, which leaves no way to remove one from the middle.
+:::
+
+
+## `insertUI()` & `removeUI()`
+
+These functions add and remove pieces of UI from the server without touching anything else on the page.
+
+::: {.small}
+```r
+insertUI(selector = "#priors", where = "beforeEnd", ui = prior_card(1))
+```
+
+```r
+removeUI(selector = "#prior_1")
+```
+:::
+
+::: {.medium}
+* `selector` is a CSS selector, as used with `rvest`. `#priors` matches the element whose id is `priors`, so the UI needs one, e.g. an empty `div(id = "priors")`.
+
+* `where` places the new UI relative to the selected element. `beforeEnd` makes it the last child, `afterBegin` the first, and `beforeBegin` and `afterEnd` put it outside the element.
+
+* Both are side effects, so they are called from an observer and never from a `render*()` function or a reactive.
+:::
+
+
+## Adding a prior
+
+::: {.small}
+```r
+ids = reactiveVal(integer())
+
+observe({
+  id = input$add
+
+  insertUI("#priors", where = "beforeEnd", ui = prior_card(id))
+  ids(c(ids(), id))
+}) |>
+  bindEvent(input$add)
+```
+:::
+
+::: {.medium}
+* The click count is different for every click, which makes it a convenient source of unique ids.
+
+* `reactiveVal()` creates a reactive value that we set ourselves. `ids()` reads it and `ids(x)` replaces it, which invalidates anything that has read it.
+
+* The server has no other record of what is on the page, so `ids` is how the rest of the app knows which priors exist.
+:::
+
+
+## Removing a prior
+
+Each card gets an id, a button, and its own observer.
+
+:::: {.columns}
+::: {.column width='50%' .small}
+```r
+card(
+  id = paste0("prior_", id),
+  card_header(
+    paste("Prior", id),
+    actionButton(
+      paste0("remove_", id), NULL,
+      icon = icon("xmark")
+    )
+  ),
+  ...
+)
+```
+:::
+
+::: {.column width='50%' .small}
+```r
+observe({
+  removeUI(paste0("#prior_", id))
+  ids(setdiff(ids(), id))
+}) |>
+  bindEvent(
+    input[[paste0("remove_", id)]],
+    once = TRUE
+  )
+```
+:::
+::::
+
+::: {.medium}
+* The observer is created inside the observer for `input$add`, where `id` is known. `once = TRUE` destroys it after it has run.
+
+* `removeUI()` only removes the HTML. `input$a_2` keeps its last value, so it is `ids()` that tells us which priors are left.
+:::
+
+
+## Reading the inputs
+
+The ids are built at run time, so inputs are read with `input[[...]]`. A new card's inputs start as `NULL`, hence the `req()`.
+
+::: {.xsmall}
+```r
+d = reactive({
+  map(
+    ids(),
+    \(id) {
+      a = input[[paste0("a_", id)]]
+      b = input[[paste0("b_", id)]]
+      req(a, b)
+
+      tibble(
+        prior = paste("Prior", id),
+        p = seq(0, 1, length.out = 501),
+        density = dbeta(p, a + input$x, b + input$n - input$x)
+      )
+    }
+  ) |>
+    list_rbind()
+})
+```
+:::
+
+
+## Example
+
+Build a version of the Beta-Binomial app that plots the posterior for any number of priors, with buttons to add and remove them.
+
+
+## What we ended up with
+
+The app works, but the code for a single card is hard to follow and harder to reuse.
+
+* The naming scheme (`prior_1`, `a_1`, `b_1`, `remove_1`) is repeated by hand in the UI function, both observers, and the reactive.
+
+* The logic for one card is spread over four separate places in the app.
+
+* Every id lives in one shared namespace, so nothing stops another part of the app from also using `a_1`.
+
+* Using the cards in a second app means copying all of these pieces and keeping them in sync.
+
+
+# Modules
+
+## Shiny modules
+
+A module is a pair of functions that together describe one piece of an app, such as a single prior card.
+
+* The module UI function takes an `id` and returns UI, like `prior_card()` did.
+
+* The module server function takes the same `id` and holds the server code for that UI.
+
+* Everything inside the module is namespaced by the `id`. The module's code refers to `input$a`, while the rest of the app sees that input as `prior_1-a`.
+
+A module can then be used several times in one app, each time with a different `id`, without any of the copies interfering with each other.
+
+
+## `NS()`
+
+Namespacing is nothing more than a prefix on the id. `NS()` returns a function that adds the prefix.
+
+::: {.small}
+```{r ns}
+ns = NS("prior_1")
+```
+
+```{r ns-use}
+ns("a")
+ns("remove")
+```
+:::
+
+A module UI function wraps every input and output id in `ns()`. Leaving one out is the most common mistake with modules. The app still runs, but the module's server never sees that input.
+
+
+## Module UI
+
+By convention the function is named `*_ui()` and `id` is its first argument. Other arguments, like `label` here, are up to us.
+
+::: {.small}
+```r
+prior_ui = function(id, label) {
+  ns = NS(id)
+
+  card(
+    id = ns("card"),
+    card_header(
+      label,
+      actionButton(ns("remove"), NULL, icon = icon("xmark"))
+    ),
+    numericInput(ns("a"), "Prior # of heads", min = 0, value = 1),
+    numericInput(ns("b"), "Prior # of tails", min = 0, value = 1)
+  )
+}
+```
+:::
+
+
+## Module server
+
+::: {.small}
+```r
+prior_server = function(id, label, x, n) {
+  moduleServer(id, function(input, output, session) {
+    reactive({
+      req(input$a, input$b)
+
+      tibble(
+        prior = label,
+        p = seq(0, 1, length.out = 501),
+        density = dbeta(p, input$a + x(), input$b + n() - x())
+      )
+    })
+  })
+}
+```
+:::
+
+::: {.medium}
+* The app's `input$x` is not visible here. Anything the module needs is passed in as a reactive and read as `x()`.
+
+* The inner function's value is returned to the caller.
+:::
+
+
+## Using a module
+
+Call each function once per copy, with matching ids.
+
+::: {.xsmall}
+```r
+ui = page_sidebar(
+  sidebar = sidebar(
+    ...,
+    prior_ui("prior_1", "Prior 1"),
+    prior_ui("prior_2", "Prior 2")
+  ),
+  plotOutput("plot")
+)
+
+server = function(input, output, session) {
+  x = reactive(input$x)
+  n = reactive(input$n)
+  prior_1 = prior_server("prior_1", "Prior 1", x, n)
+  prior_2 = prior_server("prior_2", "Prior 2", x, n)
+
+  d = reactive(bind_rows(prior_1(), prior_2()))
+  ...
+}
+```
+:::
+
+
+## Modules & dynamic UI
+
+A module server can be started at any time. Each click inserts a new copy of the UI and starts its server.
+
+::: {.xsmall}
+```r
+priors = reactiveVal(list())
+
+observe({
+  id = paste0("prior_", input$add)
+  label = paste("Prior", input$add)
+
+  insertUI("#priors", where = "beforeEnd", ui = prior_ui(id, label))
+  prior = prior_server(id, label, x = reactive(input$x), n = reactive(input$n))
+  priors(c(priors(), prior))
+}) |>
+  bindEvent(input$add)
+
+d = reactive({
+  map(priors(), \(prior) prior()) |>
+    list_rbind()
+})
+```
+:::
+
+
+## A module that removes itself
+
+::: {.xsmall}
+```r
+moduleServer(id, function(input, output, session) {
+  removed = reactiveVal(FALSE)
+
+  observe({
+    removeUI(paste0("#", session$ns("card")))
+    removed(TRUE)
+  }) |>
+    bindEvent(input$remove, once = TRUE)
+
+  reactive({
+    if (removed()) return(NULL)
+    ...
+  })
+})
+```
+:::
+
+::: {.medium}
+* `input$remove` is namespaced for us but a CSS selector is not. `session$ns()` is the module's own `NS()` function, which gives the full id of the card.
+
+* Shiny cannot shut down a module's server. After removal its reactive stays in `priors()` and returns `NULL`, which `list_rbind()` drops.
+:::
+
+
+## Example
+
+Rewrite the prior comparison app so that each prior card is a module.
+
+
+## Working with modules
+
+::: {.medium}
+* Name the pair `*_ui()` and `*_server()`, and keep the two functions together. Files in an app's `R/` folder are sourced automatically, so `R/prior.R` is a good home for them.
+
+* Pass reactives into a module without calling them, as `x = reactive(input$x)` or `x = d`. Passing `input$x` hands over a single value that never updates.
+
+* Return a reactive, or a list of reactives, for anything the rest of the app needs. Avoid reaching into a module's inputs from outside via `input[["prior_1-a"]]`.
+
+* Modules can contain other modules. Inside a module the ids are relative, so a nested module is called with a plain id in the server and with `ns("id")` in the UI.
+
+* A module server can be tested without a browser using `testServer()`.
+:::
+
+
+# Summary {visibility="uncounted"}
+
+## Takeaways {visibility="uncounted"}
+
+::: {.medium}
+* `renderUI()` rebuilds everything it returns, which resets any inputs it contains. `insertUI()` and `removeUI()` change one piece of the page and leave the rest alone.
+
+* UI that is added while the app runs needs unique ids and a record on the server of what currently exists, typically kept in a `reactiveVal()`. Inputs with generated ids are read with `input[[id]]`.
+
+* Doing this by pasting ids together works, but the naming scheme ends up repeated throughout the app.
+
+* A module pairs a UI function with a server function that share an `id`. `NS()` prefixes the ids in the UI and `moduleServer()` gives the server a view of only its own inputs and outputs.
+
+* Reactives go into a module as arguments and come out as its return value.
+
+* Module servers can be started from an observer, which makes modules a good fit for UI that is created on demand.
+:::
+
+
+## Learning more {visibility="uncounted"}
+
+::: {.medium}
+- [Mastering Shiny - Dynamic UI](https://mastering-shiny.org/action-dynamic.html), including `insertUI()` and `removeUI()`
+- [Mastering Shiny - Shiny modules](https://mastering-shiny.org/scaling-modules.html), with many more examples of module inputs and outputs
+- [Modularizing Shiny app code](https://shiny.posit.co/r/articles/improve/modules/) from the Shiny documentation
+- Reference pages for [`insertUI()`](https://shiny.posit.co/r/reference/shiny/latest/insertui.html), [`moduleServer()`](https://shiny.posit.co/r/reference/shiny/latest/moduleserver.html), and [`NS()`](https://shiny.posit.co/r/reference/shiny/latest/ns.html)
+- [Mastering Shiny - Testing](https://mastering-shiny.org/scaling-testing.html) for `testServer()`
+:::

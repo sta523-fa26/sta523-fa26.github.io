@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 924 150" width="924" height="150" font-family="Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<text x="42.0" y="62" font-size="40" fill="#333333" textLength="48.0" lengthAdjust="spacingAndGlyphs" xml:space="preserve">f(</text>
+<text x="90.0" y="62" font-size="40" fill="#333333" textLength="240.0" lengthAdjust="spacingAndGlyphs" xml:space="preserve">pos1, pos2</text>
+<rect x="90.0" y="76" width="240.0" height="6" rx="3" fill="#325b74"/>
+<text x="210.0" y="118" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">positional</text>
+<text x="330.0" y="62" font-size="40" fill="#999999" textLength="48.0" lengthAdjust="spacingAndGlyphs" xml:space="preserve">, </text>
+<text x="378.0" y="62" font-size="40" fill="#333333" textLength="480.0" lengthAdjust="spacingAndGlyphs" xml:space="preserve">key1=val1, key2=val2</text>
+<rect x="378.0" y="76" width="480.0" height="6" rx="3" fill="#325b74"/>
+<text x="618.0" y="118" font-size="28" fill="#325b74" text-anchor="middle" font-family="Atkinson Hyperlegible, Helvetica, Arial, sans-serif">keyword</text>
+<text x="858.0" y="62" font-size="40" fill="#333333" textLength="24.0" lengthAdjust="spacingAndGlyphs" xml:space="preserve">)</text>
+</svg>

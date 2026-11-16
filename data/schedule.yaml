@@ -413,7 +413,7 @@ schedule:
   day: 1
   topic: "Shiny"
   lecture: "Shiny for Python"
-  slides: ""
+  slides: "Lec22"
   r_readings: []
   py_readings:
     - text: "Shiny for Python"

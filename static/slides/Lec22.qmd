@@ -40,7 +40,7 @@ reticulate::use_virtualenv(normalizePath(".venv"), required = TRUE)
 
 ## Shiny for Python
 
-Shiny is also available as a Python package, also called `shiny`. It is a separate implementation written in Python and not a wrapper around the R package, so no R installation is involved.
+Shiny is also available as a Python package, `shiny`. It is a separate implementation written in Python, not a wrapper around the R package.
 
 Almost everything from the last two lectures carries over.
 
@@ -48,7 +48,7 @@ Almost everything from the last two lectures carries over.
 
 * The same reactive model with inputs, outputs, reactive expressions, and observers
 
-* The same browser side code, so apps look and behave the same
+* The same browser-side code, so apps look and behave the same
 
 * The `bslib` components (cards, value boxes, sidebars, layouts) are built in
 
@@ -65,7 +65,7 @@ uv add shiny
 ```
 :::
 
-An app is started from the terminal. With `--reload` the app restarts every time the file is saved.
+An app is started from the terminal.
 
 ::: {.small}
 ```bash
@@ -73,7 +73,9 @@ uv run shiny run --reload app.py
 ```
 :::
 
-Positron and VS Code have a Shiny extension that adds a run button and shows the app in a viewer pane, much like RStudio does for R.
+The `--reload` flag watches `app.py` and restarts the app every time the file is saved.
+
+Positron and VS Code have a Shiny extension that adds a run button and shows the app in a viewer pane, much like RStudio does for R. The button only appears for a file named `app.py`, or one whose name starts with `app_` or ends with `_app`, such as `app_demo.py`.
 
 
 ## Core and Express
@@ -89,7 +91,7 @@ Shiny for Python has two syntaxes for writing an app.
 We will use Core throughout. It maps directly onto the R apps we have written, and what you learn transfers to Express easily.
 
 ::: {.aside}
-The Shiny documentation shows both. Look for the Express / Core toggle at the top of each page.
+The Shiny documentation shows both. Component examples have Express and Core tabs, and the API reference has a section for each.
 :::
 
 
@@ -101,14 +103,14 @@ A function can be defined inside another function. The inner function can use th
 
 ::: {.small}
 ```{python}
-def make_power(k):
+def power_func(k):
     def power(x):
         return x**k
     return power
 ```
 
 ```{python}
-square = make_power(2)
+square = power_func(2)
 square(4)
 ```
 :::
@@ -125,6 +127,7 @@ A decorator is a function that takes a function and returns something to use in 
 def shout(f):
     def wrapper(name):
         return f(name).upper()
+    
     return wrapper
 ```
 :::
@@ -135,12 +138,12 @@ def shout(f):
 def greet(name):
     return f"Hello, {name}!"
 
-greet = shout(greet)
 greet("Colin")
+shout(greet)("Colin")
 ```
 :::
 
-::: {.column width='50%'}
+::: {.column width='50%' .fragment}
 ```{python}
 @shout
 def greet(name):
@@ -151,14 +154,16 @@ greet("Colin")
 :::
 ::::
 
-The `@` line is shorthand for the reassignment on the left. The function is defined, passed to `shout()`, and the result is bound to the name `greet`.
-
+::: {.aside}
+The `@` line is shorthand for the `greet = shout(greet)`
+:::
 
 ## Decorators that register
 
-A decorator does not have to change the function at all. It can simply record it somewhere, and it can see the function's name while doing so.
+A decorator can also return the function unchanged and just keep a reference to it. Here `render()` saves each function in a dictionary, using the function's name as the key.
 
-::: {.small}
+:::: {.columns .small}
+::: {.column width='50%'}
 ```{python}
 outputs = {}
 
@@ -166,7 +171,9 @@ def render(f):
     outputs[f.__name__] = f
     return f
 ```
+:::
 
+::: {.column width='50%'}
 ```{python}
 @render
 def plot():
@@ -176,7 +183,12 @@ def plot():
 def table():
     return "a table"
 ```
+:::
+::::
 
+We can then access those functions from the `outputs` dictionary,
+
+::: {.small}
 ```{python}
 list(outputs)
 outputs["plot"]()
@@ -188,9 +200,9 @@ This is roughly what Shiny does. The name of a decorated function is the id of t
 
 ## Arguments and stacking
 
-A decorator can take arguments. In that case the call after the `@` runs first and returns the actual decorator.
+A decorator can take arguments. `repeat(2)` is called first and returns the decorator to apply.
 
-::: {.small}
+::: {.xsmall}
 ```{python}
 def repeat(n):
     def decorator(f):
@@ -199,7 +211,20 @@ def repeat(n):
         return wrapper
     return decorator
 ```
+:::
 
+:::: {.columns .xsmall}
+::: {.column width='50%'}
+```{python}
+@repeat(2)
+def greet(name):
+    return f"Hello, {name}!"
+
+greet("Colin")
+```
+:::
+
+::: {.column width='50%'}
 ```{python}
 @repeat(2)
 @shout
@@ -209,13 +234,18 @@ def greet(name):
 greet("Colin")
 ```
 :::
+::::
 
 Stacked decorators are applied from the bottom up, so this is `repeat(2)(shout(greet))`. The order matters, and we will see a case in Shiny where getting it wrong is an error.
 
 
 ## Positional and keyword arguments
 
-In a Python call all positional arguments must come before any keyword arguments. UI functions take their children as positional arguments, so the named options that R code often puts first have to move to the end.
+In a Python call all positional arguments must come before any keyword arguments.
+
+![](imgs/Lec22_arguments.svg){fig-align="center" width="50%"}
+
+UI functions take their children as positional arguments, so the named options that R code often puts first have to move to the end.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -239,28 +269,16 @@ ui.card(
 :::
 ::::
 
-A list of components is unpacked into positional arguments with `*`, which does the job of `!!!` in R.
-
-:::: {.columns .small}
-::: {.column width='50%'}
-```r
-layout_column_wrap(!!!boxes)
-```
+::: {.aside}
+In a `def`, parameters before `/` are positional only, those after `*` are keyword only, and any in between can be either.
 :::
-
-::: {.column width='50%'}
-```python
-ui.layout_column_wrap(*boxes)
-```
-:::
-::::
 
 
 # From R to Python
 
 ## Anatomy of an app
 
-:::: {.columns .small}
+:::: {.columns .xsmall}
 ::: {.column width='50%'}
 ```r
 library(shiny)
@@ -278,7 +296,7 @@ shinyApp(ui = ui, server = server)
 
 ::: {.column width='50%'}
 ```python
-from shiny import App, reactive, render, ui
+from shiny import App, ui
 
 
 app_ui = ui.page_fluid()
@@ -293,9 +311,10 @@ app = App(app_ui, server)
 ::::
 
 ::: {.medium}
-* Everything comes from four names. `ui` holds the UI functions, `render` the output renderers, `reactive` the reactive tools, and `App` ties the pieces together.
-* The UI object is called `app_ui` because the name `ui` is already taken by the module.
-* The app object must be named `app`, which is what `shiny run` looks for.
+* `ui` holds the UI functions and `App` ties the pieces together. 
+    * Most apps also import `render` for the output renderers and `reactive` for the reactive tools.
+* The UI object is called `app_ui` by convention, since the name `ui` is taken by the module.
+* `shiny run app.py` looks for an object named `app` by default. Another name can be given as `shiny run app.py:my_app`.
 :::
 
 
@@ -319,6 +338,10 @@ Every UI function lives in `ui` and uses `snake_case`. Inputs start with `input_
 :::
 
 The `bslib` functions keep their names, since they were already in `snake_case`.
+
+::: {.aside}
+You can see the development process of Shiny for R -> Shiny for Python -> bslib
+:::
 
 
 ## Translating a UI
@@ -372,9 +395,8 @@ app_ui = ui.page_sidebar(
 ::::
 
 ::: {.medium}
-* The sidebar is the first positional argument of `ui.page_sidebar()` and `title` moves to the end.
-* `class` is a reserved word in Python, so the argument is spelled `class_`.
-* `TRUE`, `FALSE`, and `NULL` become `True`, `False`, and `None`.
+* The sidebar is now the first positional argument, and `title` moves to the end.
+* `class` is reserved in Python, so the argument is `class_`.
 :::
 
 
@@ -396,9 +418,11 @@ input.n() - input.x()
 :::
 ::::
 
-Python is being more explicit here. Every reactive value is an object, and calling it both returns the current value and records the dependency. This is the same convention R already uses for reactive expressions such as `d()`.
+Python is being more explicit here. Every reactive value is an object, and calling it both returns the current value and records the dependency. This is the same convention R already uses for reactive expressions.
 
-Leaving off the parentheses is the most common mistake when coming from R. The result is the reactive object and not its value, which usually leads to a confusing type error somewhere later.
+. . .
+
+Leaving off the parentheses is the most common mistake when coming from R. The result is the reactive object and not its value, which usually leads to a weird type error somewhere later.
 
 ::: {.small}
 ```python
@@ -409,6 +433,8 @@ input.n - input.x
 
 
 ## Outputs
+
+Outputs are where the decorators from earlier come in. Each output is a decorated function defined inside `server()`.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -437,13 +463,13 @@ def summary_title():
 ::: {.medium}
 * A `render*()` function wrapped around a block of code becomes a `@render` decorator on a function with no arguments.
 * There is no assignment to `output`. The function name is the output id, so `summary_title()` fills `ui.output_text("summary_title")`.
-* The value needs an explicit `return`. An R block returns its last expression, while a Python function without a `return` gives `None` and an empty output.
+* The value needs an explicit `return`. An R block returns its last expression, while a Python function without a `return` returns `None`.
 :::
 
 
 ## Plots and tables
 
-`@render.plot` works with `matplotlib` and anything built on it, such as `seaborn`, `pandas` plotting, and `plotnine`. Return the figure, or just draw with `pyplot` and return nothing.
+`@render.plot` works with `matplotlib` and anything built on it, such as `seaborn` and `plotnine`. Return the figure, or draw with `pyplot` and return nothing.
 
 ::: {.small}
 ```python
@@ -458,7 +484,7 @@ def plot():
 ```
 :::
 
-For tables the usual choice is `@render.data_frame` with `ui.output_data_frame()`, which shows a `pandas` or `polars` data frame as a scrollable, sortable grid.
+For tables use `@render.data_frame` with `ui.output_data_frame()`, which shows a `pandas` or `polars` data frame as a sortable grid.
 
 ::: {.small}
 ```python
@@ -469,7 +495,7 @@ def table():
 :::
 
 ::: {.aside}
-`@render.table` is the direct equivalent of `renderTable()` and gives a plain HTML table. It needs the `jinja2` package to be installed.
+`@render.table` matches `renderTable()` with a plain HTML table, and needs the `jinja2` package.
 :::
 
 
@@ -504,10 +530,12 @@ def d():
 
 `reactive()` becomes the `@reactive.calc` decorator. The result is used the same way in both languages, by calling `d()` from an output or another reactive.
 
-Nothing about the behavior changes. A calc is lazy, it caches its value, and it is invalidated when any input it read changes. The reactive graph from Lecture 20 describes the Python app just as well.
+Nothing about the behavior changes. A calc is lazy, it caches its value, and it is invalidated when any input it read changes. 
 
 
 ## Observers
+
+`observe()` becomes `@reactive.effect`. The name reflects what an observer is for, which is running code for its side effects.
 
 :::: {.columns .small}
 ::: {.column width='50%'}
@@ -532,8 +560,7 @@ def _():
 ::::
 
 ::: {.medium}
-* `observe()` becomes `@reactive.effect`. The name reflects what an observer is for, which is running code for its side effects.
-* An effect is never called by name, so by convention the function is named `_`. Reusing `_` for several effects is fine. Calcs and outputs need unique names.
+* An effect is never called by name, so by convention the function is named `_`. Reusing `_` for several effects is fine. `reactive.calc`s and `render`s need unique names.
 * The `update*()` functions are in `ui` as `ui.update_slider()`, `ui.update_numeric()`, and so on. They find the current session on their own, so `session` is not passed.
 :::
 
@@ -564,7 +591,7 @@ def d():
 
 ::: {.medium}
 * The event is passed as `input.run` without parentheses. We are handing over the reactive object to watch, not reading its current value.
-* `@reactive.event()` goes directly above the `def`, underneath `@reactive.calc`, `@reactive.effect`, or `@render.*`. Decorators apply from the bottom up, so the event wraps the function first. The other order is an error.
+* `@reactive.event()` goes directly above the `def`, underneath `@reactive.calc`, `@reactive.effect`, or `@render.*`. Decorators apply from the bottom up, so the event wraps the function first. The wrong order is an error.
 * `ignoreNULL` and `ignoreInit` become `ignore_none` and `ignore_init`.
 :::
 
@@ -616,7 +643,7 @@ The `bsicons` package has no Python version. The `faicons` package fills the sam
 
 ## Other pieces
 
-A few more tools that were mentioned in passing in R and have direct equivalents.
+A few more tools have direct equivalents in Python.
 
 ::: {.small}
 | R                          | Python                             |
@@ -632,10 +659,6 @@ A few more tools that were mentioned in passing in R and have direct equivalents
 
 `req()` is imported from `shiny` alongside `App`, `reactive`, `render`, and `ui`.
 
-::: {.aside}
-`invalidateLater()` takes milliseconds, while `reactive.invalidate_later()` takes seconds.
-:::
-
 
 ## Common mistakes
 
@@ -644,7 +667,7 @@ A few more tools that were mentioned in passing in R and have direct equivalents
 
 * Forgetting to `return` the value from a calc or an output.
 
-* An output function whose name does not match the id used in the UI. Nothing fails, the output just stays empty.
+* An output function whose name does not match its id in the UI. Nothing fails and the output just stays empty.
 
 * Two calcs or outputs with the same name. The second definition silently replaces the first.
 
@@ -652,7 +675,7 @@ A few more tools that were mentioned in passing in R and have direct equivalents
 
 * Keyword arguments ahead of the children in a UI function, which is a syntax error.
 
-* A missing comma between UI components. Nested calls with one component per line make this easy to do, and the error message often points at the wrong line.
+* A missing comma between UI components. The error message often points at the wrong line.
 :::
 
 
@@ -660,7 +683,7 @@ A few more tools that were mentioned in passing in R and have direct equivalents
 
 ## The app in Python
 
-Our goal is the app from last lecture, with the same inputs, outputs, and reactive graph. We will leave out the pieces that depended on `bs_theme()`.
+Our goal is the app from last lecture, without the pieces that depended on `bs_theme()`.
 
 ![](imgs/Lec22_app.png){fig-align="center" width="68%"}
 
@@ -748,7 +771,7 @@ uv run python -m http.server --directory site
 | update an input      | `updateSliderInput(session, "x", ...)` | `ui.update_slider("x", ...)`                   |
 | dynamic UI           | `uiOutput()`, `renderUI()`             | `ui.output_ui()`, `@render.ui`                 |
 | splice a list        | `!!!boxes`                             | `*boxes`                                       |
-| HTML class           | `class = "p-0"`                        | `class_="p-0"`                                 |
+| HTML class           | `class = "p-2"`                        | `class_="p-2"`                                |
 :::
 
 
@@ -775,5 +798,5 @@ uv run python -m http.server --directory site
 - [API reference](https://shiny.posit.co/py/api/core/) for the Core syntax
 - [Shiny for R users](https://shiny.posit.co/py/docs/comp-r-shiny.html), a short comparison of the two versions
 - [Primer on Python decorators](https://realpython.com/primer-on-python-decorators/) from Real Python
-- [shinylive for Python](https://shiny.posit.co/py/docs/shinylive.html) and the [Posit Connect Cloud docs](https://docs.posit.co/connect-cloud/)
+- [shinylive for Python](https://shiny.posit.co/py/get-started/shinylive.html) and the [Posit Connect Cloud docs](https://docs.posit.co/connect-cloud/)
 :::
