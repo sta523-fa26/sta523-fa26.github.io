@@ -2,21 +2,35 @@ library(tidyverse)
 library(shiny)
 library(bslib)
 
+n_sim = 501
+
+beta_binom = function(label, a, b, x, n) {
+  tibble(
+    label = label,
+    p = seq(0, 1, length.out = n_sim),
+    prior = dbeta(p, a, b),
+    likelihood = dbinom(x, n, p) * (n + 1),
+    posterior = dbeta(p, a + x, b + n - x)
+  ) |>
+    pivot_longer(
+      prior:posterior,
+      names_to = "distribution", values_to = "density",
+      names_transform = fct_inorder
+    )
+}
+
 prior_ui = function(id, label) {
   ns = NS(id)
 
-  card(
-    id = ns("card"),
-    card_header(
-      label,
-      actionButton(
-        ns("remove"), NULL, icon = icon("xmark"),
-        class = "btn-sm btn-outline-danger"
-      ),
-      class = "d-flex justify-content-between align-items-center"
-    ),
-    numericInput(ns("a"), "Prior # of heads", min = 0, value = 1),
-    numericInput(ns("b"), "Prior # of tails", min = 0, value = 1)
+  card_body(
+    id = ns("body"),
+    class = "prior",
+    numericInput(ns("a"), paste(label, "heads"), min = 0, value = rpois(1, 3) + 1),
+    numericInput(ns("b"), paste(label, "tails"), min = 0, value = rpois(1, 3) + 1),
+    actionButton(
+      ns("remove"), NULL, icon = icon("xmark"),
+      class = "btn-sm btn-outline-danger"
+    )
   )
 }
 
@@ -25,7 +39,7 @@ prior_server = function(id, label, x, n) {
     removed = reactiveVal(FALSE)
 
     observe({
-      removeUI(paste0("#", session$ns("card")))
+      removeUI(paste0("#", session$ns("body")))
       removed(TRUE)
     }) |>
       bindEvent(input$remove, once = TRUE)
@@ -34,27 +48,38 @@ prior_server = function(id, label, x, n) {
       if (removed()) return(NULL)
       req(input$a, input$b)
 
-      tibble(
-        prior = label,
-        p = seq(0, 1, length.out = 501),
-        density = dbeta(p, input$a + x(), input$b + n() - x())
-      )
+      beta_binom(label, input$a, input$b, x(), n())
     })
   })
 }
 
-ui = page_sidebar(
+ui = page_fillable(
   title = "Beta-Binomial Prior Comparison",
-  sidebar = sidebar(
-    width = 300,
-    sliderInput("x", "# of heads", min = 0, max = 100, value = 7),
-    sliderInput("n", "# of flips", min = 0, max = 100, value = 10),
-    actionButton("add", "Add prior", class = "btn-primary"),
-    div(id = "priors")
-  ),
-  card(
-    card_header("Posteriors"),
-    plotOutput("plot")
+  tags$head(includeCSS("Lec23_app.css")),
+  layout_columns(
+    col_widths = c(3, 9),
+    div(
+      class = "controls overflow-auto px-1 pb-1",
+      card(
+        card_header("Data", class = "text-bg-secondary"),
+        sliderInput("x", "# of heads", min = 0, max = 100, value = 7),
+        sliderInput("n", "# of flips", min = 0, max = 100, value = 10)
+      ),
+      card(
+        card_header("Priors", class = "text-bg-secondary"),
+        div(id = "priors"),
+        card_footer(
+          actionButton(
+            "add", "Add prior", icon = icon("plus"),
+            class = "btn-primary w-100"
+          )
+        )
+      )
+    ),
+    card(
+      card_header("Distributions", class = "text-bg-secondary"),
+      plotOutput("plot")
+    )
   )
 )
 
@@ -84,9 +109,11 @@ server = function(input, output, session) {
   output$plot = renderPlot({
     req(nrow(d()) > 0)
 
-    ggplot(d(), aes(x = p, y = density, color = prior)) +
+    ggplot(d(), aes(x = p, y = density, color = distribution)) +
       geom_line(linewidth = 1.5) +
-      labs(color = NULL)
+      geom_ribbon(aes(ymax = density, fill = distribution), ymin = 0, alpha = 0.5) +
+      facet_wrap(vars(label), ncol = 1) +
+      labs(color = NULL, fill = NULL)
   })
 }
 

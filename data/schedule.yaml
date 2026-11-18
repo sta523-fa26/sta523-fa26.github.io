@@ -427,9 +427,17 @@ schedule:
   day: 3
   topic: "Shiny"
   lecture: "Dynamic UIs & Modules"
-  slides: ""
-  r_readings: []
-  py_readings: []
+  slides: "Lec23"
+  r_readings:
+    - text: "Mastering Shiny - Dynamic UI"
+      link: https://mastering-shiny.org/action-dynamic.html
+    - text: "Mastering Shiny - Shiny modules"
+      link: https://mastering-shiny.org/scaling-modules.html
+    - text: "Modularizing Shiny app code"
+      link: https://shiny.posit.co/r/articles/improve/modules/
+  py_readings:
+    - text: "Shiny for Python - Modules"
+      link: https://shiny.posit.co/py/docs/modules.html
 
 
 - week: 14
