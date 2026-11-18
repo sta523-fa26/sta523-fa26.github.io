@@ -44,7 +44,7 @@ Our Beta-Binomial app has a single prior. To see how much the posterior depends 
 
 ## Prior, likelihood, & posterior
 
-As before, the plot shows a prior, likelihood, and posterior curve, now once for each prior. A helper function computes all three, with the likelihood scaled by `n + 1` so that it integrates to 1.
+As before, the plot shows a prior, likelihood, and posterior curve, now once for each prior. A helper function computes all three, with the likelihood scaled so that it integrates to 1.
 
 ::: {.xsmall}
 ```{r}
@@ -54,20 +54,24 @@ n_sim = 501
 beta_binom = function(label, a, b, x, n) {
   tibble(
     label = label,
-    p = seq(0, 1, length.out = n_sim),
+    p = (seq_len(n_sim) - 0.5) / n_sim,
     prior = dbeta(p, a, b),
     likelihood = dbinom(x, n, p) * (n + 1),
     posterior = dbeta(p, a + x, b + n - x)
   ) |>
     pivot_longer(
       prior:posterior,
-      names_to = "distribution", values_to = "density",
+      names_to = "distribution", 
+      values_to = "density",
       names_transform = fct_inorder
     )
 }
 ```
 :::
 
+::: {.aside}
+This helper is slightly inefficient as it recalculates the same likelihood for every prior but that cost is small for the increased simplicity of the code.
+:::
 
 ## Styling with CSS
 
@@ -92,8 +96,6 @@ ui = page_fillable(
 * `includeCSS()` reads the file and returns its contents in a `<style>` tag. The path is relative to the app's directory.
 
 * `tags$head()` moves that tag into the page's `<head>`, so it takes up no space in the layout.
-
-* The rules pick out elements by class. Most UI functions take a `class` argument, such as `card_body(class = "prior", ...)`.
 :::
 
 
@@ -119,7 +121,7 @@ prior_inputs = function(id) {
 ```
 :::
 
-`prior_inputs(2)` creates the inputs `a_2` and `b_2`. The server will not know the number ahead of time, so it cannot write `input$a_2` and has to build the name and use something like `input[[paste0("a_", id)]]`.
+`prior_inputs(2)` creates the inputs `a_2` and `b_2`. We will not know the number ahead of time, so we cannot write `input$a_2` instead we will perform look ups using something like `input[[paste0("a_", id)]]`.
 
 
 ## A first attempt with `renderUI()`
@@ -155,7 +157,7 @@ output$priors = renderUI({
 
 ## Reading the inputs
 
-The reactive builds each prior's ids and reads its inputs with `input[[...]]`. A new prior's inputs start as `NULL`, hence the `req()`.
+The reactive builds each prior's ids and reads its inputs with `input[[...]]`. The `req()` waits for the inputs to arrive and requires both Beta shape parameters to be strictly positive. Fractional values are allowed.
 
 ::: {.xsmall}
 ```{r}
@@ -166,7 +168,7 @@ d = reactive({
     \(id) {
       a = input[[paste0("a_", id)]]
       b = input[[paste0("b_", id)]]
-      req(a, b)
+      req(a > 0, b > 0)
 
       beta_binom(paste("Prior", id), a, b, input$x, input$n)
     }
@@ -179,13 +181,14 @@ d = reactive({
 
 ## The complete app {.scrollable}
 
-The full script is available as [`Lec23_app1.R`](notes/Lec23_app1.R).
-
+::: {.code-file .sourceCode .cell-code}
+`r fontawesome::fa("file")` &nbsp; [`Lec23_app1.R`](notes/Lec23_app1.R)
+:::
 ::: {.xsmall}
 ```{r app1}
 #| file: notes/Lec23_app1.R
 #| eval: false
-#| code-line-numbers: "|22-34|48-57|72-74|76-88|22-34,48-57,72-88"
+#| code-line-numbers: "|22-34|48-57|72-74|76-88"
 ```
 :::
 
@@ -194,15 +197,13 @@ The full script is available as [`Lec23_app1.R`](notes/Lec23_app1.R).
 
 The app runs, but it is frustrating to use.
 
-* `renderUI()` rebuilds its whole output every time it runs. 
+* `renderUI()` rebuilds its whole output every time it runs.
 
-  * Each click replaces all of the inputs, including the ones already on the page, 
-  
-  * so every prior is reset to new starting values.
+  * This version regenerates every prior's starting values whenever another prior is added.
 
 * The click count is the server's only record of what is on the page.
 
-* We can only add prior's we can't remove them
+* This version can add priors, but cannot remove them.
 
 What we need is a way to add or remove a single prior and leave the rest of the page alone.
 
@@ -210,7 +211,9 @@ What we need is a way to add or remove a single prior and leave the rest of the 
 
 ## `reactiveVal()` & `reactiveValues()`
 
-An input changes when the user changes it and a `reactive()` changes when it is recalculated. Neither can be set by our own server code, which is what these two are for.
+Inputs hold values received from the browser, and reactive expressions compute values. 
+
+`reactiveVal()` and `reactiveValues()` hold state that server code can change directly.
 
 :::: {.columns}
 ::: {.column width='50%' .xsmall}
@@ -235,13 +238,13 @@ rv$count = rv$count + 1
 ::::
 
 ::: {.medium}
-* `reactiveVal()` holds a single value. Calling it with no arguments reads the value and calling it with one argument replaces it.
+* `reactiveVal()` holds a single value. Calling it with no arguments reads the value and calling it with an argument replaces it.
 
-* `reactiveValues()` holds a named list of values that are read and set with `$`, in the same way as `input`.
+* `reactiveValues()` holds named values that are read and set with `$`. Unlike `input`, these values can be assigned directly.
 
 * Both behave like inputs. A reactive or observer that reads one depends on it, and setting a new value invalidates everything that has read it.
 
-* A value can be set from anywhere, but an observer is the right place. A `reactive()` or `render*()` function only runs when its result is needed, so a value set inside one may not change when we expect it to.
+* Change reactive state in an observer. Reactive expressions are lazy and outputs may be suspended while hidden, so a value set inside one may not change when we expect.
 :::
 
 
@@ -262,7 +265,7 @@ removeUI(selector = "#prior_1")
 :::
 
 ::: {.medium}
-* `selector` is a CSS selector, as used with `rvest` in `html_nodes()`.
+* `selector` is a CSS selector (like we used with `rvest`'s `html_elements()`).
 
 * `where` places the new UI relative to the selected element.
 
@@ -271,7 +274,7 @@ removeUI(selector = "#prior_1")
   * `beforeEnd` makes it the element's last child.
   * `afterEnd` puts it after the element.
 
-* Both are side effects, so they belong in an observer. They will run inside a `reactive()` or `render*()` function.
+* Both are side effects, so they belong in an observer.
 :::
 
 
@@ -293,7 +296,7 @@ card(
 ```
 :::
 
-::: {.column width='50%' .fragment}
+::: {.column width='50%'}
 ```{r}
 #| eval: false
 ids = reactiveVal(integer())
@@ -317,7 +320,7 @@ observe({
 
 * `ids` is the server's only record of which priors are on the page.
 
-* `bindEvent()` makes the observer run only when `input$add` changes (and not at startup). 
+* `bindEvent()` makes the observer depend only on `input$add` (and skip its initial value of zero).
 
   * Without it the observer would also depend on `ids()`.
 :::
@@ -325,7 +328,7 @@ observe({
 
 ## Removing a prior
 
-Each prior gets an id and a remove button,
+Each prior gets an id and a remove button.
 
 ::: {.xsmall}
 ```{r}
@@ -336,11 +339,13 @@ card_body(
   actionButton(paste0("remove_", id), NULL, icon = icon("xmark"))
 )
 ```
+:::
 
 . . .
 
-The remove button then needs an observer to make it functional,
+The remove button then needs an observer to make it functional. `once = TRUE` destroys the observer after it runs.
 
+::: {.xsmall}
 ```{r}
 #| eval: false
 observe({
@@ -351,12 +356,12 @@ observe({
 ```
 :::
 
-but where do we define this? The code for both parts needs to know what the current `id` is.
+Anyone see an issue? Where do we define this? 
 
 
 ## Adding & removing together
 
-The answer is the same - both steps need to occur in our `input$add` observer.
+Both steps need to occur in our `input$add` observer, which is the one place that knows the `id`.
 
 ::: {.xsmall}
 ```{r}
@@ -408,13 +413,14 @@ d = reactive({
 
 ## The complete app {.scrollable}
 
-The full script is available as [`Lec23_app2.R`](notes/Lec23_app2.R).
-
+::: {.code-file .sourceCode .cell-code}
+`r fontawesome::fa("file")` &nbsp; [`Lec23_app2.R`](notes/Lec23_app2.R)
+:::
 ::: {.xsmall}
 ```{r app2}
 #| file: notes/Lec23_app2.R
 #| eval: false
-#| code-line-numbers: "|24,34-37|55|77-91|95|24,34-37,55,77-91,95"
+#| code-line-numbers: "|24,34-37|55|77-91|95"
 
 ```
 :::
@@ -468,7 +474,7 @@ A module UI function wraps every input and output id in `ns()`. Leaving one out 
 
 ## Module UI
 
-By convention the function is named `*_ui()` and `id` is its first argument. Other arguments, like `label` here, are up to us.
+By convention the function is named `*_ui()` and `id` is its first argument. Other arguments, like `label` here, are optional.
 
 ::: {.xsmall}
 ```{r}
@@ -489,13 +495,15 @@ prior_ui = function(id, label) {
 
 ## Module server
 
+By convention the function is named `*_server()` and takes the same `id` as the UI function. The inner function is written just like an app's server function.
+
 ::: {.xsmall}
 ```{r}
 #| eval: false
 prior_server = function(id, label, x, n) {
   moduleServer(id, function(input, output, session) {
     reactive({
-      req(input$a, input$b)
+      req(input$a > 0, input$b > 0)
 
       beta_binom(label, input$a, input$b, x(), n())
     })
@@ -507,7 +515,7 @@ prior_server = function(id, label, x, n) {
 ::: {.medium}
 * The app's `input$x` is not visible here. Anything the module needs is passed in as a reactive and read as `x()`.
 
-* The inner function's value is returned to the caller.
+* `moduleServer()` returns the inner function's value, which can be anything. A module that only draws outputs returns nothing. One that computes values for the rest of the app returns a reactive, as here, or a list of reactives.
 :::
 
 
@@ -520,6 +528,7 @@ Call each function once per copy, with matching ids.
 #| eval: false
 ui = page_fillable(
   layout_columns(
+    ..., # Existing Data card with x and n inputs
     card(
       card_header("Priors"),
       prior_ui("prior_1", "Prior 1"),
@@ -568,6 +577,10 @@ d = reactive({
 ```
 :::
 
+::: {.medium}
+* `x` and `n` are wrapped in `reactive()` so the module sees the sliders' current values. Passing `input$x` would hand over only its value at the time of the click.
+:::
+
 
 ## A module that removes itself
 
@@ -594,19 +607,20 @@ moduleServer(id, function(input, output, session) {
 ::: {.medium}
 * `input$remove` is namespaced for us but a CSS selector is not. `session$ns()` is the module's own `NS()` function, which gives the full id of the card body.
 
-* Shiny cannot shut down a module's server. After removal its reactive stays in `priors()` and returns `NULL`, which `list_rbind()` drops.
+* Removing the UI does not stop the module's server. Here, its reactive remains in `priors()` and returns `NULL`, which `list_rbind()` drops.
 :::
 
 
 ## The complete app {.scrollable}
 
-The full script is available as [`Lec23_app3.R`](notes/Lec23_app3.R).
-
+::: {.code-file .sourceCode .cell-code}
+`r fontawesome::fa("file")` &nbsp; [`Lec23_app3.R`](notes/Lec23_app3.R)
+:::
 ::: {.xsmall}
 ```{r app3}
 #| file: notes/Lec23_app3.R
 #| eval: false
-#| code-line-numbers: "|22-35|37-54|92-102|104-107|22-54,92-107"
+#| code-line-numbers: "|22-35|37-54|92-102|104-107"
 ```
 :::
 
@@ -686,9 +700,9 @@ def _():
 :::
 
 ::: {.medium}
-* `set()` only invalidates when it is given a different object. Appending to the list in place would change nothing, so we build a new list.
+* `set()` only invalidates when given a different object. Appending in place changes the list but does not invalidate its reactive dependents, so we build a new list.
 
-* `ui.insert_ui()` and `ui.remove_ui()` take the same `selector` and `where` arguments as the R functions.
+* Both `ui.insert_ui()` and `ui.remove_ui()` use `selector` to identify an element. `ui.insert_ui()` also uses `where` to position the new UI relative to it.
 :::
 
 
@@ -711,6 +725,7 @@ def prior_server(input, output, session, label, x, n):
     @reactive.calc
     def d():
         req(input.a(), input.b())
+        req(input.a() > 0, input.b() > 0)
         return beta_binom(label, input.a(), input.b(), x(), n())
 
     return d
@@ -718,21 +733,24 @@ def prior_server(input, output, session, label, x, n):
 :::
 
 ::: {.medium}
-* The decorators add `id` as the first argument of both functions. Input and output ids inside `@module.ui` are namespaced for us, with no `ns()` calls.
+* The decorators add `id` as the first argument of both functions and namespace the input and output ids for us.
 
 * Any other id still has to be namespaced by hand, with `module.resolve_id()` in the UI and `session.ns()` in the server.
+
+* An empty input is `None`, so the first `req()` guards the comparison.
 :::
 
 
 ## The complete app {.scrollable}
 
-The full script is available as [`Lec23_app.py`](notes/Lec23_app.py).
-
+::: {.code-file .sourceCode .cell-code}
+`r fontawesome::fa("file")` &nbsp; [`Lec23_app.py`](notes/Lec23_app.py)
+:::
 ::: {.xsmall}
 ```{python app-py}
 #| file: notes/Lec23_app.py
 #| eval: false
-#| code-line-numbers: "|26-34|37-55|93-103|105-110|26-55,93-110"
+#| code-line-numbers: "|26-34|37-56|94-104|106-111"
 ```
 :::
 
@@ -742,7 +760,7 @@ The full script is available as [`Lec23_app.py`](notes/Lec23_app.py).
 ## Takeaways {visibility="uncounted"}
 
 ::: {.medium}
-* `renderUI()` rebuilds everything it returns, which resets any inputs it contains. `insertUI()` and `removeUI()` change one piece of the page and leave the rest alone.
+* `renderUI()` rebuilds its whole output, and the inputs in it keep their values only if we write code to restore them. `insertUI()` and `removeUI()` change one piece of the page and leave the rest alone.
 
 * UI that is added while the app runs needs unique ids and a record on the server of what currently exists, typically kept in a `reactiveVal()`. Inputs with generated ids are read with `input[[id]]`.
 
@@ -759,7 +777,7 @@ The full script is available as [`Lec23_app.py`](notes/Lec23_app.py).
 ## Learning more {visibility="uncounted"}
 
 ::: {.medium}
-- [Mastering Shiny - Dynamic UI](https://mastering-shiny.org/action-dynamic.html), including `insertUI()` and `removeUI()`
+- [Mastering Shiny - Dynamic UI](https://mastering-shiny.org/action-dynamic.html)
 - [Mastering Shiny - Shiny modules](https://mastering-shiny.org/scaling-modules.html), with many more examples of module inputs and outputs
 - [Modularizing Shiny app code](https://shiny.posit.co/r/articles/improve/modules/) from the Shiny documentation
 - Reference pages for [`insertUI()`](https://shiny.posit.co/r/reference/shiny/latest/insertui.html), [`moduleServer()`](https://shiny.posit.co/r/reference/shiny/latest/moduleserver.html), and [`NS()`](https://shiny.posit.co/r/reference/shiny/latest/ns.html)

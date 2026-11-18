@@ -7,7 +7,7 @@ n_sim = 501
 beta_binom = function(label, a, b, x, n) {
   tibble(
     label = label,
-    p = seq(0, 1, length.out = n_sim),
+    p = (seq_len(n_sim) - 0.5) / n_sim,
     prior = dbeta(p, a, b),
     likelihood = dbinom(x, n, p) * (n + 1),
     posterior = dbeta(p, a + x, b + n - x)
@@ -46,7 +46,7 @@ prior_server = function(id, label, x, n) {
 
     reactive({
       if (removed()) return(NULL)
-      req(input$a, input$b)
+      req(input$a > 0, input$b > 0)
 
       beta_binom(label, input$a, input$b, x(), n())
     })

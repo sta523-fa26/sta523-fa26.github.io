@@ -139,9 +139,11 @@ blockquote > p {
   margin-bottom: 0.5em;
 }
 
-.reveal .code-file {
+// div.sourceCode above sets its own !important bottom margin, so this needs
+// the extra class to win and sit flush on the code block below.
+.reveal div.code-file.sourceCode {
   background-color: #ECECEC;
-  margin-bottom: 2px !important;
+  margin-bottom: 0 !important;
 }
 
 .reveal .code-file p {
@@ -218,6 +220,26 @@ $lang-duckdb-bg: #fff4ec;
   border-left-color: $lang-duckdb;
   background-color: $lang-duckdb-bg;
   &::before { content: "DuckDB"; background: $lang-duckdb; color: white; }
+}
+
+// A .code-file label takes the strip color of the code block that follows it.
+// The facing borders and rounded corners are dropped so the strip is unbroken.
+.reveal div.code-file {
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+  + div div.sourceCode {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  &:has(+ div pre.sourceCode.r) { border-left-color: $lang-r; }
+  &:has(+ div pre.sourceCode.python) { border-left-color: $lang-py; }
+  &:has(+ div pre.sourceCode.bash) { border-left-color: $lang-sh; }
+  &:has(+ div pre.sourceCode.sql) { border-left-color: $lang-sql; }
+  &:has(+ div pre.sourceCode.duckdb-cli) { border-left-color: $lang-duckdb; }
 }
 
 // Quarto draws the copy icon in the badge's corner when a code block is

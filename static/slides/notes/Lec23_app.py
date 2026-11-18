@@ -13,7 +13,7 @@ dist_colors = {"prior": "#dc3545", "likelihood": "#198754", "posterior": "#0d6ef
 
 def beta_binom(label, a, b, x, n):
     return (
-        pd.DataFrame({"label": label, "p": np.linspace(0, 1, n_sim)})
+        pd.DataFrame({"label": label, "p": (np.arange(n_sim) + 0.5) / n_sim})
         .assign(
             prior=lambda df: stats.beta.pdf(df.p, a, b),
             likelihood=lambda df: stats.beta.pdf(df.p, x + 1, n - x + 1),
@@ -49,6 +49,7 @@ def prior_server(input, output, session, label, x, n):
         if removed():
             return None
         req(input.a(), input.b())
+        req(input.a() > 0, input.b() > 0)
 
         return beta_binom(label, input.a(), input.b(), x(), n())
 

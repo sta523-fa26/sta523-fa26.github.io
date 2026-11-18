@@ -87,6 +87,20 @@ Note: When a `#` section header introduces a package that has a hex sticker in `
 ![](imgs/hex-tibble.png){fig-align="center" width="32%"}
 ```
 
+Note: When a slide shows the contents of a file (a script, app, Dockerfile, config, ...), pull the code in with the `file` chunk option and put a `.code-file` header bar directly above the chunk, with no blank line between the two divs, so it is clear the code comes from a file. If the file is published with the site (e.g. under `notes/`), make the filename a link to it. Do not add a separate "The full script is available as ..." sentence.
+
+````
+::: {.code-file .sourceCode .cell-code}
+`r fontawesome::fa("file")` &nbsp; [`Lec23_app1.R`](notes/Lec23_app1.R)
+:::
+::: {.xsmall}
+```{r}
+#| file: notes/Lec23_app1.R
+#| eval: false
+```
+:::
+````
+
 ## Embedding bslib / htmltools output in slides
 
 Bootstrap components cannot be rendered directly inside a reveal.js slide, so `bslib` cards, value boxes, layouts, and other htmltools or htmlwidget output are shown through iframes using the `tagframe` package, which lives outside this repo at `~/Desktop/Projects/tagframe` (install with `R CMD INSTALL ~/Desktop/Projects/tagframe`). Loading it in the setup chunk (`library(tagframe)`) registers a `{bslib}` chunk engine (alias of `{tagframe}`): the chunk's last expression must be a tag, tag list, or widget, which is wrapped in `bslib::page()` and embedded as a self-contained iframe (`srcdoc`, dependencies inlined once per deck). Chunk options are `height`, `width`, `theme`, and `title`; `anim_width()` / `anim_height()` animate a tag's size for responsive layout demos. Nothing is written next to the deck, so there is no sidecar folder to publish. See its README for details.

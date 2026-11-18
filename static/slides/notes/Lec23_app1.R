@@ -7,7 +7,7 @@ n_sim = 501
 beta_binom = function(label, a, b, x, n) {
   tibble(
     label = label,
-    p = seq(0, 1, length.out = n_sim),
+    p = (seq_len(n_sim) - 0.5) / n_sim,
     prior = dbeta(p, a, b),
     likelihood = dbinom(x, n, p) * (n + 1),
     posterior = dbeta(p, a + x, b + n - x)
@@ -79,7 +79,7 @@ server = function(input, output, session) {
       \(id) {
         a = input[[paste0("a_", id)]]
         b = input[[paste0("b_", id)]]
-        req(a, b)
+        req(a > 0, b > 0)
 
         beta_binom(paste("Prior", id), a, b, input$x, input$n)
       }
