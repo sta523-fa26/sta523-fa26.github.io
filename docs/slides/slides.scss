@@ -40,6 +40,14 @@ details>summary {
   font-size: 5em;
 }
 
+.mgiant {
+  font-size: 3em;
+}
+
+.msgiant {
+  font-size: 2.5em;
+}
+
 
 .giant {
   font-size: 2em;
@@ -124,7 +132,8 @@ blockquote > p {
   max-height: 520px !important;
 }
 
-.reveal .wrap-output .cell-output pre code {
+.reveal .wrap-output .cell-output pre code,
+.reveal .wrap-code pre code {
   text-wrap-mode: wrap !important;
   white-space-collapse: preserve;
   overflow-wrap: anywhere;
@@ -171,6 +180,8 @@ $lang-sql: #8e44ad;
 $lang-sql-bg: #f6effa;
 $lang-duckdb: #ff6900;   // DuckDB Hot Orange, see duckdb.org/design/manual
 $lang-duckdb-bg: #fff4ec;
+$lang-md: #343a40;
+$lang-md-bg: #f4f5f6;
 
 .reveal div.sourceCode {
   position: relative;
@@ -222,6 +233,12 @@ $lang-duckdb-bg: #fff4ec;
   &::before { content: "DuckDB"; background: $lang-duckdb; color: white; }
 }
 
+.reveal div.sourceCode:has(> pre.sourceCode.md) {
+  border-left-color: $lang-md;
+  background-color: $lang-md-bg;
+  &::before { content: "md"; background: $lang-md; color: white; }
+}
+
 // A .code-file label takes the strip color of the code block that follows it.
 // The facing borders and rounded corners are dropped so the strip is unbroken.
 .reveal div.code-file {
@@ -240,6 +257,7 @@ $lang-duckdb-bg: #fff4ec;
   &:has(+ div pre.sourceCode.bash) { border-left-color: $lang-sh; }
   &:has(+ div pre.sourceCode.sql) { border-left-color: $lang-sql; }
   &:has(+ div pre.sourceCode.duckdb-cli) { border-left-color: $lang-duckdb; }
+  &:has(+ div pre.sourceCode.md) { border-left-color: $lang-md; }
 }
 
 // Quarto draws the copy icon in the badge's corner when a code block is

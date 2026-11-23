@@ -442,11 +442,25 @@ schedule:
 
 - week: 14
   day: 1
-  topic: ""
-  lecture: "<i>TBD</i>"
-  slides: ""
-  r_readings: []
-  py_readings: []
+  topic: "LLMs"
+  lecture: "LLMs, tools, & agents"
+  slides: "Lec24"
+  r_readings:
+    - text: "ellmer - Getting started"
+      link: https://ellmer.tidyverse.org/articles/ellmer.html
+    - text: "ellmer - Tool calling"
+      link: https://ellmer.tidyverse.org/articles/tool-calling.html
+    - text: "ellmer - Prompt design"
+      link: https://ellmer.tidyverse.org/articles/prompt-design.html
+    - text: "A no bullshit guide to LLMs"
+      link: https://www.youtube.com/watch?v=ctc2kx3LxG8&t=18m17s
+  py_readings:
+    - text: "chatlas - Chat basics"
+      link: https://posit-dev.github.io/chatlas/get-started/chat.html
+    - text: "chatlas - System prompts"
+      link: https://posit-dev.github.io/chatlas/get-started/system-prompt.html
+    - text: "chatlas - Tool calling"
+      link: https://posit-dev.github.io/chatlas/get-started/tools.html
 
 - week: 14
   day: 3
